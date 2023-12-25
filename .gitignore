@@ -58,3 +58,5 @@ src/optabgen.dSYM/
 
 # Generated
 /generated
+
+compile_commands.json
