@@ -15,10 +15,6 @@
 #include        <stdlib.h>
 #include        <time.h>
 
-#if __sun || _MSC_VER
-#include        <alloca.h>
-#endif
-
 #include        "cc.h"
 #include        "el.h"
 #include        "oper.h"
@@ -1259,7 +1255,7 @@ code *getlvalue(code *pcs,elem *e,regm_t keepmsk)
     case FLextern:
         if (s->Sident[0] == '_' && memcmp(s->Sident + 1,"tls_array",10) == 0)
         {
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
             // Rewrite as GS:[0000], or FS:[0000] for 64 bit
             if (I64)
             {
@@ -1278,21 +1274,6 @@ code *getlvalue(code *pcs,elem *e,regm_t keepmsk)
                 pcs->Iflags = CFgs;
             }
             break;
-#elif TARGET_WINDOS
-            if (I64)
-            {   // GS:[88]
-                pcs->Irm = modregrm(0, 0, 4);
-                pcs->Isib = modregrm(0, 4, 5);  // don't use [RIP] addressing
-                pcs->IFL1 = FLconst;
-                pcs->IEV1.Vuns = 88;
-                pcs->Iflags = CFgs;
-                pcs->Irex |= REX_W;
-                break;
-            }
-            else
-            {
-                pcs->Iflags |= CFfs;    // add FS: override
-            }
 #endif
         }
         if (s->ty() & mTYcs && LARGECODE)
@@ -1303,7 +1284,7 @@ code *getlvalue(code *pcs,elem *e,regm_t keepmsk)
     case FLcsdata:
     case FLgot:
     case FLgotoff:
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     case FLtlsdata:
 #endif
     L3:
@@ -3264,13 +3245,6 @@ STATIC code * funccall(elem *e,unsigned numpara,unsigned numalign,
     //printf("funccall(e = %p, *pretregs = %s, numpara = %d, numalign = %d)\n",e,regm_str(*pretregs),numpara,numalign);
     calledafunc = 1;
     /* Determine if we need frame for function prolog/epilog    */
-#if TARGET_WINDOS
-    if (config.memmodel == Vmodel)
-    {
-        if (tyfarfunc(funcsym_p->ty()))
-            needframe = TRUE;
-    }
-#endif
     e1 = e->E1;
     tym1 = tybasic(e1->Ety);
     farfunc = tyfarfunc(tym1) || tym1 == TYifunc;
@@ -3352,7 +3326,7 @@ STATIC code * funccall(elem *e,unsigned numpara,unsigned numalign,
             if (tym1 == TYifunc)
                 c1 = gen1(c1,0x9C);                             // PUSHF
             ce = CNIL;
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
             if (s != tls_get_addr_sym)
             {
                 //printf("call %s\n", s->Sident);
@@ -3361,7 +3335,7 @@ STATIC code * funccall(elem *e,unsigned numpara,unsigned numalign,
 #endif
             ce = gencs(ce,farfunc ? 0x9A : 0xE8,0,fl,s);      // CALL extern
             code_orflag(ce, farfunc ? (CFseg | CFoff) : (CFselfrel | CFoff));
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
             if (s == tls_get_addr_sym)
             {
                 if (I64)
@@ -3390,7 +3364,7 @@ STATIC code * funccall(elem *e,unsigned numpara,unsigned numalign,
         tym_t e11ty = tybasic(e11->Ety);
         assert(!I16 || (e11ty == (farfunc ? TYfptr : TYnptr)));
         c = cat(c, load_localgot());
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         if (config.flags3 & CFG3pic && I32)
             keepmsk |= mBX;
 #endif
@@ -4508,16 +4482,6 @@ code *loaddata(elem *e,regm_t *pretregs)
                 code_orrex(ce, REX_W);
                 c = cat(c,ce);
             }
-
-#if TARGET_OSX
-            else if (e->Eoper == OPvar && movOnly(e))
-            {   c = allocreg(&regm,&reg,TYoffset);      /* get a register */
-                ce = loadea(e,&cs,0x8B,reg,0,0,0);      // MOV reg,data
-                c = cat(c,ce);
-                ce = fixresult(e,regm,pretregs);
-                c = cat(c,ce);
-            }
-#endif
             else
             {   cs.IFL2 = FLconst;
                 cs.IEV2.Vsize_t = 0;
@@ -4734,10 +4698,6 @@ code *loaddata(elem *e,regm_t *pretregs)
         }
 #endif
         int op = 0x8A;                                  // byte MOV
-#if TARGET_OSX
-        if (movOnly(e))
-            op = 0x8B;
-#endif
         assert(forregs & BYTEREGS);
         if (!I16)
         {

@@ -14,25 +14,13 @@
 #include <string.h>
 #include <assert.h>
 
-#if _WIN32
-#include <tchar.h>
-#include <io.h>
-#endif
-
-#if __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if __linux__
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
 #include <utime.h>
-#endif
-
-#if _MSC_VER
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <errno.h>
 #endif
 
 #include "file.h"

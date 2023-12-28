@@ -230,14 +230,7 @@ void obj_start(char *srcfile)
     rtlsym_reset();
     clearStringTab();
 
-#if TARGET_WINDOS
-    // Produce Ms COFF files for 64 bit code, OMF for 32 bit code
-    assert(objbuf.size() == 0);
-    objmod = global.params.mscoff ? MsCoffObj::init(&objbuf, srcfile, NULL)
-                                  :       Obj::init(&objbuf, srcfile, NULL);
-#else
     objmod = Obj::init(&objbuf, srcfile, NULL);
-#endif
 
     el_reset();
     cg87_reset();
@@ -799,11 +792,8 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
     if (fd->isVirtual() && (fd->fensure || fd->frequire))
         f->Fflags3 |= Ffakeeh;
 
-#if TARGET_OSX
-    s->Sclass = SCcomdat;
-#else
     s->Sclass = SCglobal;
-#endif
+
     for (Dsymbol *p = fd->parent; p; p = p->parent)
     {
         if (p->isTemplateInstance())
@@ -842,7 +832,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
         // Pull in RTL startup code (but only once)
         if (fd->isMain() && onlyOneMain(fd->loc))
         {
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
             objmod->external_def("_main");
             objmod->ehsections();   // initialize exception handling sections
 #endif
@@ -873,42 +863,6 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
             }
             s->Sclass = SCglobal;
         }
-#if TARGET_WINDOS
-        else if (fd->isWinMain() && onlyOneMain(fd->loc))
-        {
-            if (global.params.mscoff)
-            {
-                objmod->includelib("uuid");
-                objmod->includelib("LIBCMT");
-                objmod->includelib("OLDNAMES");
-                objmod->ehsections();   // initialize exception handling sections
-            }
-            else
-            {
-                objmod->external_def("__acrtused");
-            }
-            objmod->includelib(libname);
-            s->Sclass = SCglobal;
-        }
-
-        // Pull in RTL startup code
-        else if (fd->isDllMain() && onlyOneMain(fd->loc))
-        {
-            if (global.params.mscoff)
-            {
-                objmod->includelib("uuid");
-                objmod->includelib("LIBCMT");
-                objmod->includelib("OLDNAMES");
-                objmod->ehsections();   // initialize exception handling sections
-            }
-            else
-            {
-                objmod->external_def("__acrtused_dll");
-            }
-            objmod->includelib(libname);
-            s->Sclass = SCglobal;
-        }
-#endif
         else if (fd->ident == Id::tls_get_addr && fd->linkage == LINKd)
         {
             // TODO: Change linkage in druntime to extern(C).
@@ -1280,7 +1234,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
         }
     }
 
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     // A hack to get a pointer to this function put in the .dtors segment
     if (fd->ident && memcmp(fd->ident->toChars(), "_STD", 4) == 0)
         objmod->staticdtor(s);
@@ -1344,7 +1298,7 @@ unsigned totym(Type *tx)
         case Tbool:     t = TYbool;     break;
         case Tchar:     t = TYchar;     break;
         case Twchar:    t = TYwchar_t;  break;
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         case Tdchar:    t = TYdchar;    break;
 #else
         case Tdchar:
@@ -1441,7 +1395,7 @@ unsigned totym(Type *tx)
                 case LINKobjc:
                 Lc:
                     t = TYnfunc;
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
                     if (I32 && retStyle(tf, false) == RETstack)
                         t = TYhfunc;
 #endif

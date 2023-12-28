@@ -100,12 +100,8 @@ struct Outbuffer
      */
     void writeWordn(int v)
     {
-#if _WIN32
-        *(unsigned short *)p = v;
-#else
         p[0] = v;
         p[1] = v >> 8;
-#endif
         p += 2;
     }
 

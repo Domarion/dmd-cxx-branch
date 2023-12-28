@@ -15,10 +15,6 @@
 #include        <stdlib.h>
 #include        <time.h>
 
-#if __sun || _MSC_VER
-#include        <alloca.h>
-#endif
-
 #include        "cc.h"
 #include        "el.h"
 #include        "oper.h"
@@ -177,10 +173,6 @@ tryagain:
 #endif
 
     usednteh = 0;
-#if (MARS) && TARGET_WINDOS
-    if (funcsym_p->Sfunc->Fflags3 & Fjmonitor)
-        usednteh |= NTEHjmonitor;
-#else
     if (CPP)
     {
         if (config.exe == EX_WIN32 &&
@@ -188,7 +180,6 @@ tryagain:
             usednteh |= NTEHexcspec;
         except_reset();
     }
-#endif
 
     // Set on a trial basis, turning it off if anything might throw
     funcsym_p->Sfunc->Fflags3 |= Fnothrow;
@@ -519,11 +510,6 @@ tryagain:
         /* Instead, try offset to cleanup code  */
         objmod->linnum(funcsym_p->Sfunc->Fendline,funcoffset + retoffset);
 
-#if TARGET_WINDOS && MARS
-    if (config.exe == EX_WIN64)
-        win64_pdata(funcsym_p);
-#endif
-
 #if MARS
     if (usednteh & NTEH_try)
     {
@@ -725,10 +711,6 @@ Lagain:
 #if NTEXCEPTIONS == 2
     Fast.size -= nteh_contextsym_size();
 #if MARS
-#if TARGET_WINDOS
-    if (funcsym_p->Sfunc->Fflags3 & Ffakeeh && nteh_contextsym_size() == 0)
-        Fast.size -= 5 * 4;
-#endif
 #endif
 #endif
 
@@ -2487,7 +2469,7 @@ reload:                                 /* reload result from memory    */
         case OPrelconst:
             c = cdrelconst(e,pretregs);
             break;
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         case OPgot:
             c = cdgot(e,pretregs);
             break;

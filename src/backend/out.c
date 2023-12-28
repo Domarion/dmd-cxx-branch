@@ -102,13 +102,6 @@ void outdata(symbol *s)
 
     dt_t *dtstart = s->Sdt;
     s->Sdt = NULL;                      // it will be free'd
-#if SCPP && TARGET_WINDOS
-    if (eecontext.EEcompile)
-    {   s->Sfl = (s->ty() & mTYfar) ? FLfardata : FLextern;
-        s->Sseg = UNKNOWN;
-        goto Lret;                      // don't output any data
-    }
-#endif
     datasize = 0;
     ty = s->ty();
     if (ty & mTYexport && config.wflags & WFexpdef && s->Sclass != SCstatic)
@@ -350,7 +343,7 @@ void outdata(symbol *s)
                 if (tybasic(dt->Dty) == TYcptr)
                     objmod->reftocodeseg(seg,offset,dt->DTabytes);
                 else
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
                     objmod->reftodatseg(seg,offset,dt->DTabytes,dt->DTseg,flags);
 #else
                 /*else*/ if (dt->DTseg == DATA)
@@ -908,10 +901,6 @@ STATIC void writefunc2(symbol *sfunc)
             scvtbl = (enum SC) ((config.flags2 & CFG2comdat) ? SCcomdat : SCglobal);
             n2_genvtbl(stag,scvtbl,1);
             n2_genvbtbl(stag,scvtbl,1);
-#if SYMDEB_CODEVIEW
-            if (config.fulltypes == CV4)
-                cv4_struct(stag,2);
-#endif
         }
     }
     }
@@ -1169,7 +1158,7 @@ STATIC void writefunc2(symbol *sfunc)
         else
             if (config.flags & CFGsegs) // if user set switch for this
             {
-#if SCPP || TARGET_WINDOS
+#if SCPP
                 objmod->codeseg(cpp_mangle(funcsym_p),1);
 #else
                 objmod->codeseg(funcsym_p->Sident, 1);
@@ -1201,74 +1190,6 @@ STATIC void writefunc2(symbol *sfunc)
             assert(sfunc->Sseg == cseg);
             objmod->pubdef(sfunc->Sseg,sfunc,sfunc->Soffset);       // make a public definition
         }
-
-#if SCPP && _WIN32
-        char *id;
-        // Determine which startup code to reference
-        if (!CPP || !isclassmember(sfunc))              // if not member function
-        {   static char *startup[] =
-            {   "__acrtused","__acrtused_winc","__acrtused_dll",
-                "__acrtused_con","__wacrtused","__wacrtused_con",
-            };
-            int i;
-
-            id = sfunc->Sident;
-            switch (id[0])
-            {
-                case 'D': if (strcmp(id,"DllMain"))
-                                break;
-                          if (config.exe == EX_WIN32)
-                          {     i = 2;
-                                goto L2;
-                          }
-                          break;
-
-                case 'm': if (strcmp(id,"main"))
-                                break;
-                          if (config.exe == EX_WIN32)
-                                i = 3;
-                          else if (config.wflags & WFwindows)
-                                i = 1;
-                          else
-                                i = 0;
-                          goto L2;
-
-                case 'w': if (strcmp(id,"wmain") == 0)
-                          {
-                                if (config.exe == EX_WIN32)
-                                {   i = 5;
-                                    goto L2;
-                                }
-                                break;
-                          }
-                case 'W': if (stricmp(id,"WinMain") == 0)
-                          {
-                                i = 0;
-                                goto L2;
-                          }
-                          if (stricmp(id,"wWinMain") == 0)
-                          {
-                                if (config.exe == EX_WIN32)
-                                {   i = 4;
-                                    goto L2;
-                                }
-                          }
-                          break;
-
-                case 'L':
-                case 'l': if (stricmp(id,"LibMain"))
-                                break;
-                          if (config.exe != EX_WIN32 && config.wflags & WFwindows)
-                          {     i = 2;
-                                goto L2;
-                          }
-                          break;
-
-                L2:     objmod->external_def(startup[i]);          // pull in startup code
-                        break;
-            }
-        }
-#endif
     }
     if (config.wflags & WFexpdef &&
         sfunc->Sclass != SCstatic &&

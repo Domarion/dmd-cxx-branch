@@ -15,10 +15,6 @@
 #include        <string.h>
 #include        <stdlib.h>
 
-#if __sun
-#include        <alloca.h>
-#endif
-
 #include        "cc.h"
 #include        "global.h"
 #include        "code.h"
@@ -43,12 +39,6 @@
 #ifndef ELFOSABI
 # if TARGET_LINUX
 #  define ELFOSABI ELFOSABI_LINUX
-# elif TARGET_FREEBSD
-#  define ELFOSABI ELFOSABI_FREEBSD
-# elif TARGET_SOLARIS
-#  define ELFOSABI ELFOSABI_SYSV
-# elif TARGET_OPENBSD
-#  define ELFOSABI ELFOSABI_OPENBSD
 # else
 #  error "No ELF OS ABI defined.  Please fix"
 # endif
@@ -75,7 +65,7 @@ char *obj_mangle2(Symbol *s,char *dest);
  * If set the compiler requires full druntime support of the new
  * section registration.
  */
-#define REQUIRE_DSO_REGISTRY (DMDV2 && (TARGET_LINUX || TARGET_FREEBSD))
+#define REQUIRE_DSO_REGISTRY (DMDV2 && TARGET_LINUX)
 
 /***************************************************
  * Correspondence of relocation types
@@ -2024,7 +2014,7 @@ char *obj_mangle2(Symbol *s,char *dest)
             }
             break;
         case mTYman_std:
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
             if (tyfunc(s->ty()) && !variadic(s->Stype))
 #else
             if (!(config.flags4 & CFG4oldstdmangle) &&

@@ -208,9 +208,6 @@ extern  LocalSection Fast;
 extern  LocalSection Auto;
 extern  LocalSection EEStack;
 extern  LocalSection Alloca;
-#if TARGET_OSX
-extern  targ_size_t localgotoffset;
-#endif
 
 /* cgcod.c */
 extern int pass;
@@ -298,9 +295,6 @@ code *loaddata (elem *e , regm_t *pretregs );
 /* cod2.c */
 int movOnly(elem *e);
 regm_t idxregm(code *c);
-#if TARGET_WINDOS
-code *opdouble (elem *e , regm_t *pretregs , unsigned clib );
-#endif
 cd_t cdorth;
 cd_t cdmul;
 cd_t cdnot;
@@ -312,7 +306,7 @@ void WRcodlst (code *c );
 cd_t cdcomma;
 cd_t cdloglog;
 cd_t cdshift;
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
 cd_t cdindpic;
 #endif
 cd_t cdind;

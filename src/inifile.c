@@ -14,19 +14,6 @@
 #include        <stdlib.h>
 #include        <ctype.h>
 
-#if _WIN32
-#include <windows.h>
-#endif
-
-#if __APPLE__
-#include        <sys/syslimits.h>
-#endif
-
-#if __FreeBSD__ || __OpenBSD__ || __sun
-// for PATH_MAX
-#include        <limits.h>
-#endif
-
 #include        "root.h"
 #include        "rmem.h"
 #include        "port.h"
@@ -67,21 +54,11 @@ const char *findConfFile(const char *argv0, const char *inifile)
     if (FileName::exists(filename))
         return filename;
 
-#if _WIN32 // This fix by Tim Matthews
-    char resolved_name[MAX_PATH + 1];
-    if (GetModuleFileNameA(NULL, resolved_name, MAX_PATH + 1) && FileName::exists(resolved_name))
-    {
-        filename = FileName::replaceName(resolved_name, inifile);
-        if (FileName::exists(filename))
-            return filename;
-    }
-#endif
-
     filename = FileName::replaceName(argv0, inifile);
     if (FileName::exists(filename))
         return filename;
 
-#if __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if __linux__
     // Search PATH for argv0
     const char *p = getenv("PATH");
 #if LOG
@@ -111,7 +88,7 @@ const char *findConfFile(const char *argv0, const char *inifile)
 #endif
     assert(SYSCONFDIR != NULL && strlen(SYSCONFDIR));
     filename = FileName::combine(SYSCONFDIR, inifile);
-#endif // __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#endif // __linux__
 
     return filename;
 }

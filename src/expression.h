@@ -1621,10 +1621,6 @@ private:
     // Ensure that the union is suitably aligned.
 #if defined(__GNUC__) || defined(__clang__)
     __attribute__((aligned(8)))
-#elif defined(_MSC_VER)
-    __declspec(align(8))
-#elif defined(__DMC__)
-    #pragma pack(8)
 #endif
     union
     {

@@ -13,14 +13,8 @@
 
 #include "dsystem.h" // for alloca
 
-#if _MSC_VER
-typedef __int64 longlong;
-typedef unsigned __int64 ulonglong;
-#else
 typedef long long longlong;
 typedef unsigned long long ulonglong;
-#endif
-
 typedef unsigned char utf8_t;
 
 struct Port

@@ -46,7 +46,6 @@ STATIC void pinholeopt_unittest();
 #define JMPOFF  Doffset
 #endif
 
-//#define JMPJMPTABLE   TARGET_WINDOS
 #define JMPJMPTABLE     0               // benchmarking shows its slower
 
 /*************
@@ -343,12 +342,7 @@ void cod3_set32()
 
     for (unsigned i = 0x80; i < 0x90; i++)
         inssize2[i] = W|T|6;
-
-#if TARGET_OSX
-    STACKALIGN = 16;   // 16 for OSX because OSX uses SIMD
-#else
     STACKALIGN = 4;
-#endif
 }
 
 /********************************
@@ -363,11 +357,8 @@ void cod3_set64()
     inssize[0xA3] = T|5;                // MOV mem,RAX
     BPRM = 5;                           // [RBP] addressing mode
 
-#if TARGET_WINDOS
-    fregsaved = mBP | mBX | mDI | mSI | mR12 | mR13 | mR14 | mR15 | mES | mXMM6 | mXMM7; // also XMM8..15;
-#else
     fregsaved = mBP | mBX | mR12 | mR13 | mR14 | mR15 | mES;      // saved across function calls
-#endif
+
     FLOATREGS = FLOATREGS_64;
     FLOATREGS2 = FLOATREGS2_64;
     DOUBLEREGS = DOUBLEREGS_64;
@@ -437,24 +428,8 @@ void cod3_align_bytes(size_t nbytes)
 void cod3_align()
 {
     unsigned nbytes;
-#if TARGET_WINDOS
-    if (config.flags4 & CFG4speed)      // if optimized for speed
-    {
-        // Pick alignment based on CPU target
-        if (config.target_cpu == TARGET_80486 ||
-            config.target_cpu >= TARGET_PentiumPro)
-        {   // 486 does reads on 16 byte boundaries, so if we are near
-            // such a boundary, align us to it
-
-            nbytes = -Coffset & 15;
-            if (nbytes < 8)
-                cod3_align_bytes(nbytes);
-        }
-    }
-#else
     nbytes = -Coffset & 7;
     cod3_align_bytes(nbytes);
-#endif
 }
 
 code* cod3_stackadj(code* c, int nbytes)
@@ -616,7 +591,7 @@ regm_t regmask(tym_t tym, tym_t tyf)
             return mST0;
 
         case TYcfloat:
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
             if (I32 && tybasic(tyf) == TYnfunc)
                 return mDX | mAX;
 #endif
@@ -846,9 +821,6 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
                     c = cat(c,nteh_unwind(0,toindex));
 #if MARS
                 else if (
-#if TARGET_WINDOS
-                         config.exe == EX_WIN64 &&
-#endif
                          toindex + 1 <= fromindex)
                 {
                     //c = cat(c, linux_unwind(0, toindex));
@@ -1377,7 +1349,7 @@ void doswitch(block *b)
         regm_t retregs = IDXREGS;
         if (dword)
             retregs |= mMSW;
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         if (I32 && config.flags3 & CFG3pic)
             retregs &= ~mBX;                            // need EBX for GOT
 #endif
@@ -1489,22 +1461,6 @@ void doswitch(block *b)
             ce = cat(ce, ctable);
             b->Btablesize = 0;
             goto L2;
-#elif TARGET_OSX
-            /*     CALL L1
-             * L1: POP  R1
-             *     ADD  R1,disp[reg*4][R1]
-             *     JMP  R1
-             */
-            // Allocate scratch register r1
-            regm_t scratchm = ALLREGS & ~mask[reg];
-            unsigned r1;
-            c = cat(c, allocreg(&scratchm,&r1,TYint));
-
-            c = genc2(c,CALL,0,0);                               //     CALL L1
-            gen1(c, 0x58 + r1);                                  // L1: POP R1
-            ce = genc1(CNIL,0x03,modregrm(2,r1,4),FLswitch,0);   // ADD R1,disp[reg*4][EBX]
-            ce->Isib = modregrm(2,reg,r1);
-            gen2(ce,0xFF,modregrm(3,4,r1));                      // JMP R1
 #else
             if (config.flags3 & CFG3pic)
             {
@@ -1571,7 +1527,7 @@ void doswitch(block *b)
             genjmp(c,JNE,FLblock,b->nthSucc(0)); // JNE default
         }
         ce = getregs(mCX|mDI);
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         if (config.flags3 & CFG3pic)
         {   // Add in GOT
             code *cx;
@@ -1651,7 +1607,7 @@ void doswitch(block *b)
         mod = (disp > 127) ? 2 : 1;     /* 1 or 2 byte displacement     */
         if (csseg)
             gen1(ce,SEGCS);             // table is in code segment
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         if (config.flags3 & CFG3pic)
         {                               // ADD EDX,(ncases-1)*2[EDI]
             ct = genc1(CNIL,0x03,modregrm(mod,DX,7),FLconst,disp);
@@ -1724,7 +1680,7 @@ void outjmptab(block *b)
                         break;
                 }
         }
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         if (I64)
         {
             if (config.flags3 & CFG3pic)
@@ -1751,24 +1707,6 @@ void outjmptab(block *b)
             else
                 objmod->reftocodeseg(jmpseg,*poffset,targ);
             *poffset += 4;
-        }
-#elif TARGET_OSX
-        targ_size_t val;
-        if (I64)
-            val = targ - b->Btableoffset;
-        else
-            val = targ - b->Btablebase;
-        objmod->write_bytes(SegData[jmpseg],4,&val);
-#elif TARGET_WINDOS
-        if (I64)
-        {
-            targ_size_t val = targ - b->Btableoffset;
-            objmod->write_bytes(SegData[jmpseg],4,&val);
-        }
-        else
-        {
-            objmod->reftocodeseg(jmpseg,*poffset,targ);
-            *poffset += tysize[TYnptr];
         }
 #else
         assert(0);
@@ -2290,21 +2228,7 @@ code *cdframeptr(elem *e, regm_t *pretregs)
 
 code *cdgot(elem *e, regm_t *pretregs)
 {
-#if TARGET_OSX
-    regm_t retregs;
-    unsigned reg;
-    code *c;
-
-    retregs = *pretregs & allregs;
-    if  (!retregs)
-        retregs = allregs;
-    c = allocreg(&retregs, &reg, TYnptr);
-
-    c = genc(c,CALL,0,0,0,FLgot,0);     //     CALL L1
-    gen1(c, 0x58 + reg);                // L1: POP reg
-
-    return cat(c,fixresult(e,retregs,pretregs));
-#elif TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     regm_t retregs;
     unsigned reg;
     code *c;
@@ -2343,7 +2267,7 @@ code *cdgot(elem *e, regm_t *pretregs)
 
 code *load_localgot()
 {
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     if (config.flags3 & CFG3pic && I32)
     {
         if (localgot && !(localgot->Sflags & SFLdead))
@@ -2369,7 +2293,7 @@ code *load_localgot()
     return NULL;
 }
 
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
 /*****************************
  * Returns:
  *      # of bytes stored
@@ -3035,9 +2959,6 @@ code* prolog_frameadj(tym_t tyf, unsigned xlocalsize, bool enter, bool* pushallo
     code* c = NULL;
 #if !TARGET_LINUX               // seems that Linux doesn't need to fault in stack pages
     if ((config.flags & CFGstack && !(I32 && xlocalsize < 0x1000)) // if stack overflow check
-#if TARGET_WINDOS
-        || (xlocalsize >= 0x1000 && config.exe & EX_flat)
-#endif
        )
     {
         if (I16)
@@ -4295,12 +4216,8 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
     sthunk->Soffset = thunkoffset;
     sthunk->Ssize = Coffset - thunkoffset; /* size of thunk */
     sthunk->Sseg = cseg;
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     objmod->pubdef(cseg,sthunk,sthunk->Soffset);
-#endif
-#if TARGET_WINDOS
-    if (config.objfmt == OBJ_MSCOFF)
-        objmod->pubdef(cseg,sthunk,sthunk->Soffset);
 #endif
     searchfixlist(sthunk);              /* resolve forward refs */
 }
@@ -6290,12 +6207,6 @@ unsigned codout(code *c)
                                     else
                                         val = -8;
                                 }
-#if TARGET_OSX || TARGET_WINDOS
-                                /* Mach-O and Win64 fixups already take the 4 byte size
-                                 * into account, so bias by 4
-        `                        */
-                                val += 4;
-#endif
                             }
                         }
                         do32bit(&ggen, (enum FL)c->IFL1,&c->IEV1,flags,val);
@@ -6514,7 +6425,7 @@ static void do64bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags)
             // un-named external with is the start of .rodata or .data
         case FLextern:                      /* external data symbol         */
         case FLtlsdata:
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         case FLgot:
         case FLgotoff:
 #endif
@@ -6522,13 +6433,6 @@ static void do64bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags)
             s = uev->sp.Vsym;               /* symbol pointer               */
             objmod->reftoident(cseg,pbuf->offset,s,uev->sp.Voffset,CFoffset64 | flags);
             break;
-
-#if TARGET_OSX
-        case FLgot:
-            funcsym_p->Slocalgotoffset = pbuf->getOffset();
-            ad = 0;
-            goto L1;
-#endif
 
         case FLfunc:                        /* function call                */
             s = uev->sp.Vsym;               /* symbol pointer               */
@@ -6584,26 +6488,7 @@ static void do32bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags, int 
         ad = uev->Vswitch->Btableoffset;
         if (config.flags & CFGromable)
         {
-#if TARGET_OSX
-            // These are magic values based on the exact code generated for the switch jump
-            if (I64)
-                uev->Vswitch->Btablebase = pbuf->getOffset() + 4;
-            else
-                uev->Vswitch->Btablebase = pbuf->getOffset() + 4 - 8;
-            ad -= uev->Vswitch->Btablebase;
-            goto L1;
-#elif TARGET_WINDOS
-            if (I64)
-            {
-                uev->Vswitch->Btablebase = pbuf->getOffset() + 4;
-                ad -= uev->Vswitch->Btablebase;
-                goto L1;
-            }
-            else
-                objmod->reftocodeseg(cseg,pbuf->offset,ad);
-#else
             objmod->reftocodeseg(cseg,pbuf->offset,ad);
-#endif
         }
         else
                 objmod->reftodatseg(cseg,pbuf->offset,ad,JMPSEG,CFoff);
@@ -6624,34 +6509,14 @@ static void do32bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags, int 
         // un-named external with is the start of .rodata or .data
     case FLextern:                      /* external data symbol         */
     case FLtlsdata:
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     case FLgot:
     case FLgotoff:
 #endif
         pbuf->flush();
         s = uev->sp.Vsym;               /* symbol pointer               */
-#if TARGET_WINDOS
-        if (I64 && (flags & CFpc32))
-        {
-            /* This is for those funky fixups where the location to be fixed up
-             * is a 'val' amount back from the current RIP, biased by adding 4.
-             */
-            assert(val >= -5 && val <= 0);
-            flags |= (-val & 7) << 24;          // set CFREL value
-            assert(CFREL == (7 << 24));
-            objmod->reftoident(cseg,pbuf->offset,s,uev->sp.Voffset,flags);
-        }
-        else
-#endif
             objmod->reftoident(cseg,pbuf->offset,s,uev->sp.Voffset + val,flags);
         break;
-
-#if TARGET_OSX
-    case FLgot:
-        funcsym_p->Slocalgotoffset = pbuf->getOffset();
-        ad = 0;
-        goto L1;
-#endif
 
     case FLfunc:                        /* function call                */
         s = uev->sp.Vsym;               /* symbol pointer               */

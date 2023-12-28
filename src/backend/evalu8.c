@@ -17,18 +17,7 @@
 #include        <float.h>
 #include        <time.h>
 
-#if defined __OpenBSD__
-    #include <sys/param.h>
-    #if OpenBSD < 201111 // 5.0
-        #define HAVE_FENV_H 0
-    #else
-        #define HAVE_FENV_H 1
-    #endif
-#elif _MSC_VER
-    #define HAVE_FENV_H 0
-#else
-    #define HAVE_FENV_H 1
-#endif
+#define HAVE_FENV_H 1
 
 #if HAVE_FENV_H
 #include        <fenv.h>
@@ -36,14 +25,6 @@
 
 #if __DMC__
 #include        <fp.h>
-#endif
-
-#if __FreeBSD__ || __OpenBSD__
-#define fmodl fmod
-#endif
-
-#if _MSC_VER
-#define isnan _isnan
 #endif
 
 #include        "cc.h"
@@ -85,18 +66,6 @@ extern void error(const char *filename, unsigned linnum, unsigned charnum, const
     static void clearFE()
     {
         feclearexcept(FE_ALL_EXCEPT);
-    }
-#elif defined _MSC_VER && TX86
-    #define HAVE_FLOAT_EXCEPT 1
-
-    static int testFE()
-    {
-        return _status87() & 0x3F;
-    }
-
-    static void clearFE()
-    {
-        _clear87();
     }
 #else
     #define HAVE_FLOAT_EXCEPT 0

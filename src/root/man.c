@@ -13,55 +13,7 @@
 #include <assert.h>
 #include "object.h"
 
-#if _WIN32
-
-#include <windows.h>
-
-#pragma comment(lib,"shell32.lib")
-
-void browse(const char *url)
-{
-    ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
-}
-
-#elif __APPLE__
-
-#include        <sys/types.h>
-#include        <sys/wait.h>
-#include        <unistd.h>
-
-void browse(const char *url)
-{
-    pid_t childpid;
-    const char *args[5];
-
-    char *browser = getenv("BROWSER");
-    if (browser)
-    {   browser = strdup(browser);
-        args[0] = browser;
-        args[1] = url;
-        args[2] = NULL;
-    }
-    else
-    {
-        //browser = "/Applications/Safari.app/Contents/MacOS/Safari";
-        args[0] = "open";
-        args[1] = "-a";
-        args[2] = "/Applications/Safari.app";
-        args[3] = url;
-        args[4] = NULL;
-    }
-
-    childpid = fork();
-    if (childpid == 0)
-    {
-        execvp(args[0], (char**)args);
-        perror(args[0]);                // failed to execute
-        return;
-    }
-}
-
-#elif POSIX
+#if POSIX
 
 #include        <sys/types.h>
 #include        <sys/wait.h>

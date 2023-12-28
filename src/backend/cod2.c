@@ -40,15 +40,6 @@ extern bool udiv_coefficients(int N, targ_ullong d, int *pshpre, targ_ullong *pm
 
 int movOnly(elem *e)
 {
-#if TARGET_OSX
-    if (I64 && config.flags3 & CFG3pic && e->Eoper == OPvar)
-    {   symbol *s = e->EV.sp.Vsym;
-        // Fixups for these can only be done with a MOV
-        if (s->Sclass == SCglobal || s->Sclass == SCextern ||
-            s->Sclass == SCcomdat || s->Sclass == SCcomdef)
-            return 1;
-    }
-#endif
     return 0;
 }
 
@@ -102,48 +93,6 @@ regm_t idxregm(code *c)
     return idxm;
 }
 
-
-#if TARGET_WINDOS
-/***************************
- * Gen code for call to floating point routine.
- */
-
-code *opdouble(elem *e,regm_t *pretregs,unsigned clib)
-{
-    regm_t retregs1,retregs2;
-    code *cl, *cr, *c;
-
-    if (config.inline8087)
-        return orth87(e,pretregs);
-
-    if (tybasic(e->E1->Ety) == TYfloat)
-    {
-        clib += CLIBfadd - CLIBdadd;    /* convert to float operation   */
-        retregs1 = FLOATREGS;
-        retregs2 = FLOATREGS2;
-    }
-    else
-    {
-        if (I32)
-        {   retregs1 = DOUBLEREGS_32;
-            retregs2 = DOUBLEREGS2_32;
-        }
-        else
-        {   retregs1 = mSTACK;
-            retregs2 = DOUBLEREGS_16;
-        }
-    }
-    cl = codelem(e->E1, &retregs1,FALSE);
-    if (retregs1 & mSTACK)
-        cgstate.stackclean++;
-    cr = scodelem(e->E2, &retregs2, retregs1 & ~mSTACK, FALSE);
-    if (retregs1 & mSTACK)
-        cgstate.stackclean--;
-    c = callclib(e, clib, pretregs, 0);
-    return cat3(cl, cr, c);
-}
-#endif
-
 /*****************************
  * Handle operators which are more or less orthogonal
  * ( + - & | ^ )
@@ -174,7 +123,7 @@ code *cdorth(elem *e,regm_t *pretregs)
   {
         if (*pretregs & XMMREGS || tyvector(ty1))
             return orthxmm(e,pretregs);
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         return orth87(e,pretregs);
 #else
         return opdouble(e,pretregs,(e->Eoper == OPadd) ? CLIBdadd
@@ -241,9 +190,6 @@ code *cdorth(elem *e,regm_t *pretregs)
   // Special cases where only flags are set
   if (test && tysize[ty1] <= REGSIZE &&
       (e1->Eoper == OPvar || (e1->Eoper == OPind && !e1->Ecount))
-#if TARGET_OSX
-      && !movOnly(e1)
-#endif
      )
   {
         // Handle the case of (var & const)
@@ -754,10 +700,6 @@ code *cdorth(elem *e,regm_t *pretregs)
         break;
 
     case OPvar:
-#if TARGET_OSX
-        if (movOnly(e2))
-            goto L2;
-#endif
     L1:
         if (tyfv(ty2))
                 goto L2;
@@ -864,7 +806,7 @@ code *cdmul(elem *e,regm_t *pretregs)
     {
         if (*pretregs & XMMREGS && oper != OPmod && tyxmmreg(tyml))
             return orthxmm(e,pretregs);
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         return orth87(e,pretregs);
 #else
         return opdouble(e,pretregs,(oper == OPmul) ? CLIBdmul : CLIBddiv);
@@ -4188,7 +4130,7 @@ code *getoffset(elem *e,unsigned reg)
         goto L4;
 
     case FLtlsdata:
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     {
       L5:
         if (config.flags3 & CFG3pic)
@@ -4290,22 +4232,6 @@ code *getoffset(elem *e,unsigned reg)
         }
         break;
     }
-#elif TARGET_WINDOS
-        if (I64)
-        {
-        L5:
-            assert(reg != STACK);
-            cs.IEVsym2 = e->EV.sp.Vsym;
-            cs.IEVoffset2 = e->EV.sp.Voffset;
-            cs.Iop = 0xB8 + (reg & 7);      // MOV Ereg,offset s
-            if (reg & 8)
-                cs.Irex |= REX_B;
-            cs.Iflags = CFoff;              // want offset only
-            cs.IFL2 = fl;
-            c = gen(NULL,&cs);
-            break;
-        }
-        goto L4;
 #else
         goto L4;
 #endif
@@ -4315,12 +4241,8 @@ code *getoffset(elem *e,unsigned reg)
         goto L4;
 
     case FLextern:
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         if (e->EV.sp.Vsym->ty() & mTYthread)
-            goto L5;
-#endif
-#if TARGET_WINDOS
-        if (I64 && e->EV.sp.Vsym->ty() & mTYthread)
             goto L5;
 #endif
     case FLdata:
@@ -4346,11 +4268,6 @@ code *getoffset(elem *e,unsigned reg)
                 if (config.flags3 & CFG3pic || config.exe == EX_WIN64)
                 {   // LEA reg,immed32[RIP]
                     cs.Iop = 0x8D;
-#if TARGET_OSX
-                    symbol *s = e->EV.sp.Vsym;
-//                    if (fl == FLextern)
-//                        cs.Iop = 0x8B;          // MOV reg,[00][RIP]
-#endif
                     cs.Irm = modregrm(0,reg & 7,5);
                     if (reg & 8)
                         cs.Irex = (cs.Irex & ~REX_B) | REX_R;
@@ -4625,7 +4542,7 @@ code *cdpost(elem *e,regm_t *pretregs)
 
   if (tyfloating(tyml))
   {
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         return post87(e,pretregs);
 #else
         if (config.inline8087)

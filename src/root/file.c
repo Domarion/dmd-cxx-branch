@@ -9,10 +9,6 @@
 #include "dsystem.h"
 #include "file.h"
 
-#if _WIN32
-#include <windows.h>
-#endif
-
 #if POSIX
 #include <utime.h>
 #endif
@@ -50,10 +46,6 @@ File::~File()
     {
         if (ref == 0)
             mem.xfree(buffer);
-#if _WIN32
-        if (ref == 2)
-            UnmapViewOfFile(buffer);
-#endif
     }
 }
 
@@ -129,56 +121,6 @@ err:
 
 err1:
     return true;
-#elif _WIN32
-    DWORD size;
-    DWORD numread;
-
-    const char *name = this->name->toChars();
-    HANDLE h = CreateFileA(name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-    if (h == INVALID_HANDLE_VALUE)
-        goto err1;
-
-    if (!ref)
-        ::free(buffer);
-    ref = 0;
-
-    size = GetFileSize(h,NULL);
-#ifdef IN_GCC
-    buffer = (unsigned char *) ::xmalloc(size + 2);
-#else
-    buffer = (unsigned char *) ::malloc(size + 2);
-#endif
-    if (!buffer)
-        goto err2;
-
-    if (ReadFile(h,buffer,size,&numread,NULL) != TRUE)
-        goto err2;
-
-    if (numread != size)
-        goto err2;
-
-    if (!CloseHandle(h))
-        goto err;
-
-    len = size;
-
-    // Always store a wchar ^Z past end of buffer so scanner has a sentinel
-    buffer[size] = 0;           // ^Z is obsolete, use 0
-    buffer[size + 1] = 0;
-    return 0;
-
-err2:
-    CloseHandle(h);
-err:
-    ::free(buffer);
-    buffer = NULL;
-    len = 0;
-
-err1:
-    return true;
-#else
-    assert(0);
 #endif
 }
 
@@ -212,32 +154,6 @@ err2:
     ::remove(name);
 err:
     return true;
-#elif _WIN32
-    DWORD numwritten;
-
-    const char *name = this->name->toChars();
-    HANDLE h = CreateFileA(name,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-    if (h == INVALID_HANDLE_VALUE)
-        goto err;
-
-    if (WriteFile(h,buffer,len,&numwritten,NULL) != TRUE)
-        goto err2;
-
-    if (len != numwritten)
-        goto err2;
-
-    if (!CloseHandle(h))
-        goto err;
-    return false;
-
-err2:
-    CloseHandle(h);
-    DeleteFileA(name);
-err:
-    return true;
-#else
-    assert(0);
 #endif
 }
 
@@ -245,8 +161,6 @@ void File::remove()
 {
 #if POSIX
     ::remove(this->name->toChars());
-#elif _WIN32
-    DeleteFileA(this->name->toChars());
 #else
     assert(0);
 #endif

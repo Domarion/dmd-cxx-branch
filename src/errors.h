@@ -40,8 +40,6 @@ D_ATTRIBUTE_FORMAT(2, 0) void vmessage(const Loc& loc, const char *format, va_li
 
 #if defined(__GNUC__) || defined(__clang__)
 #define D_ATTRIBUTE_NORETURN __attribute__((noreturn))
-#elif _MSC_VER
-#define D_ATTRIBUTE_NORETURN __declspec(noreturn)
 #else
 #define D_ATTRIBUTE_NORETURN
 #endif

@@ -700,8 +700,6 @@ __body
     static longdouble ldval[7] =
 #if __DMC__    // from math.h
     {0.0,1.0,M_PI_L,M_LOG2T_L,M_LOG2E_L,M_LOG2_L,M_LN2_L};
-#elif _MSC_VER // struct longdouble constants
-    {ld_zero, ld_one, ld_pi, ld_log2t, ld_log2e, ld_log2, ld_ln2};
 #else          // C99 hexadecimal floats (GCC, CLANG, ...)
 #define M_PI_L          0x1.921fb54442d1846ap+1L        // 3.14159 fldpi
 #define M_LOG2T_L       0x1.a934f0979a3715fcp+1L        // 3.32193 fldl2t

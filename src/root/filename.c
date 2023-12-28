@@ -14,10 +14,6 @@
 #include "file.h"
 #include "rmem.h"
 
-#if _WIN32
-#include <windows.h>
-#endif
-
 #if POSIX
 #include <utime.h>
 #endif
@@ -43,13 +39,6 @@ const char *FileName::combine(const char *path, const char *name)
 #if POSIX
     if (path[pathlen - 1] != '/')
     {   f[pathlen] = '/';
-        pathlen++;
-    }
-#elif _WIN32
-    if (path[pathlen - 1] != '\\' &&
-        path[pathlen - 1] != '/'  &&
-        path[pathlen - 1] != ':')
-    {   f[pathlen] = '\\';
         pathlen++;
     }
 #else
@@ -88,9 +77,6 @@ Strings *FileName::splitPath(const char *path)
 
 #if MACINTOSH
                     case ',':
-#endif
-#if _WIN32
-                    case ';':
 #endif
 #if POSIX
                     case ':':
@@ -141,11 +127,7 @@ int FileName::compare(RootObject *obj)
 
 int FileName::compare(const char *name1, const char *name2)
 {
-#if _WIN32
-    return stricmp(name1, name2);
-#else
     return strcmp(name1, name2);
-#endif
 }
 
 bool FileName::equals(RootObject *obj)
@@ -164,11 +146,7 @@ bool FileName::equals(const char *name1, const char *name2)
 
 bool FileName::absolute(const char *name)
 {
-#if _WIN32
-    return (*name == '\\') ||
-           (*name == '/')  ||
-           (*name && name[1] == ':');
-#elif POSIX
+#if POSIX
     return (*name == '/');
 #else
     assert(0);
@@ -206,12 +184,6 @@ const char *FileName::ext(const char *str)
         {   case '.':
                 return e + 1;
 #if POSIX
-            case '/':
-                break;
-#endif
-#if _WIN32
-            case '\\':
-            case ':':
             case '/':
                 break;
 #endif
@@ -264,19 +236,6 @@ const char *FileName::name(const char *str)
             case '/':
                return e + 1;
 #endif
-#if _WIN32
-            case '/':
-            case '\\':
-                return e + 1;
-            case ':':
-                /* The ':' is a drive letter only if it is the second
-                 * character or the last character,
-                 * otherwise it is an ADS (Alternate Data Stream) separator.
-                 * Consider ADS separators as part of the file name.
-                 */
-                if (e == str + 1 || e == str + len - 1)
-                    return e + 1;
-#endif
                 /* falls through */
             default:
                 if (e == str)
@@ -307,9 +266,6 @@ const char *FileName::path(const char *str)
     {
 #if POSIX
         if (n[-1] == '/')
-            n--;
-#elif _WIN32
-        if (n[-1] == '\\' || n[-1] == '/')
             n--;
 #else
         assert(0);
@@ -344,13 +300,6 @@ const char *FileName::replaceName(const char *path, const char *name)
 #if POSIX
     if (path[pathlen - 1] != '/')
     {   f[pathlen] = '/';
-        pathlen++;
-    }
-#elif _WIN32
-    if (path[pathlen - 1] != '\\' &&
-        path[pathlen - 1] != '/' &&
-        path[pathlen - 1] != ':')
-    {   f[pathlen] = '\\';
         pathlen++;
     }
 #else
@@ -467,29 +416,7 @@ const char *FileName::searchPath(Strings *path, const char *name, bool cwd)
 
 const char *FileName::safeSearchPath(Strings *path, const char *name)
 {
-#if _WIN32
-    // don't allow leading / because it might be an absolute
-    // path or UNC path or something we'd prefer to just not deal with
-    if (*name == '/')
-    {
-        return NULL;
-    }
-    /* Disallow % \ : and .. in name characters
-     * We allow / for compatibility with subdirectories which is allowed
-     * on dmd/posix. With the leading / blocked above and the rest of these
-     * conservative restrictions, we should be OK.
-     */
-    for (const char *p = name; *p; p++)
-    {
-        char c = *p;
-        if (c == '\\' || c == ':' || c == '%' || (c == '.' && p[1] == '.'))
-        {
-            return NULL;
-        }
-    }
-
-    return FileName::searchPath(path, name, false);
-#elif POSIX
+#if POSIX
     /* Even with realpath(), we must check for // and disallow it
      */
     for (const char *p = name; *p; p++)
@@ -553,18 +480,6 @@ int FileName::exists(const char *name)
     if (S_ISDIR(st.st_mode))
         return 2;
     return 1;
-#elif _WIN32
-    DWORD dw;
-    int result;
-
-    dw = GetFileAttributesA(name);
-    if (dw == INVALID_FILE_ATTRIBUTES)
-        result = 0;
-    else if (dw & FILE_ATTRIBUTE_DIRECTORY)
-        result = 2;
-    else
-        result = 1;
-    return result;
 #else
     assert(0);
 #endif
@@ -580,30 +495,17 @@ bool FileName::ensurePathExists(const char *path)
             const char *p = FileName::path(path);
             if (*p)
             {
-#if _WIN32
-                size_t len = strlen(path);
-                if ((len > 2 && p[-1] == ':' && strcmp(path + 2, p) == 0) ||
-                    len == strlen(p))
-                {   mem.xfree(const_cast<char *>(p));
-                    return 0;
-                }
-#endif
                 bool r = ensurePathExists(p);
                 mem.xfree(const_cast<char *>(p));
                 if (r)
                     return r;
             }
-#if _WIN32
-            char sep = '\\';
-#elif POSIX
+#if POSIX
             char sep = '/';
 #endif
             if (path[strlen(path) - 1] != sep)
             {
                 //printf("mkdir(%s)\n", path);
-#if _WIN32
-                int r = _mkdir(path);
-#endif
 #if POSIX
                 int r = mkdir(path, (7 << 6) | (7 << 3) | 7);
 #endif
@@ -630,23 +532,6 @@ const char *FileName::canonicalName(const char *name)
 #if POSIX
     // NULL destination buffer is allowed and preferred
     return realpath(name, NULL);
-#elif _WIN32
-    /* Apparently, there is no good way to do this on Windows.
-     * GetFullPathName isn't it, but use it anyway.
-     */
-    DWORD result = GetFullPathNameA(name, 0, NULL, NULL);
-    if (result)
-    {
-        char *buf = (char *)mem.xmalloc(result);
-        result = GetFullPathNameA(name, result, buf, NULL);
-        if (result == 0)
-        {
-            ::free(buf);
-            return NULL;
-        }
-        return buf;
-    }
-    return NULL;
 #else
     assert(0);
     return NULL;

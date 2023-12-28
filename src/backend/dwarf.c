@@ -21,7 +21,7 @@
 #include        <malloc.h>
 #endif
 
-#if __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if __linux__
 #include        <signal.h>
 #include        <unistd.h>
 #include        <errno.h>

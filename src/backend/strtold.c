@@ -14,23 +14,13 @@
 #include        <float.h>
 #include        <string.h>
 #include        <math.h>
-#if _WIN32 && __DMC__
-#include        <fenv.h>
-#include        <fltpnt.h>
-#endif
-#if __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if __linux__
 #include        <errno.h>
 #endif
 
 #include        "longdouble.h"
 
-#if _WIN32 && __DMC__
-// from \sc\src\include\setlocal.h
-extern char * __cdecl __locale_decpoint;
-void __pascal __set_errno (int an_errno);
-#endif
-
-#if _WIN32 || __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if __linux__
 
 #if 0
 /* This is for compilers that don't support hex float literals,
@@ -44,49 +34,6 @@ static longdouble negtab[] =
 static longdouble postab[] =
         {1e+4096L,1e+2048L,1e+1024L,1e+512L,
          1e+256L,1e+128L,1e+64L,1e+32L,1e+16L,1e+8L,1e+4L,1e+2L,1e+1L};
-
-#elif (defined(__GNUC__) && __FreeBSD__ && __i386__) || _MSC_VER
-
-// GCC on FreeBSD/i386 incorrectly rounds long double constants to double precision.  Workaround:
-
-// Note that the [sizeof(longdouble)] takes care of whatever the 0 padding is for the
-// target platform
-
-static unsigned char _negtab_bytes[][sizeof(longdouble)] =
-        { { 0xDE,0x9F,0xCE,0xD2,0xC8,0x04,0xDD,0xA6,0xD8,0x0A },
-          { 0xE4,0x2D,0x36,0x34,0x4F,0x53,0xAE,0xCE,0x6B,0x25 },
-          { 0xBE,0xC0,0x57,0xDA,0xA5,0x82,0xA6,0xA2,0xB5,0x32 },
-          { 0x1C,0xD2,0x23,0xDB,0x32,0xEE,0x49,0x90,0x5A,0x39 },
-          { 0x3A,0x19,0x7A,0x63,0x25,0x43,0x31,0xC0,0xAC,0x3C },
-          { 0xA1,0xE4,0xBC,0x64,0x7C,0x46,0xD0,0xDD,0x55,0x3E },
-          { 0xA5,0xE9,0x39,0xA5,0x27,0xEA,0x7F,0xA8,0x2A,0x3F },
-          { 0xBA,0x94,0x39,0x45,0xAD,0x1E,0xB1,0xCF,0x94,0x3F },
-          { 0x5B,0xE1,0x4D,0xC4,0xBE,0x94,0x95,0xE6,0xC9,0x3F },
-          { 0xFD,0xCE,0x61,0x84,0x11,0x77,0xCC,0xAB,0xE4,0x3F },
-          { 0x2C,0x65,0x19,0xE2,0x58,0x17,0xB7,0xD1,0xF1,0x3F },
-          { 0x0A,0xD7,0xA3,0x70,0x3D,0x0A,0xD7,0xA3,0xF8,0x3F },
-          { 0xCD,0xCC,0xCC,0xCC,0xCC,0xCC,0xCC,0xCC,0xFB,0x3F },
-          { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0xFF,0x3F } };
-
-static unsigned char _postab_bytes[][sizeof(longdouble)] =
-        { { 0x9B,0x97,0x20,0x8A,0x02,0x52,0x60,0xC4,0x25,0x75 },
-          { 0xE5,0x5D,0x3D,0xC5,0x5D,0x3B,0x8B,0x9E,0x92,0x5A },
-          { 0x17,0x0C,0x75,0x81,0x86,0x75,0x76,0xC9,0x48,0x4D },
-          { 0xC7,0x91,0x0E,0xA6,0xAE,0xA0,0x19,0xE3,0xA3,0x46 },
-          { 0x8E,0xDE,0xF9,0x9D,0xFB,0xEB,0x7E,0xAA,0x51,0x43 },
-          { 0xE0,0x8C,0xE9,0x80,0xC9,0x47,0xBA,0x93,0xA8,0x41 },
-          { 0xD5,0xA6,0xCF,0xFF,0x49,0x1F,0x78,0xC2,0xD3,0x40 },
-          { 0x9E,0xB5,0x70,0x2B,0xA8,0xAD,0xC5,0x9D,0x69,0x40 },
-          { 0x00,0x00,0x00,0x04,0xBF,0xC9,0x1B,0x8E,0x34,0x40 },
-          { 0x00,0x00,0x00,0x00,0x00,0x20,0xBC,0xBE,0x19,0x40 },
-          { 0x00,0x00,0x00,0x00,0x00,0x00,0x40,0x9C,0x0C,0x40 },
-          { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xC8,0x05,0x40 },
-          { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xA0,0x02,0x40 },
-          { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0xFF,0x3F } };
-
-static longdouble *negtab = (longdouble *) _negtab_bytes;
-static longdouble *postab = (longdouble *) _postab_bytes;
-
 #else
 
 // Use exact values, computed separately, to bootstrap.
@@ -149,32 +96,6 @@ longdouble strtold_dm(const char *p,char **endp)
         static char nans[] = "nans";
 #endif
         unsigned int old_cw;
-
-#if _WIN32 && __DMC__
-        fenv_t flagp;
-        fegetenv(&flagp);  /* Store all exceptions, and current status word */
-        if (_8087)
-        {
-            // disable exceptions from occurring, set max precision, and round to nearest
-#if __DMC__
-            __asm
-            {
-                fstcw   word ptr old_cw
-                mov     EAX,old_cw
-                mov     ECX,EAX
-                and     EAX,0xf0c0
-                or      EAX,033fh
-                mov     old_cw,EAX
-                fldcw   word ptr old_cw
-                mov     old_cw,ECX
-            }
-#else
-            old_cw = _control87(_MCW_EM | _PC_64  | _RC_NEAR,
-                                _MCW_EM | _MCW_PC | _MCW_RC);
-#endif
-        }
-#endif
-
         while (isspace(*p))
             p++;
         sign = 0;                       /* indicating +                 */
@@ -265,11 +186,7 @@ longdouble strtold_dm(const char *p,char **endp)
                     exp -= dot;
                     i = *++p;
                 }
-#if _WIN32 && __DMC__
-                if (i == *__locale_decpoint && !dot)
-#else
                 if (i == '.' && !dot)
-#endif
                 {       p++;
                         dot = 4;
                 }
@@ -367,18 +284,7 @@ longdouble strtold_dm(const char *p,char **endp)
                     }
 #endif
                     // Exponent is power of 2, not power of 10
-#if _WIN32 && __DMC__
-                    __asm
-                    {
-                        fild    dword ptr exp
-                        fld     tbyte ptr ldval
-                        fscale                  // ST(0) = ST(0) * (2**ST(1))
-                        fstp    ST(1)
-                        fstp    tbyte ptr ldval
-                    }
-#else
                     ldval = ldexpl(ldval,exp);
-#endif
                 }
                 goto L6;
             }
@@ -406,11 +312,7 @@ longdouble strtold_dm(const char *p,char **endp)
                     exp -= dot;
                     i = *++p;
                 }
-#if _WIN32 && __DMC__
-                if (i == *__locale_decpoint && !dot)
-#else
                 if (i == '.' && !dot)
-#endif
                 {       p++;
                         dot++;
                 }
@@ -446,82 +348,31 @@ longdouble strtold_dm(const char *p,char **endp)
                 goto Lerr;              // return 0.0
         }
 
-#if _WIN32 && __DMC__
-        __asm
-        {
-            fild        qword ptr msdec
-            mov         EAX,msscale
-            cmp         EAX,1
-            je          La1
-            fild        long ptr msscale
-            fmul
-            fild        qword ptr lsdec
-            fadd
-        La1:
-            fstp        tbyte ptr ldval
-        }
-#else
         ldval = msdec;
         if (msscale != 1)               /* if stuff was accumulated in lsdec */
             ldval = ldval * msscale + lsdec;
-#endif
         if (ldval)
         {   unsigned u;
 
             u = 0;
             pow = 4096;
 
-#if _WIN32 && __DMC__
-            //printf("msdec = x%x, lsdec = x%x, msscale = x%x\n",msdec,lsdec,msscale);
-            //printf("dval = %g, x%llx, exp = %d\n",dval,dval,exp);
-            __asm fld   tbyte ptr ldval
-#endif
-
             while (exp > 0)
             {
                 while (exp >= pow)
                 {
-#if _WIN32 && __DMC__
-                        __asm
-                        {
-                            mov         EAX,u
-                            imul        EAX,10
-                            fld         tbyte ptr postab[EAX]
-                            fmul
-                        }
-#else
                         ldval *= postab[u];
-#endif
                         exp -= pow;
                 }
                 pow >>= 1;
                 u++;
             }
-#if _WIN32 && __DMC__
-            __asm fstp  tbyte ptr ldval
-#endif
             while (exp < 0)
             {   while (exp <= -pow)
                 {
-#if _WIN32 && __DMC__
-                        __asm
-                        {
-                            mov         EAX,u
-                            imul        EAX,10
-                            fld         tbyte ptr ldval
-                            fld         tbyte ptr negtab[EAX]
-                            fmul
-                            fstp        tbyte ptr ldval
-                        }
-#else
                         ldval *= negtab[u];
-#endif
                         if (ldval == 0)
-#if _WIN32 && __DMC__
-                                __set_errno (ERANGE);
-#else
                                 errno = ERANGE;
-#endif
                         exp += pow;
                 }
                 pow >>= 1;
@@ -539,32 +390,13 @@ longdouble strtold_dm(const char *p,char **endp)
         }
     L6: // if overflow occurred
         if (ldval == HUGE_VAL)
-#if _WIN32 && __DMC__
-            __set_errno (ERANGE);               // range error
-#else
             errno = ERANGE;
-#endif
-
     L1:
         if (endp)
         {
             *endp = (char *) p;
         }
     L3:
-#if _WIN32 && __DMC__
-        fesetenv(&flagp);               // reset floating point environment
-        if (_8087)
-        {
-            __asm
-            {
-                xor     EAX,EAX
-                fstsw   AX
-                fclex
-                fldcw   word ptr old_cw
-            }
-        }
-#endif
-
         return (sign) ? -ldval : ldval;
 
     Lerr:

@@ -24,35 +24,25 @@ void Global::_init()
     json_ext = "json";
     map_ext  = "map";
 
-#if TARGET_WINDOS
-    obj_ext  = "obj";
-#elif TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     obj_ext  = "o";
 #else
 #error "fix this"
 #endif
 
-#if TARGET_WINDOS
-    lib_ext  = "lib";
-#elif TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     lib_ext  = "a";
 #else
 #error "fix this"
 #endif
 
-#if TARGET_WINDOS
-    dll_ext  = "dll";
-#elif TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     dll_ext  = "so";
-#elif TARGET_OSX
-    dll_ext = "dylib";
 #else
 #error "fix this"
 #endif
 
-#if TARGET_WINDOS
-    run_noext = false;
-#elif TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     // Allow 'script' D source files to have no extension.
     run_noext = true;
 #else

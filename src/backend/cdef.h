@@ -13,56 +13,24 @@
 
     Compiler:
         __DMC__         Digital Mars compiler
-        _MSC_VER        Microsoft compiler
         __GNUC__        Gnu compiler
         __clang__       Clang compiler
         __llvm__        Compiler using LLVM as backend (LLVM-GCC/Clang)
 
     Host operating system:
-        _WIN32          Microsoft NT, Windows 95, Windows 98, Win32s, Windows 2000
-        _WIN64          Windows for AMD64
         __linux__       Linux
-        __APPLE__       Mac OSX
-        __FreeBSD__     FreeBSD
-        __OpenBSD__     OpenBSD
-        __sun           Solaris, OpenSolaris, SunOS, OpenIndiana, etc
-        __OS2__         IBM OS/2
-        DOS386          32 bit DOS extended executable
-        DOS16RM         Rational Systems 286 DOS extender
 
     Compiler executable type:
-        _WINDLL         if building a _WIN32 DLL
 
     Host CPU:
         _M_I86          Intel processor
         _M_AMD64        AMD 64 processor
-
-    Hosts no longer supported:
-        __OS2__         IBM OS/2
-        DOS386          32 bit DOS extended executable
-        DOS16RM         Rational Systems 286 DOS extender
-        _MSDOS          MSDOS
 
 One and only one of these macros must be set by the makefile:
 
         SPP             Build C/C++ preprocessor
         SCPP            Build C/C++ compiler
         MARS            Build Mars compiler
- */
-
-/* Windows/DOS/DOSX Version
- * ------------------------
- * There are two main issues: hosting the compiler on windows,
- * and generating (targetting) windows/dos/dosx executables.
- * The "_WIN32" and "__DMC__" macros control hosting issues
- * for operating system and compiler dependencies, respectively.
- * To target linux executables, use OMFOBJ for things specific to the
- * OMF object file format, and TARGET_WINDOS for things specific to
- * the windows/dos/dosx memory model.
- * If this is all done right, one could generate a win/dos/dosx object file
- * even when compiling on linux, and vice versa.
- * The compiler source code currently uses these macros very inconsistently
- * with these goals, and should be fixed.
  */
 
 /* Linux Version
@@ -75,66 +43,6 @@ One and only one of these macros must be set by the makefile:
  * ELF object file format, and TARGET_LINUX for things specific to
  * the linux memory model.
  * If this is all done right, one could generate a linux object file
- * even when compiling on win32, and vice versa.
- * The compiler source code currently uses these macros very inconsistently
- * with these goals, and should be fixed.
- */
-
-/* OSX Version
- * -------------
- * There are two main issues: hosting the compiler on OSX,
- * and generating (targetting) OSX executables.
- * The "__APPLE__" and "__GNUC__" macros control hosting issues
- * for operating system and compiler dependencies, respectively.
- * To target OSX executables, use MACHOBJ for things specific to the
- * MACH-O object file format, and TARGET_OSX for things specific to
- * the OSX memory model.
- * If this is all done right, one could generate an OSX object file
- * even when compiling on win32, and vice versa.
- * The compiler source code currently uses these macros very inconsistently
- * with these goals, and should be fixed.
- */
-
-/* FreeBSD Version
- * -------------
- * There are two main issues: hosting the compiler on FreeBSD,
- * and generating (targetting) FreeBSD executables.
- * The "__FreeBSD__" and "__GNUC__" macros control hosting issues
- * for operating system and compiler dependencies, respectively.
- * To target FreeBSD executables, use ELFOBJ for things specific to the
- * ELF object file format, and TARGET_FREEBSD for things specific to
- * the FreeBSD memory model.
- * If this is all done right, one could generate a FreeBSD object file
- * even when compiling on win32, and vice versa.
- * The compiler source code currently uses these macros very inconsistently
- * with these goals, and should be fixed.
- */
-
-/* OpenBSD Version
- * -------------
- * There are two main issues: hosting the compiler on OpenBSD,
- * and generating (targetting) OpenBSD executables.
- * The "__OpenBSD__" and "__GNUC__" macros control hosting issues
- * for operating system and compiler dependencies, respectively.
- * To target OpenBSD executables, use ELFOBJ for things specific to the
- * ELF object file format, and TARGET_FREEBSD for things specific to
- * the OpenBSD memory model.
- * If this is all done right, one could generate a OpenBSD object file
- * even when compiling on win32, and vice versa.
- * The compiler source code currently uses these macros very inconsistently
- * with these goals, and should be fixed.
- */
-
-/* Solaris Version
- * -------------
- * There are two main issues: hosting the compiler on Solaris,
- * and generating (targetting) Solaris executables.
- * The "__sun" and "__GNUC__" macros control hosting issues
- * for operating system and compiler dependencies, respectively.
- * To target Solaris executables, use ELFOBJ for things specific to the
- * ELF object file format, and TARGET_SOLARIS for things specific to
- * the Solaris memory model.
- * If this is all done right, one could generate a Solaris object file
  * even when compiling on win32, and vice versa.
  * The compiler source code currently uses these macros very inconsistently
  * with these goals, and should be fixed.
@@ -170,39 +78,11 @@ One and only one of these macros must be set by the makefile:
 #endif
 #endif
 
-// Set to 1 using the makefile
-#ifndef TARGET_OSX
-#define TARGET_OSX      0               // target is an OSX executable
-#endif
-
-// Set to 1 using the makefile
-#ifndef TARGET_FREEBSD
-#define TARGET_FREEBSD  0               // target is a FreeBSD executable
-#endif
-
-// Set to 1 using the makefile
-#ifndef TARGET_OPENBSD
-#define TARGET_OPENBSD  0               // target is an OpenBSD executable
-#endif
-
-// Set to 1 using the makefile
-#ifndef TARGET_SOLARIS
-#define TARGET_SOLARIS  0               // target is a Solaris executable
-#endif
-
-// This is the default
-#ifndef TARGET_WINDOS
-#define TARGET_WINDOS   (!(TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS))
-#endif
-
 #if __GNUC__
 #include <time.h>
 
 #define M_UNIX 1
 #define MEMMODELS 1
-#if __GNUC__
-#define _MSC_VER 0
-#endif
 
 #define ERRSTREAM stderr
 #define isleadbyte(c) 0
@@ -237,15 +117,7 @@ char *strupr(char *);
 
 #endif
 
-#if _WINDLL
-#define SUFFIX  "nd"
-#elif _WIN64
-#define SUFFIX  "a"
-#elif _WIN32
-#define SUFFIX  "n"
-#else
 #define SUFFIX  ""
-#endif
 
 // C++ Language Features
 #define ANGLE_BRACKET_HACK      0       // >> means two template arglist closes
@@ -255,13 +127,13 @@ char *strupr(char *);
 const bool HEADER_LIST          = true;
 
 // Support generating code for 16 bit memory models
-#define SIXTEENBIT              (SCPP && TARGET_WINDOS)
+#define SIXTEENBIT              (SCPP && 0)
 
 /* Set for supporting the FLAT memory model.
  * This is not quite the same as !SIXTEENBIT, as one could
  * have near/far with 32 bit code.
  */
-#define TARGET_SEGMENTED     (!MARS && TARGET_WINDOS)
+#define TARGET_SEGMENTED     (!MARS && 0)
 
 
 #if __GNUC__
@@ -270,16 +142,10 @@ const bool HEADER_LIST          = true;
 #define LDOUBLE         (config.exe == EX_WIN32)   // support true long doubles
 #endif
 
-#if _MSC_VER
-#include "longdouble.h"
-#else
 typedef long double longdouble;
-#endif
 
 // Precompiled header variations
-#define MEMORYHX        (_WINDLL && _WIN32)     // HX and SYM files are cached in memory
-#define MMFIO           (_WIN32 || __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun)  // if memory mapped files
-#define LINEARALLOC     _WIN32  // if we can reserve address ranges
+#define MMFIO           __linux__  // if memory mapped files
 
 // H_STYLE takes on one of these precompiled header methods
 #define H_NONE          1       // no hydration/dehydration necessary
@@ -305,17 +171,11 @@ typedef long double longdouble;
 #if MARS
 #define H_STYLE         H_NONE                  // precompiled headers only used for C/C++ compiler
 #else
-#if MMFIO
-#if _WINDLL
-#define H_STYLE         H_OFFSET
-#else
-#define H_STYLE         H_OFFSET //H_NONE
-#endif
-#elif LINEARALLOC
-#define H_STYLE         H_BIT0
-#else
-#define H_STYLE         H_COMPLEX
-#endif
+    #if MMFIO
+            #define H_STYLE         H_OFFSET //H_NONE
+    #else
+    #define H_STYLE         H_COMPLEX
+    #endif
 #endif
 
 // NT structured exception handling
@@ -325,11 +185,7 @@ typedef long double longdouble;
 #define NTEXCEPTIONS            2
 
 // For Shared Code Base
-#if _WINDLL
-#define dbg_printf dll_printf
-#else
 #define dbg_printf printf
-#endif
 
 #ifndef ERRSTREAM
 #define ERRSTREAM stdout
@@ -476,7 +332,7 @@ typedef unsigned        targ_uns;
 #define REGMASK         0xFFFF
 
 // targ_llong is also used to store host pointers, so it should have at least their size
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS || TARGET_OSX || MARS
+#if TARGET_LINUX || MARS
 typedef targ_llong      targ_ptrdiff_t; /* ptrdiff_t for target machine  */
 typedef targ_ullong     targ_size_t;    /* size_t for the target machine */
 #else
@@ -494,7 +350,6 @@ typedef targ_uns        targ_size_t;    /* size_t for the target machine */
 #define UNICODE         1       // support Unicode (wchar_t is unsigned short)
 #define DLCMSGS         0       // if 1, have all messages in a file
 #define NEWTEMPMANGLE   (!(config.flags4 & CFG4oldtmangle))     // do new template mangling
-#define USEDLLSHELL     _WINDLL
 #define FARCLASSES      1       // support near/far classes
 #define MFUNC           (I32) //0 && config.exe == EX_WIN32)       // member functions are TYmfunc
 #define CV3             0       // 1 means support CV3 debug format
@@ -502,17 +357,16 @@ typedef targ_uns        targ_size_t;    /* size_t for the target machine */
 /* Object module format
  */
 #ifndef OMFOBJ
-#define OMFOBJ          TARGET_WINDOS
+#define OMFOBJ          0
 #endif
 #ifndef ELFOBJ
-#define ELFOBJ          (TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS)
+#define ELFOBJ          TARGET_LINUX
 #endif
 #ifndef MACHOBJ
-#define MACHOBJ         TARGET_OSX
+#define MACHOBJ         0
 #endif
 
-#define SYMDEB_CODEVIEW TARGET_WINDOS
-#define SYMDEB_DWARF    (TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS || TARGET_OSX)
+#define SYMDEB_DWARF    TARGET_LINUX
 
 #define TOOLKIT_H
 
@@ -572,30 +426,8 @@ typedef int bool;
 #define __cs
 #endif
 
-#if _WINDLL
-/* We reference the required Windows-1252 encoding of the copyright symbol
-   by escaping its character code (0xA9) rather than directly embedding it in
-   the source text. The character code is invalid in UTF-8, which causes some
-   of our source-code preprocessing tools (e.g. tolf) to choke. */
-#ifndef COPYRIGHT_SYMBOL
-#define COPYRIGHT_SYMBOL "\xA9"
-#endif
-#define COPYRIGHT "Copyright " COPYRIGHT_SYMBOL " 2001-2019 by The D Language Foundation"
-#else
-#ifdef DEBUG
-#define COPYRIGHT "Copyright (C) 2000-2021 by The D Language Foundation, All Rights Reserved\n\
-Written by Walter Bright\n\
-*****BETA TEST VERSION*****"
-#else
-#if __linux__
 #define COPYRIGHT "Copyright (C) 2000-2021 by The D Language Foundation, All Rights Reserved\n\
 Written by Walter Bright, Linux version by Pat Nelson"
-#else
-#define COPYRIGHT "Copyright (C) 2000-2021 by The D Language Foundation, All Rights Reserved\n\
-Written by Walter Bright"
-#endif
-#endif
-#endif
 
 /**********************************
  * Configuration
@@ -777,7 +609,7 @@ struct Config
 #define CFG3relax       0x200   // relaxed type checking (C only)
 #define CFG3cpp         0x400   // C++ compile
 #define CFG3igninc      0x800   // ignore standard include directory
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
 #define CFG3mars        0x1000  // use mars libs and headers
 #define NO_FAR          (TRUE)  // always ignore __far and __huge keywords
 #else
@@ -789,7 +621,7 @@ struct Config
 #define CFG3cppcomment  0x8000  // allow C++ style comments
 #define CFG3wkfloat     0x10000 // make floating point references weak externs
 #define CFG3digraphs    0x20000 // support ANSI C++ digraphs
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
 #define CFG3semirelax   0x40000 // moderate relaxed type checking
 #endif
 #define CFG3pic         0x80000 // position independent code

@@ -70,21 +70,8 @@ void backend_init()
     Param *params = &global.params;
 
     bool exe;
-#if TARGET_WINDOS
-    exe = false;
-    if (params->dll)
-        ;
-    else if (params->run)
-        exe = true;         // EXE file only optimizations
-    else if (params->link && !global.params.deffile.length)
-        exe = true;         // EXE file only optimizations
-    else if (params->exefile.length)    // if writing out EXE file
-    {   size_t len = strlen(params->exefile.ptr);
-        if (len >= 4 && stricmp(params->exefile.ptr + len - 3, "exe") == 0)
-            exe = true;
-    }
-#endif
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+
+#if TARGET_LINUX
     exe = params->pic == 0;
 #endif
 

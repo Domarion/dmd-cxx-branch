@@ -25,11 +25,6 @@
 #include        "el.h"
 #endif
 
-#if _WIN32 && __DMC__
-//#include      "scdll.h"
-#include        <controlc.h>
-#endif
-
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
 
@@ -87,61 +82,7 @@ void util_exit(int exitcode)
     exit(exitcode);                     /* terminate abnormally         */
 }
 
-
-#if _WIN32 && !_MSC_VER
-
-volatile int controlc_saw;
-
-/********************************
- * Control C interrupts go here.
- */
-
-static void __cdecl controlc_handler(void)
-{
-    //printf("saw controlc\n");
-    controlc_saw = 1;
-}
-
-/*********************************
- * Trap control C interrupts.
- */
-
-#if !MARS
-
-void _STI_controlc()
-{
-    //printf("_STI_controlc()\n");
-    _controlc_handler = controlc_handler;
-    controlc_open();                    /* trap control C               */
-}
-
-void _STD_controlc()
-{
-    //printf("_STD_controlc()\n");
-    controlc_close();
-}
-
-#endif
-
-/***********************************
- * Send progress report.
- */
-
-void util_progress()
-{
-    if (controlc_saw)
-        err_break();
-}
-
-void util_progress(int linnum)
-{
-    if (controlc_saw)
-        err_break();
-}
-
-#endif
-
-#if __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun || _MSC_VER
+#if __linux__
 void util_progress()
 {
 }
@@ -290,90 +231,3 @@ int ispow2(unsigned long long c)
         return i;
 }
 
-/***************************
- */
-
-#define UTIL_PH 1
-
-#if _WIN32
-void *util_malloc(unsigned n,unsigned size)
-{
-#if 0 && MEM_DEBUG
-    void *p;
-
-    p = mem_malloc(n * size);
-    //dbg_printf("util_calloc(%d) = %p\n",n * size,p);
-    return p;
-#elif UTIL_PH
-    return ph_malloc(n * size);
-#else
-    size_t nbytes = (size_t)n * (size_t)size;
-    void *p = malloc(nbytes);
-    if (!p && nbytes)
-        err_nomem();
-    return p;
-#endif
-}
-#endif
-
-/***************************
- */
-
-#if _WIN32
-void *util_calloc(unsigned n,unsigned size)
-{
-#if 0 && MEM_DEBUG
-    void *p;
-
-    p = mem_calloc(n * size);
-    //dbg_printf("util_calloc(%d) = %p\n",n * size,p);
-    return p;
-#elif UTIL_PH
-    return ph_calloc(n * size);
-#else
-    size_t nbytes = (size_t) n * (size_t) size;
-    void *p = calloc(n,size);
-    if (!p && nbytes)
-        err_nomem();
-    return p;
-#endif
-}
-#endif
-
-/***************************
- */
-
-#if _WIN32
-void util_free(void *p)
-{
-    //dbg_printf("util_free(%p)\n",p);
-#if 0 && MEM_DEBUG
-    mem_free(p);
-#elif UTIL_PH
-    ph_free(p);
-#else
-    free(p);
-#endif
-}
-#endif
-
-/***************************
- */
-
-#if _WIN32
-void *util_realloc(void *oldp,unsigned n,unsigned size)
-{
-#if 0 && MEM_DEBUG
-    //dbg_printf("util_realloc(%p,%d)\n",oldp,n * size);
-    return mem_realloc(oldp,n * size);
-#elif UTIL_PH
-    return ph_realloc(oldp,n * size);
-#else
-    size_t nbytes = (size_t) n * (size_t) size;
-    void *p = realloc(oldp,nbytes);
-    if (!p && nbytes)
-        err_nomem();
-    return p;
-#endif
-}
-#endif

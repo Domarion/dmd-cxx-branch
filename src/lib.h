@@ -25,12 +25,8 @@ class Library
   public:
     static Library *factory()
     {
-#if TARGET_WINDOS
-        return global.params.is64bit ? LibMSCoff_factory() : LibOMF_factory();
-#elif TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         return LibElf_factory();
-#elif TARGET_OSX
-        return LibMach_factory();
 #else
         assert(0); // unsupported system
 #endif

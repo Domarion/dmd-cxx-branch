@@ -77,11 +77,7 @@ void OutBuffer::prependstring(const char *string)
 
 void OutBuffer::writenl()
 {
-#if _WIN32
-    writeword(0x0A0D);          // newline is CR,LF on Microsoft OS's
-#else
     writeByte('\n');
-#endif
     if (doindent)
         notlinehead = 0;
 }
@@ -169,20 +165,13 @@ void OutBuffer::prependbyte(unsigned b)
 
 void OutBuffer::writewchar(unsigned w)
 {
-#if _WIN32
-    writeword(w);
-#else
     write4(w);
-#endif
 }
 
 void OutBuffer::writeword(unsigned w)
 {
-#if _WIN32
-    unsigned newline = 0x0A0D;
-#else
     unsigned newline = '\n';
-#endif
+
     if (doindent && !notlinehead
         && w != newline)
     {
@@ -222,11 +211,7 @@ void OutBuffer::writeUTF16(unsigned w)
 
 void OutBuffer::write4(unsigned w)
 {
-#if _WIN32
-    bool notnewline = w != 0x000A000D;
-#else
     bool notnewline = true;
-#endif
     if (doindent && !notlinehead && notnewline)
     {
         if (level)
@@ -279,12 +264,7 @@ void OutBuffer::vprintf(const char *format, va_list args)
     for (;;)
     {
         reserve(psize);
-#if _WIN32
-        count = _vsnprintf((char *)data.ptr + offset,psize,format,args);
-        if (count != -1)
-            break;
-        psize *= 2;
-#elif POSIX
+#if POSIX
         va_list va;
         va_copy(va, args);
 /*

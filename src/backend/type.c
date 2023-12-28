@@ -131,9 +131,6 @@ targ_size_t type_size(type *t)
                 break;
 #endif
             case TYvoid:
-#if SCPP && TARGET_WINDOS               // GNUC allows it, so we will, too
-                synerr(EM_void_novalue);        // voids have no value
-#endif
                 s = 1;
                 break;
 

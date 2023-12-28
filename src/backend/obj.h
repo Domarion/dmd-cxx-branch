@@ -16,11 +16,7 @@
 
 struct seg_data;
 
-#if MARS && TARGET_WINDOS
-#define VIRTUAL virtual
-#else
 #define VIRTUAL static
-#endif
 
 struct Obj
 {
@@ -88,16 +84,11 @@ struct Obj
 
     VIRTUAL symbol *tlv_bootstrap();
 
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     static unsigned addstr(Outbuffer *strtab, const char *);
     static void gotref(symbol *s);
     static symbol *getGOTsym();
     static void refGOTsym();
-#endif
-
-#if TARGET_WINDOS
-    VIRTUAL int seg_debugT();           // where the symbolic debug type data goes
-    static void gotref(symbol *s) { }
 #endif
 };
 

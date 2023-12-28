@@ -601,10 +601,8 @@ symbol * findsy(const char *p,symbol *rover)
     volatile int len;
     __asm
     {
-#if !_WIN32
         push    DS
         pop     ES
-#endif
         mov     EDI,p
         xor     AL,AL
 

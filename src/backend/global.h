@@ -109,9 +109,6 @@ elem *exp2_copytotemp(elem *e);
 #if __clang__
 void util_exit(int) __attribute__((noreturn));
 void util_assert(const char *, int) __attribute__((noreturn));
-#elif _MSC_VER
-__declspec(noreturn) void util_exit(int);
-__declspec(noreturn) void util_assert(const char *, int);
 #else
 void util_exit(int);
 void util_assert(const char *, int);
@@ -155,7 +152,7 @@ char *unsstr(unsigned);
 int isignore(int);
 int isillegal(int);
 
-#if !defined(__DMC__) && !defined(_MSC_VER)
+#if !defined(__DMC__)
 int ishex(int);
 #endif
 
@@ -232,11 +229,7 @@ int file_stat(const char *fname,struct stat *pbuf);
 int file_exists(const char *fname);
 long file_size(const char *fname);
 void file_term(void);
-#if __NT__ && _WINDLL
-char *file_nettranslate(const char *filename,const char *mode);
-#else
 #define file_nettranslate(f,m)  ((char *)(f))
-#endif
 char *file_unique();
 
 /* from msc.c */
@@ -296,10 +289,6 @@ long os_file_size(int fd);
 char *file_8dot3name(const char *filename);
 int file_write(char *name, void *buffer, unsigned len);
 int file_createdirs(char *name);
-#if DMDV1
-int os_critsecsize32();
-int os_critsecsize64();
-#endif
 
 /* pseudo.c */
 Symbol *pseudo_declar(char *);
@@ -487,7 +476,7 @@ void dwarf_CFA_offset(int reg, int offset);
 void dwarf_CFA_args_size(size_t sz);
 
 
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
 elem * exp_isconst();
 elem *lnx_builtin_next_arg(elem *efunc,list_t arglist);
 char *lnx_redirect_funcname(const char *);

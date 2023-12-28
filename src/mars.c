@@ -15,7 +15,7 @@
 #include <limits.h>
 #include <string.h>
 
-#if __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if __linux__
 #include <errno.h>
 #endif
 
@@ -179,9 +179,6 @@ int tryMain(size_t argc, const char *argv[])
     Strings libmodules;
     size_t argcstart = argc;
     bool setdebuglib = false;
-#if TARGET_WINDOS
-    bool setdefaultlib = false;
-#endif
     global._init();
 
 #ifdef DEBUG
@@ -241,13 +238,8 @@ int tryMain(size_t argc, const char *argv[])
     global.params.is64bit = (sizeof(size_t) == 8);
     global.params.mscoff = false;
 
-#if TARGET_WINDOS
-    global.params.is64bit = false;
-    global.params.defaultlibname = "phobos";
-#elif TARGET_LINUX
+#if TARGET_LINUX
     global.params.defaultlibname = "libphobos2.a";
-#elif TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
-    global.params.defaultlibname = "phobos2";
 #else
 #error "fix this"
 #endif
@@ -255,40 +247,11 @@ int tryMain(size_t argc, const char *argv[])
     // Predefine version identifiers
     VersionCondition::addPredefinedGlobalIdent("DigitalMars");
 
-#if TARGET_WINDOS
-    VersionCondition::addPredefinedGlobalIdent("Windows");
-    global.params.isWindows = true;
-#elif TARGET_LINUX
+#if TARGET_LINUX
     VersionCondition::addPredefinedGlobalIdent("Posix");
     VersionCondition::addPredefinedGlobalIdent("linux");
     VersionCondition::addPredefinedGlobalIdent("ELFv1");
     global.params.isLinux = true;
-#elif TARGET_OSX
-    VersionCondition::addPredefinedGlobalIdent("Posix");
-    VersionCondition::addPredefinedGlobalIdent("OSX");
-    VersionCondition::addPredefinedGlobalIdent("ELFv1");
-    global.params.isOSX = true;
-
-    // For legacy compatibility
-    VersionCondition::addPredefinedGlobalIdent("darwin");
-#elif TARGET_FREEBSD
-    VersionCondition::addPredefinedGlobalIdent("Posix");
-    VersionCondition::addPredefinedGlobalIdent("FreeBSD");
-    // FIXME: Need a way to statically and/or dynamically set the major FreeBSD version,
-    // to support FreeBSD 12.x and later releases both as a native and cross compiler.
-    VersionCondition::addPredefinedGlobalIdent("FreeBSD_11");
-    VersionCondition::addPredefinedGlobalIdent("ELFv1");
-    global.params.isFreeBSD = true;
-#elif TARGET_OPENBSD
-    VersionCondition::addPredefinedGlobalIdent("Posix");
-    VersionCondition::addPredefinedGlobalIdent("OpenBSD");
-    VersionCondition::addPredefinedGlobalIdent("ELFv1");
-    global.params.isFreeBSD = true;
-#elif TARGET_SOLARIS
-    VersionCondition::addPredefinedGlobalIdent("Posix");
-    VersionCondition::addPredefinedGlobalIdent("Solaris");
-    VersionCondition::addPredefinedGlobalIdent("ELFv1");
-    global.params.isSolaris = true;
 #else
 #error "fix this"
 #endif
@@ -306,9 +269,7 @@ int tryMain(size_t argc, const char *argv[])
     }
     else
     {
-#if _WIN32
-        global.inifilename = findConfFile(global.params.argv0.ptr, "sc.ini");
-#elif __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if __linux__
         global.inifilename = findConfFile(global.params.argv0.ptr, "dmd.conf");
 #else
 #error "fix this"
@@ -422,16 +383,11 @@ int tryMain(size_t argc, const char *argv[])
                 global.params.dll = true;
             else if (strcmp(p + 1, "dylib") == 0)
             {
-#if TARGET_OSX
-                warning(Loc(), "use -shared instead of -dylib");
-                global.params.dll = true;
-#else
                 goto Lerror;
-#endif
             }
             else if (strcmp(p + 1, "fPIC") == 0)
             {
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
                 global.params.pic = 1;
 #else
                 goto Lerror;
@@ -461,18 +417,10 @@ int tryMain(size_t argc, const char *argv[])
             else if (strcmp(p + 1, "m64") == 0)
             {
                 global.params.is64bit = true;
-            #if TARGET_WINDOS
-                global.params.mscoff = true;
-            #endif
             }
             else if (strcmp(p + 1, "m32mscoff") == 0)
             {
-            #if TARGET_WINDOS
-                global.params.is64bit = 0;
-                global.params.mscoff = true;
-            #else
                 error(Loc(), "-m32mscoff can only be used on windows");
-            #endif
             }
             else if (memcmp(p + 1, "profile", 7) == 0)
             {
@@ -616,9 +564,6 @@ Language changes listed by -transition=id:\n\
                         if (!p[3])
                             goto Lnoarg;
                         path = p + 3;
-#if _WIN32
-                        path = toWinPath(path);
-#endif
                         global.params.objdir = path;
                         break;
 
@@ -626,9 +571,6 @@ Language changes listed by -transition=id:\n\
                         if (!p[3])
                             goto Lnoarg;
                         path = p + 3;
-#if _WIN32
-                        path = toWinPath(path);
-#endif
                         global.params.objname = path;
                         break;
 
@@ -863,9 +805,6 @@ Language changes listed by -transition=id:\n\
             }
             else if (memcmp(p + 1, "defaultlib=", 11) == 0)
             {
-#if TARGET_WINDOS
-                setdefaultlib = true;
-#endif
                 global.params.defaultlibname = p + 1 + 11;
             }
             else if (memcmp(p + 1, "debuglib=", 9) == 0)
@@ -899,20 +838,8 @@ Language changes listed by -transition=id:\n\
             }
             else if (memcmp(p + 1, "man", 3) == 0)
             {
-#if _WIN32
-                browse("http://dlang.org/dmd-windows.html");
-#endif
 #if __linux__
                 browse("http://dlang.org/dmd-linux.html");
-#endif
-#if __APPLE__
-                browse("http://dlang.org/dmd-osx.html");
-#endif
-#if __FreeBSD__
-                browse("http://dlang.org/dmd-freebsd.html");
-#endif
-#if __OpenBSD__
-                browse("http://dlang.org/dmd-openbsd.html");
 #endif
                 exit(EXIT_SUCCESS);
             }
@@ -957,14 +884,6 @@ Language changes listed by -transition=id:\n\
         }
         else
         {
-#if TARGET_WINDOS
-            const char *ext = FileName::ext(p);
-            if (ext && FileName::compare(ext, "exe") == 0)
-            {
-                global.params.objname = p;
-                continue;
-            }
-#endif
             files.push(p);
         }
     }
@@ -988,11 +907,8 @@ Language changes listed by -transition=id:\n\
     if (!setdebuglib)
         global.params.debuglibname = global.params.defaultlibname;
 
-#if TARGET_OSX
-    global.params.pic = 1;
-#endif
 
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     if (global.params.lib && global.params.dll)
         error(Loc(), "cannot mix -lib and -shared");
 #endif
@@ -1128,55 +1044,17 @@ Language changes listed by -transition=id:\n\
         VersionCondition::addPredefinedGlobalIdent("D_InlineAsm_X86_64");
         VersionCondition::addPredefinedGlobalIdent("X86_64");
         VersionCondition::addPredefinedGlobalIdent("D_SIMD");
-#if TARGET_WINDOS
-        VersionCondition::addPredefinedGlobalIdent("Win64");
-        if (!setdefaultlib)
-        {   global.params.defaultlibname = "phobos64";
-            if (!setdebuglib)
-                global.params.debuglibname = global.params.defaultlibname;
-        }
-#endif
     }
     else
     {
         VersionCondition::addPredefinedGlobalIdent("D_InlineAsm"); //legacy
         VersionCondition::addPredefinedGlobalIdent("D_InlineAsm_X86");
         VersionCondition::addPredefinedGlobalIdent("X86");
-#if TARGET_OSX
-        VersionCondition::addPredefinedGlobalIdent("D_SIMD");
-#endif
-#if TARGET_WINDOS
-        VersionCondition::addPredefinedGlobalIdent("Win32");
-        if (!setdefaultlib && global.params.mscoff)
-        {
-            global.params.defaultlibname = "phobos32mscoff";
-            if (!setdebuglib)
-                global.params.debuglibname = global.params.defaultlibname;
-        }
-#endif
     }
-#if TARGET_WINDOS
-    if (global.params.mscoff)
-    {
-        VersionCondition::addPredefinedGlobalIdent("CRuntime_Microsoft");
-        VersionCondition::addPredefinedGlobalIdent("CppRuntime_Microsoft");
-    }
-    else
-    {
-        VersionCondition::addPredefinedGlobalIdent("CRuntime_DigitalMars");
-        VersionCondition::addPredefinedGlobalIdent("CppRuntime_DigitalMars");
-    }
-#elif TARGET_LINUX
+
+#if TARGET_LINUX
     VersionCondition::addPredefinedGlobalIdent("CRuntime_Glibc");
     VersionCondition::addPredefinedGlobalIdent("CppRuntime_Gcc");
-#elif TARGET_OSX
-    VersionCondition::addPredefinedGlobalIdent("CppRuntime_Clang");
-#elif TARGET_FREEBSD
-    VersionCondition::addPredefinedGlobalIdent("CppRuntime_Clang");
-#elif TARGET_OPENBSD
-    VersionCondition::addPredefinedGlobalIdent("CppRuntime_Gcc");
-#elif TARGET_SOLARIS
-    VersionCondition::addPredefinedGlobalIdent("CppRuntime_Sun");
 #endif
     if (global.params.isLP64)
         VersionCondition::addPredefinedGlobalIdent("D_LP64");
@@ -1269,11 +1147,6 @@ Language changes listed by -transition=id:\n\
     for (size_t i = 0; i < files.length; i++)
     {
         const char *name;
-
-#if _WIN32
-        files[i] = toWinPath(files[i]);
-#endif
-
         const char *p = files[i];
 
         p = FileName::name(p);          // strip path
@@ -1296,7 +1169,7 @@ Language changes listed by -transition=id:\n\
                 continue;
             }
 
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
             if (FileName::equals(ext, global.dll_ext.ptr))
             {
                 global.params.dllfiles.push(files[i]);
@@ -1323,25 +1196,6 @@ Language changes listed by -transition=id:\n\
                 global.params.mapfile = files[i];
                 continue;
             }
-
-#if TARGET_WINDOS
-            if (FileName::equals(ext, "res"))
-            {
-                global.params.resfile = files[i];
-                continue;
-            }
-
-            if (FileName::equals(ext, "def"))
-            {
-                global.params.deffile = files[i];
-                continue;
-            }
-
-            if (FileName::equals(ext, "exe"))
-            {
-                assert(0);      // should have already been handled
-            }
-#endif
 
             /* Examine extension to see if it is a valid
              * D source file extension

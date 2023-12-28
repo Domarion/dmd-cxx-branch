@@ -85,7 +85,7 @@ void WRTYxx(tym_t t)
         printf("mTYconst|");
     if (t & mTYvolatile)
         printf("mTYvolatile|");
-#if !MARS && (__linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun)
+#if !MARS && __linux__
     if (t & mTYtransu)
         printf("mTYtransu|");
 #endif

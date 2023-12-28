@@ -238,11 +238,7 @@ static const char *getFilename(Identifiers *packages, Identifier *ident)
         buf.writestring(p);
         if (msdim)
             checkModFileAlias(&buf, &dotmods, ms, msdim, p);
-#if _WIN32
-        buf.writeByte('\\');
-#else
         buf.writeByte('/');
-#endif
     }
     buf.writestring(filename);
     if (msdim)

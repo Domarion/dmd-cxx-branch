@@ -1161,7 +1161,7 @@ Lnodep:
 
 symbol *el_alloc_localgot()
 {
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     /* Since localgot is a local variable to each function,
      * localgot must be set back to NULL
      * at the start of code gen for each function.
@@ -1194,146 +1194,7 @@ symbol *el_alloc_localgot()
  * Make an elem out of a symbol, PIC style.
  */
 
-#if TARGET_OSX
-
-elem *el_picvar(symbol *s)
-{   elem *e;
-    int x;
-
-    //printf("el_picvar(s = '%s')", s->Sident); printf("  Sclass = "); WRclass((enum SC) s->Sclass); printf("\n");
-    //symbol_print(s);
-    symbol_debug(s);
-    type_debug(s->Stype);
-    e = el_calloc();
-    e->Eoper = OPvar;
-    e->EV.sp.Vsym = s;
-    e->Ety = s->ty();
-
-    switch (s->Sclass)
-    {
-        case SCstatic:
-        case SClocstat:
-            x = 0;
-            goto case_got;
-
-        case SCcomdat:
-        case SCcomdef:
-            if (0 && I64)
-            {
-                x = 0;
-                goto case_got;
-            }
-        case SCglobal:
-        case SCextern:
-#if 0
-            if (s->Stype->Tty & mTYthread)
-                x = 0;
-            else
-#endif
-                x = 1;
-        case_got:
-        {
-            int op = e->Eoper;
-            tym_t tym = e->Ety;
-            e->Eoper = OPrelconst;
-            e->Ety = TYnptr;
-            if (I32)
-                e = el_bin(OPadd, TYnptr, e, el_var(el_alloc_localgot()));
-#if 1
-            if (I32 && s->Stype->Tty & mTYthread)
-            {
-                if (!tls_get_addr_sym)
-                {
-                    /* void *___tls_get_addr(void *ptr);
-                     * Parameter ptr is passed in EAX, matching TYjfunc calling convention.
-                     */
-                    tls_get_addr_sym = symbol_name("___tls_get_addr",SCglobal,type_fake(TYjfunc));
-                    symbol_keep(tls_get_addr_sym);
-                }
-                if (x == 1)
-                    e = el_una(OPind, TYnptr, e);
-                e = el_bin(OPcallns, TYnptr, el_var(tls_get_addr_sym), e);
-                if (op == OPvar)
-                    e = el_una(OPind, TYnptr, e);
-            }
-#endif
-            if (I64 || !(s->Stype->Tty & mTYthread))
-            {
-                switch (op * 2 + x)
-                {
-                    case OPvar * 2 + 1:
-                        e = el_una(OPind, TYnptr, e);
-                        e = el_una(OPind, TYnptr, e);
-                        break;
-                    case OPvar * 2 + 0:
-                    case OPrelconst * 2 + 1:
-                        e = el_una(OPind, TYnptr, e);
-                        break;
-                    case OPrelconst * 2 + 0:
-                        break;
-                    default:
-                        assert(0);
-                        break;
-                }
-            }
-#if 1
-            /**
-             * A thread local variable is outputted like the following D struct:
-             *
-             * struct TLVDescriptor(T)
-             * {
-             *     extern(C) T* function (TLVDescriptor*) thunk;
-             *     size_t key;
-             *     size_t offset;
-             * }
-             *
-             * To access the value of the variable, the variable is accessed
-             * like a plain global (__gshared) variable of the type
-             * TLVDescriptor. The thunk is called and a pointer to the variable
-             * itself is passed as the argument. The return value of the thunk
-             * is a pointer to the value of the thread local variable.
-             *
-             * module foo;
-             *
-             * int bar;
-             * pragma(mangle, "_D3foo3bari") extern __gshared TLVDescriptor!(int) barTLV;
-             *
-             * int a = *barTLV.thunk(&barTLV);
-             */
-            if (I64 && s->Stype->Tty & mTYthread)
-            {
-                e = el_una(OPaddr, TYnptr, e);
-                e = el_bin(OPadd, TYnptr, e, el_long(TYullong, 0));
-                e = el_una(OPind, TYnptr, e);
-                e = el_una(OPind, TYnfunc, e);
-
-                elem *e2 = el_calloc();
-                e2->Eoper = OPvar;
-                e2->EV.sp.Vsym = s;
-                e2->Ety = s->ty();
-                e2->Eoper = OPrelconst;
-                e2->Ety = TYnptr;
-
-                e2 = el_una(OPind, TYnptr, e2);
-                e2 = el_una(OPind, TYnptr, e2);
-                e2 = el_una(OPaddr, TYnptr, e2);
-                e2 = doptelem(e2, GOALvalue | GOALflags);
-                e2 = el_bin(OPadd, TYnptr, e2, el_long(TYullong, 0));
-                e2 = el_bin(OPcall, TYnptr, e, e2);
-                e2 = el_una(OPind, TYint, e2);
-                e = e2;
-            }
-#endif
-            e->Ety = tym;
-            break;
-        }
-        default:
-            break;
-    }
-    return e;
-}
-#endif
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
 
 elem *el_picvar(symbol *s)
 {   elem *e;
@@ -1528,13 +1389,13 @@ elem * el_var(symbol *s)
 
     //printf("el_var(s = '%s')\n", s->Sident);
     //printf("%x\n", s->Stype->Tty);
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     if (config.flags3 & CFG3pic &&
         !tyfunc(s->ty()))
         // Position Independent Code
         return el_picvar(s);
 #endif
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     if (config.flags3 & CFG3pic && tyfunc(s->ty()))
     {
         switch (s->Sclass)
@@ -1558,9 +1419,7 @@ elem * el_var(symbol *s)
     if (s->Stype->Tty & mTYthread)
     {
         //printf("thread local %s\n", s->Sident);
-#if TARGET_OSX
-        ;
-#elif TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         /* For 32 bit:
          * Generate for var locals:
          *      MOV reg,GS:[00000000]   // add GS: override in back end
@@ -1621,55 +1480,6 @@ elem * el_var(symbol *s)
         e->Eoper = OPind;
         e->E1 = el_bin(OPadd,e1->Ety,e2,e1);
         e->E2 = NULL;
-#elif TARGET_WINDOS
-        /*
-            Win32:
-                mov     EAX,FS:__tls_array
-                mov     ECX,__tls_index
-                mov     EAX,[ECX*4][EAX]
-                inc     dword ptr _t[EAX]
-
-                e => *(&s + *(FS:_tls_array + _tls_index * 4))
-
-                If this is an executable app, not a dll, _tls_index
-                can be assumed to be 0.
-
-            Win64:
-
-                mov     EAX,&s
-                mov     RDX,GS:__tls_array
-                mov     ECX,_tls_index[RIP]
-                mov     RCX,[RCX*8][RDX]
-                mov     EAX,[RCX][RAX]
-
-                e => *(&s + *(GS:[80] + _tls_index * 8))
-
-                If this is an executable app, not a dll, _tls_index
-                can be assumed to be 0.
-         */
-        elem *e1,*e2,*ea;
-
-        e1 = el_calloc();
-        e1->Eoper = OPrelconst;
-        e1->EV.sp.Vsym = s;
-        e1->Ety = TYnptr;
-
-        if (config.wflags & WFexe)
-        {
-            // e => *(&s + *(FS:_tls_array))
-            e2 = el_var(getRtlsym(RTLSYM_TLS_ARRAY));
-        }
-        else
-        {
-            e2 = el_bin(OPmul,TYint,el_var(getRtlsym(RTLSYM_TLS_INDEX)),el_long(TYint,REGSIZE));
-            ea = el_var(getRtlsym(RTLSYM_TLS_ARRAY));
-            e2 = el_bin(OPadd,ea->Ety,ea,e2);
-        }
-        e2 = el_una(OPind,TYsize_t,e2);
-
-        e->Eoper = OPind;
-        e->E1 = el_bin(OPadd,e1->Ety,e1,e2);
-        e->E2 = NULL;
 #endif
     }
     return e;
@@ -1679,7 +1489,7 @@ elem * el_var(symbol *s)
 {   elem *e;
 
     //printf("el_var(s = '%s')\n", s->Sident);
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     if (config.flags3 & CFG3pic && !tyfunc(s->ty()))
         return el_picvar(s);
 #endif
@@ -1694,48 +1504,6 @@ elem * el_var(symbol *s)
         type_debug(t);
         e->ET = t;
         t->Tcount++;
-#if TARGET_WINDOS
-        switch (t->Tty & (mTYimport | mTYthread))
-        {   case mTYimport:
-                Obj::import(e);
-                break;
-            case mTYthread:
-        /*
-                mov     EAX,FS:__tls_array
-                mov     ECX,__tls_index
-                mov     EAX,[ECX*4][EAX]
-                inc     dword ptr _t[EAX]
-
-                e => *(&s + *(FS:_tls_array + _tls_index * 4))
-         */
-#if MARS
-                assert(0);
-#else
-            {   elem *e1,*e2,*ea;
-
-                e1 = el_calloc();
-                e1->Eoper = OPrelconst;
-                e1->EV.sp.Vsym = s;
-                e1->ET = newpointer(s->Stype);
-                e1->ET->Tcount++;
-
-                e2 = el_bint(OPmul,tsint,el_var(getRtlsym(RTLSYM_TLS_INDEX)),el_longt(tsint,4));
-                ea = el_var(getRtlsym(RTLSYM_TLS_ARRAY));
-                e2 = el_bint(OPadd,ea->ET,ea,e2);
-                e2 = el_unat(OPind,tsint,e2);
-
-                e->Eoper = OPind;
-                e->E1 = el_bint(OPadd,e1->ET,e1,e2);
-                e->E2 = NULL;
-            }
-#endif
-                break;
-            case mTYthread | mTYimport:
-                assert(SCPP);
-                tx86err(EM_thread_and_dllimport,s->Sident);     // can't be both thread and import
-                break;
-        }
-#endif
     }
     else
         e->Ety = s->ty();
@@ -1755,22 +1523,7 @@ elem * el_ptr(symbol *s)
     //printf("el_ptr\n");
     symbol_debug(s);
     type_debug(s->Stype);
-#if TARGET_OSX
-    if (config.flags3 & CFG3pic && tyfunc(s->ty()) && I32)
-    {
-        /* Cannot access address of code from code.
-         * Instead, create a data variable, put the address of the
-         * code in that data variable, and return the elem for
-         * that data variable.
-         */
-        symbol *sd = symboldata(Doffset, TYnptr);
-        sd->Sseg = DATA;
-        Doffset += Obj::reftoident(DATA, Doffset, s, 0, CFoff);
-        e = el_picvar(sd);
-        return e;
-    }
-#endif
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     if (config.flags3 & CFG3pic &&
         tyfunc(s->ty()))
         e = el_picvar(s);
@@ -2168,11 +1921,7 @@ void shrinkLongDoubleConstantIfPossible(elem *e)
          * Use 'volatile' to prevent optimizer from folding away the conversions,
          * and thereby missing the truncation in the conversion to double.
          */
-#if _MSC_VER
-        volatile_longdouble v = e->EV.Vldouble;
-#else
         volatile long double v = e->EV.Vldouble;
-#endif
         volatile double vDouble;
 
         *(&vDouble) = v;
@@ -3348,13 +3097,7 @@ case_tym:
             break;
         case TYldouble:
         {
-#if _MSC_VER
-            char buffer[3 + 3 * sizeof(targ_ldouble) + 1];
-            ld_sprint(buffer, 'g', e->EV.Vldouble);
-            dbg_printf("%s ", buffer);
-#else
             dbg_printf("%Lg ", e->EV.Vldouble);
-#endif
             break;
         }
         case TYifloat:

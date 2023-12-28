@@ -76,7 +76,7 @@ enum WM
         WM_badnumber    = 24,
         WM_ccast        = 25,
         WM_obsolete     = 26,
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         WM_skip_attribute   = 27, // skip GNUC attribute specification
         WM_warning_message  = 28, // preprocessor warning message
         WM_bad_vastart      = 29, // args for builtin va_start bad
@@ -105,7 +105,7 @@ enum LANG
 #include        "msgs2.h"
 #endif
 #include        "ty.h"
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
 #include        "../tk/mem.h"
 #else
 #include        "mem.h"
@@ -323,9 +323,6 @@ typedef struct Cstate
     Symbol *CSlinkage;          // table of forward referenced linkage pragmas
     list_t CSlist_freelist;     // free list for list package
     symtab_t *CSpsymtab;        // pointer to current Symbol table
-#if MEMORYHX
-    void **CSphx;               // pointer to HX data block
-#endif
     char *modname;              // module unique identifier
 } Cstate;
 
@@ -343,7 +340,7 @@ extern Cstate cstate;
 //  done on it, so it is stack and register variables.)
 #define symbol_isintab(s)       (sytab[(s)->Sclass] & SCSS)
 
-#if defined(__DMC__) || defined(_MSC_VER)
+#if defined(__DMC__)
 typedef char enum_SC;
 #else
 typedef enum SC enum_SC;
@@ -1187,10 +1184,6 @@ struct Symbol
     const char *prettyIdent;    // the symbol identifier as the user sees it
 #endif
 
-#if TARGET_OSX
-    targ_size_t Slocalgotoffset;
-#endif
-
     enum_SC Sclass;             // storage class (SCxxxx)
     char Sfl;                   // flavor (FLxxxx)
     SYMFLGS Sflags;             // flag bits (SFLxxxx)
@@ -1219,7 +1212,7 @@ struct Symbol
         #define SFLmutable      0x100000        // SCmember or SCfield is mutable
         #define SFLdyninit      0x200000        // symbol has dynamic initializer
         #define SFLtmp          0x400000        // symbol is a generated temporary
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         #define SFLthunk        0x40000 // symbol is temporary for thunk
 #endif
 

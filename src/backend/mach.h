@@ -1,20 +1,6 @@
 
 /* Mach-O object file format */
 
-#if __APPLE__
-
-#include <mach-o/loader.h>
-#include <mach-o/nlist.h>
-#include <mach-o/stab.h>
-#include <mach-o/reloc.h>
-//#include <mach-o/x86_64/reloc.h>
-
-#ifndef S_DTRACE_DOF
-        #define S_DTRACE_DOF                    15
-#endif
-
-#else
-
 #include <stdint.h>
 
 typedef int cpu_type_t;
@@ -325,4 +311,3 @@ struct scattered_relocation_info
     #endif
 };
 
-#endif

@@ -66,29 +66,6 @@ void out_config_init(
     tytab[TYchar] |= TYFLuns;
     bool mscoff = model & 1;
     model &= 32 | 64;
-#if TARGET_WINDOS
-    if (model == 64)
-    {   config.exe = EX_WIN64;
-        config.fpxmmregs = TRUE;
-        config.ehmethod = EH_DM;
-
-        // Not sure we really need these two lines, try removing them later
-        config.flags |= CFGnoebp;
-        config.flags |= CFGalwaysframe;
-        config.flags |= CFGromable; // put switch tables in code segment
-        config.objfmt = OBJ_MSCOFF;
-    }
-    else
-    {
-        config.exe = EX_WIN32;
-        config.ehmethod = EH_WIN32;
-        config.objfmt = mscoff ? OBJ_MSCOFF : OBJ_OMF;
-    }
-
-    if (exe)
-        config.wflags |= WFexe;         // EXE file only optimizations
-    config.flags4 |= CFG4underscore;
-#endif
 #if TARGET_LINUX
     if (model == 64)
     {   config.exe = EX_LINUX64;
@@ -110,93 +87,14 @@ void out_config_init(
     }
     config.objfmt = OBJ_ELF;
 #endif
-#if TARGET_OSX
-    config.fpxmmregs = TRUE;
-    if (model == 64)
-    {   config.exe = EX_OSX64;
-        config.fpxmmregs = TRUE;
-        config.ehmethod = EH_DWARF;
-    }
-    else
-    {
-        config.exe = EX_OSX;
-        config.ehmethod = EH_DM;
-    }
-    config.flags |= CFGnoebp;
-    if (!exe)
-    {
-        config.flags3 |= CFG3pic;
-        config.flags |= CFGalwaysframe; // PIC needs a frame for TLS fixups
-    }
-    config.flags |= CFGromable; // put switch tables in code segment
-    config.objfmt = OBJ_MACH;
-#endif
-#if TARGET_FREEBSD
-    if (model == 64)
-    {   config.exe = EX_FREEBSD64;
-        config.ehmethod = EH_DWARF;
-        config.fpxmmregs = TRUE;
-    }
-    else
-    {
-        config.exe = EX_FREEBSD;
-        config.ehmethod = EH_DWARF;
-        if (!exe)
-            config.flags |= CFGromable; // put switch tables in code segment
-    }
-    config.flags |= CFGnoebp;
-    if (!exe)
-    {
-        config.flags3 |= CFG3pic;
-        config.flags |= CFGalwaysframe; // PIC needs a frame for TLS fixups
-    }
-    config.objfmt = OBJ_ELF;
-#endif
-#if TARGET_OPENBSD
-    if (model == 64)
-    {   config.exe = EX_OPENBSD64;
-        config.fpxmmregs = TRUE;
-    }
-    else
-    {
-        config.exe = EX_OPENBSD;
-        if (!exe)
-            config.flags |= CFGromable; // put switch tables in code segment
-    }
-    config.flags |= CFGnoebp;
-    config.flags |= CFGalwaysframe;
-    if (!exe)
-        config.flags3 |= CFG3pic;
-    config.objfmt = OBJ_ELF;
-    config.ehmethod = EH_DM;
-#endif
-#if TARGET_SOLARIS
-    if (model == 64)
-    {   config.exe = EX_SOLARIS64;
-        config.fpxmmregs = TRUE;
-    }
-    else
-    {
-        config.exe = EX_SOLARIS;
-        if (!exe)
-            config.flags |= CFGromable; // put switch tables in code segment
-    }
-    config.flags |= CFGnoebp;
-    config.flags |= CFGalwaysframe;
-    if (!exe)
-        config.flags3 |= CFG3pic;
-    config.objfmt = OBJ_ELF;
-    config.ehmethod = EH_DM;
-#endif
     config.flags2 |= CFG2nodeflib;      // no default library
     config.flags3 |= CFG3eseqds;
 #if 0
     if (env->getEEcontext()->EEcompile != 2)
         config.flags4 |= CFG4allcomdat;
+
     if (env->nochecks())
         config.flags4 |= CFG4nochecks;  // no runtime checking
-#elif TARGET_OSX
-#else
     config.flags4 |= CFG4allcomdat;
 #endif
     if (trace)
@@ -214,20 +112,6 @@ void out_config_init(
 #if SYMDEB_DWARF
         configv.addlinenumbers = 1;
         config.fulltypes = (symdebug == 1) ? CVDWARF_D : CVDWARF_C;
-#endif
-#if SYMDEB_CODEVIEW
-        if (config.objfmt == OBJ_MSCOFF)
-        {
-            configv.addlinenumbers = 1;
-            config.fulltypes = CV8;
-            if(symdebug > 1)
-                config.flags2 |= CFG2gms;
-        }
-        else
-        {
-            configv.addlinenumbers = 1;
-            config.fulltypes = CV4;
-        }
 #endif
         if (!optimize)
             config.flags |= CFGalwaysframe;
@@ -325,18 +209,10 @@ void util_set32()
     tysize[TYnullptr] = LONGSIZE;
     tysize[TYnptr] = LONGSIZE;
     tysize[TYnref] = LONGSIZE;
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     tysize[TYldouble] = 12;
     tysize[TYildouble] = 12;
     tysize[TYcldouble] = 24;
-#elif TARGET_OSX
-    tysize[TYldouble] = 16;
-    tysize[TYildouble] = 16;
-    tysize[TYcldouble] = 32;
-#elif TARGET_WINDOS
-    tysize[TYldouble] = 10;
-    tysize[TYildouble] = 10;
-    tysize[TYcldouble] = 20;
 #else
     assert(0);
 #endif
@@ -352,18 +228,10 @@ void util_set32()
     tyalignsize[TYnullptr] = LONGSIZE;
     tyalignsize[TYnref] = LONGSIZE;
     tyalignsize[TYnptr] = LONGSIZE;
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     tyalignsize[TYldouble] = 4;
     tyalignsize[TYildouble] = 4;
     tyalignsize[TYcldouble] = 4;
-#elif TARGET_OSX
-    tyalignsize[TYldouble] = 16;
-    tyalignsize[TYildouble] = 16;
-    tyalignsize[TYcldouble] = 16;
-#elif TARGET_WINDOS
-    tyalignsize[TYldouble] = 2;
-    tyalignsize[TYildouble] = 2;
-    tyalignsize[TYcldouble] = 2;
 #else
     assert(0);
 #endif
@@ -390,14 +258,10 @@ void util_set64()
     tysize[TYnullptr] = 8;
     tysize[TYnptr] = 8;
     tysize[TYnref] = 8;
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_SOLARIS || TARGET_OSX
+#if TARGET_LINUX
     tysize[TYldouble] = 16;
     tysize[TYildouble] = 16;
     tysize[TYcldouble] = 32;
-#elif TARGET_WINDOS
-    tysize[TYldouble] = 10;
-    tysize[TYildouble] = 10;
-    tysize[TYcldouble] = 20;
 #else
     assert(0);
 #endif
@@ -413,18 +277,10 @@ void util_set64()
     tyalignsize[TYnullptr] = 8;
     tyalignsize[TYnptr] = 8;
     tyalignsize[TYnref] = 8;
-#if TARGET_LINUX || TARGET_FREEBSD || TARGET_SOLARIS
+#if TARGET_LINUX
     tyalignsize[TYldouble] = 16;
     tyalignsize[TYildouble] = 16;
     tyalignsize[TYcldouble] = 16;
-#elif TARGET_OSX
-    tyalignsize[TYldouble] = 16;
-    tyalignsize[TYildouble] = 16;
-    tyalignsize[TYcldouble] = 16;
-#elif TARGET_WINDOS
-    tyalignsize[TYldouble] = 2;
-    tyalignsize[TYildouble] = 2;
-    tyalignsize[TYcldouble] = 2;
 #else
     assert(0);
 #endif

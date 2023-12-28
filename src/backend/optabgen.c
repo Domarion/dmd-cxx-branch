@@ -990,12 +990,8 @@ void dotytab()
             case TYldouble:
             case TYildouble:
             case TYcldouble:
-#if TARGET_OSX
-                sz = 16;
-#elif TARGET_LINUX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
                 sz = 4;
-#elif TARGET_WINDOS
-                sz = 2;
 #else
 #error "fix this"
 #endif

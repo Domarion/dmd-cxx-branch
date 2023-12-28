@@ -4795,38 +4795,7 @@ STATIC elem * elvalist(elem *e, goal_t goal)
         return e;
     }
 
-#if TARGET_WINDOS
-
-    assert(config.exe == EX_WIN64); // va_start is not an intrinsic on 32-bit
-
-    // (OPva_start &va)
-    // (OPeq (OPind E1) (OPptr &lastNamed+8))
-    //elem_print(e);
-
-    // Find last named parameter
-    symbol *lastNamed = NULL;
-    for (SYMIDX si = 0; si < globsym.top; si++)
-    {
-        symbol *s = globsym.tab[si];
-
-        if (s->Sclass == SCfastpar || s->Sclass == SCshadowreg)
-            lastNamed = s;
-    }
-
-    e->Eoper = OPeq;
-    e->E1 = el_una(OPind, TYnptr, e->E1);
-    if (lastNamed)
-    {
-        e->E2 = el_ptr(lastNamed);
-        e->E2->EV.sp.Voffset = REGSIZE;
-    }
-    else
-        e->E2 = el_long(TYnptr, 0);
-    //elem_print(e);
-
-#endif
-
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
 
     assert(I64); // va_start is not an intrinsic on 32-bit
     // (OPva_start &va)

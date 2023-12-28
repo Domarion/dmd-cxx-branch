@@ -51,7 +51,7 @@ void ph_init()
 void ph_term()
 {
     //printf("ph_term()\n");
-#if _WINDLL || DEBUG
+#if DEBUG
     Heap *h;
     Heap *hprev;
 

@@ -3,9 +3,7 @@
 #include <time.h>
 #include <stdint.h>
 
-#ifdef _MSC_VER
-#pragma pack(push,1)
-#elif defined(__DMC__)
+#if defined(__DMC__)
 #pragma ZTC align 1
 #endif
 
@@ -282,8 +280,6 @@ union auxent
 
 /***********************************************/
 
-#ifdef _MSC_VER
-#pragma pack(pop)
-#elif defined(__DMC__)
+#if defined(__DMC__)
 #pragma ZTC align
 #endif

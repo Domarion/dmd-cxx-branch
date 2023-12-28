@@ -102,215 +102,6 @@ code *modEA(code *c)
     return CNIL;
 }
 
-#if TARGET_WINDOS
-// This code is for CPUs that do not support the 8087
-
-/****************************
- * Gen code for op= for doubles.
- */
-
-STATIC code * opassdbl(elem *e,regm_t *pretregs,unsigned op)
-{ code *c1,*c2,*c3,*c4,*c5,*c6,cs;
-  unsigned clib;
-  regm_t retregs2,retregs,idxregs;
-  tym_t tym;
-  elem *e1;
-
-  static unsigned clibtab[OPdivass - OPpostinc + 1] =
-  /* OPpostinc,OPpostdec,OPeq,OPaddass,OPminass,OPmulass,OPdivass       */
-  {  CLIBdadd, CLIBdsub, (unsigned)-1,  CLIBdadd,CLIBdsub,CLIBdmul,CLIBddiv };
-
-  if (config.inline8087)
-        return opass87(e,pretregs);
-  clib = clibtab[op - OPpostinc];
-  e1 = e->E1;
-  tym = tybasic(e1->Ety);
-  c1 = getlvalue(&cs,e1,DOUBLEREGS | mBX | mCX);
-
-  if (tym == TYfloat)
-  {
-        clib += CLIBfadd - CLIBdadd;    /* convert to float operation   */
-
-        /* Load EA into FLOATREGS       */
-        c1 = cat(c1,getregs(FLOATREGS));
-        cs.Iop = 0x8B;
-        cs.Irm |= modregrm(0,AX,0);
-        c1 = gen(c1,&cs);
-
-        if (!I32)
-        {
-            cs.Irm |= modregrm(0,DX,0);
-            getlvalue_msw(&cs);
-            c1 = gen(c1,&cs);
-            getlvalue_lsw(&cs);
-
-        }
-        retregs2 = FLOATREGS2;
-        idxregs = FLOATREGS | idxregm(&cs);
-        retregs = FLOATREGS;
-  }
-  else
-  {
-        if (I32)
-        {
-            /* Load EA into DOUBLEREGS  */
-            c1 = cat(c1,getregs(DOUBLEREGS_32));
-            cs.Iop = 0x8B;
-            cs.Irm |= modregrm(0,AX,0);
-            c1 = gen(c1,&cs);
-            cs.Irm |= modregrm(0,DX,0);
-            getlvalue_msw(&cs);
-            c1 = gen(c1,&cs);
-            getlvalue_lsw(&cs);
-
-            retregs2 = DOUBLEREGS2_32;
-            idxregs = DOUBLEREGS_32 | idxregm(&cs);
-        }
-        else
-        {
-            /* Push EA onto stack       */
-            cs.Iop = 0xFF;
-            cs.Irm |= modregrm(0,6,0);
-            cs.IEVoffset1 += DOUBLESIZE - REGSIZE;
-            c1 = gen(c1,&cs);
-            getlvalue_lsw(&cs);
-            gen(c1,&cs);
-            getlvalue_lsw(&cs);
-            gen(c1,&cs);
-            getlvalue_lsw(&cs);
-            gen(c1,&cs);
-            stackpush += DOUBLESIZE;
-
-            retregs2 = DOUBLEREGS_16;
-            idxregs = idxregm(&cs);
-        }
-        retregs = DOUBLEREGS;
-  }
-
-  if ((cs.Iflags & CFSEG) == CFes)
-        idxregs |= mES;
-  cgstate.stackclean++;
-  c3 = scodelem(e->E2,&retregs2,idxregs,FALSE);
-  cgstate.stackclean--;
-  c4 = callclib(e,clib,&retregs,0);
-  if (e1->Ecount)
-        cssave(e1,retregs,EOP(e1));             /* if lvalue is a CSE   */
-  freenode(e1);
-  cs.Iop = 0x89;                                /* MOV EA,DOUBLEREGS    */
-  c5 = fltregs(&cs,tym);
-  c6 = fixresult(e,retregs,pretregs);
-  return cat6(c1,CNIL,c3,c4,c5,c6);
-}
-
-/****************************
- * Gen code for OPnegass for doubles.
- */
-
-STATIC code * opnegassdbl(elem *e,regm_t *pretregs)
-{   code *c1,*c2,*c3,*c,*cl,*cr,cs;
-    unsigned clib;
-    regm_t retregs2,retregs,idxregs;
-    tym_t tym;
-    elem *e1;
-    int sz;
-
-    if (config.inline8087)
-        return cdnegass87(e,pretregs);
-    e1 = e->E1;
-    tym = tybasic(e1->Ety);
-    sz = tysize[tym];
-
-    cl = getlvalue(&cs,e1,*pretregs ? DOUBLEREGS | mBX | mCX : 0);
-    cr = modEA(&cs);
-    cs.Irm |= modregrm(0,6,0);
-    cs.Iop = 0x80;
-    cs.IEVoffset1 += sz - 1;
-    cs.IFL2 = FLconst;
-    cs.IEV2.Vuns = 0x80;
-    c = gen(NULL,&cs);                  // XOR 7[EA],0x80
-    if (tycomplex(tym))
-    {
-        cs.IEVoffset1 -= sz / 2;
-        gen(c,&cs);                     // XOR 7[EA],0x80
-    }
-    c = cat3(cl,cr,c);
-
-    if (*pretregs || e1->Ecount)
-    {
-        cs.IEVoffset1 -= sz - 1;
-
-        if (tym == TYfloat)
-        {
-            // Load EA into FLOATREGS
-            c1 = getregs(FLOATREGS);
-            cs.Iop = 0x8B;
-            NEWREG(cs.Irm, AX);
-            c1 = gen(c1,&cs);
-
-            if (!I32)
-            {
-                NEWREG(cs.Irm, DX);
-                getlvalue_msw(&cs);
-                c1 = gen(c1,&cs);
-                getlvalue_lsw(&cs);
-
-            }
-            retregs = FLOATREGS;
-        }
-        else
-        {
-            if (I32)
-            {
-                // Load EA into DOUBLEREGS
-                c1 = getregs(DOUBLEREGS_32);
-                cs.Iop = 0x8B;
-                cs.Irm &= ~modregrm(0,7,0);
-                cs.Irm |= modregrm(0,AX,0);
-                c1 = gen(c1,&cs);
-                cs.Irm |= modregrm(0,DX,0);
-                getlvalue_msw(&cs);
-                c1 = gen(c1,&cs);
-                getlvalue_lsw(&cs);
-            }
-            else
-            {
-#if 1
-                cs.Iop = 0x8B;
-                c1 = fltregs(&cs,TYdouble);     // MOV DOUBLEREGS, EA
-#else
-                // Push EA onto stack
-                cs.Iop = 0xFF;
-                cs.Irm |= modregrm(0,6,0);
-                cs.IEVoffset1 += DOUBLESIZE - REGSIZE;
-                c1 = gen(NULL,&cs);
-                cs.IEVoffset1 -= REGSIZE;
-                gen(c1,&cs);
-                cs.IEVoffset1 -= REGSIZE;
-                gen(c1,&cs);
-                cs.IEVoffset1 -= REGSIZE;
-                gen(c1,&cs);
-                stackpush += DOUBLESIZE;
-#endif
-            }
-            retregs = DOUBLEREGS;
-        }
-        if (e1->Ecount)
-            cssave(e1,retregs,EOP(e1));         /* if lvalue is a CSE   */
-    }
-    else
-    {   retregs = 0;
-        assert(e1->Ecount == 0);
-        c1 = NULL;
-    }
-
-    freenode(e1);
-    c3 = fixresult(e,retregs,pretregs);
-    return cat3(c,c1,c3);
-}
-#endif
-
-
-
 /************************
  * Generate code for an assignment.
  */
@@ -817,7 +608,7 @@ code *cdaddass(elem *e,regm_t *pretregs)
 
     if (tyfloating(tyml))
     {
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
       if (op == OPnegass)
             c = cdnegass87(e,pretregs);
         else
@@ -1322,7 +1113,7 @@ code *cdmulass(elem *e,regm_t *pretregs)
 
     if (tyfloating(tyml))
     {
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
         return opass87(e,pretregs);
 #else
         return opassdbl(e,pretregs,op);
@@ -1824,7 +1615,7 @@ code *cdcmp(elem *e,regm_t *pretregs)
     unsigned rex = (I64 && sz == 8) ? REX_W : 0;
     unsigned grex = rex << 16;          // 64 bit operands
 
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
   if (tyfloating(tym))                  /* if floating operation        */
   {
         retregs = mPSW;
@@ -2056,13 +1847,6 @@ code *cdcmp(elem *e,regm_t *pretregs)
                     goto oplt;
                 case OPgt:
                     c = gen2(c,0xF7,grex | modregrmx(3,3,reg));         // NEG reg
-#if TARGET_WINDOS
-                    // What does the Windows platform do?
-                    //  lower INT_MIN by 1?   See test exe9.c
-                    // BUG: fix later
-                    code_orflag(c, CFpsw);
-                    genc2(c,0x81,grex | modregrmx(3,3,reg),0);  // SBB reg,0
-#endif
                     goto oplt;
                 case OPlt:
                 oplt:
@@ -2281,10 +2065,6 @@ code *cdcmp(elem *e,regm_t *pretregs)
         goto L5;
 
       case OPvar:
-#if TARGET_OSX
-        if (movOnly(e2))
-            goto L2;
-#endif
         if ((e1->Eoper == OPvar &&
              isregvar(e2,&rretregs,&reg) &&
              sz <= REGSIZE
@@ -2590,9 +2370,6 @@ code *cdcnvt(elem *e, regm_t *pretregs)
         OPd_u16,        CLIBdbluns,
         OPu16_d,        CLIBunsdbl,
         OPd_u32,        CLIBdblulng,
-#if TARGET_WINDOS
-        OPu32_d,        CLIBulngdbl,
-#endif
         OPd_s64,        CLIBdblllng,
         OPs64_d,        CLIBllngdbl,
         OPd_u64,        CLIBdblullng,
@@ -2699,7 +2476,7 @@ code *cdcnvt(elem *e, regm_t *pretregs)
                     return xmmcnvt(e,pretregs);
                 if (I32 || I64)
                     return cdd_u32(e,pretregs);
-#if TARGET_LINUX || TARGET_OSX || TARGET_FREEBSD || TARGET_OPENBSD || TARGET_SOLARIS
+#if TARGET_LINUX
                 retregs = mST0;
 #else
                 retregs = DOUBLEREGS;

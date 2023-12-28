@@ -10,10 +10,6 @@
  * String compare of filenames.
  */
 
-#if MSDOS || __OS2__ || _WIN32
-#define filespeccmp(f1,f2)      stricmp((f1),(f2))
-#define filespecmemcmp(f1,f2,n) memicmp((f1),(f2),(n))
-#endif
 #if BSDUNIX || M_UNIX || M_XENIX
 #define filespeccmp(f1,f2)      strcmp((f1),(f2))
 #define filespecmemcmp(f1,f2,n) memcmp((f1),(f2),(n))
@@ -99,11 +95,7 @@ char *filespecname(const char *);
  *      mem_malloc'd string
  */
 
-#if MSDOS || __OS2__ || __NT__
-#define filespectilde(f)        (f)
-#else
 char *filespectilde(char *);
-#endif
 
 /************************************
  * Expand all ~ in the given string.
@@ -114,11 +106,7 @@ char *filespectilde(char *);
  *      mem_malloc'd string
  */
 
-#if MSDOS || __OS2__ || __NT__
-#define filespecmultitilde(f)   (f)
-#else
 char *filespecmultitilde(char *);
-#endif
 
 /*****************************
  * Convert filespec into a backup filename appropriate for the
