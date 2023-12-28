@@ -94,9 +94,6 @@ static int fptraits(void *param, Dsymbol *s)
     if (!fd)
         return 0;
 
-    if (p->ident == Id::getVirtualFunctions && !fd->isVirtual())
-        return 0;
-
     if (p->ident == Id::getVirtualMethods && !fd->isVirtualMethod())
         return 0;
 
@@ -314,7 +311,6 @@ static Expression *isDsymX(TraitsExp *e, bool (*fp)(Dsymbol *s))
 }
 
 static bool isFuncAbstractFunction(FuncDeclaration *f) { return f->isAbstract(); }
-static bool isFuncVirtualFunction(FuncDeclaration *f) { return f->isVirtual(); }
 static bool isFuncVirtualMethod(FuncDeclaration *f) { return f->isVirtualMethod(); }
 static bool isFuncFinalFunction(FuncDeclaration *f) { return f->isFinalFunc(); }
 static bool isFuncStaticFunction(FuncDeclaration *f) { return !f->needThis() && !f->isNested(); }
@@ -416,7 +412,6 @@ TraitsInitializer::TraitsInitializer()
         "isScalar",
         "isStaticArray",
         "isUnsigned",
-        "isVirtualFunction",
         "isVirtualMethod",
         "isAbstractFunction",
         "isFinalFunction",
@@ -437,7 +432,6 @@ TraitsInitializer::TraitsInitializer()
         "getLinkage",
         "getMember",
         "getOverloads",
-        "getVirtualFunctions",
         "getVirtualMethods",
         "classInstanceSize",
         "allMembers",
@@ -819,13 +813,6 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
 
         return isFuncX(e, &isFuncAbstractFunction);
     }
-    else if (e->ident == Id::isVirtualFunction)
-    {
-        if (dim != 1)
-            return dimError(e, 1, dim);
-
-        return isFuncX(e, &isFuncVirtualFunction);
-    }
     else if (e->ident == Id::isVirtualMethod)
     {
         if (dim != 1)
@@ -1064,8 +1051,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
     else if (e->ident == Id::hasMember ||
              e->ident == Id::getMember ||
              e->ident == Id::getOverloads ||
-             e->ident == Id::getVirtualMethods ||
-             e->ident == Id::getVirtualFunctions)
+             e->ident == Id::getVirtualMethods)
     {
         if (dim != 2 && !(dim == 3 && e->ident == Id::getOverloads))
             return dimError(e, 2, dim);
@@ -1151,8 +1137,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             scx->pop();
             return ex;
         }
-        else if (e->ident == Id::getVirtualFunctions ||
-                 e->ident == Id::getVirtualMethods ||
+        else if (e->ident == Id::getVirtualMethods ||
                  e->ident == Id::getOverloads)
         {
             unsigned errors = global.errors;
