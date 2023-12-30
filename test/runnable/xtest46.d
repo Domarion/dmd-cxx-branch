@@ -5371,7 +5371,7 @@ void fun12503()
             b = null;
             return;
         }
-        catch
+        catch(Throwable)
         {
         }
     }

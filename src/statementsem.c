@@ -3776,8 +3776,9 @@ void catchSemantic(Catch *c, Scope *sc)
 
     if (!c->type)
     {
-        deprecation(c->loc, "catch statement without an exception specification is deprecated; use catch(Throwable) for old behavior");
-
+        error(c->loc, "catch statement without an exception specification is deprecated; use catch(Throwable) for old behavior");
+        errorSupplemental(c->loc, "use `catch(Throwable)` for old behavior");
+        c->errors = true;
         // reference .object.Throwable
         c->type = getThrowable();
     }
