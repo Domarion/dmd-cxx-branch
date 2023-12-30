@@ -473,7 +473,6 @@ int tryMain(size_t argc, const char *argv[])
                         printf("\
 Language changes listed by -transition=id:\n\
   =all           list information on all language changes\n\
-  =complex,14488 list all usages of complex or imaginary types\n\
   =field,3449    list all non-mutable fields which occupy an object instance\n\
   =tls           list all variables going into thread local storage\n\
 ");
@@ -491,9 +490,6 @@ Language changes listed by -transition=id:\n\
                         {
                             case 3449:
                                 global.params.vfield = true;
-                                break;
-                            case 14488:
-                                global.params.vcomplex = true;
                                 break;
                             default:
                                 goto Lerror;

@@ -2600,12 +2600,12 @@ void Type::checkComplexTransition(Loc loc)
         }
         if (t->iscomplex())
         {
-            message(loc, "use of complex type `%s` is scheduled for deprecation, "
+            deprecation(loc, "use of complex type `%s` is scheduled for deprecation, "
                     "use `std.complex.Complex!(%s)` instead", toChars(), rt->toChars());
         }
         else
         {
-            message(loc, "use of imaginary type `%s` is scheduled for deprecation, "
+            deprecation(loc, "use of imaginary type `%s` is scheduled for deprecation, "
                     "use `%s` instead\n", toChars(), rt->toChars());
         }
     }
