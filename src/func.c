@@ -776,13 +776,13 @@ int FuncDeclaration::overrides(FuncDeclaration *fd)
  * this function overrides.
  * Prefer an exact match to a covariant one.
  * Params:
- *      fix17349 = enable fix https://issues.dlang.org/show_bug.cgi?id=17349
- * Returns:
+ *      vtbl     = vtable to use
+ *      dim      = maximal vtable dimension * Returns:
  *      -1      didn't find one
  *      -2      can't determine because of forward references
  */
 
-int FuncDeclaration::findVtblIndex(Dsymbols *vtbl, int dim, bool fix17349)
+int FuncDeclaration::findVtblIndex(Dsymbols *vtbl, int dim)
 {
     //printf("findVtblIndex() %s\n", toChars());
     FuncDeclaration *mismatch = NULL;
@@ -819,7 +819,7 @@ int FuncDeclaration::findVtblIndex(Dsymbols *vtbl, int dim, bool fix17349)
             }
 
             StorageClass stc = 0;
-            int cov = type->covariant(fdv->type, &stc, fix17349);
+            int cov = type->covariant(fdv->type, &stc);
             //printf("\tbaseclass cov = %d\n", cov);
             switch (cov)
             {

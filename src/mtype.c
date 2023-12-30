@@ -4847,7 +4847,6 @@ Type *TypeFunction::syntaxCopy()
  * Params:
  *      t = type 'this' is covariant with
  *      pstc = if not null, store STCxxxx which would make it covariant
- *      fix17349 = enable fix https://issues.dlang.org/show_bug.cgi?id=17349
  * Returns:
  *      0       types are distinct
  *      1       this is covariant with t
@@ -4857,7 +4856,7 @@ Type *TypeFunction::syntaxCopy()
  *      *pstc   STCxxxx which would make it covariant
  */
 
-int Type::covariant(Type *t, StorageClass *pstc, bool fix17349)
+int Type::covariant(Type *t, StorageClass *pstc)
 {
     if (pstc)
         *pstc = 0;
@@ -4893,8 +4892,6 @@ int Type::covariant(Type *t, StorageClass *pstc, bool fix17349)
 
             if (!fparam1->type->equals(fparam2->type))
             {
-                if (!fix17349)
-                    goto Ldistinct;
                 Type *tp1 = fparam1->type;
                 Type *tp2 = fparam2->type;
                 if (tp1->ty == tp2->ty)

@@ -3052,14 +3052,10 @@ public:
                         }
                         else
                         {
-                            int vi2 = funcdecl->findVtblIndex(&cd->baseClass->vtbl, (int)cd->baseClass->vtbl.length, false);
-                            if (vi2 < 0)
-                                // https://issues.dlang.org/show_bug.cgi?id=17349
-                                ::deprecation(funcdecl->loc, "cannot implicitly override base class method `%s` with `%s`; add `override` attribute",
-                                    fdv->toPrettyChars(), funcdecl->toPrettyChars());
-                            else
-                                error(funcdecl->loc, "implicitly overriding base class method %s with %s deprecated; add `override` attribute",
-                                    fdv->toPrettyChars(), funcdecl->toPrettyChars());
+                            // https://issues.dlang.org/show_bug.cgi?id=17349
+                            error(funcdecl->loc, "cannot implicitly override base class method `%s` with `%s`; add `override` attribute",
+                                fdv->toPrettyChars(),
+                                funcdecl->toPrettyChars());
                         }
                     }
 
