@@ -1788,6 +1788,11 @@ public:
 
         Module::dprogress++;
 
+        if (sc->stc & STCscope)
+        {
+            error(ed->loc, "`scope` as a type constraint is obsolete.  Use `scope` at the usage site.");
+        }
+
         Scope *sce;
         if (ed->isAnonymous())
             sce = sc;
@@ -3928,6 +3933,11 @@ public:
             semantic2(sd->deferred, sc);
             semantic3(sd->deferred, sc);
         }
+
+        if (sd->storage_class & STCscope)
+        {
+            error(sd->loc, "`scope` as a type constraint is obsolete.  Use `scope` at the usage site.");
+        }
     }
 
     void interfaceSemantic(ClassDeclaration *cd)
@@ -4495,6 +4505,11 @@ public:
             semantic3(cldec->deferred, sc);
         }
         //printf("-ClassDeclaration::semantic(%s), type = %p, sizeok = %d, this = %p\n", cldec->toChars(), cldec->type, sizeok, cldec);
+
+        if (cldec->storage_class & STCscope)
+        {
+            error(cldec->loc, "`scope` as a type constraint is obsolete.  Use `scope` at the usage site.");
+        }
     }
 
     void visit(InterfaceDeclaration *idec)
@@ -4792,6 +4807,11 @@ public:
         }
 
         assert(idec->type->ty != Tclass || ((TypeClass *)idec->type)->sym == idec);
+
+        if (idec->storage_class & STCscope)
+        {
+            error(idec->loc, "`scope` as a type constraint is obsolete.  Use `scope` at the usage site.");
+        }
     }
 };
 
