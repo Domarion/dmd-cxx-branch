@@ -8157,6 +8157,20 @@ Expression *Parser::parseAssignExp()
     Loc loc;
 
     e = parseCondExp();
+
+    if (!e)
+    {
+        return e;
+    }
+
+    if (e->op == TOKquestion && !e->parens && precedence[token.value] == PREC_assign)
+    {
+        error(e->loc,
+              "`%s` must be surrounded by parentheses when next to operator `%s`",
+              e->toChars(),
+              Token::toChars(token.value));
+    }
+
     while (1)
     {
         loc = token.loc;
