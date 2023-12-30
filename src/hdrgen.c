@@ -2180,15 +2180,6 @@ public:
         bodyToBuffer(d);
     }
 
-    void visit(DeleteDeclaration *d)
-    {
-        if (stcToBuffer(buf, d->storage_class & ~STCstatic))
-            buf->writeByte(' ');
-        buf->writestring("delete");
-        parametersToBuffer(d->parameters, 0);
-        bodyToBuffer(d);
-    }
-
     ////////////////////////////////////////////////////////////////////////////
 
     void visit(ErrorInitializer *)

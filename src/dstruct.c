@@ -199,7 +199,6 @@ AggregateDeclaration::AggregateDeclaration(Loc loc, Identifier *id)
     classKind = ClassKind::d;
     inv = NULL;
     aggNew = NULL;
-    aggDelete = NULL;
 
     stag = NULL;
     sinit = NULL;

@@ -915,21 +915,3 @@ public:
     NewDeclaration *isNewDeclaration() { return this; }
     void accept(Visitor *v) { v->visit(this); }
 };
-
-
-class DeleteDeclaration : public FuncDeclaration
-{
-public:
-    Parameters *parameters;
-
-    DeleteDeclaration(Loc loc, Loc endloc, StorageClass stc, Parameters *arguments);
-    Dsymbol *syntaxCopy(Dsymbol *);
-    const char *kind() const;
-    bool isDelete();
-    bool isVirtual();
-    bool addPreInvariant();
-    bool addPostInvariant();
-
-    DeleteDeclaration *isDeleteDeclaration() { return this; }
-    void accept(Visitor *v) { v->visit(this); }
-};

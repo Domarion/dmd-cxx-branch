@@ -169,19 +169,6 @@ bool canThrow(Expression *e, FuncDeclaration *func, bool mustNotThrow)
                     stop = true;
                 }
             }
-            if (ad->aggDelete && tb->ty != Tarray)
-            {
-                Type *t = ad->aggDelete->type;
-                if (t->ty == Tfunction && !((TypeFunction *)t)->isnothrow)
-                {
-                    if (mustNotThrow)
-                    {
-                        de->error("%s `%s` is not nothrow",
-                            ad->aggDelete->kind(), ad->aggDelete->toPrettyChars());
-                    }
-                    stop = true;
-                }
-            }
         }
 
         void visit(AssignExp *ae)

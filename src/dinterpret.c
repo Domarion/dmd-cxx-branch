@@ -5492,12 +5492,6 @@ public:
 
             ClassReferenceExp *cre = (ClassReferenceExp *)result;
             ClassDeclaration *cd = cre->originalClass();
-            if (cd->aggDelete)
-            {
-                e->error("member deallocators not supported by CTFE");
-                result = CTFEExp::cantexp;
-                return;
-            }
 
             if (cd->dtor)
             {
@@ -5523,12 +5517,6 @@ public:
 
                 StructDeclaration *sd = ((TypeStruct *)tb)->sym;
                 StructLiteralExp *sle = (StructLiteralExp *)((AddrExp *)result)->e1;
-                if (sd->aggDelete)
-                {
-                    e->error("member deallocators not supported by CTFE");
-                    result = CTFEExp::cantexp;
-                    return;
-                }
 
                 if (sd->dtor)
                 {
@@ -5553,13 +5541,6 @@ public:
                 }
 
                 StructDeclaration *sd = ((TypeStruct *)tv)->sym;
-                if (sd->aggDelete)
-                {
-                    e->error("member deallocators not supported by CTFE");
-                    result = CTFEExp::cantexp;
-                    return;
-                }
-
                 if (sd->dtor)
                 {
                     ArrayLiteralExp *ale = (ArrayLiteralExp *)result;

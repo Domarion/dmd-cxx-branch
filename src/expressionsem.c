@@ -6117,53 +6117,7 @@ public:
             if (tb->ty == Tstruct)
             {
                 ad = ((TypeStruct *)tb)->sym;
-                FuncDeclaration *f = ad->aggDelete;
-                FuncDeclaration *fd = ad->dtor;
-
-                if (!f)
-                {
-                    semanticTypeInfo(sc, tb);
-                    break;
-                }
-
-                /* Construct:
-                 *      ea = copy e1 to a tmp to do side effects only once
-                 *      eb = call destructor
-                 *      ec = call deallocator
-                 */
-                Expression *ea = NULL;
-                Expression *eb = NULL;
-                Expression *ec = NULL;
-                VarDeclaration *v = NULL;
-
-                if (fd && f)
-                {
-                    v = copyToTemp(0, "__tmpea", exp->e1);
-                    dsymbolSemantic(v, sc);
-                    ea = new DeclarationExp(exp->loc, v);
-                    ea->type = v->type;
-                }
-
-                if (fd)
-                {
-                    Expression *e = ea ? new VarExp(exp->loc, v) : exp->e1;
-                    e = new DotVarExp(Loc(), e, fd, false);
-                    eb = new CallExp(exp->loc, e);
-                    eb = expressionSemantic(eb, sc);
-                }
-
-                if (f)
-                {
-                    Type *tpv = Type::tvoid->pointerTo();
-                    Expression *e = ea ? new VarExp(exp->loc, v) : exp->e1->castTo(sc, tpv);
-                    e = new CallExp(exp->loc, new VarExp(exp->loc, f, false), e);
-                    ec = expressionSemantic(e, sc);
-                }
-                ea = Expression::combine(ea, eb);
-                ea = Expression::combine(ea, ec);
-                assert(ea);
-                result = ea;
-                return;
+                semanticTypeInfo(sc, tb);
             }
             break;
 
@@ -6191,12 +6145,6 @@ public:
                 err |= exp->checkPurity(sc, ad->dtor);
                 err |= exp->checkSafety(sc, ad->dtor);
                 err |= exp->checkNogc(sc, ad->dtor);
-            }
-            if (ad->aggDelete && tb->ty != Tarray)
-            {
-                err |= exp->checkPurity(sc, ad->aggDelete);
-                err |= exp->checkSafety(sc, ad->aggDelete);
-                err |= exp->checkNogc(sc, ad->aggDelete);
             }
             if (err)
                 return setError();

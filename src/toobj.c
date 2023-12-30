@@ -451,10 +451,7 @@ void toObjFile(Dsymbol *ds, bool multiobj)
 
 
                 // deallocator
-                if (cd->aggDelete)
-                    dtb.xoff(toSymbol(cd->aggDelete), 0, TYnptr);
-                else
-                    dtb.size(0);
+                dtb.size(0);
 
                 // offTi[]
                 dtb.size(0);

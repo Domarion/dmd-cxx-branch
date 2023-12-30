@@ -33,7 +33,6 @@ class ConditionalDeclaration;
 class InvariantDeclaration;
 class UnitTestDeclaration;
 class NewDeclaration;
-class DeleteDeclaration;
 class Condition;
 class Module;
 struct ModuleDeclaration;
@@ -103,7 +102,6 @@ public:
     Dsymbol *parseInvariant(PrefixAttributes *pAttrs);
     Dsymbol *parseUnitTest(PrefixAttributes *pAttrs);
     Dsymbol *parseNew(PrefixAttributes *pAttrs);
-    Dsymbol *parseDelete(PrefixAttributes *pAttrs);
     Parameters *parseParameters(VarArg *pvarargs, TemplateParameters **tpl = NULL);
     EnumDeclaration *parseEnum();
     Dsymbol *parseAggregate();

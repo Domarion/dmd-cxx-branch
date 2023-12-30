@@ -3720,48 +3720,6 @@ public:
         funcDeclarationSemantic(nd);
     }
 
-    void visit(DeleteDeclaration *deld)
-    {
-        //printf("DeleteDeclaration::semantic()\n");
-        if (deld->semanticRun >= PASSsemanticdone)
-            return;
-        if (deld->_scope)
-        {
-            sc = deld->_scope;
-            deld->_scope = NULL;
-        }
-
-        deld->parent = sc->parent;
-        Dsymbol *p = deld->parent->pastMixin();
-        if (!p->isAggregateDeclaration())
-        {
-            error(deld->loc, "deallocator can only be a member of aggregate, not %s %s",
-                p->kind(), p->toChars());
-            deld->type = Type::terror;
-            deld->errors = true;
-            return;
-        }
-        if (!deld->type)
-            deld->type = new TypeFunction(ParameterList(deld->parameters), Type::tvoid, LINKd, deld->storage_class);
-
-        deld->type = typeSemantic(deld->type, deld->loc, sc);
-
-        // Check that there is only one argument of type void*
-        TypeFunction *tf = deld->type->toTypeFunction();
-        if (tf->parameterList.length() != 1)
-        {
-            deld->error("one argument of type void* expected");
-        }
-        else
-        {
-            Parameter *fparam = tf->parameterList[0];
-            if (!fparam->type->equals(Type::tvoid->pointerTo()))
-                deld->error("one argument of type void* expected, not %s", fparam->type->toChars());
-        }
-
-        funcDeclarationSemantic(deld);
-    }
-
     void visit(StructDeclaration *sd)
     {
         //printf("StructDeclaration::semantic(this=%p, %s '%s', sizeok = %d)\n", sd, sd->parent->toChars(), sd->toChars(), sizeok);
@@ -3903,7 +3861,6 @@ public:
         /* Look for special member functions.
          */
         sd->aggNew =       (NewDeclaration *)sd->search(Loc(), Id::classNew);
-        sd->aggDelete = (DeleteDeclaration *)sd->search(Loc(), Id::classDelete);
 
         // Look for the constructor
         sd->ctor = sd->searchCtor();
@@ -4433,7 +4390,6 @@ public:
 
         // Can be in base class
         cldec->aggNew    =    (NewDeclaration *)cldec->search(Loc(), Id::classNew);
-        cldec->aggDelete = (DeleteDeclaration *)cldec->search(Loc(), Id::classDelete);
 
         // Look for the constructor
         cldec->ctor = cldec->searchCtor();

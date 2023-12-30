@@ -450,10 +450,6 @@ Dsymbols *Parser::parseDeclDefs(int once, Dsymbol **pLastDecl, PrefixAttributes 
                 s = parseNew(pAttrs);
                 break;
 
-            case TOKdelete:
-                s = parseDelete(pAttrs);
-                break;
-
             case TOKcolon:
             case TOKlcurly:
                 error("declaration expected, not `%s`",token.toChars());
@@ -1963,30 +1959,6 @@ Dsymbol *Parser::parseNew(PrefixAttributes *pAttrs)
     VarArg varargs;
     Parameters *parameters = parseParameters(&varargs);
     NewDeclaration *f = new NewDeclaration(loc, Loc(), stc, parameters, varargs);
-    if (pAttrs)
-        pAttrs->storageClass = STCundefined;
-    Dsymbol *s = parseContracts(f);
-    return s;
-}
-
-/*****************************************
- * Parse a delete definition:
- *      delete(parameters) { body }
- * Current token is 'delete'.
- */
-
-Dsymbol *Parser::parseDelete(PrefixAttributes *pAttrs)
-{
-    Loc loc = token.loc;
-    StorageClass stc = pAttrs ? pAttrs->storageClass : STCundefined;
-
-    nextToken();
-
-    VarArg varargs;
-    Parameters *parameters = parseParameters(&varargs);
-    if (varargs != VARARGnone)
-        error("... not allowed in delete function parameter list");
-    DeleteDeclaration *f = new DeleteDeclaration(loc, Loc(), stc, parameters);
     if (pAttrs)
         pAttrs->storageClass = STCundefined;
     Dsymbol *s = parseContracts(f);
