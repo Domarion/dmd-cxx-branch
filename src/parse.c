@@ -607,8 +607,7 @@ Dsymbols *Parser::parseDeclDefs(int once, Dsymbol **pLastDecl, PrefixAttributes 
                  */
                 if (token.value == TOKidentifier && skipParens(peek(&token), &tk) && skipAttributes(tk, &tk) &&
                     (tk->value == TOKlparen || tk->value == TOKlcurly || tk->value == TOKin ||
-                     tk->value == TOKout || tk->value == TOKdo ||
-                     (tk->value == TOKidentifier && tk->ident == Id::_body))
+                     tk->value == TOKout || tk->value == TOKdo)
                    )
                 {
                     a = parseDeclarations(true, pAttrs, pAttrs->comment);
@@ -4165,7 +4164,7 @@ Dsymbols *Parser::parseDeclarations(bool autodecl, PrefixAttributes *pAttrs, con
     if ((storage_class || udas) && token.value == TOKidentifier && skipParens(peek(&token), &tk) &&
         skipAttributes(tk, &tk) &&
         (tk->value == TOKlparen || tk->value == TOKlcurly || tk->value == TOKin || tk->value == TOKout ||
-         tk->value == TOKdo || (tk->value == TOKidentifier && tk->ident == Id::_body)))
+         tk->value == TOKdo))
     {
         ts = NULL;
     }
@@ -4600,7 +4599,6 @@ L1:
             break;
 
         case TOKidentifier:
-            if (token.ident != Id::_body)
                 goto Ldefault;
             /* fall through */
 
@@ -6638,7 +6636,6 @@ bool Parser::isDeclarator(Token **pt, int *haveId, int *haveTpl, TOK endtok, boo
                 continue;
 
             case TOKidentifier:
-                if (t->ident != Id::_body)
                     goto Ldefault;
                 /* fall through */
 
