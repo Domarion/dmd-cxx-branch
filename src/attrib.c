@@ -782,7 +782,7 @@ Scope *PragmaDeclaration::newScope(Scope *sc)
         {
             error("one boolean expression expected for pragma(inline), not %d", args->length);
             args->setDim(1);
-            (*args)[0] = new ErrorExp();
+            (*args)[0] = ErrorExp::get();
         }
         else
         {
@@ -793,7 +793,7 @@ Scope *PragmaDeclaration::newScope(Scope *sc)
                 if (e->op != TOKerror)
                 {
                     error("pragma(inline, true or false) expected, not %s", e->toChars());
-                    (*args)[0] = new ErrorExp();
+                    (*args)[0] = ErrorExp::get();
                 }
             }
             else if (e->isBool(true))

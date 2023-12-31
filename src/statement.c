@@ -79,7 +79,7 @@ Expression *checkAssignmentAsCondition(Expression *e)
     if (ec->op == TOKassign)
     {
         ec->error("assignment cannot be used as a condition, perhaps == was meant?");
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     return e;
 }

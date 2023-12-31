@@ -116,7 +116,7 @@ static void lowerArrayAggregate(StaticForeach *sfe, Scope *sc)
     }
     else
     {
-        sfe->aggrfe->aggr = new ErrorExp();
+        sfe->aggrfe->aggr = ErrorExp::get();
     }
 }
 

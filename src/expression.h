@@ -368,6 +368,16 @@ public:
     Expression *toLvalue(Scope *sc, Expression *e);
     void accept(Visitor *v) { v->visit(this); }
 
+    static ErrorExp* get()
+    {
+        if (errorexp == nullptr)
+        {
+            errorexp = new ErrorExp();
+        }
+
+        return errorexp;
+    }
+
     static ErrorExp *errorexp; // handy shared value
 };
 

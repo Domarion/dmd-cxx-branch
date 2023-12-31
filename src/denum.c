@@ -206,7 +206,7 @@ Ldone:
   }
 
 Lerrors:
-    *pval = new ErrorExp();
+    *pval = ErrorExp::get();
     return *pval;
 }
 
@@ -261,7 +261,7 @@ Expression *EnumDeclaration::getDefaultValue(Loc loc)
     }
 
 Lerrors:
-    defaultval = new ErrorExp();
+    defaultval = ErrorExp::get();
     return defaultval;
 }
 
@@ -374,7 +374,7 @@ Expression *EnumMember::getVarExp(Loc loc, Scope *sc)
 {
     dsymbolSemantic(this, sc);
     if (errors)
-        return new ErrorExp();
+        return ErrorExp::get();
     checkDisabled(loc, sc);
 
     if (depdecl && !depdecl->_scope)
@@ -382,7 +382,7 @@ Expression *EnumMember::getVarExp(Loc loc, Scope *sc)
     checkDeprecated(loc, sc);
 
     if (errors)
-        return new ErrorExp();
+        return ErrorExp::get();
     Expression *e = new VarExp(loc, this);
     return expressionSemantic(e, sc);
 }

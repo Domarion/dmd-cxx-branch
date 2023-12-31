@@ -630,7 +630,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     if (s && !s->isTemplateDeclaration())
                     {
                         e->e1->error("%s.opBinary isn't a template", e->e1->toChars());
-                        result = new ErrorExp();
+                        result = ErrorExp::get();
                         return;
                     }
                 }
@@ -640,7 +640,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     if (s_r && !s_r->isTemplateDeclaration())
                     {
                         e->e2->error("%s.opBinaryRight isn't a template", e->e2->toChars());
-                        result = new ErrorExp();
+                        result = ErrorExp::get();
                         return;
                     }
                     if (s_r && s_r == s)    // Bugzilla 12778
@@ -681,7 +681,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     functionResolve(&m, s, e->loc, sc, tiargs, e->e1->type, &args2);
                     if (m.lastf && (m.lastf->errors || m.lastf->semantic3Errors))
                     {
-                        result = new ErrorExp();
+                        result = ErrorExp::get();
                         return;
                     }
                 }
@@ -693,7 +693,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     functionResolve(&m, s_r, e->loc, sc, tiargs, e->e2->type, &args1);
                     if (m.lastf && (m.lastf->errors || m.lastf->semantic3Errors))
                     {
-                        result = new ErrorExp();
+                        result = ErrorExp::get();
                         return;
                     }
                 }
@@ -778,7 +778,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                         functionResolve(&m, s_r, e->loc, sc, tiargs, e->e1->type, &args2);
                         if (m.lastf && (m.lastf->errors || m.lastf->semantic3Errors))
                         {
-                            result = new ErrorExp();
+                            result = ErrorExp::get();
                             return;
                         }
                     }
@@ -790,7 +790,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                         functionResolve(&m, s, e->loc, sc, tiargs, e->e2->type, &args1);
                         if (m.lastf && (m.lastf->errors || m.lastf->semantic3Errors))
                         {
-                            result = new ErrorExp();
+                            result = ErrorExp::get();
                             return;
                         }
                     }
@@ -928,7 +928,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     if (!result)
                     {
                         e->error("cannot compare %s and %s", t1->toChars(), t2->toChars());
-                        result = new ErrorExp();
+                        result = ErrorExp::get();
                     }
                     return;
                 }
@@ -942,7 +942,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                 e->error("use `%s` instead of `%s` when comparing with null",
                     Token::toChars(e->op == TOKequal ? TOKidentity : TOKnotidentity),
                     Token::toChars(e->op));
-                result = new ErrorExp();
+                result = ErrorExp::get();
                 return;
             }
             if ((t1->ty == Tclass && t2->ty == Tnull) ||
@@ -1065,7 +1065,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                 {
                     e->error("cannot compare %s because its auto generated member-wise equality has recursive definition",
                         t1->toChars());
-                    result = new ErrorExp();
+                    result = ErrorExp::get();
                 }
                 return;
             }
@@ -1081,7 +1081,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                 {
                     e->error("mismatched tuple lengths, %d and %d",
                         (int)dim, (int)tup2->exps->length);
-                    result = new ErrorExp();
+                    result = ErrorExp::get();
                     return;
                 }
 
@@ -1250,7 +1250,7 @@ Expression *op_overload(Expression *e, Scope *sc)
             // Don't attempt 'alias this' if an error occured
             if (e->e1->type->ty == Terror || e->e2->type->ty == Terror)
             {
-                result = new ErrorExp();
+                result = ErrorExp::get();
                 return;
             }
 
@@ -1280,7 +1280,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     if (s && !s->isTemplateDeclaration())
                     {
                         e->error("%s.opOpAssign isn't a template", e->e1->toChars());
-                        result = new ErrorExp();
+                        result = ErrorExp::get();
                         return;
                     }
                 }
@@ -1312,7 +1312,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     functionResolve(&m, s, e->loc, sc, tiargs, e->e1->type, &args2);
                     if (m.lastf && (m.lastf->errors || m.lastf->semantic3Errors))
                     {
-                        result = new ErrorExp();
+                        result = ErrorExp::get();
                         return;
                     }
                 }
@@ -1441,7 +1441,7 @@ Expression *compare_overload(BinExp *e, Scope *sc, Identifier *id)
         {
             functionResolve(&m, s, e->loc, sc, tiargs, e->e1->type, &args2);
             if (m.lastf && (m.lastf->errors || m.lastf->semantic3Errors))
-                return new ErrorExp();
+                return ErrorExp::get();
         }
 
         FuncDeclaration *lastf = m.lastf;
@@ -1451,7 +1451,7 @@ Expression *compare_overload(BinExp *e, Scope *sc, Identifier *id)
         {
             functionResolve(&m, s_r, e->loc, sc, tiargs, e->e2->type, &args1);
             if (m.lastf && (m.lastf->errors || m.lastf->semantic3Errors))
-                return new ErrorExp();
+                return ErrorExp::get();
         }
 
         if (m.count > 1)

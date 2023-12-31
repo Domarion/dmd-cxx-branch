@@ -233,7 +233,7 @@ Expression *checkGC(Scope *sc, Expression *e)
         NOGCVisitor gcv(f);
         walkPostorder(e, &gcv);
         if (gcv.err)
-            return new ErrorExp();
+            return ErrorExp::get();
     }
     return e;
 }

@@ -51,7 +51,7 @@ Expression *toDelegate(Expression *e, Type* t, Scope *sc)
     sc = sc->pop();
 
     if (r)
-        return new ErrorExp();
+        return ErrorExp::get();
 
     Statement *s;
     if (t->ty == Tvoid)

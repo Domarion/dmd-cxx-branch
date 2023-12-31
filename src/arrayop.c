@@ -179,12 +179,12 @@ Expression *arrayOp(BinExp *e, Scope *sc)
     if (tbn->ty == Tvoid)
     {
         e->error("cannot perform array operations on void[] arrays");
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     if (!isArrayOpValid(e))
     {
         e->error("invalid array operation %s (possible missing [])", e->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
 
     Expressions *arguments = new Expressions();
@@ -222,7 +222,7 @@ Expression *arrayOp(BinExp *e, Scope *sc)
             fmt = "invalid array operation '%s' for element type %s";
 
         e->error(fmt, e->toChars(), tbn->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
 
     *pFd = fd;
@@ -244,7 +244,7 @@ Expression *arrayOp(BinAssignExp *e, Scope *sc)
     if (tn && (!tn->isMutable() || !tn->isAssignable()))
     {
         e->error("slice %s is not mutable", e->e1->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     if (e->e1->op == TOKarrayliteral)
     {

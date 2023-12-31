@@ -492,13 +492,13 @@ Expression *pointerBitmap(TraitsExp *e)
     if (!e->args || e->args->length != 1)
     {
         error(e->loc, "a single type expected for trait pointerBitmap");
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     Type *t = getType((*e->args)[0]);
     if (!t)
     {
         error(e->loc, "%s is not a type", (*e->args)[0]->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     d_uns64 sz;
     if (t->ty == Tclass && !((TypeClass*)t)->sym->isInterfaceDeclaration())
@@ -506,13 +506,13 @@ Expression *pointerBitmap(TraitsExp *e)
     else
         sz = t->size(e->loc);
     if (sz == SIZE_INVALID)
-        return new ErrorExp();
+        return ErrorExp::get();
 
     const d_uns64 sz_size_t = Type::tsize_t->size(e->loc);
     if (sz > UINT64_MAX - sz_size_t)
     {
         error(e->loc, "size overflow for type %s", t->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
 
     d_uns64 bitsPerWord = sz_size_t * 8;
@@ -629,7 +629,7 @@ Expression *pointerBitmap(TraitsExp *e)
     else
         t->accept(&pbv);
     if (pbv.error)
-        return new ErrorExp();
+        return ErrorExp::get();
 
     Expressions* exps = new Expressions;
     exps->push(new IntegerExp(e->loc, sz, Type::tsize_t));
@@ -643,7 +643,7 @@ Expression *pointerBitmap(TraitsExp *e)
 static Expression *dimError(TraitsExp *e, int expected, int dim)
 {
     e->error("expected %d arguments for `%s` but had %d", expected, e->ident->toChars(), dim);
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 Expression *semanticTraits(TraitsExp *e, Scope *sc)
@@ -662,7 +662,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!TemplateInstance::semanticTiargs(e->loc, sc, e->args, 1))
         {
             sc->stc = save;
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         sc->stc = save;
     }
@@ -730,7 +730,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             e->error("type expected as second argument of __traits %s instead of %s",
                 e->ident->toChars(), o->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         Type *tb = t->baseElemOf();
@@ -751,7 +751,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             e->error("type expected as second argument of __traits %s instead of %s",
                 e->ident->toChars(), o->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         Type *tb = t->baseElemOf();
@@ -772,7 +772,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             e->error("type expected as second argument of __traits %s instead of %s",
                 e->ident->toChars(), o->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         return isCopyable(t) ? True(e) : False(e);
@@ -797,7 +797,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         }
 
         e->error("aggregate or function expected instead of `%s`", o->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     else if (e->ident == Id::isDisabled)
     {
@@ -884,7 +884,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
          * Bit 1 means don't convert Parameter to Type if Parameter has an identifier
          */
         if (!TemplateInstance::semanticTiargs(e->loc, sc, e->args, 2))
-            return new ErrorExp();
+            return ErrorExp::get();
         if (dim != 1)
             return dimError(e, 1, dim);
 
@@ -895,7 +895,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             if (!po->ident)
             {
                 e->error("argument `%s` has no identifier", po->type->toChars());
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             id = po->ident;
         }
@@ -905,7 +905,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             if (!s || !s->ident)
             {
                 e->error("argument %s has no identifier", o->toChars());
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             id = s->ident;
         }
@@ -923,7 +923,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         bool ok = TemplateInstance::semanticTiargs(e->loc, sc2, e->args, 1);
         sc2->pop();
         if (!ok)
-            return new ErrorExp();
+            return ErrorExp::get();
 
         RootObject *o = (*e->args)[0];
         Dsymbol *s = getDsymbolWithoutExpCtx(o);
@@ -931,7 +931,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             if (!isError(o))
                 e->error("argument %s has no protection", o->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         if (s->semanticRun == PASSinit)
             dsymbolSemantic(s, NULL);
@@ -958,7 +958,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!s || s->isImport())
         {
             e->error("argument %s has no parent", o->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         if (FuncDeclaration *f = s->isFuncDeclaration())
@@ -996,7 +996,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         else
         {
             e->error("symbol or expression expected as first argument of __traits `child` instead of `%s`", op->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         ex = expressionSemantic(ex, sc);
@@ -1005,7 +1005,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!symc)
         {
             e->error("symbol expected as second argument of __traits `child` instead of `%s`", oc->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         if (Declaration *d = symc->isDeclaration())
@@ -1029,20 +1029,20 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!ex)
         {
             e->error("expression expected as second argument of __traits `%s`", e->ident->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         ex = ex->ctfeInterpret();
 
         StringExp *se = semanticString(sc, ex, "__traits(toType, string)");
         if (!se)
         {
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         Type *t = decoToType(se->toUTF8(sc)->toPtr());
         if (!t)
         {
             e->error("cannot determine `%s`", e->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         ex = new TypeExp(e->loc, t);
         ex = expressionSemantic(ex, sc);
@@ -1061,7 +1061,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!ex)
         {
             e->error("expression expected as second argument of __traits %s", e->ident->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         ex = ex->ctfeInterpret();
 
@@ -1073,7 +1073,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             if (!b->type->equals(Type::tbool))
             {
                 e->error("`bool` expected as third argument of `__traits(getOverloads)`, not `%s` of type `%s`", b->toChars(), b->type->toChars());
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             includeTemplates = b->isBool(true);
         }
@@ -1082,14 +1082,14 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!se || se->len == 0)
         {
             e->error("string expected as second argument of __traits %s instead of %s", e->ident->toChars(), ex->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         se = se->toUTF8(sc);
 
         if (se->sz != 1)
         {
             e->error("string must be chars");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         Identifier *id = Identifier::idPool((char *)se->string, se->len);
 
@@ -1113,7 +1113,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         else
         {
             e->error("invalid first argument");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         // ignore symbol visibility and disable access checks for these traits
@@ -1223,7 +1223,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!cd)
         {
             e->error("first argument is not a class");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         if (cd->sizeok != SIZEOKdone)
         {
@@ -1232,7 +1232,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (cd->sizeok != SIZEOKdone)
         {
             e->error("%s %s is forward referenced", cd->kind(), cd->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         return new IntegerExp(e->loc, cd->structsize, Type::tsize_t);
@@ -1248,7 +1248,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!ad)
         {
             e->error("argument is not an aggregate type");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         Expressions *exps = new Expressions();
@@ -1265,7 +1265,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
          * Bit 1 means don't convert Parameter to Type if Parameter has an identifier
          */
         if (!TemplateInstance::semanticTiargs(e->loc, sc, e->args, 3))
-            return new ErrorExp();
+            return ErrorExp::get();
 
         if (dim != 1)
             return dimError(e, 1, dim);
@@ -1290,7 +1290,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         else
         {
             e->error("first argument is not a symbol");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         Expressions *exps = udad ? udad->getAttributes() : new Expressions();
@@ -1310,7 +1310,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!tf)
         {
             e->error("first argument is not a function");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         Expressions *mods = new Expressions();
@@ -1337,7 +1337,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!tf)
         {
             e->error("argument to `__traits(isReturnOnStack, %s)` is not a function", o->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         bool value = target.isReturnOnStack(tf, fd && fd->needThis());
@@ -1371,7 +1371,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             if (!fd)
             {
                 e->error("argument to `__traits(getFunctionVariadicStyle, %s)` is not a function", o->toChars());
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             link = fd->linkage;
             varargs = fd->getParameterList().varargs;
@@ -1415,7 +1415,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             {
                 e->error("first argument to `__traits(getParameterStorageClasses, %s, %s)` is not a function",
                     o->toChars(), o1->toChars());
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             fparams = fd->getParameterList();
         }
@@ -1428,14 +1428,14 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             e->error("expression expected as second argument of `__traits(getParameterStorageClasses, %s, %s)`",
                 o->toChars(), o1->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         ex = ex->ctfeInterpret();
         uinteger_t ii = ex->toUInteger();
         if (ii >= fparams.length())
         {
             e->error("parameter index must be in range 0..%u not %s", (unsigned)fparams.length(), ex->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         unsigned n = (unsigned)ii;
@@ -1500,7 +1500,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
                        && (ad = s->isAggregateDeclaration()) == NULL))
             {
                 e->error("argument to `__traits(getLinkage, %s)` is not a declaration", o->toChars());
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             if (d != NULL)
                 link = d->linkage;
@@ -1537,7 +1537,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!s)
         {
             e->error("argument has no members");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         if (Import *imp = s->isImport())
         {
@@ -1556,7 +1556,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!sds || sds->isTemplateDeclaration())
         {
             e->error("%s %s has no members", s->kind(), s->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         // use a struct as local function
@@ -1785,7 +1785,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             return dimError(e, 2, dim);
 
         if (!TemplateInstance::semanticTiargs(e->loc, sc, e->args, 0))
-            return new ErrorExp();
+            return ErrorExp::get();
 
         RootObject *o1 = (*e->args)[0];
         RootObject *o2 = (*e->args)[1];
@@ -1832,7 +1832,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             e->error("argument %s to __traits(getUnitTests) must be a module or aggregate",
                 o->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         if (Import *imp = s->isImport())  // Bugzilla 10990
             s = imp->mod;
@@ -1842,7 +1842,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             e->error("argument %s to __traits(getUnitTests) must be a module or aggregate, not a %s",
                 s->toChars(), s->kind());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         Expressions *exps = new Expressions();
@@ -1867,7 +1867,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!fd)
         {
             e->error("first argument to __traits(getVirtualIndex) must be a function");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         fd = fd->toAliasFunc(); // Neccessary to support multiple overloads.
@@ -1888,7 +1888,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             e->error("type expected as second argument of __traits `%s` instead of `%s`",
                 e->ident->toChars(), o->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         Type *tb = t->baseElemOf();
@@ -1904,7 +1904,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!ex || !se || se->len == 0)
         {
             e->error("string expected as argument of __traits `%s` instead of `%s`", e->ident->toChars(), ex->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         se = se->toUTF8(sc);
 
@@ -1912,7 +1912,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!r)
         {
             e->error("`getTargetInfo` key `\"%s\"` not supported by this implementation", se->toPtr());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         return expressionSemantic(r, sc);
     }
@@ -1925,7 +1925,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (!s || !s->loc.filename)
         {
             e->error("can only get the location of a symbol, not `%s`", arg0->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         const FuncDeclaration *fd = s->isFuncDeclaration();
@@ -1935,7 +1935,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
                      "use `__traits(getOverloads, ..., \"%s\"%s)[N]` "
                      "to get the Nth overload",
                      arg0->toChars(), "");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
 
         Expressions *exps = new Expressions();
@@ -1951,8 +1951,8 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         e->error("unrecognized trait `%s`, did you mean `%s`?", e->ident->toChars(), sub);
     else
         e->error("unrecognized trait `%s`", e->ident->toChars());
-    return new ErrorExp();
+    return ErrorExp::get();
 
     e->error("wrong number of arguments %d", (int)dim);
-    return new ErrorExp();
+    return ErrorExp::get();
 }

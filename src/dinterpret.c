@@ -654,7 +654,7 @@ Expression *ctfeInterpret(Expression *e)
     case TOKdottd:      // ditto, e.e1 doesn't matter here
     case TOKdot:        // ditto
         if (e->type->ty == Terror)
-            return new ErrorExp();
+            return ErrorExp::get();
         /* fall through */
 
     case TOKerror:
@@ -667,7 +667,7 @@ Expression *ctfeInterpret(Expression *e)
     assert(e->type);                    // Bugzilla 14642
     //assert(e->type->ty != Terror);    // FIXME
     if (e->type->ty == Terror)
-        return new ErrorExp();
+        return ErrorExp::get();
 
     // This code is outside a function, but still needs to be compiled
     // (there are compiler-generated temporary variables such as __dollar).
@@ -680,7 +680,7 @@ Expression *ctfeInterpret(Expression *e)
     if (!CTFEExp::isCantExp(result))
         result = scrubReturnValue(e->loc, result);
     if (CTFEExp::isCantExp(result))
-        result = new ErrorExp();
+        result = ErrorExp::get();
     return result;
 }
 
@@ -1756,8 +1756,16 @@ public:
         if (exceptionOrCant(e))
             return;
 
-        assert(e->op == TOKclassreference);
-        result = new ThrownExceptionExp(s->loc, (ClassReferenceExp *)e);
+        if (e->op == TOKclassreference)
+        {
+            result = new ThrownExceptionExp(s->loc, (ClassReferenceExp *)e);
+        }
+        else
+        {
+            s->exp->error("to be thrown `%s` must be non-null", s->exp->toChars());
+            result = ErrorExp::get();
+        }
+
     }
 
     void visit(ScopeGuardStatement *)
@@ -6170,7 +6178,7 @@ Expression *scrubReturnValue(Loc loc, Expression *e)
     else if (e->op == TOKvoid)
     {
         error(loc, "uninitialized variable `%s` cannot be returned from CTFE", ((VoidInitExp *)e)->var->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
 
     e = resolveSlice(e);

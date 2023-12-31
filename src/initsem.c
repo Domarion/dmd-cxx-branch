@@ -490,7 +490,7 @@ public:
                 if (dim1 != dim2)
                 {
                     i->exp->error("mismatched array lengths, %d and %d", (int)dim1, (int)dim2);
-                    i->exp = new ErrorExp();
+                    i->exp = ErrorExp::get();
                 }
             }
             i->exp = i->exp->implicitCastTo(sc, t);
@@ -712,7 +712,7 @@ public:
 
     void visit(ErrorInitializer *)
     {
-        result = new ErrorExp();
+        result = ErrorExp::get();
     }
 
     void visit(VoidInitializer *)
@@ -749,7 +749,7 @@ public:
         {
             if (init->type == Type::terror)
             {
-                result = new ErrorExp();
+                result = ErrorExp::get();
                 return;
             }
 

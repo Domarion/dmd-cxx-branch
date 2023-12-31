@@ -135,7 +135,7 @@ L1:
     return e;
 
 Lerror:
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 
@@ -190,7 +190,7 @@ Expression *Expression_optimize(Expression *e, int result, bool keepLvalue)
 
         void error()
         {
-            ret = new ErrorExp();
+            ret = ErrorExp::get();
         }
 
         bool expOptimize(Expression *&e, int flags, bool keepLvalue = false)

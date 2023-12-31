@@ -36,6 +36,8 @@
 #include "ctfe.h"
 #include "target.h"
 
+ErrorExp *ErrorExp::errorexp = nullptr;
+
 bool walkPostorder(Expression *e, StoppableVisitor *v);
 bool checkParamArgumentEscape(Scope *sc, FuncDeclaration *fdc, Identifier *par, Expression *arg, bool gag);
 bool checkAccess(AggregateDeclaration *ad, Loc loc, Scope *sc, Dsymbol *smember);
@@ -596,7 +598,7 @@ Expression *Expression::toLvalue(Scope *, Expression *e)
     else
         error("%s is not an lvalue", e->toChars());
 
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 /***************************************
@@ -625,12 +627,12 @@ Expression *Expression::modifiableLvalue(Scope *sc, Expression *e)
         if (!type->isMutable())
         {
             error("cannot modify %s expression %s", MODtoChars(type->mod), toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         else if (!type->isAssignable())
         {
             error("cannot modify struct %s %s with immutable members", toChars(), type->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
     }
     return toLvalue(sc, e);
@@ -1165,7 +1167,7 @@ Lagain:
     {
         if (tb != Type::terror)
             error("expression %s of type %s does not have a boolean value", toChars(), t->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     return e;
 }
@@ -1885,7 +1887,7 @@ Expression *IntegerExp::toLvalue(Scope *, Expression *e)
     else if (!loc.filename)
         loc = e->loc;
     e->error("constant %s is not an lvalue", e->toChars());
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 /******************************** ErrorExp **************************/
@@ -2136,17 +2138,17 @@ Lagain:
                 ::error(loc, "circular reference to %s `%s`", v->kind(), v->toPrettyChars());
             else             // variable type cannot be determined
                 ::error(loc, "forward reference to %s `%s`", v->kind(), v->toPrettyChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         if (v->type->ty == Terror)
-            return new ErrorExp();
+            return ErrorExp::get();
 
         if ((v->storage_class & STCmanifest) && v->_init)
         {
             if (v->inuse)
             {
                 ::error(loc, "circular initialization of %s `%s`", v->kind(), v->toPrettyChars());
-                return new ErrorExp();
+                return ErrorExp::get();
             }
 
             e = v->expandInitializer(loc);
@@ -2158,7 +2160,7 @@ Lagain:
 
         // Change the ancestor lambdas to delegate before hasThis(sc) call.
         if (v->checkNestedReference(sc, loc))
-            return new ErrorExp();
+            return ErrorExp::get();
 
         if (v->needThis() && hasThis(sc))
             e = new DotVarExp(loc, new ThisExp(loc), v);
@@ -2177,10 +2179,10 @@ Lagain:
     {
         f = f->toAliasFunc();
         if (!f->functionSemantic())
-            return new ErrorExp();
+            return ErrorExp::get();
 
         if (!hasOverloads && f->checkForwardRef(loc))
-            return new ErrorExp();
+            return ErrorExp::get();
 
         FuncDeclaration *fd = s->isFuncDeclaration();
         fd->type = f->type;
@@ -2203,7 +2205,7 @@ Lagain:
         if (!imp->pkg)
         {
             ::error(loc, "forward reference of import %s", imp->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         ScopeExp *ie = new ScopeExp(loc, imp->pkg);
         return expressionSemantic(ie, sc);
@@ -2244,7 +2246,7 @@ Lagain:
     {
         dsymbolSemantic(ti, sc);
         if (!ti->inst || ti->errors)
-            return new ErrorExp();
+            return ErrorExp::get();
         s = ti->toAlias();
         if (!s->isTemplateInstance())
             goto Lagain;
@@ -2269,7 +2271,7 @@ Lagain:
     }
 
     ::error(loc, "%s `%s` is not a variable", s->kind(), s->toChars());
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 bool DsymbolExp::isLvalue()
@@ -2633,7 +2635,7 @@ Expression *StringExp::toLvalue(Scope *sc, Expression *e)
 Expression *StringExp::modifiableLvalue(Scope *, Expression *)
 {
     error("cannot modify string literal %s", toChars());
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 unsigned StringExp::charAt(uinteger_t i) const
@@ -3320,22 +3322,22 @@ Expression *VarExp::toLvalue(Scope *, Expression *)
     if (var->storage_class & STCmanifest)
     {
         error("manifest constant `%s` is not lvalue", var->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     if (var->storage_class & STClazy)
     {
         error("lazy variables cannot be lvalues");
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     if (var->ident == Id::ctfe)
     {
         error("compiler-generated variable __ctfe is not an lvalue");
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     if (var->ident == Id::dollar)   // Bugzilla 13574
     {
         error("`$` is not an lvalue");
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     return this;
 }
@@ -3353,7 +3355,7 @@ Expression *VarExp::modifiableLvalue(Scope *sc, Expression *e)
     if (var->storage_class & STCmanifest)
     {
         error("cannot modify manifest constant `%s`", toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     // See if this expression is a modifiable lvalue (i.e. not const)
     return Expression::modifiableLvalue(sc, e);
@@ -3879,7 +3881,7 @@ Expression *UnaExp::incompatibleTypes()
         error("incompatible type for (%s(%s)): `%s`",
               Token::toChars(op), e1->toChars(), e1->type->toChars());
     }
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 Expression *UnaExp::resolveLoc(Loc loc, Scope *sc)
@@ -3940,20 +3942,20 @@ Expression *BinExp::checkOpAssignTypes(Scope *sc)
             error("%s %s %s is undefined. Did you mean %s %s %s.re ?",
                 t1->toChars(), opstr, t2->toChars(),
                 t1->toChars(), opstr, t2->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         else if (t1->isimaginary() && t2->iscomplex())
         {
             error("%s %s %s is undefined. Did you mean %s %s %s.im ?",
                 t1->toChars(), opstr, t2->toChars(),
                 t1->toChars(), opstr, t2->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         else if ((t1->isreal() || t1->isimaginary()) &&
             t2->isimaginary())
         {
             error("%s %s %s is an undefined operation", t1->toChars(), opstr, t2->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
     }
 
@@ -3967,7 +3969,7 @@ Expression *BinExp::checkOpAssignTypes(Scope *sc)
         {
             error("%s %s %s is undefined (result is complex)",
                 t1->toChars(), Token::toChars(op), t2->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         if (type->isreal() || type->isimaginary())
         {
@@ -4041,7 +4043,7 @@ Expression *BinExp::checkOpAssignTypes(Scope *sc)
         if (t2->iscomplex())
         {
             error("cannot perform modulo complex arithmetic");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
     }
     return this;
@@ -4079,7 +4081,7 @@ Expression *BinExp::incompatibleTypes()
         error("incompatible types for ((%s) %s (%s)): `%s` and `%s`",
             e1->toChars(), Token::toChars(thisOp), e2->toChars(), ts[0], ts[1]);
     }
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 bool BinExp::checkIntegralBin()
@@ -4686,7 +4688,7 @@ DeleteExp::DeleteExp(Loc loc, Expression *e, bool isRAII)
 Expression *DeleteExp::toBoolean(Scope *)
 {
     error("delete does not give a boolean result");
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 /************************************************************/
@@ -4869,7 +4871,7 @@ Expression *DelegatePtrExp::modifiableLvalue(Scope *sc, Expression *e)
     if (sc->func->setUnsafe())
     {
         error("cannot modify delegate pointer in @safe code %s", toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     return Expression::modifiableLvalue(sc, e);
 }
@@ -4897,7 +4899,7 @@ Expression *DelegateFuncptrExp::modifiableLvalue(Scope *sc, Expression *e)
     if (sc->func->setUnsafe())
     {
         error("cannot modify delegate function pointer in @safe code %s", toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     return Expression::modifiableLvalue(sc, e);
 }
@@ -5064,7 +5066,7 @@ Expression *IndexExp::markSettingAAElem()
         if (t2b->ty == Tarray && t2b->nextOf()->isMutable())
         {
             error("associative arrays can only be assigned values with immutable keys, not %s", e2->type->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         modifiable = true;
 
@@ -5138,7 +5140,7 @@ Expression *AssignExp::toBoolean(Scope *)
     // are usually mistakes.
 
     error("assignment cannot be used as a condition, perhaps == was meant?");
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 /************************************************************/

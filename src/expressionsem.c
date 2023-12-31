@@ -211,7 +211,7 @@ Expression *resolveOpDollar(Scope *sc, ArrayExp *ae, Expression **pe0)
             if (ae->arguments->length == 1)
                 return NULL;
             ae->error("multi-dimensional slicing requires template opSlice");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         //printf("[%d] e = %s\n", i, e->toChars());
 
@@ -264,7 +264,7 @@ Expression *resolveOpDollar(Scope *sc, ArrayExp *ae, Expression **pe0)
         if (!e->type)
         {
             ae->error("%s has no value", e->toChars());
-            e = new ErrorExp();
+            e = ErrorExp::get();
         }
         if (e->op == TOKerror)
             return e;
@@ -301,7 +301,7 @@ Expression *resolveOpDollar(Scope *sc, ArrayExp *ae, IntervalExp *ie, Expression
         if (!e->type)
         {
             ae->error("%s has no value", e->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         (i == 0 ? ie->lwr : ie->upr) = e;
     }
@@ -457,7 +457,7 @@ static Expression *searchUFCS(Scope *sc, UnaExp *ue, Identifier *ident)
         TemplateInstance *ti = new TemplateInstance(loc, s->ident);
         ti->tiargs = dti->ti->tiargs;   // for better diagnostic message
         if (!ti->updateTempDecl(sc, s))
-            return new ErrorExp();
+            return ErrorExp::get();
         return new ScopeExp(loc, ti);
     }
     else
@@ -508,13 +508,13 @@ static Expression *resolveUFCS(Scope *sc, CallExp *ce)
                 if (!ce->arguments || ce->arguments->length != 1)
                 {
                     ce->error("expected key as argument to aa.remove()");
-                    return new ErrorExp();
+                    return ErrorExp::get();
                 }
                 if (!eleft->type->isMutable())
                 {
                     ce->error("cannot remove key from %s associative array %s",
                             MODtoChars(t->mod), eleft->toChars());
-                    return new ErrorExp();
+                    return ErrorExp::get();
                 }
                 Expression *key = (*ce->arguments)[0];
                 key = expressionSemantic(key, sc);
@@ -524,7 +524,7 @@ static Expression *resolveUFCS(Scope *sc, CallExp *ce)
                 key = key->implicitCastTo(sc, taa->index);
 
                 if (key->checkValue())
-                    return new ErrorExp();
+                    return ErrorExp::get();
 
                 semanticTypeInfo(sc, taa->index);
 
@@ -830,7 +830,7 @@ static Expression *getRightThis(Loc loc, Scope *sc, AggregateDeclaration *ad,
                         e1->error("need `this` of type %s to access member %s"
                                   " from static function %s",
                             ad->toChars(), var->toChars(), f->toChars());
-                        e1 = new ErrorExp();
+                        e1 = ErrorExp::get();
                         return e1;
                     }
                 }
@@ -852,7 +852,7 @@ static Expression *getRightThis(Loc loc, Scope *sc, AggregateDeclaration *ad,
                 return NULL;
             e1->error("this for %s needs to be type %s not type %s",
                 var->toChars(), ad->toChars(), t->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
     }
     return e1;
@@ -894,7 +894,7 @@ static Expression *resolvePropertiesX(Scope *sc, Expression *e1, Expression *e2 
         {
             e2 = expressionSemantic(e2, sc);
             if (e2->op == TOKerror)
-                return new ErrorExp();
+                return ErrorExp::get();
             e2 = resolveProperties(sc, e2);
 
             Expressions a;
@@ -906,7 +906,7 @@ static Expression *resolvePropertiesX(Scope *sc, Expression *e1, Expression *e2 
                 if (f)
                 {
                     if (f->errors)
-                        return new ErrorExp();
+                        return ErrorExp::get();
                     fd = f;
                     assert(fd->type->ty == Tfunction);
                 }
@@ -924,7 +924,7 @@ static Expression *resolvePropertiesX(Scope *sc, Expression *e1, Expression *e2 
                 if (f)
                 {
                     if (f->errors)
-                        return new ErrorExp();
+                        return ErrorExp::get();
                     fd = f;
                     assert(fd->type->ty == Tfunction);
                     TypeFunction *tf = (TypeFunction *)fd->type;
@@ -1008,7 +1008,7 @@ static Expression *resolvePropertiesX(Scope *sc, Expression *e1, Expression *e2 
         {
             e2 = expressionSemantic(e2, sc);
             if (e2->op == TOKerror)
-                return new ErrorExp();
+                return ErrorExp::get();
             e2 = resolveProperties(sc, e2);
 
             Expressions a;
@@ -1018,7 +1018,7 @@ static Expression *resolvePropertiesX(Scope *sc, Expression *e1, Expression *e2 
             if (fd && fd->type)
             {
                 if (fd->errors)
-                    return new ErrorExp();
+                    return ErrorExp::get();
                 assert(fd->type->ty == Tfunction);
                 Expression *e = new CallExp(loc, e1, e2);
                 return expressionSemantic(e, sc);
@@ -1029,7 +1029,7 @@ static Expression *resolvePropertiesX(Scope *sc, Expression *e1, Expression *e2 
             if (fd && fd->type)
             {
                 if (fd->errors)
-                    return new ErrorExp();
+                    return ErrorExp::get();
                 assert(fd->type->ty == Tfunction);
                 TypeFunction *tf = (TypeFunction *)fd->type;
                 if (!e2 || tf->isref)
@@ -1056,7 +1056,7 @@ static Expression *resolvePropertiesX(Scope *sc, Expression *e1, Expression *e2 
         VarExp *ve = (VarExp *)e1;
         VarDeclaration *v = ve->var->isVarDeclaration();
         if (v && ve->checkPurity(sc, v))
-            return new ErrorExp();
+            return ErrorExp::get();
     }
     if (e2)
         return NULL;
@@ -1080,31 +1080,31 @@ static Expression *resolvePropertiesX(Scope *sc, Expression *e1, Expression *e2 
         {
             // Check for reading overlapped pointer field in @safe code.
             if (checkUnsafeAccess(sc, e1, true, true))
-                return new ErrorExp();
+                return ErrorExp::get();
         }
         else if (e1->op == TOKcall)
         {
             CallExp *ce = (CallExp *)e1;
             // Check for reading overlapped pointer field in @safe code.
             if (checkUnsafeAccess(sc, ce->e1, true, true))
-                return new ErrorExp();
+                return ErrorExp::get();
         }
     }
 
     if (!e1->type)
     {
         error(loc, "cannot resolve type for %s", e1->toChars());
-        e1 = new ErrorExp();
+        e1 = ErrorExp::get();
     }
     return e1;
 
 Leprop:
     error(loc, "not a property %s", e1->toChars());
-    return new ErrorExp();
+    return ErrorExp::get();
 
 Leproplvalue:
     error(loc, "%s is not an lvalue", e1->toChars());
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 Expression *resolveProperties(Scope *sc, Expression *e)
@@ -1113,7 +1113,7 @@ Expression *resolveProperties(Scope *sc, Expression *e)
 
     e = resolvePropertiesX(sc, e);
     if (e->checkRightThis(sc))
-        return new ErrorExp();
+        return ErrorExp::get();
     return e;
 }
 
@@ -1312,18 +1312,18 @@ static bool preFunctionParameters(Scope *sc, Expressions *exps)
             if (arg->op == TOKtype)
             {
                 arg->error("cannot pass type %s as a function argument", arg->toChars());
-                arg = new ErrorExp();
+                arg = ErrorExp::get();
                 err = true;
             }
             else if (arg->type->toBasetype()->ty == Tfunction)
             {
                 arg->error("cannot pass type %s as a function argument", arg->toChars());
-                arg = new ErrorExp();
+                arg = ErrorExp::get();
                 err = true;
             }
             else if (checkNonAssignmentArrayOp(arg))
             {
-                arg = new ErrorExp();
+                arg = ErrorExp::get();
                 err = true;
             }
             (*exps)[i] = arg;
@@ -2087,7 +2087,7 @@ public:
 private:
     void setError()
     {
-        result = new ErrorExp();
+        result = ErrorExp::get();
     }
 
     /*********************
@@ -3556,7 +3556,7 @@ public:
                     if (exp->matchType(exp->fd->treq, sc, &fe) > MATCHnomatch)
                         e = fe;
                     else
-                        e = new ErrorExp();
+                        e = ErrorExp::get();
                 }
                 goto Ldone;
             }
@@ -3573,7 +3573,7 @@ public:
             {
                 if (exp->fd->type && exp->fd->type->ty == Tfunction && !exp->fd->type->nextOf())
                     ((TypeFunction *)exp->fd->type)->next = Type::terror;
-                e = new ErrorExp();
+                e = ErrorExp::get();
                 goto Ldone;
             }
 
@@ -3664,7 +3664,7 @@ public:
                 return expressionSemantic(se, sc);
             }
             exp->error("cannot infer function literal type");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         return expressionSemantic(exp, sc);
     }
@@ -3830,7 +3830,7 @@ public:
             if (!Type::typeinfoclass)
             {
                 error(exp->loc, "`object.TypeInfo_Class` could not be found, but is implicitly used");
-                e = new ErrorExp();
+                e = ErrorExp::get();
             }
             else
             {
@@ -3843,7 +3843,7 @@ public:
         }
         else if (ta->ty == Terror)
         {
-            e = new ErrorExp();
+            e = ErrorExp::get();
         }
         else
         {
@@ -5088,7 +5088,7 @@ public:
                 else
                 {
                     exp->error("more than one argument for construction of %s", t1->toChars());
-                    e = new ErrorExp();
+                    e = ErrorExp::get();
                 }
                 result = expressionSemantic(e, sc);
                 return;
@@ -6338,7 +6338,7 @@ public:
 
         Expression *e = exp;
         if (res)
-            e = new ErrorExp();
+            e = ErrorExp::get();
         result = e;
     }
 
@@ -8502,7 +8502,7 @@ public:
             else
             {
                 exp->error("can't subtract %s from pointer", t2->toChars());
-                e = new ErrorExp();
+                e = ErrorExp::get();
             }
             result = e;
             return;
@@ -10148,7 +10148,7 @@ Expression *semanticX(DotIdExp *exp, Scope *sc)
                     if (FuncDeclaration *f = ds->isFuncDeclaration())
                     {
                         if (f->checkForwardRef(exp->loc))
-                            return new ErrorExp();
+                            return ErrorExp::get();
                     }
                     OutBuffer buf;
                     mangleToBuffer(ds, &buf);
@@ -10206,13 +10206,13 @@ Expression *semanticX(DotIdExp *exp, Scope *sc)
     if ((exp->e1->op == TOKdottd || exp->e1->op == TOKtemplate) && exp->ident != Id::stringof)
     {
         exp->error("template %s does not have property `%s`", exp->e1->toChars(), exp->ident->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
 
     if (!exp->e1->type)
     {
         exp->error("expression %s does not have property `%s`", exp->e1->toChars(), exp->ident->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
 
     return exp;
@@ -10321,10 +10321,10 @@ Expression *semanticY(DotIdExp *exp, Scope *sc, int flag)
                         exp->error("circular reference to %s `%s`", v->kind(), v->toPrettyChars());
                     else
                         exp->error("forward reference to %s `%s`", v->kind(), v->toPrettyChars());
-                    return new ErrorExp();
+                    return ErrorExp::get();
                 }
                 if (v->type->ty == Terror)
-                    return new ErrorExp();
+                    return ErrorExp::get();
 
                 if ((v->storage_class & STCmanifest) && v->_init && !exp->wantsym)
                 {
@@ -10335,7 +10335,7 @@ Expression *semanticY(DotIdExp *exp, Scope *sc, int flag)
                     if (v->inuse)
                     {
                         ::error(exp->loc, "circular initialization of %s `%s`", v->kind(), v->toPrettyChars());
-                        return new ErrorExp();
+                        return ErrorExp::get();
                     }
                     e = v->expandInitializer(exp->loc);
                     v->inuse++;
@@ -10368,7 +10368,7 @@ Expression *semanticY(DotIdExp *exp, Scope *sc, int flag)
             {
                 //printf("it's a function\n");
                 if (!f->functionSemantic())
-                    return new ErrorExp();
+                    return ErrorExp::get();
                 if (f->needThis())
                 {
                     if (!eleft)
@@ -10479,7 +10479,7 @@ Expression *semanticY(DotIdExp *exp, Scope *sc, int flag)
         else
             exp->error("undefined identifier `%s` in %s `%s`",
                        exp->ident->toChars(), ie->sds->kind(), ie->sds->toPrettyChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     else if (t1b->ty == Tpointer && exp->e1->type->ty != Tenum &&
              exp->ident != Id::_init && exp->ident != Id::__sizeof &&
@@ -10573,7 +10573,7 @@ Expression *semanticY(DotTemplateInstanceExp *exp, Scope *sc, int flag)
                 return exp;
             dsymbolSemantic(exp->ti, sc);
             if (!exp->ti->inst || exp->ti->errors)    // if template failed to expand
-                return new ErrorExp();
+                return ErrorExp::get();
             Dsymbol *s = exp->ti->toAlias();
             Declaration *v = s->isDeclaration();
             if (v)
@@ -10617,12 +10617,12 @@ Expression *semanticY(DotTemplateInstanceExp *exp, Scope *sc, int flag)
 
         exp->ti->tempdecl = dte->td;
         if (!exp->ti->semanticTiargs(sc))
-            return new ErrorExp();
+            return ErrorExp::get();
         if (exp->ti->needsTypeInference(sc))
             return exp;
         dsymbolSemantic(exp->ti, sc);
         if (!exp->ti->inst || exp->ti->errors)    // if template failed to expand
-            return new ErrorExp();
+            return ErrorExp::get();
         Dsymbol *s = exp->ti->toAlias();
         Declaration *v = s->isDeclaration();
         if (v && (v->isFuncDeclaration() || v->isVarDeclaration()))
@@ -10652,13 +10652,13 @@ Expression *semanticY(DotTemplateInstanceExp *exp, Scope *sc, int flag)
             if (!exp->findTempDecl(sc) ||
                 !exp->ti->semanticTiargs(sc))
             {
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             if (exp->ti->needsTypeInference(sc))
                 return exp;
             dsymbolSemantic(exp->ti, sc);
             if (!exp->ti->inst || exp->ti->errors)    // if template failed to expand
-                return new ErrorExp();
+                return ErrorExp::get();
             Dsymbol *s = exp->ti->toAlias();
             Declaration *v = s->isDeclaration();
             if (v)
@@ -10685,5 +10685,5 @@ Expression *semanticY(DotTemplateInstanceExp *exp, Scope *sc, int flag)
     }
 Lerr:
     e->error("%s isn't a template", e->toChars());
-    return new ErrorExp();
+    return ErrorExp::get();
 }

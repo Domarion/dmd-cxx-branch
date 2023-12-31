@@ -2035,7 +2035,7 @@ Expression *Type::getProperty(Loc loc, Identifier *ident, int flag)
     {
         d_uns64 sz = size(loc);
         if (sz == SIZE_INVALID)
-            return new ErrorExp();
+            return ErrorExp::get();
         e = new IntegerExp(loc, sz, Type::tsize_t);
     }
     else if (ident == Id::__xalignof)
@@ -2060,7 +2060,7 @@ Expression *Type::getProperty(Loc loc, Identifier *ident, int flag)
         if (!deco)
         {
             error(loc, "forward reference of type %s.mangleof", toChars());
-            e = new ErrorExp();
+            e = ErrorExp::get();
         }
         else
         {
@@ -2094,7 +2094,7 @@ Expression *Type::getProperty(Loc loc, Identifier *ident, int flag)
             else
                 error(loc, "no property `%s` for type `%s`", ident->toChars(), toChars());
         }
-        e = new ErrorExp();
+        e = ErrorExp::get();
     }
     return e;
 }
@@ -2130,7 +2130,7 @@ Expression *Type::dotExp(Scope *sc, Expression *e, Identifier *ident, int flag)
                 AggregateDeclaration *ad = v->toParent()->isAggregateDeclaration();
                 ad->size(e->loc);
                 if (ad->sizeok != SIZEOKdone)
-                    return new ErrorExp();
+                    return ErrorExp::get();
                 e = new IntegerExp(e->loc, v->offset, Type::tsize_t);
                 return e;
             }
@@ -2189,7 +2189,7 @@ Expression *Type::noMember(Scope *sc, Expression *e, Identifier *ident, int flag
     {
       ::error(e->loc, "cannot resolve identifier `%s`", ident->toChars());
       --nest;
-      return (flag & 1) ? NULL : new ErrorExp();
+      return (flag & 1) ? NULL : ErrorExp::get();
     }
 
     assert(ty == Tstruct || ty == Tclass);
@@ -2237,7 +2237,7 @@ Expression *Type::noMember(Scope *sc, Expression *e, Identifier *ident, int flag
             {
                 fd->error("must be a template opDispatch(string s), not a %s", fd->kind());
                 --nest;
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             StringExp *se = new StringExp(e->loc, const_cast<char *>(ident->toChars()));
             Objects *tiargs = new Objects();
@@ -2679,10 +2679,10 @@ Type *TypeError::syntaxCopy()
 }
 
 d_uns64 TypeError::size(Loc) { return SIZE_INVALID; }
-Expression *TypeError::getProperty(Loc, Identifier *, int) { return new ErrorExp(); }
-Expression *TypeError::dotExp(Scope *, Expression *, Identifier *, int) { return new ErrorExp(); }
-Expression *TypeError::defaultInit(Loc) { return new ErrorExp(); }
-Expression *TypeError::defaultInitLiteral(Loc) { return new ErrorExp(); }
+Expression *TypeError::getProperty(Loc, Identifier *, int) { return ErrorExp::get(); }
+Expression *TypeError::dotExp(Scope *, Expression *, Identifier *, int) { return ErrorExp::get(); }
+Expression *TypeError::defaultInit(Loc) { return ErrorExp::get(); }
+Expression *TypeError::defaultInitLiteral(Loc) { return ErrorExp::get(); }
 
 /* ============================= TypeNext =========================== */
 
@@ -3283,7 +3283,7 @@ Expression *TypeBasic::getProperty(Loc loc, Identifier *ident, int flag)
         case Timaginary80:
         case Tfloat80:
             error(loc, "use .min_normal property instead of .min");
-            return new ErrorExp();
+            return ErrorExp::get();
         }
     }
     else if (ident == Id::min_normal)
@@ -3619,7 +3619,7 @@ Expression *TypeBasic::defaultInit(Loc loc)
 
         case Tvoid:
             error(loc, "void does not have a default initializer");
-            return new ErrorExp();
+            return ErrorExp::get();
     }
     return new IntegerExp(loc, value, this);
 }
@@ -4107,12 +4107,12 @@ Expression *TypeSArray::dotExp(Scope *sc, Expression *e, Identifier *ident, int 
         if (e->op == TOKtype)
         {
             e->error("%s is not an expression", e->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         else if (!(flag & 2) && sc->func && !sc->intypeof && sc->func->setUnsafe())
         {
             e->deprecation("%s.ptr cannot be used in @safe code, use &%s[0] instead", e->toChars(), e->toChars());
-            // return new ErrorExp();
+            // return ErrorExp::get();
         }
         e = e->castTo(sc, e->type->nextOf()->pointerTo());
     }
@@ -4334,7 +4334,7 @@ Expression *TypeDArray::dotExp(Scope *sc, Expression *e, Identifier *ident, int 
         (ident == Id::length || ident == Id::ptr))
     {
         e->error("%s is not an expression", e->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
     if (ident == Id::length)
     {
@@ -4346,7 +4346,7 @@ Expression *TypeDArray::dotExp(Scope *sc, Expression *e, Identifier *ident, int 
         if (e->op == TOKnull)
             return new IntegerExp(e->loc, 0, Type::tsize_t);
         if (checkNonAssignmentArrayOp(e))
-            return new ErrorExp();
+            return ErrorExp::get();
         e = new ArrayLengthExp(e->loc, e);
         e->type = Type::tsize_t;
         return e;
@@ -4356,7 +4356,7 @@ Expression *TypeDArray::dotExp(Scope *sc, Expression *e, Identifier *ident, int 
         if (!(flag & 2) && sc->func && !sc->intypeof && sc->func->setUnsafe())
         {
             e->deprecation("%s.ptr cannot be used in @safe code, use &%s[0] instead", e->toChars(), e->toChars());
-            // return new ErrorExp();
+            // return ErrorExp::get();
         }
         e = e->castTo(sc, next->pointerTo());
         return e;
@@ -5633,7 +5633,7 @@ StorageClass TypeFunction::parameterStorageClass(Parameter *p)
 Expression *TypeFunction::defaultInit(Loc loc)
 {
     error(loc, "function does not have a default initializer");
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 Type *TypeFunction::addStorageClass(StorageClass stc)
@@ -5842,7 +5842,7 @@ Expression *TypeDelegate::dotExp(Scope *sc, Expression *e, Identifier *ident, in
         if (!(flag & 2) && sc->func && !sc->intypeof && sc->func->setUnsafe())
         {
             e->error("%s.funcptr cannot be used in @safe code", e->toChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         e = new DelegateFuncptrExp(e->loc, e);
         e = expressionSemantic(e, sc);
@@ -6279,7 +6279,7 @@ void TypeQualified::resolveHelper(Loc loc, Scope *sc,
                         else
                             error(loc, "identifier `%s` of `%s` is not defined", id->toChars(), toChars());
                     }
-                    *pe = new ErrorExp();
+                    *pe = ErrorExp::get();
                 }
                 return;
             }
@@ -6810,7 +6810,7 @@ Expression *TypeEnum::dotExp(Scope *sc, Expression *e, Identifier *ident, int fl
                 e->error("no property `%s` for type `%s`",
                     ident->toChars(), toChars());
 
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         return res;
     }
@@ -7090,17 +7090,17 @@ L1:
                 e->error("circular reference to %s `%s`", v->kind(), v->toPrettyChars());
             else
                 e->error("forward reference to %s `%s`", v->kind(), v->toPrettyChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         if (v->type->ty == Terror)
-            return new ErrorExp();
+            return ErrorExp::get();
 
         if ((v->storage_class & STCmanifest) && v->_init)
         {
             if (v->inuse)
             {
                 e->error("circular initialization of %s `%s`", v->kind(), v->toPrettyChars());
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             checkAccess(e->loc, sc, NULL, v);
             Expression *ve = new VarExp(e->loc, v);
@@ -7140,7 +7140,7 @@ L1:
         {
             dsymbolSemantic(ti, sc);
             if (!ti->inst || ti->errors)    // if template failed to expand
-                return new ErrorExp();
+                return ErrorExp::get();
         }
         s = ti->inst->toAlias();
         if (!s->isTemplateInstance())
@@ -7171,7 +7171,7 @@ L1:
     if (!d)
     {
         e->error("%s.%s is not a declaration", e->toChars(), ident->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
 
     if (e->op == TOKtype)
@@ -7246,7 +7246,7 @@ Expression *TypeStruct::defaultInitLiteral(Loc loc)
 {
     sym->size(loc);
     if (sym->sizeok != SIZEOKdone)
-        return new ErrorExp();
+        return ErrorExp::get();
     Expressions *structelems = new Expressions();
     structelems->setDim(sym->fields.length - sym->isNested());
     unsigned offset = 0;
@@ -7257,7 +7257,7 @@ Expression *TypeStruct::defaultInitLiteral(Loc loc)
         if (vd->inuse)
         {
             error(loc, "circular reference to `%s`", vd->toPrettyChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         if (vd->offset < offset || vd->type->size() == 0)
             e = NULL;
@@ -7601,7 +7601,7 @@ L1:
             if (!Type::typeinfoclass)
             {
                 error(e->loc, "`object.TypeInfo_Class` could not be found, but is implicitly used");
-                return new ErrorExp();
+                return ErrorExp::get();
             }
 
             Type *t = Type::typeinfoclass->type;
@@ -7744,17 +7744,17 @@ L1:
                 e->error("circular reference to %s `%s`", v->kind(), v->toPrettyChars());
             else
                 e->error("forward reference to %s `%s`", v->kind(), v->toPrettyChars());
-            return new ErrorExp();
+            return ErrorExp::get();
         }
         if (v->type->ty == Terror)
-            return new ErrorExp();
+            return ErrorExp::get();
 
         if ((v->storage_class & STCmanifest) && v->_init)
         {
             if (v->inuse)
             {
                 e->error("circular initialization of %s `%s`", v->kind(), v->toPrettyChars());
-                return new ErrorExp();
+                return ErrorExp::get();
             }
             checkAccess(e->loc, sc, NULL, v);
             Expression *ve = new VarExp(e->loc, v);
@@ -7794,7 +7794,7 @@ L1:
         {
             dsymbolSemantic(ti, sc);
             if (!ti->inst || ti->errors)    // if template failed to expand
-                return new ErrorExp();
+                return ErrorExp::get();
         }
         s = ti->inst->toAlias();
         if (!s->isTemplateInstance())
@@ -7825,7 +7825,7 @@ L1:
     if (!d)
     {
         e->error("%s.%s is not a declaration", e->toChars(), ident->toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
 
     if (e->op == TOKtype)
@@ -8168,7 +8168,7 @@ Expression *TypeTuple::getProperty(Loc loc, Identifier *ident, int flag)
     else
     {
         error(loc, "no property `%s` for tuple `%s`", ident->toChars(), toChars());
-        e = new ErrorExp();
+        e = ErrorExp::get();
     }
     return e;
 }

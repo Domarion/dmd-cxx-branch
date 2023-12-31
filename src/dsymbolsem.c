@@ -885,7 +885,7 @@ public:
                             if (!e)
                             {
                                 dsym->error("is not a static and cannot have static initializer");
-                                e = new ErrorExp();
+                                e = ErrorExp::get();
                             }
                         }
                         ei = new ExpInitializer(dsym->_init->loc, e);
@@ -1400,7 +1400,7 @@ public:
             {
                 pd->error("string expected for mangled name");
                 pd->args->setDim(1);
-                (*pd->args)[0] = new ErrorExp();    // error recovery
+                (*pd->args)[0] = ErrorExp::get();    // error recovery
                 goto Ldecl;
             }
 

@@ -5550,7 +5550,7 @@ RootObject *TemplateValueParameter::defaultArg(Loc instLoc, Scope *sc)
         e = e->resolveLoc(instLoc, sc);     // use the instantiated loc
         e = e->optimize(WANTvalue);
         if (global.errors != olderrs)
-            e = new ErrorExp();
+            e = ErrorExp::get();
     }
     return e;
 }
@@ -6181,11 +6181,11 @@ bool TemplateInstance::semanticTiargs(Loc loc, Scope *sc, Objects *tiargs, int f
                 else if (definitelyValueParameter(ea))
                 {
                     if (ea->checkValue())   // check void expression
-                        ea = new ErrorExp();
+                        ea = ErrorExp::get();
                     unsigned int olderrs = global.errors;
                     ea = ea->ctfeInterpret();
                     if (global.errors != olderrs)
-                        ea = new ErrorExp();
+                        ea = ErrorExp::get();
                 }
             }
             //printf("-[%d] ea = %s %s\n", j, Token::toChars(ea->op), ea->toChars());

@@ -893,7 +893,7 @@ Expression *VarDeclaration::expandInitializer(Loc loc)
     if (!e)
     {
         ::error(loc, "cannot make expression out of initializer for %s", toChars());
-        return new ErrorExp();
+        return ErrorExp::get();
     }
 
     e = e->copy();

@@ -186,7 +186,7 @@ Lno:
     delete keys;
     delete values;
     error(loc, "not an associative array initializer");
-    return new ErrorExp();
+    return ErrorExp::get();
 }
 
 /********************************** ExpInitializer ************************************/
