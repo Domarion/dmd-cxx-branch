@@ -3955,6 +3955,45 @@ public:
 
     void visit(ClassDeclaration *cldec)
     {
+        auto checkInterfaceImplementations = [](ClassDeclaration *cd)
+        {
+            for (size_t i = 0; i < cd->interfaces.length; ++i)
+            {
+                BaseClass *base = cd->interfaces.ptr[i];
+                for (size_t j = base->sym->vtblOffset(); j < base->sym->vtbl.length; j++)
+                {
+                    auto* m = base->sym->vtbl[j];
+                    assert(m);
+                    auto ifd = m->isFuncDeclaration();
+                    assert(ifd);
+                    auto type = ifd->type->toTypeFunction();
+                    auto fd = cd->findFunc(ifd->ident, type);
+
+                    if (fd && !fd->isAbstract())
+                    {
+                        // Check that calling conventions match
+                        if (fd->linkage != ifd->linkage)
+                        {
+                            fd->error("linkage doesn't match interface function");
+                        }
+                        // Check that it is current
+
+                        if (fd->toParent() != cd && ifd->toParent() == base->sym)
+                        {
+                            cd->error("interface function `%s` is not implemented", ifd->toFullSignature());
+                        }
+                    }
+                    else
+                    {
+                        // BUG: should mark this class as abstract?
+                        if (!cd->isAbstract())
+                        {
+                            cd->error("interface function `%s` is not implemented", ifd->toFullSignature());
+                        }
+                    }
+                }
+            }
+        };
         //printf("ClassDeclaration::semantic(%s), type = %p, sizeok = %d, this = %p\n", cldec->toChars(), cldec->type, sizeok, cldec);
         //printf("\tparent = %p, '%s'\n", sc->parent, sc->parent ? sc->parent->toChars() : "");
         //printf("sc->stc = %x\n", sc->stc);
@@ -4510,6 +4549,8 @@ public:
         {
             error(cldec->loc, "`scope` as a type constraint is obsolete.  Use `scope` at the usage site.");
         }
+
+        checkInterfaceImplementations(cldec);
     }
 
     void visit(InterfaceDeclaration *idec)
