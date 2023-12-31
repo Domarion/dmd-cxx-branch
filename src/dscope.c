@@ -517,7 +517,7 @@ ClassDeclaration *Scope::getClassScope()
 }
 
 /********************************************
- * Search enclosing scopes for ClassDeclaration.
+ * Search enclosing scopes for ClassDeclaration or StructDeclaration.
  */
 
 AggregateDeclaration *Scope::getStructClassScope()

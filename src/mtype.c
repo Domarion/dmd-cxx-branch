@@ -6368,6 +6368,11 @@ L1:
             error(loc, "undefined identifier `%s`, did you mean %s `%s`?", p, s2->kind(), s2->toChars());
         else if (const char *q = Scope::search_correct_C(id))
             error(loc, "undefined identifier `%s`, did you mean `%s`?", p, q);
+        else if ((id == Id::This && sc->getStructClassScope())
+            || (id == Id::_super && sc->getClassScope()))
+        {
+            error(loc, "undefined identifier `%s`, did you mean `typeof(%s)`?", p, p);
+        }
         else
             error(loc, "undefined identifier `%s`", p);
 
@@ -6407,28 +6412,6 @@ Type *TypeIdentifier::syntaxCopy()
 void TypeIdentifier::resolve(Loc loc, Scope *sc, Expression **pe, Type **pt, Dsymbol **ps, bool intypeid)
 {
     //printf("TypeIdentifier::resolve(sc = %p, idents = '%s')\n", sc, toChars());
-
-    if ((ident->equals(Id::_super) || ident->equals(Id::This)) && !hasThis(sc))
-    {
-        AggregateDeclaration *ad = sc->getStructClassScope();
-        if (ad)
-        {
-            ClassDeclaration *cd = ad->isClassDeclaration();
-            if (cd)
-            {
-                if (ident->equals(Id::This))
-                    ident = cd->ident;
-                else if (cd->baseClass && ident->equals(Id::_super))
-                    ident = cd->baseClass->ident;
-            }
-            else
-            {
-                StructDeclaration *sd = ad->isStructDeclaration();
-                if (sd && ident->equals(Id::This))
-                    ident = sd->ident;
-            }
-        }
-    }
     if (ident == Id::ctfe)
     {
         error(loc, "variable __ctfe cannot be read at compile time");
