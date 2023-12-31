@@ -4225,6 +4225,11 @@ L2:
         }
         else if (t->ty == Tfunction)
         {
+            if (storage_class & STCmanifest)
+            {
+                error("function cannot have enum storage class");
+            }
+
             Expression *constraint = NULL;
 
             //printf("%s funcdecl t = %s, storage_class = x%lx\n", loc.toChars(), t->toChars(), storage_class);
