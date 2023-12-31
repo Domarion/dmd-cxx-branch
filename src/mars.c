@@ -720,18 +720,12 @@ Language changes listed by -transition=id:\n\
             {
                 // Parse:
                 //      -debug
-                //      -debug=number
                 //      -debug=identifier
                 if (p[6] == '=')
                 {
                     if (isdigit((utf8_t)p[7]))
-                    {   long level;
-
-                        errno = 0;
-                        level = strtol(p + 7, const_cast<char **>(&p), 10);
-                        if (*p || errno || level > INT_MAX)
-                            goto Lerror;
-                        global.params.debuglevel = (int)level;
+                    {
+                        error(Loc(), "`-debug=number` is obsolete, use debug identifiers instead");
                     }
                     else if (Identifier::isValidIdentifier(p + 7))
                     {
@@ -750,18 +744,12 @@ Language changes listed by -transition=id:\n\
             else if (memcmp(p + 1, "version", 7) == 0)
             {
                 // Parse:
-                //      -version=number
                 //      -version=identifier
                 if (p[8] == '=')
                 {
                     if (isdigit((utf8_t)p[9]))
-                    {   long level;
-
-                        errno = 0;
-                        level = strtol(p + 9, const_cast<char **>(&p), 10);
-                        if (*p || errno || level > INT_MAX)
-                            goto Lerror;
-                        global.params.versionlevel = (int)level;
+                    {
+                        error(Loc(), "`-version=number` is obsolete, use version identifiers instead");
                     }
                     else if (Identifier::isValidIdentifier(p + 9))
                     {

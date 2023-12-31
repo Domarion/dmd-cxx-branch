@@ -864,12 +864,12 @@ Dsymbols *Parser::parseDeclDefs(int once, Dsymbol **pLastDecl, PrefixAttributes 
                 {
                     nextToken();
                     if (token.value == TOKidentifier)
+                    {
                         s = new DebugSymbol(token.loc, token.ident);
-                    else if (token.value == TOKint32v || token.value == TOKint64v)
-                        s = new DebugSymbol(token.loc, (unsigned)token.uns64value);
+                    }
                     else
                     {
-                        error("identifier or integer expected, not %s", token.toChars());
+                        error("identifier expected, not %s", token.toChars());
                         s = NULL;
                     }
                     nextToken();
@@ -888,12 +888,12 @@ Dsymbols *Parser::parseDeclDefs(int once, Dsymbol **pLastDecl, PrefixAttributes 
                 {
                     nextToken();
                     if (token.value == TOKidentifier)
+                    {
                         s = new VersionSymbol(token.loc, token.ident);
-                    else if (token.value == TOKint32v || token.value == TOKint64v)
-                        s = new VersionSymbol(token.loc, (unsigned)token.uns64value);
+                    }
                     else
                     {
-                        error("identifier or integer expected, not %s", token.toChars());
+                        error("identifier expected, not %s", token.toChars());
                         s = NULL;
                     }
                     nextToken();
@@ -1464,10 +1464,8 @@ Condition *Parser::parseDebugCondition()
 
         if (token.value == TOKidentifier)
             id = token.ident;
-        else if (token.value == TOKint32v || token.value == TOKint64v)
-            level = (unsigned)token.uns64value;
         else
-            error("identifier or integer expected, not %s", token.toChars());
+            error("identifier expected, not %s", token.toChars());
         nextToken();
         check(TOKrparen);
         c = new DebugCondition(mod, level, id);
@@ -1498,17 +1496,14 @@ Condition *Parser::parseVersionCondition()
          */
         if (token.value == TOKidentifier)
             id = token.ident;
-        else if (token.value == TOKint32v || token.value == TOKint64v)
-            level = (unsigned)token.uns64value;
         else if (token.value == TOKunittest)
             id = Identifier::idPool(Token::toChars(TOKunittest));
         else if (token.value == TOKassert)
             id = Identifier::idPool(Token::toChars(TOKassert));
         else
-            error("identifier or integer expected, not %s", token.toChars());
+            error("identifier expected, not %s", token.toChars());
         nextToken();
         check(TOKrparen);
-
     }
     else
        error("(condition) expected following version");
