@@ -8,7 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if (SCPP || MARS)
+#if (MARS)
 
 #include        <stdio.h>
 #include        <time.h>

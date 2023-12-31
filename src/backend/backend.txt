@@ -58,7 +58,6 @@ md5.c           implementation of MD5 message digest
 md5.h           API for md5.c
 melf.h          declarations for ELF file format
 newman.c        "new" C++ name mangling scheme
-nteh.c          Windows structured exception handling support
 oper.h          operators for expression tree
 optabgen.c      generate tables for back end
 os.c            some operating system specific support

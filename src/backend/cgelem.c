@@ -97,11 +97,7 @@ STATIC elem * cgel_lvalue(elem *e)
 
 STATIC elem * elscancommas(elem *e)
 {
-    while (e->Eoper == OPcomma
-#if SCPP
-           || e->Eoper == OPinfo
-#endif
-          )
+    while (e->Eoper == OPcomma)
         e = e->E2;
     return e;
 }
@@ -3266,10 +3262,6 @@ STATIC elem * eleq(elem *e, goal_t goal)
     unsigned t,w,b;
     unsigned sz;
     elem *l,*l2,*r,*r2,*e1,*eres;
-
-#if SCPP
-    goal_t wantres = goal;
-#endif
     e1 = e->E1;
 
     if (e1->Eoper == OPcomma || OTassign(e1->Eoper))
@@ -3628,82 +3620,6 @@ STATIC elem * elopass(elem *e, goal_t goal)
     {   e = fixconvop(e);
         return optelem(e,GOALvalue);
     }
-#if SCPP   // have bit fields to worry about?
-    goal_t wantres = goal;
-    if (e1->Eoper == OPbit)
-    {
-        op = opeqtoop(e->Eoper);
-
-        // Make sure t is unsigned
-        // so >> doesn't have to be masked
-        t = touns(e->Ety);
-
-        assert(tyintegral(t));
-        l = e1->E1;                             // lvalue
-        tyl = l->Ety;
-        r = e->E2;
-        w = (e1->E2->EV.Vuns >> 8) & 0xFF;      // width in bits of field
-        m = ((targ_llong)1 << w) - 1;           // mask w bits wide
-        b = e1->E2->EV.Vuns & 0xFF;             // bits to shift
-
-        if (tyuns(tyl))
-        {
-            eres = el_bin(OPeq,t,
-                    l,
-                    el_bin(OPor,t,
-                            (op2=el_bin(OPshl,t,
-                                    el_bin(OPand,t,
-                                            el_bin(op,t,
-                                                    el_bin(OPand,t,
-                                                        el_bin(OPshr,t,
-                                                            (l2=el_copytree(l)),
-                                                            el_long(TYint,b)
-                                                        ),
-                                                        el_long(t,m)
-                                                    ),
-                                                    r
-                                            ),
-                                            el_long(t,m)
-                                    ),
-                                    el_long(TYint,b)
-                            )),
-                            el_bin(OPand,t,
-                                    l3=el_copytree(l),
-                                    el_long(t,~(m << b))
-                            )
-                    )
-                );
-
-            if (wantres)
-            {   eres = el_bin(OPcomma,t,eres,el_copytree(op2->E1));
-                fixside(&(op2->E1),&(eres->E2));
-            }
-        }
-        else
-        {   /* signed bit field
-               rewrite to:      (l bit w,b) = ((l bit w,b) op r)
-             */
-            e->Eoper = OPeq;
-            e->E2 = el_bin(op,t,el_copytree(e1),r);
-            if (l->Eoper == OPind)
-                fixside(&e->E2->E1->E1->E1,&l->E1);
-            eres = e;
-            goto ret;
-        }
-
-        if (EOP(l) && EOP(l->E1))
-        {   fixside(&(l2->E1),&(l->E1));
-            el_free(l3->E1);
-            l3->E1 = el_copytree(l->E1);
-        }
-
-        e1->E1 = e->E2 = NULL;
-        el_free(e);
-    ret:
-        e = optelem(eres,GOALvalue);
-    }
-    else
-#endif
     {
         if (e1->Eoper == OPcomma || OTassign(e1->Eoper))
             e = cgel_lvalue(e);    // replace (e,v)op=e2 with e,(v op= e2)
@@ -4725,20 +4641,9 @@ elem *elddtor(elem *e, goal_t goal)
  * Handle OPinfo, OPmark, OPctor, OPdtor
  */
 
-STATIC elem * elinfo(elem *e, goal_t goal)
+STATIC elem * elinfo(elem *e, goal_t /*goal*/)
 {
     //printf("elinfo()\n");
-#if NTEXCEPTIONS && SCPP
-    if (funcsym_p->Sfunc->Fflags3 & Fnteh)
-    {   // Eliminate cleanup info if using NT structured EH
-        if (e->Eoper == OPinfo)
-            e = el_selecte2(e);
-        else
-        {   el_free(e);
-            e = el_long(TYint,0);
-        }
-    }
-#endif
     return e;
 }
 

@@ -27,10 +27,6 @@
 #include        "cgcv.h"
 #endif
 
-#if SCPP
-#include        "parser.h"
-#endif
-
 #include        "iasm.h"
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
@@ -50,11 +46,8 @@ void eecontext_convs(unsigned marksi)
     symtab_t *ps;
 
     // Change all generated SCauto's to SCstack's
-#if SCPP
-    ps = &globsym;
-#else
     ps = cstate.CSpsymtab;
-#endif
+
     top = ps->top;
     //printf("eecontext_convs(%d,%d)\n",marksi,top);
     for (u = marksi; u < top; u++)
@@ -71,48 +64,3 @@ void eecontext_convs(unsigned marksi)
         }
     }
 }
-
-////////////////////////////////////////
-// Parse the debugger expression.
-
-#if SCPP
-
-void eecontext_parse()
-{
-    if (eecontext.EEimminent)
-    {   type *t;
-        unsigned marksi;
-        symbol *s;
-
-        //printf("imminent\n");
-        marksi = globsym.top;
-        eecontext.EEin++;
-        s = symbol_genauto(tspvoid);
-        eecontext.EEelem = func_expr_dtor(TRUE);
-        t = eecontext.EEelem->ET;
-        if (tybasic(t->Tty) != TYvoid)
-        {   unsigned op;
-            elem *e;
-
-            e = el_unat(OPind,t,el_var(s));
-            op = tyaggregate(t->Tty) ? OPstreq : OPeq;
-            eecontext.EEelem = el_bint(op,t,e,eecontext.EEelem);
-        }
-        eecontext.EEin--;
-        eecontext.EEimminent = 0;
-        eecontext.EEfunc = funcsym_p;
-
-        eecontext_convs(marksi);
-
-        // Generate the typedef
-        if (eecontext.EEtypedef && config.fulltypes)
-        {   symbol *s;
-
-            s = symbol_name(eecontext.EEtypedef,SCtypedef,t);
-            cv_outsym(s);
-            symbol_free(s);
-        }
-    }
-}
-
-#endif

@@ -5754,10 +5754,6 @@ OP *asm_op_lookup(const char *s)
     if (strlen(s) >= sizeof(szBuf))
         return NULL;
     strcpy(szBuf,s);
-#if SCPP
-    strlwr(szBuf);
-#endif
-
     i = binary(szBuf,opcodestr,sizeof(opcodestr)/sizeof(opcodestr[0]));
     return (i == -1) ? NULL : &optab[i];
 }

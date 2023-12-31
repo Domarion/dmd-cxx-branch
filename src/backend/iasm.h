@@ -338,19 +338,6 @@ enum ASM_MODIFIERS {
 
 enum OP_DB
 {
-#if SCPP
-    // These are the number of bytes
-    OPdb = 1,
-    OPdw = 2,
-    OPdd = 4,
-    OPdq = 8,
-    OPdt = 10,
-    OPdf = 4,
-    OPde = 10,
-    OPds = 2,
-    OPdi = 4,
-    OPdl = 8,
-#endif
 #if MARS
     // Integral types
     OPdb,

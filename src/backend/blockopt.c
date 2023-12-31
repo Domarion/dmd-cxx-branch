@@ -25,10 +25,6 @@
 #include        "global.h"
 #include        "go.h"
 #include        "code.h"
-#if SCPP
-#include        "parser.h"
-#include        "iasm.h"
-#endif
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
@@ -170,34 +166,6 @@ block *block_goto(Blockx *bx,enum BC bc,block *bn)
  * Start a new block that is labelled by newlbl.
  */
 
-#if SCPP
-
-void block_goto()
-{
-    block_goto(block_calloc());
-}
-
-void block_goto(block *bn)
-{
-    block_goto(bn,bn);
-}
-
-void block_goto(block *bgoto,block *bnew)
-{
-    enum BC bc;
-
-    assert(bgoto);
-    curblock->appendSucc(bgoto);
-    if (curblock->Bcode)        // If there is already code in the block
-                                // then this is an ASM block
-            bc = BCasm;
-    else
-            bc = BCgoto;        // fall thru to next block
-    block_next(bc,bnew);
-}
-
-#endif
-
 /**********************************
  * Replace block numbers with block pointers.
  * Also compute numblks and maxblks.
@@ -338,11 +306,6 @@ void block_free(block *b)
             MEM_PH_FREE(b->BS.Bswitch);
 #endif
             break;
-#if SCPP
-        case BCcatch:
-            type_free(b->Bcatchtype);
-            break;
-#endif
 #if MARS
         case BCjcatch:
             free(b->BS.BIJCATCH.actionTable);
@@ -510,22 +473,6 @@ void block_appendexp(block *b,elem *e)
         *pe = e;
     }
 }
-
-/************************
- * Mark curblock as initializing symbol s.
- */
-
-#if SCPP
-
-#undef block_initvar
-
-void block_initvar(symbol *s)
-{
-    symbol_debug(s);
-    curblock->Binitvar = s;
-}
-
-#endif
 
 /*******************
  * Mark end of function.
@@ -992,12 +939,6 @@ STATIC void brrear()
                         /* the number of iterations.                    */
 
                         while (bt->BC == BCgoto && !bt->Belem &&
-#if SCPP || NTEXCEPTIONS
-                                b->Btry == bt->Btry &&
-#endif
-#if NTEXCEPTIONS
-                                bt->Btry == bt->nthSucc(0)->Btry &&
-#endif
                                 (OPTIMIZER || !(bt->Bsrcpos.Slinnum && configv.addlinenumbers)) &&
                                ++iter < 10)
                         {
@@ -1210,14 +1151,6 @@ STATIC int mergeblks()
                             bL2->BC == BC_try ||
                             b->Btry != bL2->Btry)
                             continue;
-#if SCPP
-                        // If any predecessors of b are BCasm, don't merge.
-                        for (bl = b->Bpred; bl; bl = list_next(bl))
-                        {
-                            if (list_block(bl)->BC == BCasm)
-                                goto Lcontinue;
-                        }
-#endif
 
                         /* JOIN the elems               */
                         e = el_combine(b->Belem,bL2->Belem);
@@ -1284,17 +1217,6 @@ STATIC void blident()
     cmes("blident()\n");
     assert(startblock);
 
-#if SCPP
-    // Determine if any asm blocks
-    int anyasm = 0;
-    for (bn = startblock; bn; bn = bn->Bnext)
-    {   if (bn->BC == BCasm)
-        {   anyasm = 1;
-            break;
-        }
-    }
-#endif
-
     for (bn = startblock; bn; bn = bnext)
     {   block *b;
 
@@ -1314,9 +1236,6 @@ STATIC void blident()
                 //(!OPTIMIZER || !(go.mfoptim & MFtime) || !b->Bsucc) &&
                 (!OPTIMIZER || !(b->Bflags & BFLnomerg) || !b->Bsucc) &&
                 list_equal(b->Bsucc,bn->Bsucc) &&
-#if SCPP || NTEXCEPTIONS
-                b->Btry == bn->Btry &&
-#endif
                 el_match(b->Belem,bn->Belem)
                )
             {   /* Eliminate block bn           */
@@ -1350,30 +1269,6 @@ STATIC void blident()
                         goto Lcontinue;
                 }
 
-#if 0 && SCPP
-                // Predecessors must all be at the same btry level.
-                if (bn->Bpred)
-                {   block *bp;
-
-                    bp = list_block(bn->Bpred);
-                    btry = bp->Btry;
-                    if (bp->BC == BCtry)
-                        btry = bp;
-                }
-                else
-                    btry = NULL;
-
-                for (bl = b->Bpred; bl; bl = list_next(bl))
-                {   block *bp;
-
-                    bp = list_block(bl);
-                    if (bp->BC != BCtry)
-                        bp = bp->Btry;
-                    if (btry != bp)
-                        goto Lcontinue;
-                }
-#endif
-
                 // if bn is startblock, eliminate b instead of bn
                 if (bn == startblock)
                 {
@@ -1381,26 +1276,6 @@ STATIC void blident()
                     bn = b;
                     b = startblock;             /* swap b and bn        */
                 }
-
-#if SCPP
-                // Don't do it if any predecessors are ASM blocks, since
-                // we'd have to walk the code list to fix up any jmps.
-                if (anyasm)
-                {
-                    for (bl = bn->Bpred; bl; bl = list_next(bl))
-                    {   list_t bls;
-                        block *bp;
-
-                        bp = list_block(bl);
-                        if (bp->BC == BCasm)
-                            goto Lcontinue;
-                        for (bls=bp->Bsucc; bls; bls=list_next(bls))
-                            if (list_block(bls) == bn &&
-                                list_block(bls)->BC == BCasm)
-                                goto Lcontinue;
-                    }
-                }
-#endif
 
                 /* Change successors to predecessors of bn to point to  */
                 /* b instead of bn                                      */
@@ -1462,21 +1337,6 @@ STATIC void blreturn()
         for (b = startblock; b; b = b->Bnext)
         {   if (b->BC != BCret)
                 continue;
-#if SCPP || NTEXCEPTIONS
-            // If no other blocks with the same Btry, don't split
-#if SCPP
-            if (config.flags3 & CFG3eh)
-#endif
-            {
-                for (block *b2 = startblock; b2; b2 = b2->Bnext)
-                {
-                    if (b2->BC == BCret && b != b2 && b->Btry == b2->Btry)
-                        goto L1;
-                }
-                continue;
-            }
-        L1: ;
-#endif
             if (b->Belem)
             {   /* Split b into a goto and a b  */
                 block *bn;
@@ -1489,9 +1349,6 @@ STATIC void blreturn()
                 bn = block_calloc();
                 bn->BC = BCret;
                 bn->Bnext = b->Bnext;
-#if SCPP || NTEXCEPTIONS
-                bn->Btry = b->Btry;
-#endif
                 b->BC = BCgoto;
                 b->Bnext = bn;
                 list_append(&b->Bsucc,bn);
@@ -1588,9 +1445,6 @@ STATIC void bltailmerge()
                     list_equal(b->Bsucc,bn->Bsucc) &&
                     bn->Blist &&
                     el_match(e,(en = list_elem(bn->Blist)))
-#if SCPP || NTEXCEPTIONS
-                    && b->Btry == bn->Btry
-#endif
                    )
                 {
                     switch (b->BC)
@@ -1624,9 +1478,6 @@ STATIC void bltailmerge()
                     bnew = block_calloc();
                     bnew->Bnext = bn->Bnext;
                     bnew->BC = b->BC;
-#if SCPP || NTEXCEPTIONS
-                    bnew->Btry = b->Btry;
-#endif
                     if (bnew->BC == BCswitch)
                     {
                         bnew->BS.Bswitch = b->BS.Bswitch;
@@ -1695,12 +1546,6 @@ STATIC void brmin()
 {   block *b;
     block *bnext;
     list_t bl,blp;
-
-#if SCPP
-    // Dunno how this may mess up generating EH tables.
-    if (config.flags3 & CFG3eh)         // if EH turned on
-        return;
-#endif
 
     cmes("brmin()\n");
     debug_assert(startblock);
@@ -1808,12 +1653,6 @@ STATIC void brtailrecursion()
 {   block *b;
     block *bs;
     elem **pe;
-
-#if SCPP
-//    if (tyvariadic(funcsym_p->Stype))
-        return;
-    return;             // haven't dealt with struct params, and ctors/dtors
-#endif
     if (funcsym_p->Sfunc->Fflags3 & Fnotailrecursion)
         return;
     if (localgot)

@@ -18,17 +18,8 @@
         tsdlib          TYjfunc, C mangling
  */
 
-#if SCPP
-#define SYMBOL_SCPP(e, fl, saved, n, flags, ty) SYMBOL_Z(e,fl,saved,n,flags,ty)
-#else
 #define SYMBOL_SCPP(e, fl, saved, n, flags, ty)
-#endif
-
-#if SCPP && TX86
-#define SYMBOL_SCPP_TX86(e, fl, saved, n, flags, ty) SYMBOL_Z(e,fl,saved,n,flags,ty)
-#else
 #define SYMBOL_SCPP_TX86(e, fl, saved, n, flags, ty)
-#endif
 
 #if MARS
 #define SYMBOL_MARS(e, fl, saved, n, flags, ty) SYMBOL_Z(e,fl,saved,n,flags,ty)

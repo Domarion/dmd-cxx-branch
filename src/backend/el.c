@@ -28,10 +28,6 @@
 #include        "global.h"
 #include        "go.h"
 
-#if SCPP
-#include        "parser.h"
-#endif
-
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
 
@@ -156,12 +152,7 @@ L1:
     elem_debug(e);
     //dbg_printf("el_free(%p)\n",e);
     //elem_print(e);
-    if (SCPP && PARSER)
-    {
-        ty = e->ET ? e->ET->Tty : 0;
-        type_free(e->ET);
-    }
-    else if (e->Ecount--)
+    if (e->Ecount--)
         return;                         // usage count
     elcount--;
     op = e->Eoper;
@@ -173,10 +164,6 @@ L1:
         case OPvar:
             break;
         case OPrelconst:
-#if SCPP
-            if (0 && PARSER && tybasic(ty) == TYmemptr)
-                el_free(e->EV.sm.ethis);
-#endif
             break;
         case OPstring:
         case OPasm:
@@ -240,8 +227,7 @@ elem * el_combine(elem *e1,elem *e2)
 {
     if (e1)
     {   if (e2)
-            e1 = (SCPP && PARSER) ? el_bint(OPcomma,e2->ET,e1,e2)
-                        : el_bin(OPcomma,e2->Ety,e1,e2);
+            e1 = el_bin(OPcomma,e2->Ety,e1,e2);
     }
     else
         e1 = e2;
@@ -262,8 +248,7 @@ elem * el_param(elem *e1,elem *e2)
 #endif
     if (e1)
     {   if (e2)
-            e1 = (SCPP && PARSER) ? el_bint(OPparam,tsvoid,e1,e2)
-                        : el_bin(OPparam,TYvoid,e1,e2);
+            e1 = el_bin(OPparam,TYvoid,e1,e2);
     }
     else
         e1 = e2;
@@ -526,11 +511,6 @@ elem * el_copytree(elem *e)
     d = el_calloc();
     el_copy(d,e);
     assert(!e->Ecount);
-    if (SCPP && PARSER)
-    {
-        type_debug(d->ET);
-        d->ET->Tcount++;
-    }
     if (EOP(e))
     {   d->E1 = el_copytree(e->E1);
         if (EBIN(e))
@@ -631,40 +611,6 @@ elem *el_copytotmp(elem **pe)
     }
     return el_copytree(e);
 }
-
-/**************************
- * Replace symbol s1 with s2 in tree.
- */
-
-#if SCPP
-
-void el_replace_sym(elem *e,symbol *s1,symbol *s2)
-{
-    symbol_debug(s1);
-    symbol_debug(s2);
-    while (1)
-    {   elem_debug(e);
-        if (EOP(e))
-        {   if (EBIN(e))
-                el_replace_sym(e->E2,s1,s2);
-            e = e->E1;
-        }
-        else
-        {
-            switch (e->Eoper)
-            {
-                case OPvar:
-                case OPrelconst:
-                    if (e->EV.sp.Vsym == s1)
-                        e->EV.sp.Vsym = s2;
-                    break;
-            }
-            break;
-        }
-    }
-}
-
-#endif
 
 /*************************************
  * Does symbol s appear in tree e?
@@ -922,29 +868,6 @@ elem * el_long(tym_t t,targ_llong val)
 }
 
 /*******************************
- * If elem is a const that can be converted to an OPconst,
- * do the conversion.
- */
-
-#if SCPP
-void el_toconst(elem *e)
-{
-    elem_debug(e);
-    assert(PARSER);
-    if (e->Eoper == OPvar && e->EV.sp.Vsym->Sflags & SFLvalue)
-    {   elem *es = e->EV.sp.Vsym->Svalue;
-
-        type_debug(e->ET);
-        symbol_debug(e->EV.sp.Vsym);
-        elem_debug(es);
-        e->Eoper = es->Eoper;
-        assert(e->Eoper == OPconst);
-        e->EV = es->EV;
-    }
-}
-#endif
-
-/*******************************
  * Set new type for elem.
  */
 
@@ -962,35 +885,6 @@ elem * el_settype(elem *e,type *t)
 }
 
 /*******************************
- * Walk tree, replacing symbol s1 with s2.
- */
-
-#if SCPP
-
-void el_replacesym(elem *e,symbol *s1,symbol *s2)
-{
-    _chkstack();
-
-    assert(PARSER);
-    while (e)
-    {   elem_debug(e);
-        if (EOP(e))
-        {   el_replacesym(e->E2,s1,s2);
-            e = e->E1;
-        }
-        else
-        {
-            if ((e->Eoper == OPvar || e->Eoper == OPrelconst) &&
-                e->EV.sp.Vsym == s1)
-                e->EV.sp.Vsym = s2;
-            break;
-        }
-    }
-}
-
-#endif
-
-/*******************************
  * Create elem that is the size of a type.
  */
 
@@ -1002,20 +896,7 @@ elem * el_typesize(type *t)
 #else
     assert(PARSER);
     type_debug(t);
-    if (CPP && tybasic(t->Tty) == TYstruct && t->Tflags & TFsizeunknown)
-    {   elem *e;
-
-        symbol_debug(t->Ttag);
-        e = el_calloc();
-        e->Eoper = OPsizeof;
-        e->EV.sp.Vsym = t->Ttag;
-        e->ET = tssize;
-        e->ET->Tcount++;
-        type_debug(tssize);
-        elem_debug(e);
-        return e;
-    }
-    else if (tybasic(t->Tty) == TYarray && type_isvla(t))
+    if (tybasic(t->Tty) == TYarray && type_isvla(t))
     {
         type *troot = type_arrayroot(t);
         elem *en;
@@ -1027,47 +908,6 @@ elem * el_typesize(type *t)
         return el_longt(tssize,type_size(t));
 #endif
 }
-
-/*****************************
- * Return an elem that evaluates to the number of elems in a type
- * (if it is an array). Returns NULL if t is not an array.
- */
-
-#if SCPP
-elem * el_nelems(type *t)
-{   elem *enelems;
-
-    assert(PARSER);
-    type_debug(t);
-    if (tybasic(t->Tty) == TYarray)
-    {   type *ts = tssize;
-
-        enelems = el_longt(ts, 1);
-        do
-        {
-            if (t->Tflags & TFsizeunknown ||
-                (t->Tflags & TFvla && !t->Tel))
-            {   synerr(EM_unknown_size,"array");        // size of array is unknown
-                t->Tflags &= ~TFsizeunknown;
-            }
-            else if (t->Tflags & TFvla)
-            {
-                enelems = el_bint(OPmul, ts, enelems, el_copytree(t->Tel));
-            }
-            else if (enelems->Eoper == OPconst)
-            {   enelems->EV.Vllong *= t->Tdim;
-                type_chksize(enelems->EV.Vllong);
-            }
-            else
-                enelems = el_bint(OPmul, enelems->ET, enelems, el_longt(ts, t->Tdim));
-            t = t->Tnext;
-        } while (tybasic(t->Tty) == TYarray);
-    }
-    else
-        enelems = NULL;
-    return enelems;
-}
-#endif
 
 /************************************
  * Return != 0 if function has any side effects.
@@ -1136,9 +976,6 @@ int el_depends(elem *ea,elem *eb)
         case OPconst:
         case OPrelconst:
         case OPstring:
-#if SCPP
-        case OPsizeof:
-#endif
             goto Lnodep;
         case OPvar:
             if (ea->Eoper == OPvar && ea->EV.sp.Vsym != eb->EV.sp.Vsym)
@@ -1482,31 +1319,6 @@ elem * el_var(symbol *s)
     }
     return e;
 }
-#elif SCPP
-elem * el_var(symbol *s)
-{   elem *e;
-
-    //printf("el_var(s = '%s')\n", s->Sident);
-#if TARGET_LINUX
-    if (config.flags3 & CFG3pic && !tyfunc(s->ty()))
-        return el_picvar(s);
-#endif
-    symbol_debug(s);
-    type_debug(s->Stype);
-    e = el_calloc();
-    e->Eoper = OPvar;
-    e->EV.sp.Vsym = s;
-    if (SCPP && PARSER)
-    {   type *t = s->Stype;
-
-        type_debug(t);
-        e->ET = t;
-        t->Tcount++;
-    }
-    else
-        e->Ety = s->ty();
-    return e;
-}
 #endif
 
 /**************************
@@ -1528,13 +1340,6 @@ elem * el_ptr(symbol *s)
     else
 #endif
         e = el_var(s);
-#if SCPP
-    if (PARSER)
-    {   type_debug(e->ET);
-        e = el_unat(OPaddr,type_ptr(e,e->ET),e);
-    }
-    else
-#endif
     if (e->Eoper == OPvar)
     {
         e->Ety = TYnptr;
@@ -1546,34 +1351,6 @@ elem * el_ptr(symbol *s)
     }
     return e;
 }
-
-/**************************
- * Make a pointer to an elem out of a symbol at offset.
- */
-
-#if SCPP
-
-elem * el_ptr_offset(symbol *s,targ_size_t offset)
-{   elem *e;
-    elem *e1;
-
-    e = el_ptr(s);      /* e is an elem which is a pointer to s */
-    e1 = e->E1;
-    if (e1->Eoper == OPvar)
-        ;
-    // The following case happens if symbol s is in thread local storage
-    else if (e1->Eoper == OPind &&
-             e1->E1->Eoper == OPadd &&
-             e1->E1->E1->Eoper == OPrelconst)
-        e1 = e1->E1->E1;
-    else
-        assert(0);
-    assert(e1->EV.sp.Vsym == s);
-    e1->EV.sp.Voffset = offset;
-    return e;
-}
-
-#endif
 
 /*************************
  * Returns:
@@ -2172,55 +1949,6 @@ elem *el_ctor_dtor(elem *ec, elem *ed, elem **pedtor)
 }
 
 /**************************
- * Insert constructor information into tree.
- *      ector   pointer to object being constructed
- *      e       code to construct the object
- *      sdtor   function to destruct the object
- */
-
-#if SCPP
-elem *el_ctor(elem *ector,elem *e,symbol *sdtor)
-{
-    //printf("el_ctor(ector = %p, e = %p, sdtor = %p)\n", ector, e, sdtor);
-    //printf("stdor = '%s'\n", cpp_prettyident(sdtor));
-    //printf("e:\n"); elem_print(e);
-    if (ector)
-    {
-        if (sdtor)
-        {
-            if (sdtor->Sfunc->Fbody)
-            {
-                n2_instantiate_memfunc(sdtor);
-            }
-            // Causes symbols to be written out prematurely when
-            // writing precompiled headers.
-            // Moved to outelem().
-            //nwc_mustwrite(sdtor);
-        }
-        if (!sdtor || ector->Eoper == OPcall ||
-            (ector->Eoper == OPrelconst && !(sytab[ector->EV.sp.Vsym->Sclass] & SCSS))
-            // Not ambient memory model
-            || (tyfarfunc(sdtor->ty()) ? !LARGECODE : LARGECODE)
-           )
-        {
-            el_free(ector);
-        }
-        else
-        {
-            ector = el_unat(OPctor,ector->ET,ector);
-            ector->EV.eop.Edtor = sdtor;
-            symbol_debug(sdtor);
-            if (e)
-                e = el_bint(OPinfo,e->ET,ector,e);
-            else
-                e = ector;
-        }
-    }
-    return e;
-}
-#endif
-
-/**************************
  * Insert destructor information into tree.
  *      edtor   pointer to object being destructed
  *      e       code to do the destruction
@@ -2511,11 +2239,6 @@ L1:
                         break;
                     case TYvoid:
                         break;                  // voids always match
-#if SCPP
-                    case TYident:
-                        assert(errcnt);
-                        goto nomatch;
-#endif
                     default:
                         elem_print(n1);
                         assert(0);
@@ -2523,29 +2246,10 @@ L1:
                 break;
             case OPrelconst:
             case OPvar:
-#if SCPP
-            case OPsizeof:
-#endif
                 symbol_debug(n1->EV.sp.Vsym);
                 symbol_debug(n2->EV.sp.Vsym);
                 if (n1->EV.sp.Voffset != n2->EV.sp.Voffset)
                     goto nomatch;
-#if SCPP
-                if (gmatch2 & 4)
-                {
-#if 0
-                    printf("------- symbols ---------\n");
-                    symbol_print(n1->EV.sp.Vsym);
-                    symbol_print(n2->EV.sp.Vsym);
-                    printf("\n");
-#endif
-                    if (/*strcmp(n1->EV.sp.Vsym->Sident, n2->EV.sp.Vsym->Sident) &&*/
-                        n1->EV.sp.Vsym != n2->EV.sp.Vsym &&
-                        (!n1->EV.sp.Vsym->Ssequence || n1->EV.sp.Vsym->Ssequence != n2->EV.sp.Vsym->Ssequence))
-                        goto nomatch;
-                }
-                else
-#endif
                 {
                     if (n1->EV.sp.Vsym != n2->EV.sp.Vsym)
                         goto nomatch;
@@ -2563,10 +2267,6 @@ L1:
             case OPhalt:
             case OPgot:
                 break;
-#if SCPP
-            case OPmark:
-                break;
-#endif
             default:
                 WROP(op);
                 assert(0);
@@ -2656,13 +2356,6 @@ targ_llong el_tolong(elem *e)
     tym_t ty;
 
     elem_debug(e);
-#if SCPP
-    if (e->Eoper == OPsizeof)
-    {
-        e->Eoper = OPconst;
-        e->EV.Vllong = type_size(e->EV.sp.Vsym->Stype);
-    }
-#endif
     if (e->Eoper != OPconst)
         elem_print(e);
     assert(e->Eoper == OPconst);
@@ -2692,12 +2385,6 @@ L1:
         Ushort:
             result = e->EV.Vushort;
             break;
-#if SCPP
-        case TYenum:
-            assert(PARSER);
-            ty = e->ET->Tnext->Tty;
-            goto L1;
-#endif
 
         case TYsptr:
         case TYcptr:
@@ -2755,24 +2442,13 @@ L1:
             result = (targ_llong)el_toldouble(e);
             break;
 
-#if SCPP
-        case TYmemptr:
-            ty = tybasic(tym_conv(e->ET));
-            goto L1;
-#endif
-
         case TYcent:
         case TYucent:
             goto Ullong; // should do better than this when actually doing arithmetic on cents
 
         default:
-#if SCPP
-            // Can happen as result of syntax errors
-            assert(errcnt);
-#else
             elem_print(e);
             assert(0);
-#endif
     }
     return result;
 }
@@ -2957,16 +2633,6 @@ void elem_print(elem *e)
   }
   WROP(e->Eoper);
   dbg_printf(" ");
-  if (SCPP && PARSER)
-  {
-        if (e->ET)
-        {   type_debug(e->ET);
-            if (tybasic(e->ET->Tty) == TYstruct)
-                dbg_printf("%d ", (int)type_size(e->ET));
-            WRTYxx(e->ET->Tty);
-        }
-  }
-  else
   {
         if ((e->Eoper == OPstrpar || e->Eoper == OPstrctor || e->Eoper == OPstreq) ||
             e->Ety == TYstruct)
@@ -3177,12 +2843,6 @@ void el_hydrate(elem **pe)
     {   el_hydrate(&e->E1);
         if (EBIN(e))
             el_hydrate(&e->E2);
-#if SCPP
-        else if (e->Eoper == OPctor)
-        {   symbol_hydrate(&e->EV.eop.Edtor);
-            symbol_debug(e->EV.eop.Edtor);
-        }
-#endif
     }
     else
     {
@@ -3234,10 +2894,6 @@ void el_dehydrate(elem **pe)
     {   el_dehydrate(&e->E1);
         if (EBIN(e))
             el_dehydrate(&e->E2);
-#if SCPP
-        else if (e->Eoper == OPctor)
-            symbol_dehydrate(&e->EV.eop.Edtor);
-#endif
     }
     else
     {

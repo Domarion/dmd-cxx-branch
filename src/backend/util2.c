@@ -21,7 +21,7 @@
 #include        "global.h"
 #include        "mem.h"
 #include        "token.h"
-#if SCPP || MARS
+#if MARS
 #include        "el.h"
 #endif
 

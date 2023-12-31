@@ -21,54 +21,11 @@
 #include        "cgcv.h"
 #include        "go.h"
 #include        "dt.h"
-#if SCPP
-#include        "parser.h"
-#include        "cpp.h"
-#include        "el.h"
-#include        "code.h"
-#endif
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
 
 static  int addrparam;  /* see if any parameters get their address taken */
-
-#if SCPP
-
-/**********************************
- * We put out an external definition.
- */
-void out_extdef(symbol *s)
-{
-    pstate.STflags |= PFLextdef;
-    if (//config.flags2 & CFG2phgen ||
-        (config.flags2 & (CFG2phauto | CFG2phautoy) &&
-            !(pstate.STflags & (PFLhxwrote | PFLhxdone)))
-       )
-
-        synerr(EM_data_in_pch,prettyident(s));          // data or code in precompiled header
-}
-
-/********************************
- * Put out code segment name record.
- */
-void outcsegname(char *csegname)
-{
-    Obj::codeseg(csegname,0);
-}
-
-/***********************************
- * Output function thunk.
- */
-void outthunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
-        targ_size_t d,int i,targ_size_t d2)
-{
-    cod3_thunk(sthunk,sfunc,p,thisty,d,i,d2);
-    sthunk->Sfunc->Fflags &= ~Fpending;
-    sthunk->Sfunc->Fflags |= Foutput;   /* mark it as having been output */
-}
-
-#endif
 
 /***************************
  * Write out statically allocated data.
@@ -192,9 +149,6 @@ void outdata(symbol *s)
                     if (config.fulltypes &&
                         !(s->Sclass == SCstatic && funcsym_p)) // not local static
                         cv_outsym(s);
-#if SCPP
-                    out_extdef(s);
-#endif
                     goto Lret;
                 }
                 break;
@@ -207,11 +161,7 @@ void outdata(symbol *s)
             {   symbol *sb = dt->DTsym;
 
                 if (tyfunc(sb->ty()))
-#if SCPP
-                    nwc_mustwrite(sb);
-#else
                     ;
-#endif
                 else if (sb->Sdt)               // if initializer for symbol
 { if (!s->Sseg) s->Sseg = DATA;
                     outdata(sb);                // write out data for symbol
@@ -398,9 +348,6 @@ void outdata(symbol *s)
         }
     }
     Offset(seg) = offset;
-#if SCPP
-    out_extdef(s);
-#endif
 Lret:
     dt_free(dtstart);
 }
@@ -426,9 +373,6 @@ void outcommon(symbol *s,targ_size_t n)
             dtb.nzeros(n);
             s->Sdt = dtb.finish();
             outdata(s);
-#if SCPP
-            out_extdef(s);
-#endif
         }
         else if (s->ty() & mTYthread) // if store in thread local segment
         {
@@ -447,10 +391,6 @@ void outcommon(symbol *s,targ_size_t n)
                 dtb.nzeros(n);
                 s->Sdt = dtb.finish();
                 outdata(s);
-#if SCPP
-                if (config.objfmt == OBJ_OMF)
-                    out_extdef(s);
-#endif
             }
         }
         else
@@ -465,9 +405,6 @@ void outcommon(symbol *s,targ_size_t n)
                     s->Sfl = FLextern;
                 s->Sseg = UNKNOWN;
                 pstate.STflags |= PFLcomdef;
-#if SCPP
-                ph_comdef(s);               // notify PH that a COMDEF went out
-#endif
             }
             else
                 objmod->common_block(s, 0, n, 1);
@@ -511,9 +448,6 @@ STATIC void outelem(elem *e)
     symbol *s;
     tym_t tym;
     elem *e1;
-#if SCPP
-    type *t;
-#endif
 
 again:
     assert(e);
@@ -524,43 +458,6 @@ again:
         assert(e->E1 && e->E2);
 //    else if (EUNA(e))
 //      assert(e->E1 && !e->E2);
-#endif
-
-#if SCPP
-    t = e->ET;
-    assert(t);
-    type_debug(t);
-    tym = t->Tty;
-    switch (tybasic(tym))
-    {   case TYstruct:
-            t->Tcount++;
-            break;
-
-        case TYarray:
-            t->Tcount++;
-            break;
-
-        case TYbool:
-        case TYwchar_t:
-        case TYchar16:
-        case TYmemptr:
-        case TYvtshape:
-        case TYnullptr:
-            tym = tym_conv(t);
-            e->ET = NULL;
-            break;
-
-        case TYenum:
-            tym = tym_conv(t->Tnext);
-            e->ET = NULL;
-            break;
-
-        default:
-            e->ET = NULL;
-            break;
-    }
-    e->Nflags = 0;
-    e->Ety = tym;
 #endif
 
     switch (e->Eoper)
@@ -580,22 +477,14 @@ again:
         }
         else
             break;
-#if SCPP
-        type_free(t);
-#endif
         goto again;                     /* iterate instead of recurse   */
     case OPaddr:
         e1 = e->E1;
         if (e1->Eoper == OPvar)
         {   // Fold into an OPrelconst
-#if SCPP
-            el_copy(e,e1);
-            e->ET = t;
-#else
             tym = e->Ety;
             el_copy(e,e1);
             e->Ety = tym;
-#endif
             e->Eoper = OPrelconst;
             el_free(e1);
             goto again;
@@ -639,90 +528,17 @@ again:
                 else if (s->ty() & mTYfar)
                     e->Ety |= mTYfar;
                 break;
-#if SCPP
-            case SCmember:
-                err_noinstance(s->Sscope,s);
-                goto L5;
-            case SCstruct:
-                cpperr(EM_no_instance,s->Sident);       // no instance of class
-            L5:
-                e->Eoper = OPconst;
-                e->Ety = TYint;
-                return;
-
-            case SCfuncalias:
-                e->EV.sp.Vsym = s->Sfunc->Falias;
-                goto L6;
-            case SCstack:
-                break;
-            case SCfunctempl:
-                cpperr(EM_no_template_instance, s->Sident);
-                break;
-            default:
-                symbol_print(s);
-                WRclass((enum SC) s->Sclass);
-                assert(0);
-#endif
         }
-#if SCPP
-        if (tyfunc(s->ty()))
-        {
-#if SCPP
-            nwc_mustwrite(s);           /* must write out function      */
-#else
-            ;
-#endif
-        }
-        else if (s->Sdt)                /* if initializer for symbol    */
-            outdata(s);                 // write out data for symbol
-        if (config.flags3 & CFG3pic)
-        {
-            objmod->gotref(s);
-        }
-#endif
         break;
     case OPstring:
     case OPconst:
     case OPstrthis:
         break;
     case OPsizeof:
-#if SCPP
-        e->Eoper = OPconst;
-        e->EV.Vlong = type_size(e->EV.sp.Vsym->Stype);
-#else
         assert(0);
-#endif
-        break;
 
-#if SCPP
-    case OPstreq:
-    case OPstrpar:
-    case OPstrctor:
-        type_size(e->E1->ET);
-        goto Lop;
-
-    case OPasm:
         break;
-
-    case OPctor:
-        nwc_mustwrite(e->EV.eop.Edtor);
-    case OPdtor:
-        // Don't put 'this' pointers in registers if we need
-        // them for EH stack cleanup.
-        e1 = e->E1;
-        elem_debug(e1);
-        if (e1->Eoper == OPadd)
-            e1 = e1->E1;
-        if (e1->Eoper == OPvar)
-            e1->EV.sp.Vsym->Sflags &= ~GTregcand;
-        goto Lop;
-    case OPmark:
-        break;
-#endif
     }
-#if SCPP
-    type_free(t);
-#endif
 }
 
 /*************************************
@@ -853,13 +669,9 @@ STATIC void writefunc2(symbol *sfunc);
 
 void writefunc(symbol *sfunc)
 {
-#if SCPP
-    writefunc2(sfunc);
-#else
     cstate.CSpsymtab = &globsym;
     writefunc2(sfunc);
     cstate.CSpsymtab = NULL;
-#endif
 }
 
 STATIC void writefunc2(symbol *sfunc)
@@ -874,29 +686,6 @@ STATIC void writefunc2(symbol *sfunc)
 
     //printf("writefunc(%s)\n",sfunc->Sident);
     debug(debugy && dbg_printf("writefunc(%s)\n",sfunc->Sident));
-#if SCPP
-    if (CPP)
-    {
-
-    // If constructor or destructor, make sure it has been fixed.
-    if (f->Fflags & (Fctor | Fdtor))
-        assert(errcnt || f->Fflags & Ffixed);
-
-    // If this function is the 'trigger' to output the vtbl[], do so
-    if (f->Fflags3 & Fvtblgen && !eecontext.EEcompile)
-    {   Classsym *stag;
-
-        stag = (Classsym *) sfunc->Sscope;
-        {
-            enum SC scvtbl;
-
-            scvtbl = (enum SC) ((config.flags2 & CFG2comdat) ? SCcomdat : SCglobal);
-            n2_genvtbl(stag,scvtbl,1);
-            n2_genvbtbl(stag,scvtbl,1);
-        }
-    }
-    }
-#endif
 
     /* Signify that function has been output                    */
     /* (before inline_do() to prevent infinite recursion!)      */
@@ -904,9 +693,6 @@ STATIC void writefunc2(symbol *sfunc)
     f->Fflags |= Foutput;
 
     if (
-#if SCPP
-        errcnt ||
-#endif
         (eecontext.EEcompile && eecontext.EEfunc != sfunc))
         return;
 
@@ -950,39 +736,12 @@ STATIC void writefunc2(symbol *sfunc)
     assert(startblock);
 
     /* Do any in-line expansion of function calls inside sfunc  */
-#if SCPP
-    inline_do(sfunc);
-#endif
-
-#if SCPP
-    /* If function is _STIxxxx, add in the auto destructors             */
-    if (cpp_stidtors && memcmp("__SI",sfunc->Sident,4) == 0)
-    {   list_t el;
-
-        assert(startblock->Bnext == NULL);
-        el = cpp_stidtors;
-        do
-        {
-            startblock->Belem = el_combine(startblock->Belem,list_elem(el));
-            el = list_next(el);
-        } while (el);
-        list_free(&cpp_stidtors,FPNULL);
-    }
-#endif
     assert(funcsym_p == NULL);
     funcsym_p = sfunc;
     tyf = tybasic(sfunc->ty());
 
-#if SCPP
-    out_extdef(sfunc);
-#endif
-
     // TX86 computes parameter offsets in stackoffsets()
     //printf("globsym.top = %d\n", globsym.top);
-
-#if SCPP
-    FuncParamRegs fpr(tyf);
-#endif
 
     for (si = 0; si < globsym.top; si++)
     {   symbol *s = globsym.tab[si];
@@ -1003,28 +762,12 @@ STATIC void writefunc2(symbol *sfunc)
             case SCregister:
                 s->Sfl = FLauto;
                 goto L3;
-#if SCPP
-            case SCfastpar:
-            case SCregpar:
-            case SCparameter:
-                if (si == 0 && fpr.alloc(s->Stype, s->Stype->Tty, &s->Spreg, &s->Spreg2))
-                {
-                    assert(s->Spreg == ((tyf == TYmfunc) ? CX : AX));
-                    assert(s->Spreg2 == NOREG);
-                    assert(si == 0);
-                    s->Sclass = SCfastpar;
-                    s->Sfl = FLfast;
-                    goto L3;
-                }
-                assert(s->Sclass != SCfastpar);
-#else
             case SCfastpar:
                 s->Sfl = FLfast;
                 goto L3;
             case SCregpar:
             case SCparameter:
             case SCshadowreg:
-#endif
                 s->Sfl = FLpara;
                 if (tyf == TYifunc)
                 {   s->Sflags |= SFLlivexit;
@@ -1057,12 +800,6 @@ STATIC void writefunc2(symbol *sfunc)
         memset(&b->_BLU,0,sizeof(b->_BLU));
         if (b->Belem)
         {   outelem(b->Belem);
-#if SCPP
-            if (el_noreturn(b->Belem) && !(config.flags3 & CFG3eh))
-            {   b->BC = BCexit;
-                list_free(&b->Bsucc,FPNULL);
-            }
-#endif
 #if MARS
             if (b->Belem->Eoper == OPhalt)
             {   b->BC = BCexit;
@@ -1112,33 +849,6 @@ STATIC void writefunc2(symbol *sfunc)
         blockopt(0);                    /* optimize                     */
     }
 
-#if SCPP
-    if (CPP)
-    {
-        // Look for any blocks that return nothing.
-        // Do it after optimization to eliminate any spurious
-        // messages like the implicit return on { while(1) { ... } }
-        if (tybasic(funcsym_p->Stype->Tnext->Tty) != TYvoid &&
-            !(funcsym_p->Sfunc->Fflags & (Fctor | Fdtor | Finvariant))
-#if DEBUG_XSYMGEN
-            /* the internal dataview function is allowed to lie about its return value */
-            && compile_state != kDataView
-#endif
-           )
-        {   char err;
-
-            err = 0;
-            for (b = startblock; b; b = b->Bnext)
-            {   if (b->BC == BCasm)     // no errors if any asm blocks
-                    err |= 2;
-                else if (b->BC == BCret)
-                    err |= 1;
-            }
-            if (err == 1)
-                func_noreturnvalue();
-        }
-    }
-#endif
     assert(funcsym_p == sfunc);
     if (eecontext.EEcompile != 1)
     {
@@ -1150,11 +860,7 @@ STATIC void writefunc2(symbol *sfunc)
         else
             if (config.flags & CFGsegs) // if user set switch for this
             {
-#if SCPP
-                objmod->codeseg(cpp_mangle(funcsym_p),1);
-#else
                 objmod->codeseg(funcsym_p->Sident, 1);
-#endif
                                         // generate new code segment
             }
         cod3_align();                   // align start of function
@@ -1163,15 +869,9 @@ STATIC void writefunc2(symbol *sfunc)
     }
 
     //dbg_printf("codgen()\n");
-#if SCPP
-    if (!errcnt)
-#endif
         codgen();                               // generate code
     //dbg_printf("after codgen for %s Coffset %x\n",sfunc->Sident,Coffset);
     blocklist_free(&startblock);
-#if SCPP
-    PARSER = 1;
-#endif
     objmod->func_term(sfunc);
     if (eecontext.EEcompile == 1)
         goto Ldone;
@@ -1235,11 +935,6 @@ STATIC void writefunc2(symbol *sfunc)
 
 Ldone:
     funcsym_p = NULL;
-
-#if SCPP
-    // Free any added symbols
-    freesymtab(globsym.tab,nsymbols,globsym.top);
-#endif
     globsym.top = 0;
 
     //dbg_printf("done with writefunc()\n");

@@ -17,9 +17,6 @@
 #include        "code.h"
 #include        "global.h"
 #include        "type.h"
-#if SCPP
-#include        "exh.h"
-#endif
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
@@ -2025,21 +2022,6 @@ code *cdcond(elem *e,regm_t *pretregs)
   else
         c1 = codelem(e21,&retregs,FALSE);
 
-#if SCPP
-  if (CPP && e2->Eoper == OPcolon2)
-  {     code cs;
-
-        // This is necessary so that any cleanup code on one branch
-        // is redone on the other branch.
-        cs.Iop = ESCAPE | ESCmark2;
-        cs.Iflags = 0;
-        cs.Irex = 0;
-        c1 = cat(gen(CNIL,&cs),c1);
-        cs.Iop = ESCAPE | ESCrelease2;
-        c1 = gen(c1,&cs);
-  }
-#endif
-
   regconsave = regcon;
   regcon = regconold;
 
@@ -2240,12 +2222,6 @@ code *cdshift(elem *e,regm_t *pretregs)
   oper = e->Eoper;
     unsigned rex = (I64 && sz == 8) ? REX_W : 0;
     unsigned grex = rex << 16;
-
-#if SCPP
-  // Do this until the rest of the compiler does OPshr/OPashr correctly
-  if (oper == OPshr)
-        oper = (tyuns(tyml)) ? OPshr : OPashr;
-#endif
 
   switch (oper)
   {     case OPshl:
@@ -4923,42 +4899,6 @@ code *cdinfo(elem *e,regm_t *pretregs)
             c = cat(c,codelem(e->E1,&retregs,FALSE));
             break;
 #endif
-#if SCPP
-        case OPdtor:
-            c = cdcomma(e,pretregs);
-            break;
-        case OPctor:
-            c = codelem(e->E2,pretregs,FALSE);
-            retregs = 0;
-            c = cat(c,codelem(e->E1,&retregs,FALSE));
-            break;
-        case OPmark:
-            if (0 && config.exe == EX_WIN32)
-            {   unsigned idx;
-
-                idx = except_index_get();
-                except_mark();
-                c = codelem(e->E2,pretregs,FALSE);
-                if (config.exe == EX_WIN32 && idx != except_index_get())
-                {   usednteh |= NTEHcleanup;
-                    c = cat(c,nteh_gensindex(idx - 1));
-                }
-                except_release();
-                assert(idx == except_index_get());
-            }
-            else
-            {
-                cs.Iop = ESCAPE | ESCmark;
-                cs.Iflags = 0;
-                cs.Irex = 0;
-                c = gen(CNIL,&cs);
-                c = cat(c,codelem(e->E2,pretregs,FALSE));
-                cs.Iop = ESCAPE | ESCrelease;
-                gen(c,&cs);
-            }
-            freenode(e->E1);
-            break;
-#endif
         default:
             assert(0);
     }
@@ -4976,10 +4916,6 @@ code *cddctor(elem *e,regm_t *pretregs)
         MOV     sindex[BP],index
      */
     usednteh |= EHcleanup;
-    if (config.ehmethod == EH_WIN32)
-    {   usednteh |= NTEHcleanup | NTEH_try;
-        nteh_usevars();
-    }
     assert(*pretregs == 0);
     code cs;
     cs.Iop = ESCAPE | ESCdctor;         // mark start of EH range
@@ -4988,7 +4924,7 @@ code *cddctor(elem *e,regm_t *pretregs)
     cs.IFL1 = FLctor;
     cs.IEV1.Vtor = e;
     code *c = gen(CNIL,&cs);
-    c = cat(c, nteh_gensindex(0));      // the actual index will be patched in later
+    c = cat(c, NULL);      // the actual index will be patched in later
                                         // by except_fillInEHTable()
     return c;
 }
@@ -5032,11 +4968,6 @@ code *cdddtor(elem *e,regm_t *pretregs)
         L1: NOP
         */
         usednteh |= EHcleanup;
-        if (config.ehmethod == EH_WIN32)
-        {   usednteh |= NTEHcleanup | NTEH_try;
-            nteh_usevars();
-        }
-
         code cs;
         cs.Iop = ESCAPE | ESCddtor;
         cs.Iflags = 0;
@@ -5045,7 +4976,7 @@ code *cdddtor(elem *e,regm_t *pretregs)
         cs.IEV1.Vtor = e;
         code *cd = gen(CNIL,&cs);
 
-        cd = cat(cd, nteh_gensindex(0));    // the actual index will be patched in later
+        cd = cat(cd, NULL);    // the actual index will be patched in later
                                             // by except_fillInEHTable()
 
         // Mark all registers as destroyed
@@ -5086,48 +5017,14 @@ code *cdddtor(elem *e,regm_t *pretregs)
  * C++ constructor.
  */
 
-code *cdctor(elem *e,regm_t *pretregs)
+code *cdctor(elem */*e*/,regm_t */*pretregs*/)
 {
-#if SCPP
-    code cs;
-    code *c;
-
-    usednteh |= EHcleanup;
-    if (config.exe == EX_WIN32)
-        usednteh |= NTEHcleanup;
-    assert(*pretregs == 0);
-    cs.Iop = ESCAPE | ESCctor;
-    cs.Iflags = 0;
-    cs.Irex = 0;
-    cs.IFL1 = FLctor;
-    cs.IEV1.Vtor = e;
-    c = gen(CNIL,&cs);
-    return c;
-#else
     return NULL;
-#endif
 }
 
-code *cddtor(elem *e,regm_t *pretregs)
+code *cddtor(elem */*e*/,regm_t */*pretregs*/)
 {
-#if SCPP
-    code cs;
-    code *c;
-
-    usednteh |= EHcleanup;
-    if (config.exe == EX_WIN32)
-        usednteh |= NTEHcleanup;
-    assert(*pretregs == 0);
-    cs.Iop = ESCAPE | ESCdtor;
-    cs.Iflags = 0;
-    cs.Irex = 0;
-    cs.IFL1 = FLdtor;
-    cs.IEV1.Vtor = e;
-    c = gen(CNIL,&cs);
-    return c;
-#else
     return NULL;
-#endif
 }
 
 code *cdmark(elem *e,regm_t *pretregs)
@@ -5135,13 +5032,11 @@ code *cdmark(elem *e,regm_t *pretregs)
     return NULL;
 }
 
-#if !NTEXCEPTIONS
-code *cdsetjmp(elem *e,regm_t *pretregs)
+code *cdsetjmp(elem */*e*/,regm_t */*pretregs*/)
 {
     assert(0);
     return NULL;
 }
-#endif
 
 /*****************************************
  */

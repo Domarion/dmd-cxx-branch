@@ -88,7 +88,7 @@ extern symbol *tls_get_addr_sym;
 Symbol *asm_define_label(const char *id);
 
 // cpp.c
-#if SCPP || MARS
+#if MARS
 char *cpp_mangle(Symbol *s);
 #else
 #define cpp_mangle(s)   ((s)->Sident)
@@ -251,19 +251,6 @@ void chknoabstract(type *);
 extern targ_llong msc_getnum(void);
 extern targ_size_t alignmember(type *,targ_size_t,targ_size_t);
 extern targ_size_t align(targ_size_t,targ_size_t);
-
-/* nteh.c */
-unsigned char *nteh_context_string();
-void nteh_declarvars(Blockx *bx);
-elem *nteh_setScopeTableIndex(Blockx *blx, int scope_index);
-Symbol *nteh_contextsym();
-unsigned nteh_contextsym_size();
-Symbol *nteh_ecodesym();
-code *nteh_unwind(regm_t retregs,unsigned index);
-code *linux_unwind(regm_t retregs,unsigned index);
-int nteh_offset_sindex();
-int nteh_offset_sindex_seh();
-int nteh_offset_info();
 
 /* os.c */
 void *globalrealloc(void *oldp,size_t nbytes);

@@ -77,10 +77,6 @@ void comsubs()
   // No longer do we just compute Bcount. We now eliminate unreachable
   // blocks.
   block_compbcount();                   // eliminate unreachable blocks
-#if SCPP
-  if (errcnt)
-        return;
-#endif
 
   if (!csvec)
   {

@@ -22,9 +22,6 @@
 #include        "melf.h"
 #include        "outbuf.h"
 #include        "xmm.h"
-#if SCPP
-#include        "exh.h"
-#endif
 
 #if HYDRATE
 #include        "parser.h"
@@ -778,19 +775,6 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             goto case_goto;
         }
 #endif
-#if SCPP
-        case BCcatch:
-            // Mark all registers as destroyed. This will prevent
-            // register assignments to variables used in catch blocks.
-            c = cat(c,getregs(allregs | mES));
-            goto case_goto;
-
-        case BCtry:
-            usednteh |= EHtry;
-            if (config.exe == EX_WIN32)
-                usednteh |= NTEHtry;
-            goto case_goto;
-#endif
         case BCgoto:
             nextb = bl->nthSucc(0);
             if ((MARS ||
@@ -814,14 +798,9 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
                         goto L2;        // it's a try-catch, not a try-finally
                     }
                 }
-#endif
-                if (config.exe == EX_WIN32)
-                    c = cat(c,nteh_unwind(0,toindex));
-#if MARS
                 else if (
                          toindex + 1 <= fromindex)
                 {
-                    //c = cat(c, linux_unwind(0, toindex));
                     block *bt;
 
                     //printf("B%d: fromindex = %d, toindex = %d\n", bl->Bdfoidx, fromindex, toindex);
@@ -877,12 +856,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             goto L2;
 
         case BC_try:
-            if (config.exe == EX_WIN32)
-            {   usednteh |= NTEH_try;
-                nteh_usevars();
-            }
-            else
-                usednteh |= EHtry;
+             usednteh |= EHtry;
             goto case_goto;
 
         case BC_finally:
@@ -941,25 +915,6 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             else
                 bl->Bcode = gen1(c,0xC3);   // RET
             break;
-
-#if NTEXCEPTIONS
-        case BC_except:
-            assert(!e);
-            usednteh |= NTEH_except;
-            c = cat(c,nteh_setsp(0x8B));
-            getregs(allregs);
-            goto L3;
-
-        case BC_filter:
-            c = cat(c,nteh_filter(bl));
-            // Mark all registers as destroyed. This will prevent
-            // register assignments to variables used in filter blocks.
-            getregs(allregs);
-            retregs = regmask(e->Ety, TYnfunc);
-            c = gencodelem(c,e,&retregs,TRUE);
-            bl->Bcode = gen1(c,0xC3);   // RET
-            break;
-#endif
 
         case BCretexp:
             retregs = regmask(e->Ety, funcsym_p->ty());
@@ -1028,25 +983,6 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
                         continue;
                     }
 #endif
-                    if (config.exe == EX_WIN32)
-                    {
-                        if (bt->Bscope_index == 0)
-                        {
-                            // call __finally
-                            code *cs;
-                            code *cr;
-
-                            c = cat(c,nteh_gensindex(-1));
-                            gensaverestore(retregs,&cs,&cr);
-                            cs = genc(cs,0xE8,0,0,0,FLblock,(targ_size_t)bf->nthSucc(0));
-                            regcon.immed.mval = 0;
-                            bl->Bcode = cat3(c,cs,cr);
-                        }
-                        else
-                            bl->Bcode = cat(c,nteh_unwind(retregs,~0));
-                        break;
-                    }
-                    else
                     {
                         // call __finally
                         c = cat(c, callFinallyBlock(bf->nthSucc(0), retregs));
@@ -1056,7 +992,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             }
             break;
 
-#if SCPP || MARS
+#if MARS
         case BCasm:
             assert(!e);
             // Mark destroyed registers
@@ -2424,20 +2360,10 @@ code *genmulimm(code *c,unsigned r1,unsigned r2,targ_int imm)
  * Load CX with the value of _AHSHIFT.
  */
 
-code *genshift(code *c)
+code *genshift(code *)
 {
-#if SCPP && TX86
-    code *c1;
-
-    // Set up ahshift to trick ourselves into giving the right fixup,
-    // which must be seg-relative, external frame, external target.
-    c1 = gencs(CNIL,0xC7,modregrm(3,0,CX),FLfunc,getRtlsym(RTLSYM_AHSHIFT));
-    c1->Iflags |= CFoff;
-    return cat(c,c1);
-#else
     assert(0);
     return 0;
-#endif
 }
 
 /******************************
@@ -2905,9 +2831,6 @@ code* prolog_frame(unsigned farfunc, unsigned* xlocalsize, bool* enter, int* cfa
         config.flags & CFGstack ||
         (*xlocalsize >= 0x1000 && config.exe & EX_flat) ||
         localsize >= 0x10000 ||
-#if NTEXCEPTIONS == 2
-        (usednteh & ~NTEHjmonitor && (config.exe == EX_WIN32)) ||
-#endif
         (config.target_cpu >= TARGET_80386 &&
          config.flags4 & CFG4speed)
        )
@@ -2919,17 +2842,6 @@ code* prolog_frame(unsigned farfunc, unsigned* xlocalsize, bool* enter, int* cfa
         if ((config.objfmt & (OBJ_ELF | OBJ_MACH)) && config.fulltypes)
             // Don't reorder instructions, as dwarf CFA relies on it
             code_orflag(c, CFvolatile);
-#if NTEXCEPTIONS == 2
-        if (usednteh & ~NTEHjmonitor && (config.exe == EX_WIN32))
-        {
-            code *ce = nteh_prolog();
-            c = cat(c,ce);
-            int sz = nteh_contextsym_size();
-            assert(sz != 0);        // should be 5*4, not 0
-            *xlocalsize -= sz;      // sz is already subtracted from ESP
-                                    // by nteh_prolog()
-        }
-#endif
         if (config.fulltypes == CVDWARF_C || config.fulltypes == CVDWARF_D ||
             config.ehmethod == EH_DWARF)
         {   int off = 2 * REGSIZE;      // 1 for the return address + 1 for the PUSH EBP
@@ -3240,48 +3152,6 @@ code* epilog_restoreregs(code *c, regm_t topop)
     }
     return c;
 }
-
-#if SCPP
-code* prolog_trace(bool farfunc, unsigned* regsaved)
-{
-    symbol *s = getRtlsym(farfunc ? RTLSYM_TRACE_PRO_F : RTLSYM_TRACE_PRO_N);
-    makeitextern(s);
-    code* c = gencs(NULL,I16 ? 0x9A : CALL,0,FLfunc,s);      // CALL _trace
-    if (!I16)
-        code_orflag(c,CFoff | CFselfrel);
-    /* Embedding the function name inline after the call works, but it
-     * makes disassembling the code annoying.
-     */
-#if ELFOBJ || MACHOBJ
-    // Generate length prefixed name that is recognized by profiler
-    size_t len = strlen(funcsym_p->Sident);
-    char *buffer = (char *)malloc(len + 4);
-    assert(buffer);
-    if (len <= 254)
-    {   buffer[0] = len;
-        memcpy(buffer + 1, funcsym_p->Sident, len);
-        len++;
-    }
-    else
-    {   buffer[0] = 0xFF;
-        buffer[1] = 0;
-        buffer[2] = len & 0xFF;
-        buffer[3] = len >> 8;
-        memcpy(buffer + 4, funcsym_p->Sident, len);
-        len += 4;
-    }
-    genasm(c, buffer, len);         // append func name
-    free(buffer);
-#else
-    char name[IDMAX+IDOHD+1];
-    size_t len = objmod->mangle(funcsym_p,name);
-    assert(len < sizeof(name));
-    genasm(c,name,len);                             // append func name
-#endif
-    *regsaved = s->Sregsaved;
-    return c;
-}
-#endif
 
 code* prolog_genvarargs(symbol* sv, regm_t* namedargs)
 {
@@ -3768,9 +3638,6 @@ void epilog(block *b)
         useregs((ALLREGS | mBP | mES) & ~s->Sregsaved);
     }
 
-    if (usednteh & ~NTEHjmonitor && (config.exe == EX_WIN32 || MARS))
-        c = cat(c,nteh_epilog());
-
     cpopds = CNIL;
     if (tyf & mTYloadds)
     {   cpopds = gen1(cpopds,0x1F);             // POP DS
@@ -3783,18 +3650,6 @@ void epilog(block *b)
      */
     topop = fregsaved & ~mfuncreg;
     c = epilog_restoreregs(c, topop);
-
-#if MARS
-    if (usednteh & NTEHjmonitor)
-    {
-        regm_t retregs = 0;
-        if (b->BC == BCretexp)
-            retregs = regmask(b->Belem->Ety, tym);
-        code *cn = nteh_monitor_epilog(retregs);
-        c = cat(c,cn);
-        xlocalsize += 8;
-    }
-#endif
 
     if (config.wflags & WFwindows && farfunc)
     {
@@ -5978,34 +5833,6 @@ unsigned codout(code *c)
                         /* put out line number stuff    */
                         objmod->linnum(c->IEV1.Vsrcpos,ggen.getOffset());
                         break;
-#if SCPP
-#if 1
-                    case ESCctor:
-                    case ESCdtor:
-                    case ESCoffset:
-                        if (config.exe != EX_WIN32)
-                            except_pair_setoffset(c,ggen.getOffset() - funcoffset);
-                        break;
-                    case ESCmark:
-                    case ESCrelease:
-                    case ESCmark2:
-                    case ESCrelease2:
-                        break;
-#else
-                    case ESCctor:
-                        except_push(ggen.getOffset() - funcoffset,c->IEV1.Vtor,NULL);
-                        break;
-                    case ESCdtor:
-                        except_pop(ggen.getOffset() - funcoffset,c->IEV1.Vtor,NULL);
-                        break;
-                    case ESCmark:
-                        except_mark();
-                        break;
-                    case ESCrelease:
-                        except_release();
-                        break;
-#endif
-#endif
                 }
 #ifdef DEBUG
                 assert(calccodsize(c) == 0);
@@ -6588,13 +6415,13 @@ static void do16bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags)
 #endif
     case FLextern:                      /* external data symbol         */
     case FLtlsdata:
-        assert(SIXTEENBIT || TARGET_SEGMENTED);
+        assert(TARGET_SEGMENTED);
         pbuf->flush();
         s = uev->sp.Vsym;               /* symbol pointer               */
         objmod->reftoident(cseg,pbuf->offset,s,uev->sp.Voffset,flags);
         break;
     case FLfunc:                        /* function call                */
-        assert(SIXTEENBIT || TARGET_SEGMENTED);
+        assert(TARGET_SEGMENTED);
         s = uev->sp.Vsym;               /* symbol pointer               */
         if (tyfarfunc(s->ty()))
         {       /* Large code references are always absolute    */
@@ -6770,12 +6597,6 @@ void code_hydrate(code **pc)
             case FLblockoff:
                 (void) ph_hydrate(&c->IEV1.Vblock);
                 break;
-#if SCPP
-            case FLctor:
-            case FLdtor:
-                el_hydrate(&c->IEV1.Vtor);
-                break;
-#endif
             case FLasm:
                 (void) ph_hydrate(&c->IEV1.as.bytes);
                 break;
@@ -6940,12 +6761,6 @@ void code_dehydrate(code **pc)
             case FLblockoff:
                 ph_dehydrate(&c->IEV1.Vblock);
                 break;
-#if SCPP
-            case FLctor:
-            case FLdtor:
-                el_dehydrate(&c->IEV1.Vtor);
-                break;
-#endif
             case FLasm:
                 ph_dehydrate(&c->IEV1.as.bytes);
                 break;

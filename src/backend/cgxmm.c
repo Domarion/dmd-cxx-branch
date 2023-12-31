@@ -18,9 +18,6 @@
 #include        "code.h"
 #include        "global.h"
 #include        "type.h"
-#if SCPP
-#include        "exh.h"
-#endif
 #include        "xmm.h"
 
 static char __file__[] = __FILE__;      /* for tassert.h                */

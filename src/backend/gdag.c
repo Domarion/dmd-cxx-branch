@@ -9,7 +9,7 @@
  */
 
 
-#if (SCPP || MARS)
+#if (MARS)
 
 #include        <stdio.h>
 #include        <time.h>
@@ -131,9 +131,6 @@ void builddags()
                     || b->BC == BCasm
                     || b->BC == BC_finally
                     || b->BC == BC_lpad
-#if SCPP
-                    || b->BC == BCcatch
-#endif
 #if MARS
                     || b->BC == BCjcatch
 #endif
@@ -615,9 +612,6 @@ void boolopt()
                     || b->BC == BCasm
                     || b->BC == BC_finally
                     || b->BC == BC_lpad
-#if SCPP
-                    || b->BC == BCcatch
-#endif
 #if MARS
                     || b->BC == BCjcatch
 #endif

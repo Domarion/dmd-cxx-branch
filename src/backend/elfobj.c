@@ -10,7 +10,7 @@
 
 // Output to ELF object files
 
-#if SCPP || MARS
+#if MARS
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -404,36 +404,7 @@ static IDXSTR elf_addmangled(Symbol *s)
     namidx = symtab_strings->size();
     destr = obj_mangle2(s, dest);
     name = destr;
-    if (CPP && name[0] == '_' && name[1] == '_')
-    {
-        if (strncmp(name,"__ct__",6) == 0)
-            name += 4;
-#if 0
-        switch(name[2])
-        {
-            case 'c':
-                if (strncmp(name,"__ct__",6) == 0)
-                    name += 4;
-                break;
-            case 'd':
-                if (strcmp(name,"__dl__FvP") == 0)
-                    name = "__builtin_delete";
-                break;
-            case 'v':
-                //if (strcmp(name,"__vec_delete__FvPiUIPi") == 0)
-                    //name = "__builtin_vec_del";
-                //else
-                //if (strcmp(name,"__vn__FPUI") == 0)
-                    //name = "__builtin_vec_new";
-                break;
-            case 'n':
-                if (strcmp(name,"__nw__FPUI") == 0)
-                    name = "__builtin_new";
-                break;
-        }
-#endif
-    }
-    else if (tyfunc(s->ty()) && s->Sfunc && s->Sfunc->Fredirect)
+    if (tyfunc(s->ty()) && s->Sfunc && s->Sfunc->Fredirect)
         name = s->Sfunc->Fredirect;
     len = strlen(name);
     symtab_strings->reserve(len+1);
@@ -1058,9 +1029,6 @@ void Obj::termfile()
 void Obj::term(const char *objfilename)
 {
     //printf("Obj::term()\n");
-#if SCPP
-    if (!errcnt)
-#endif
     {
         outfixlist();           // backpatches
     }
@@ -1072,11 +1040,6 @@ void Obj::term(const char *objfilename)
 
 #if MARS
     obj_rtinit();
-#endif
-
-#if SCPP
-    if (errcnt)
-        return;
 #endif
 
     long foffset;
@@ -1380,7 +1343,7 @@ void Obj::linnum(Srcpos srcpos, targ_size_t offset)
         return;
 
 #if 0
-#if MARS || SCPP
+#if MARS
     printf("Obj::linnum(cseg=%d, offset=0x%lx) ", cseg, offset);
 #endif
     srcpos.print("");
@@ -1389,12 +1352,6 @@ void Obj::linnum(Srcpos srcpos, targ_size_t offset)
 #if MARS
     if (!srcpos.Sfilename)
         return;
-#endif
-#if SCPP
-    if (!srcpos.Sfilptr)
-        return;
-    sfile_debug(&srcpos_sfile(srcpos));
-    Sfile *sf = *srcpos.Sfilptr;
 #endif
 
     size_t i;
@@ -1419,16 +1376,10 @@ void Obj::linnum(Srcpos srcpos, targ_size_t offset)
 #if MARS
             seg->SDlinnum_data[i].filename = srcpos.Sfilename;
 #endif
-#if SCPP
-            seg->SDlinnum_data[i].filptr = sf;
-#endif
             break;
         }
 #if MARS
         if (seg->SDlinnum_data[i].filename == srcpos.Sfilename)
-#endif
-#if SCPP
-        if (seg->SDlinnum_data[i].filptr == sf)
 #endif
             break;
     }
@@ -1989,9 +1940,7 @@ char *obj_mangle2(Symbol *s,char *dest)
     //dbg_printf("Obj::mangle('%s'), mangle = x%x\n",s->Sident,type_mangle(s->Stype));
     symbol_debug(s);
     assert(dest);
-#if SCPP
-    name = CPP ? cpp_mangle(s) : s->Sident;
-#elif MARS
+#if MARS
     name = cpp_mangle(s);
 #else
     name = s->Sident;
@@ -2251,15 +2200,6 @@ int Obj::external(Symbol *s)
     reset_symbuf->write(&s, sizeof(s));
     IDXSTR namidx = elf_addmangled(s);
 
-#if SCPP
-    if (s->Sscope && !tyfunc(s->ty()))
-    {
-        symtype = STT_OBJECT;
-        sectype = SHN_COMMON;
-        size = type_size(s->Stype);
-    }
-    else
-#endif
     {
         symtype = STT_NOTYPE;
         sectype = SHN_UNDEF;

@@ -2532,16 +2532,6 @@ code *callclib(elem *e,unsigned clib,regm_t *pretregs,regm_t keepmask)
         if (nalign)
             c = cod3_stackadj(c, -nalign);
         calledafunc = 1;
-
-#if SCPP & TX86
-        if (I16 &&                                   // bug in Optlink for weak references
-            config.flags3 & CFG3wkfloat &&
-            (cinfo->flags & (INFfloat | INFwkdone)) == INFfloat)
-        {   cinfo->flags |= INFwkdone;
-            makeitextern(getRtlsym(RTLSYM_INTONLY));
-            objmod->wkext(s,getRtlsym(RTLSYM_INTONLY));
-        }
-#endif
     }
     if (I16)
         stackpush -= cinfo->pop;
@@ -3786,49 +3776,6 @@ code *pushParams(elem *e,unsigned stackalign)
   cs.Irex = 0;
   switch (e->Eoper)
   {
-#if SCPP
-    case OPstrctor:
-    {
-        e1 = e->E1;
-        c = docommas(&e1);              /* skip over any comma expressions */
-
-        c = cod3_stackadj(c, sz);
-        stackpush += sz;
-        genadjesp(c,sz);
-
-        // Find OPstrthis and set it to stackpush
-        exp2_setstrthis(e1,NULL,stackpush,NULL);
-
-        retregs = 0;
-        ce = codelem(e1,&retregs,TRUE);
-        goto L2;
-    }
-    case OPstrthis:
-        // This is the parameter for the 'this' pointer corresponding to
-        // OPstrctor. We push a pointer to an object that was already
-        // allocated on the stack by OPstrctor.
-    {   unsigned np;
-
-        retregs = allregs;
-        c = allocreg(&retregs,&reg,TYoffset);
-        c = genregs(c,0x89,SP,reg);             // MOV reg,SP
-        if (I64)
-            code_orrex(c, REX_W);
-        np = stackpush - e->EV.Vuns;            // stack delta to parameter
-        c = genc2(c,0x81,grex | modregrmx(3,0,reg),np); // ADD reg,np
-        if (sz > REGSIZE)
-        {   c = gen1(c,0x16);                   // PUSH SS
-            stackpush += REGSIZE;
-        }
-        c = gen1(c,0x50 + (reg & 7));           // PUSH reg
-        if (reg & 8)
-            code_orrex(c, REX_B);
-        stackpush += REGSIZE;
-        genadjesp(c,sz);
-        ce = CNIL;
-        goto L2;
-    }
-#endif
     case OPstrpar:
         {       code *cc,*c1,*c2,*c3;
                 unsigned rm;

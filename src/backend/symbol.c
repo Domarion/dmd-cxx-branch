@@ -25,13 +25,7 @@
 #include        "oper.h"                /* for OPMAX            */
 #include        "token.h"
 
-#if SCPP
-#include        "parser.h"
-#include        "cpp.h"
-#define mBP 0x20
-#else
 #include        "code.h"
-#endif
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
@@ -122,13 +116,9 @@ void symbol_print(symbol *s)
     dbg_printf(" Sflags = x%04lx",(unsigned long)s->Sflags);
     dbg_printf(" Sxtrnnum = %d\n",s->Sxtrnnum);
     dbg_printf("  Stype   = %p",s->Stype);
-#if SCPP
-    dbg_printf(" Ssequence = %x", s->Ssequence);
-    dbg_printf(" Scover  = %p", s->Scover);
-#endif
     dbg_printf(" Sl      = %p",s->Sl);
     dbg_printf(" Sr      = %p\n",s->Sr);
-#if SCPP || MARS
+#if MARS
     if (s->Sscope)
         dbg_printf(" Sscope = '%s'\n",s->Sscope->Sident);
 #endif
@@ -140,12 +130,6 @@ void symbol_print(symbol *s)
         dbg_printf("  Sbit    =%3d",s->Sbit);
         dbg_printf("  Swidth  =%3d\n",s->Swidth);
     }
-#if SCPP
-    if (s->Sclass == SCstruct)
-    {
-        dbg_printf("  Svbptr = %p, Svptr = %p\n",s->Sstruct->Svbptr,s->Sstruct->Svptr);
-    }
-#endif
 #endif
 }
 
@@ -226,30 +210,6 @@ bool Symbol::Sisdead(bool anyiasm)
 
 char *symbol_ident(symbol *s)
 {
-#if SCPP
-    static char noname[] = "__unnamed";
-    switch (s->Sclass)
-    {   case SCstruct:
-            if (s->Sstruct->Salias)
-                s = s->Sstruct->Salias;
-            else if (s->Sstruct->Sflags & STRnotagname)
-                return noname;
-            break;
-        case SCenum:
-            if (CPP)
-            {   if (s->Senum->SEalias)
-                    s = s->Senum->SEalias;
-                else if (s->Senum->SEflags & SENnotagname)
-                    return noname;
-            }
-            break;
-
-        case SCnamespace:
-            if (s->Sident[0] == '?' && s->Sident[1] == '%')
-                return "unique";        // an unnamed namespace
-            break;
-    }
-#endif
     return s->Sident;
 }
 
@@ -265,11 +225,6 @@ symbol * symbol_calloc(const char *id)
     //printf("sizeof(symbol)=%d, sizeof(s->Sident)=%d, len=%d\n",sizeof(symbol),sizeof(s->Sident),len);
     s = (symbol *) mem_fmalloc(sizeof(symbol) - sizeof(s->Sident) + len + 1 + 5);
     memset(s,0,sizeof(symbol) - sizeof(s->Sident));
-#if SCPP
-    s->Ssequence = pstate.STsequence;
-    pstate.STsequence += 1;
-    //if (s->Ssequence == 0x21) *(char*)0=0;
-#endif
 #ifdef DEBUG
     if (debugy)
         dbg_printf("symbol_calloc('%s') = %p\n",id,s);
@@ -311,9 +266,6 @@ Funcsym *symbol_funcalias(Funcsym *sf)
         sf = sf->Sfunc->Falias;
     s = (Funcsym *)symbol_name(sf->Sident,SCfuncalias,sf->Stype);
     s->Sfunc->Falias = sf;
-#if SCPP
-    s->Scover = sf->Scover;
-#endif
     return s;
 }
 
@@ -344,29 +296,8 @@ symbol * symbol_genauto(type *t)
 {   symbol *s;
 
     s = symbol_generate(SCauto,t);
-#if SCPP
-    //printf("symbol_genauto(t) '%s'\n", s->Sident);
-    if (pstate.STdefertemps)
-    {   symbol_keep(s);
-        s->Ssymnum = -1;
-    }
-    else
-    {   s->Sflags |= SFLfree;
-        if (init_staticctor)
-        {   // variable goes into _STI_xxxx
-            s->Ssymnum = -1;            // deferred allocation
-//printf("test2\n");
-//if (s->Sident[4] == '2') *(char*)0=0;
-        }
-        else
-        {
-            symbol_add(s);
-        }
-    }
-#else
     s->Sflags |= SFLfree;
     symbol_add(s);
-#endif
     return s;
 }
 
@@ -423,23 +354,6 @@ void symbol_struct_addField(Symbol *s, const char *name, type *t, unsigned offse
 }
 
 /********************************
- * Define symbol in specified symbol table.
- * Returns:
- *      pointer to symbol
- */
-
-#if SCPP
-
-symbol * defsy(const char *p,symbol **parent)
-{
-   symbol *s = symbol_calloc(p);
-   symbol_addtotree(parent,s);
-   return s;
-}
-
-#endif
-
-/********************************
  * Check integrity of symbol data structure.
  */
 
@@ -451,12 +365,6 @@ void symbol_check(symbol *s)
     symbol_debug(s);
     if (s->Stype) type_debug(s->Stype);
     assert((unsigned)s->Sclass < (unsigned)SCMAX);
-#if SCPP
-    if (s->Sscope)
-        symbol_check(s->Sscope);
-    if (s->Scover)
-        symbol_check(s->Scover);
-#endif
 }
 
 void symbol_tree_check(symbol *s)
@@ -466,99 +374,6 @@ void symbol_tree_check(symbol *s)
         symbol_tree_check(s->Sl);
         s = s->Sr;
     }
-}
-
-#endif
-
-/********************************
- * Insert symbol in specified symbol table.
- */
-
-#if SCPP
-
-void symbol_addtotree(symbol **parent,symbol *s)
-{  symbol *rover;
-   signed char cmp;
-   size_t len;
-   const char *p;
-   char c;
-
-   //dbg_printf("symbol_addtotree('%s',%p)\n",s->Sident,*parent);
-#ifdef DEBUG
-   symbol_tree_check(*parent);
-   assert(!s->Sl && !s->Sr);
-#endif
-   symbol_debug(s);
-   p = s->Sident;
-   c = *p;
-   len = strlen(p);
-   p++;
-   rover = *parent;
-   while (rover != NULL)                // while we haven't run out of tree
-   {    symbol_debug(rover);
-        if ((cmp = c - rover->Sident[0]) == 0)
-        {   cmp = memcmp(p,rover->Sident + 1,len); // compare identifier strings
-            if (cmp == 0)               // found it if strings match
-            {
-                if (CPP)
-                {   symbol *s2;
-
-                    switch (rover->Sclass)
-                    {   case SCstruct:
-                            s2 = rover;
-                            goto case_struct;
-
-                        case_struct:
-                            if (s2->Sstruct->Sctor &&
-                                !(s2->Sstruct->Sctor->Sfunc->Fflags & Fgen))
-                                cpperr(EM_ctor_disallowed,p);   // no ctor allowed for class rover
-                            s2->Sstruct->Sflags |= STRnoctor;
-                            goto case_cover;
-
-                        case_cover:
-                            // Replace rover with the new symbol s, and
-                            // have s 'cover' the tag symbol s2.
-                            // BUG: memory leak on rover if s2!=rover
-                            assert(!s2->Scover);
-                            s->Sl = rover->Sl;
-                            s->Sr = rover->Sr;
-                            s->Scover = s2;
-                            *parent = s;
-                            rover->Sl = rover->Sr = NULL;
-                            return;
-
-                        case SCenum:
-                            s2 = rover;
-                            goto case_cover;
-
-                        case SCtemplate:
-                            s2 = rover;
-                            s2->Stemplate->TMflags |= STRnoctor;
-                            goto case_cover;
-
-                        case SCalias:
-                            s2 = rover->Smemalias;
-                            if (s2->Sclass == SCstruct)
-                                goto case_struct;
-                            if (s2->Sclass == SCenum)
-                                goto case_cover;
-                            break;
-                    }
-                }
-                synerr(EM_multiple_def,p - 1);  // symbol is already defined
-                //symbol_undef(s);              // undefine the symbol
-                return;
-            }
-        }
-        parent = (cmp < 0) ?            /* if we go down left side      */
-            &(rover->Sl) :              /* then get left child          */
-            &(rover->Sr);               /* else get right child         */
-        rover = *parent;                /* get child                    */
-   }
-   /* not in table, so insert into table        */
-   *parent = s;                         /* link new symbol into tree    */
-L1:
-   ;
 }
 
 #endif
@@ -578,166 +393,6 @@ symbol * lookupsym(const char *p)
 {
     return scope_search(p,SCTglobal | SCTlocal);
 }
-#endif
-
-/*************************************
- * Search for symbol in symbol table.
- * Input:
- *      p ->    identifier string
- *      rover -> where to start looking
- * Returns:
- *      pointer to symbol (NULL if not found)
- */
-
-#if SCPP
-
-symbol * findsy(const char *p,symbol *rover)
-{
-#if TX86 && __DMC__
-    volatile int len;
-    __asm
-    {
-        push    DS
-        pop     ES
-        mov     EDI,p
-        xor     AL,AL
-
-        mov     BL,[EDI]
-        mov     ECX,-1
-
-        repne   scasb
-
-        not     ECX
-        mov     EDX,p
-
-        dec     ECX
-        inc     EDX
-
-        mov     len,ECX
-        mov     AL,BL
-
-        mov     EBX,rover
-        mov     ESI,EDX
-
-        test    EBX,EBX
-        je      L6
-
-        cmp     AL,symbol.Sident[EBX]
-        js      L2
-
-        lea     EDI,symbol.Sident+1[EBX]
-        je      L5
-
-        mov     EBX,symbol.Sr[EBX]
-        jmp     L3
-
-L1:             mov     ECX,len
-L2:             mov     EBX,symbol.Sl[EBX]
-
-L3:             test    EBX,EBX
-                je      L6
-
-L4:             cmp     AL,symbol.Sident[EBX]
-                js      L2
-
-                lea     EDI,symbol.Sident+1[EBX]
-                je      L5
-
-                mov     EBX,symbol.Sr[EBX]
-                jmp     L3
-
-L5:             rep     cmpsb
-
-                mov     ESI,EDX
-                js      L1
-
-                je      L6
-
-                mov     EBX,symbol.Sr[EBX]
-                mov     ECX,len
-
-                test    EBX,EBX
-                jne     L4
-
-L6:     mov     EAX,EBX
-    }
-#else
-    size_t len;
-    signed char cmp;                    /* set to value of strcmp       */
-    char c = *p;
-
-    len = strlen(p);
-    p++;                                // will pick up 0 on memcmp
-    while (rover != NULL)               // while we haven't run out of tree
-    {   symbol_debug(rover);
-        if ((cmp = c - rover->Sident[0]) == 0)
-        {   cmp = memcmp(p,rover->Sident + 1,len); /* compare identifier strings */
-            if (cmp == 0)
-                return rover;           /* found it if strings match    */
-        }
-        rover = (cmp < 0) ? rover->Sl : rover->Sr;
-    }
-    return rover;                       // failed to find it
-#endif
-}
-
-#endif
-
-/***********************************
- * Create a new symbol table.
- */
-
-#if SCPP
-
-void createglobalsymtab()
-{
-    assert(!scope_end);
-    if (CPP)
-        scope_push(NULL,(scope_fp)findsy, SCTcglobal);
-    else
-        scope_push(NULL,(scope_fp)findsy, SCTglobaltag);
-    scope_push(NULL,(scope_fp)findsy, SCTglobal);
-}
-
-
-void createlocalsymtab()
-{
-    assert(scope_end);
-    if (!CPP)
-        scope_push(NULL,(scope_fp)findsy, SCTtag);
-    scope_push(NULL,(scope_fp)findsy, SCTlocal);
-}
-
-
-/***********************************
- * Delete current symbol table and back up one.
- */
-
-void deletesymtab()
-{   symbol *root;
-
-    root = (symbol *)scope_pop();
-    if (root)
-    {
-        if (funcsym_p)
-            list_prepend(&funcsym_p->Sfunc->Fsymtree,root);
-        else
-            symbol_free(root);  // free symbol table
-    }
-
-    if (!CPP)
-    {
-        root = (symbol *)scope_pop();
-        if (root)
-        {
-            if (funcsym_p)
-                list_prepend(&funcsym_p->Sfunc->Fsymtree,root);
-            else
-                symbol_free(root);      // free symbol table
-        }
-    }
-}
-
 #endif
 
 /*********************************
@@ -778,106 +433,13 @@ void symbol_free(symbol *s)
                 freesymtab(f->Flocsym.tab,0,f->Flocsym.top);
 
                 symtab_free(f->Flocsym.tab);
-              if (CPP)
-              {
-                if (f->Fflags & Fnotparent)
-                {   debug(debugy && dbg_printf("not parent, returning\n"));
-                    return;
-                }
-
-                /* We could be freeing the symbol before it's class is  */
-                /* freed, so remove it from the class's field list      */
-#if 1
-                if (f->Fclass)
-                {   list_t tl;
-
-                    symbol_debug(f->Fclass);
-                    tl = list_inlist(f->Fclass->Sstruct->Sfldlst,s);
-                    if (tl)
-                        list_setsymbol(tl,0);
-                }
-#endif
-                if (f->Foversym && f->Foversym->Sfunc)
-                {   f->Foversym->Sfunc->Fflags &= ~Fnotparent;
-                    f->Foversym->Sfunc->Fclass = NULL;
-                    symbol_free(f->Foversym);
-                }
-
-                if (f->Fexplicitspec)
-                    symbol_free(f->Fexplicitspec);
-
-                /* If operator function, remove from list of such functions */
-                if (f->Fflags & Foperator)
-                {   assert(f->Foper && f->Foper < OPMAX);
-                    //if (list_inlist(cpp_operfuncs[f->Foper],s))
-                    //  list_subtract(&cpp_operfuncs[f->Foper],s);
-                }
-
-                list_free(&f->Fclassfriends,FPNULL);
-                list_free(&f->Ffwdrefinstances,FPNULL);
-                param_free(&f->Farglist);
-                param_free(&f->Fptal);
-                list_free(&f->Fexcspec,(list_free_fp)type_free);
-#if SCPP
-                token_free(f->Fbody);
-#endif
-                el_free(f->Fbaseinit);
-                if (f->Fthunk && !(f->Fflags & Finstance))
-                    MEM_PH_FREE(f->Fthunk);
-                list_free(&f->Fthunks,(list_free_fp)symbol_free);
-              }
                 list_free(&f->Fsymtree,(list_free_fp)symbol_free);
                 free(f->typesTable);
                 func_free(f);
             }
             switch (s->Sclass)
             {
-#if SCPP
-                case SClabel:
-                    if (!s->Slabel)
-                        synerr(EM_unknown_label,s->Sident);
-                    break;
-#endif
                 case SCstruct:
-#if SCPP
-                  if (CPP)
-                  {
-                    struct_t *st = s->Sstruct;
-                    assert(st);
-                    list_free(&st->Sclassfriends,FPNULL);
-                    list_free(&st->Sfriendclass,FPNULL);
-                    list_free(&st->Sfriendfuncs,FPNULL);
-                    list_free(&st->Scastoverload,FPNULL);
-                    list_free(&st->Sopoverload,FPNULL);
-                    list_free(&st->Svirtual,MEM_PH_FREEFP);
-                    list_free(&st->Sfldlst,FPNULL);
-                    symbol_free(st->Sroot);
-                    baseclass_t *b,*bn;
-
-                    for (b = st->Sbase; b; b = bn)
-                    {   bn = b->BCnext;
-                        list_free(&b->BCpublics,FPNULL);
-                        baseclass_free(b);
-                    }
-                    for (b = st->Svirtbase; b; b = bn)
-                    {   bn = b->BCnext;
-                        baseclass_free(b);
-                    }
-                    for (b = st->Smptrbase; b; b = bn)
-                    {   bn = b->BCnext;
-                        list_free(&b->BCmptrlist,MEM_PH_FREEFP);
-                        baseclass_free(b);
-                    }
-                    for (b = st->Svbptrbase; b; b = bn)
-                    {   bn = b->BCnext;
-                        baseclass_free(b);
-                    }
-                    param_free(&st->Sarglist);
-                    param_free(&st->Spr_arglist);
-                    struct_free(st);
-                  }
-                  else
-#endif
                   {
 #ifdef DEBUG
                     if (debugy)
@@ -903,34 +465,6 @@ void symbol_free(symbol *s)
                     s->Senum = NULL;
                     break;
 
-#if SCPP
-                case SCtemplate:
-                {   template_t *tm = s->Stemplate;
-
-                    list_free(&tm->TMinstances,FPNULL);
-                    list_free(&tm->TMmemberfuncs,(list_free_fp)tmf_free);
-                    list_free(&tm->TMexplicit,(list_free_fp)tme_free);
-                    list_free(&tm->TMnestedexplicit,(list_free_fp)tmne_free);
-                    list_free(&tm->TMnestedfriends,(list_free_fp)tmnf_free);
-                    param_free(&tm->TMptpl);
-                    param_free(&tm->TMptal);
-                    token_free(tm->TMbody);
-                    symbol_free(tm->TMpartial);
-                    list_free(&tm->TMfriends,FPNULL);
-                    MEM_PH_FREE(tm);
-                    break;
-                }
-                case SCnamespace:
-                    symbol_free(s->Snameroot);
-                    list_free(&s->Susing,FPNULL);
-                    break;
-
-                case SCmemalias:
-                case SCfuncalias:
-                case SCadl:
-                    list_free(&s->Spath,FPNULL);
-                    break;
-#endif
                 case SCparameter:
                 case SCregpar:
                 case SCfastpar:
@@ -954,10 +488,6 @@ void symbol_free(symbol *s)
                 dt_free(s->Sdt);
             type_free(t);
             symbol_free(s->Sl);
-#if SCPP
-            if (s->Scover)
-                symbol_free(s->Scover);
-#endif
             sr = s->Sr;
 #ifdef DEBUG
             s->id = 0;
@@ -1088,57 +618,6 @@ symbol * symbol_copy(symbol *s)
     return scopy;
 }
 
-/*******************************
- * Search list for a symbol with an identifier that matches.
- * Returns:
- *      pointer to matching symbol
- *      NULL if not found
- */
-
-#if SCPP
-
-symbol * symbol_searchlist(symlist_t sl,const char *vident)
-{   symbol *s;
-#ifdef DEBUG
-    int count = 0;
-#endif
-
-    //dbg_printf("searchlist(%s)\n",vident);
-    for (; sl; sl = list_next(sl))
-    {   s = list_symbol(sl);
-        symbol_debug(s);
-        /*dbg_printf("\tcomparing with %s\n",s->Sident);*/
-        if (strcmp(vident,s->Sident) == 0)
-            return s;
-#ifdef DEBUG
-        assert(++count < 300);          /* prevent infinite loops       */
-#endif
-    }
-    return NULL;
-}
-
-/***************************************
- * Search for symbol in sequence of symbol tables.
- * Input:
- *      glbl    !=0 if global symbol table only
- */
-
-symbol *symbol_search(const char *id)
-{
-    Scope *sc;
-    if (CPP)
-    {   unsigned sct;
-
-        sct = pstate.STclasssym ? SCTclass : 0;
-        sct |= SCTmfunc | SCTlocal | SCTwith | SCTglobal | SCTnspace | SCTtemparg | SCTtempsym;
-        return scope_searchx(id,sct,&sc);
-    }
-    else
-        return scope_searchx(id,SCTglobal | SCTlocal,&sc);
-}
-
-#endif
-
 /*******************************************
  * Hydrate a symbol tree.
  */
@@ -1230,77 +709,10 @@ symbol *symbol_hydrate(symbol **ps)
 
             symbol_hydrate(&f->F__func__);
 
-            if (CPP)
-            {
-                symbol_hydrate(&f->Fparsescope);
-                Classsym_hydrate(&f->Fclass);
-                symbol_hydrate(&f->Foversym);
-                symbol_hydrate(&f->Fexplicitspec);
-                symbol_hydrate(&f->Fsurrogatesym);
-
-                list_hydrate(&f->Fclassfriends,(list_free_fp)symbol_hydrate);
-                el_hydrate(&f->Fbaseinit);
-                token_hydrate(&f->Fbody);
-                symbol_hydrate(&f->Falias);
-                list_hydrate(&f->Fthunks,(list_free_fp)symbol_hydrate);
-                if (f->Fflags & Finstance)
-                    symbol_hydrate(&f->Ftempl);
-                else
-                    thunk_hydrate(&f->Fthunk);
-                param_hydrate(&f->Farglist);
-                param_hydrate(&f->Fptal);
-                list_hydrate(&f->Ffwdrefinstances,(list_free_fp)symbol_hydrate);
-                list_hydrate(&f->Fexcspec,(list_free_fp)type_hydrate);
-            }
         }
-        if (CPP)
-            symbol_hydrate(&s->Sscope);
         switch (s->Sclass)
         {
             case SCstruct:
-              if (CPP)
-              {
-                st = (struct_t *) ph_hydrate(&s->Sstruct);
-                assert(st);
-                symbol_tree_hydrate(&st->Sroot);
-                ph_hydrate(&st->Spvirtder);
-                list_hydrate(&st->Sfldlst,(list_free_fp)symbol_hydrate);
-                list_hydrate(&st->Svirtual,(list_free_fp)mptr_hydrate);
-                list_hydrate(&st->Sopoverload,(list_free_fp)symbol_hydrate);
-                list_hydrate(&st->Scastoverload,(list_free_fp)symbol_hydrate);
-                list_hydrate(&st->Sclassfriends,(list_free_fp)symbol_hydrate);
-                list_hydrate(&st->Sfriendclass,(list_free_fp)symbol_hydrate);
-                list_hydrate(&st->Sfriendfuncs,(list_free_fp)symbol_hydrate);
-                assert(!st->Sinlinefuncs);
-
-                baseclass_hydrate(&st->Sbase);
-                baseclass_hydrate(&st->Svirtbase);
-                baseclass_hydrate(&st->Smptrbase);
-                baseclass_hydrate(&st->Sprimary);
-                baseclass_hydrate(&st->Svbptrbase);
-
-                ph_hydrate(&st->Svecctor);
-                ph_hydrate(&st->Sctor);
-                ph_hydrate(&st->Sdtor);
-                ph_hydrate(&st->Sprimdtor);
-                ph_hydrate(&st->Spriminv);
-                ph_hydrate(&st->Sscaldeldtor);
-                ph_hydrate(&st->Sinvariant);
-                ph_hydrate(&st->Svptr);
-                ph_hydrate(&st->Svtbl);
-                ph_hydrate(&st->Sopeq);
-                ph_hydrate(&st->Sopeq2);
-                ph_hydrate(&st->Scpct);
-                ph_hydrate(&st->Sveccpct);
-                ph_hydrate(&st->Salias);
-                ph_hydrate(&st->Stempsym);
-                param_hydrate(&st->Sarglist);
-                param_hydrate(&st->Spr_arglist);
-                ph_hydrate(&st->Svbptr);
-                ph_hydrate(&st->Svbptr_parent);
-                ph_hydrate(&st->Svbtbl);
-              }
-              else
               {
                 ph_hydrate(&s->Sstruct);
                 symbol_tree_hydrate(&s->Sstruct->Sroot);
@@ -1311,10 +723,6 @@ symbol *symbol_hydrate(symbol **ps)
             case SCenum:
                 assert(s->Senum);
                 ph_hydrate(&s->Senum);
-                if (CPP)
-                {   ph_hydrate(&s->Senum->SEalias);
-                    list_hydrate(&s->Senumlist,(list_free_fp)symbol_hydrate);
-                }
                 break;
 
             case SCtemplate:
@@ -1428,90 +836,10 @@ void symbol_dehydrate(symbol **ps)
             srcpos_dehydrate(&f->Fstartline);
             srcpos_dehydrate(&f->Fendline);
             symbol_dehydrate(&f->F__func__);
-            if (CPP)
-            {
-            symbol_dehydrate(&f->Fparsescope);
-            ph_dehydrate(&f->Fclass);
-            symbol_dehydrate(&f->Foversym);
-            symbol_dehydrate(&f->Fexplicitspec);
-            symbol_dehydrate(&f->Fsurrogatesym);
-
-            list_dehydrate(&f->Fclassfriends,FPNULL);
-            el_dehydrate(&f->Fbaseinit);
-#if DEBUG_XSYMGEN
-            if (xsym_gen && s->Sclass == SCfunctempl)
-                ph_dehydrate(&f->Fbody);
-            else
-#endif
-            token_dehydrate(&f->Fbody);
-            symbol_dehydrate(&f->Falias);
-            list_dehydrate(&f->Fthunks,(list_free_fp)symbol_dehydrate);
-            if (f->Fflags & Finstance)
-                symbol_dehydrate(&f->Ftempl);
-            else
-                thunk_dehydrate(&f->Fthunk);
-#if !TX86 && DEBUG_XSYMGEN
-            if (xsym_gen && s->Sclass == SCfunctempl)
-                ph_dehydrate(&f->Farglist);
-            else
-#endif
-            param_dehydrate(&f->Farglist);
-            param_dehydrate(&f->Fptal);
-            list_dehydrate(&f->Ffwdrefinstances,(list_free_fp)symbol_dehydrate);
-            list_dehydrate(&f->Fexcspec,(list_free_fp)type_dehydrate);
-            }
         }
-        if (CPP)
-            ph_dehydrate(&s->Sscope);
         switch (s->Sclass)
         {
             case SCstruct:
-              if (CPP)
-              {
-                st = s->Sstruct;
-                if (isdehydrated(st))
-                    break;
-                ph_dehydrate(&s->Sstruct);
-                assert(st);
-                symbol_tree_dehydrate(&st->Sroot);
-                ph_dehydrate(&st->Spvirtder);
-                list_dehydrate(&st->Sfldlst,(list_free_fp)symbol_dehydrate);
-                list_dehydrate(&st->Svirtual,(list_free_fp)mptr_dehydrate);
-                list_dehydrate(&st->Sopoverload,(list_free_fp)symbol_dehydrate);
-                list_dehydrate(&st->Scastoverload,(list_free_fp)symbol_dehydrate);
-                list_dehydrate(&st->Sclassfriends,(list_free_fp)symbol_dehydrate);
-                list_dehydrate(&st->Sfriendclass,(list_free_fp)ph_dehydrate);
-                list_dehydrate(&st->Sfriendfuncs,(list_free_fp)ph_dehydrate);
-                assert(!st->Sinlinefuncs);
-
-                baseclass_dehydrate(&st->Sbase);
-                baseclass_dehydrate(&st->Svirtbase);
-                baseclass_dehydrate(&st->Smptrbase);
-                baseclass_dehydrate(&st->Sprimary);
-                baseclass_dehydrate(&st->Svbptrbase);
-
-                ph_dehydrate(&st->Svecctor);
-                ph_dehydrate(&st->Sctor);
-                ph_dehydrate(&st->Sdtor);
-                ph_dehydrate(&st->Sprimdtor);
-                ph_dehydrate(&st->Spriminv);
-                ph_dehydrate(&st->Sscaldeldtor);
-                ph_dehydrate(&st->Sinvariant);
-                ph_dehydrate(&st->Svptr);
-                ph_dehydrate(&st->Svtbl);
-                ph_dehydrate(&st->Sopeq);
-                ph_dehydrate(&st->Sopeq2);
-                ph_dehydrate(&st->Scpct);
-                ph_dehydrate(&st->Sveccpct);
-                ph_dehydrate(&st->Salias);
-                ph_dehydrate(&st->Stempsym);
-                param_dehydrate(&st->Sarglist);
-                param_dehydrate(&st->Spr_arglist);
-                ph_dehydrate(&st->Svbptr);
-                ph_dehydrate(&st->Svbptr_parent);
-                ph_dehydrate(&st->Svbtbl);
-              }
-              else
               {
                 symbol_tree_dehydrate(&s->Sstruct->Sroot);
                 list_dehydrate(&s->Sstruct->Sfldlst,(list_free_fp)symbol_dehydrate);
@@ -1523,10 +851,6 @@ void symbol_dehydrate(symbol **ps)
                 assert(s->Senum);
                 if (!isdehydrated(s->Senum))
                 {
-                    if (CPP)
-                    {   ph_dehydrate(&s->Senum->SEalias);
-                        list_dehydrate(&s->Senumlist,(list_free_fp)ph_dehydrate);
-                    }
                     ph_dehydrate(&s->Senum);
                 }
                 break;
@@ -1615,143 +939,6 @@ void symbol_symdefs_dehydrate(symbol **ps)
 }
 #endif
 
-/***************************
- * Hydrate threaded list of symbols.
- * Input:
- *      *ps     start of threaded list
- *      *parent root of symbol table to add symbol into
- *      flag    !=0 means add onto existing stuff
- *              0 means hydrate in place
- */
-
-#if SCPP
-
-void symbol_symdefs_hydrate(symbol **ps,symbol **parent,int flag)
-{   symbol *s;
-
-    //printf("symbol_symdefs_hydrate(flag = %d)\n",flag);
-#ifdef DEBUG
-    int count = 0;
-
-    if (flag) symbol_tree_check(*parent);
-#endif
-    for (; *ps; ps = &s->Snext)
-    {
-        //dbg_printf("%p ",*ps);
-#ifdef DEBUG
-        count++;
-#endif
-        s = dohydrate ? symbol_hydrate(ps) : *ps;
-
-        //if (s->Sclass == SCstruct)
-        //dbg_printf("symbol_symdefs_hydrate(%p, '%s')\n",s,s->Sident);
-        symbol_debug(s);
-#if 0
-        if (tyfunc(s->Stype->Tty))
-        {   Outbuffer buf;
-            char *p1;
-
-            p1 = param_tostring(&buf,s->Stype);
-            dbg_printf("'%s%s'\n",cpp_prettyident(s),p1);
-        }
-#endif
-        type_debug(s->Stype);
-        if (flag)
-        {   char *p;
-            symbol **ps;
-            symbol *rover;
-            char c;
-            size_t len;
-
-            p = s->Sident;
-            c = *p;
-
-            // Put symbol s into symbol table
-
-#if MMFIO
-            if (s->Sl || s->Sr)         // avoid writing to page if possible
-#endif
-                s->Sl = s->Sr = NULL;
-            len = strlen(p);
-            p++;
-            ps = parent;
-            while ((rover = *ps) != NULL)
-            {   signed char cmp;
-
-                if ((cmp = c - rover->Sident[0]) == 0)
-                {   cmp = memcmp(p,rover->Sident + 1,len); // compare identifier strings
-                    if (cmp == 0)
-                    {
-                        if (CPP && tyfunc(s->Stype->Tty) && tyfunc(rover->Stype->Tty))
-                        {   symbol **ps;
-                            symbol *sn;
-                            symbol *so;
-
-                            so = s;
-                            do
-                            {
-                                // Tack onto end of overloaded function list
-                                for (ps = &rover; *ps; ps = &(*ps)->Sfunc->Foversym)
-                                {   if (cpp_funccmp(so, *ps))
-                                    {   //printf("function '%s' already in list\n",so->Sident);
-                                        goto L2;
-                                    }
-                                }
-                                //printf("appending '%s' to rover\n",so->Sident);
-                                *ps = so;
-                            L2:
-                                sn = so->Sfunc->Foversym;
-                                so->Sfunc->Foversym = NULL;
-                                so = sn;
-                            } while (so);
-                            //printf("overloading...\n");
-                        }
-                        else if (s->Sclass == SCstruct)
-                        {
-                            if (CPP && rover->Scover)
-                            {   ps = &rover->Scover;
-                                rover = *ps;
-                            }
-                            else
-                            if (rover->Sclass == SCstruct)
-                            {
-                                if (!(s->Stype->Tflags & TFforward))
-                                {   // Replace rover with s in symbol table
-                                    //printf("Replacing '%s'\n",s->Sident);
-                                    *ps = s;
-                                    s->Sl = rover->Sl;
-                                    s->Sr = rover->Sr;
-                                    rover->Sl = rover->Sr = NULL;
-                                    rover->Stype->Ttag = (Classsym *)s;
-                                    symbol_keep(rover);
-                                }
-                                else
-                                    s->Stype->Ttag = (Classsym *)rover;
-                            }
-                        }
-                        goto L1;
-                    }
-                }
-                ps = (cmp < 0) ?        /* if we go down left side      */
-                    &rover->Sl :
-                    &rover->Sr;
-            }
-            *ps = s;
-            if (s->Sclass == SCcomdef)
-            {   s->Sclass = SCglobal;
-                outcommon(s,type_size(s->Stype));
-            }
-        }
-  L1:   ;
-    } // for
-#ifdef DEBUG
-    if (flag) symbol_tree_check(*parent);
-    printf("%d symbols hydrated\n",count);
-#endif
-}
-
-#endif
-
 #if 0
 
 /*************************************
@@ -1785,26 +972,6 @@ void symboltable_hydrate(symbol *s,symbol **parent)
                 {   cmp = strcmp(p,rover->Sident); /* compare identifier strings */
                     if (cmp == 0)
                     {
-                        if (CPP && tyfunc(s->Stype->Tty) && tyfunc(rover->Stype->Tty))
-                        {   symbol **ps;
-                            symbol *sn;
-
-                            do
-                            {
-                                // Tack onto end of overloaded function list
-                                for (ps = &rover; *ps; ps = &(*ps)->Sfunc->Foversym)
-                                {   if (cpp_funccmp(s, *ps))
-                                        goto L2;
-                                }
-                                s->Sl = s->Sr = NULL;
-                                *ps = s;
-                            L2:
-                                sn = s->Sfunc->Foversym;
-                                s->Sfunc->Foversym = NULL;
-                                s = sn;
-                            } while (s);
-                        }
-                        else
                         {
                             if (!typematch(s->Stype,rover->Stype,0))
                             {
@@ -1965,306 +1132,6 @@ int baseclass_nitems(baseclass_t *b)
         i++;
     return i;
 }
-
-
-/*****************************
- * Go through symbol table preparing it to be written to a precompiled
- * header. That means removing references to things in the .OBJ file.
- */
-
-#if SCPP
-
-void symboltable_clean(symbol *s)
-{
-    while (s)
-    {
-        struct_t *st;
-
-        //printf("clean('%s')\n",s->Sident);
-        if (config.fulltypes != CVTDB && s->Sxtrnnum && s->Sfl != FLreg)
-            s->Sxtrnnum = 0;    // eliminate debug info type index
-        switch (s->Sclass)
-        {
-            case SCstruct:
-                s->Stypidx = 0;
-                st = s->Sstruct;
-                assert(st);
-                symboltable_clean(st->Sroot);
-                //list_apply(&st->Sfldlst,(list_free_fp)symboltable_clean);
-                break;
-
-            case SCtypedef:
-            case SCenum:
-                s->Stypidx = 0;
-                break;
-#if 1
-            case SCtemplate:
-            {   template_t *tm = s->Stemplate;
-
-                list_apply(&tm->TMinstances,(list_free_fp)symboltable_clean);
-                break;
-            }
-#endif
-            case SCnamespace:
-                symboltable_clean(s->Snameroot);
-                break;
-
-            default:
-                if (s->Sxtrnnum && s->Sfl != FLreg)
-                    s->Sxtrnnum = 0;    // eliminate external symbol index
-                if (tyfunc(s->Stype->Tty))
-                {
-                    func_t *f = s->Sfunc;
-                    SYMIDX si;
-
-                    debug(assert(f));
-
-                    list_apply(&f->Fsymtree,(list_free_fp)symboltable_clean);
-                    for (si = 0; si < f->Flocsym.top; si++)
-                        symboltable_clean(f->Flocsym.tab[si]);
-                    if (f->Foversym)
-                        symboltable_clean(f->Foversym);
-                    if (f->Fexplicitspec)
-                        symboltable_clean(f->Fexplicitspec);
-                }
-                break;
-        }
-        if (s->Sl)
-            symboltable_clean(s->Sl);
-        if (s->Scover)
-            symboltable_clean(s->Scover);
-        s = s->Sr;
-    }
-}
-
-#endif
-
-#if SCPP
-
-/*
- * Balance our symbol tree in place. This is nice for precompiled headers, since they
- * will typically be written out once, but read in many times. We balance the tree in
- * place by traversing the tree inorder and writing the pointers out to an ordered
- * list. Once we have a list of symbol pointers, we can create a tree by recursively
- * dividing the list, using the midpoint of each division as the new root for that
- * subtree.
- */
-
-struct Balance
-{
-    unsigned nsyms;
-    symbol **array;
-    unsigned index;
-};
-
-static Balance balance;
-
-STATIC void count_symbols(symbol *s)
-{
-    while (s)
-    {
-        balance.nsyms++;
-        switch (s->Sclass)
-        {
-            case SCnamespace:
-                symboltable_balance(&s->Snameroot);
-                break;
-
-            case SCstruct:
-                symboltable_balance(&s->Sstruct->Sroot);
-                break;
-        }
-        count_symbols(s->Sl);
-        s = s->Sr;
-    }
-}
-
-STATIC void place_in_array(symbol *s)
-{
-    while (s)
-    {
-        place_in_array(s->Sl);
-        balance.array[balance.index++] = s;
-        s = s->Sr;
-    }
-}
-
-/*
- * Create a tree in place by subdividing between lo and hi inclusive, using i
- * as the root for the tree. When the lo-hi interval is one, we've either
- * reached a leaf or an empty node. We subdivide below i by halving the interval
- * between i and lo, and using i-1 as our new hi point. A similar subdivision
- * is created above i.
- */
-STATIC symbol * create_tree(int i, int lo, int hi)
-{
-    symbol *s = balance.array[i];
-
-    if (i < lo || i > hi)               /* empty node ? */
-        return NULL;
-
-    assert((unsigned) i < balance.nsyms);
-    if (i == lo && i == hi) {           /* leaf node ? */
-        s->Sl = NULL;
-        s->Sr = NULL;
-        return s;
-    }
-
-    s->Sl = create_tree((i + lo) / 2, lo, i - 1);
-    s->Sr = create_tree((i + hi + 1) / 2, i + 1, hi);
-
-    return s;
-}
-
-#define METRICS 0
-
-#if METRICS
-void symbol_table_metrics(void);
-#endif
-
-void symboltable_balance(symbol **ps)
-{
-    Balance balancesave;
-#if METRICS
-    long ticks;
-
-    dbg_printf("symbol table before balance:\n");
-    symbol_table_metrics();
-    ticks = clock();
-#endif
-    balancesave = balance;              // so we can nest
-    balance.nsyms = 0;
-    count_symbols(*ps);
-    //dbg_printf("Number of global symbols = %d\n",balance.nsyms);
-
-    // Use malloc instead of mem because of pagesize limits
-    balance.array = (symbol **) malloc(balance.nsyms * sizeof(symbol *));
-    if (!balance.array)
-        goto Lret;                      // no error, just don't balance
-
-    balance.index = 0;
-    place_in_array(*ps);
-
-    *ps = create_tree(balance.nsyms / 2, 0, balance.nsyms - 1);
-
-    free(balance.array);
-#if METRICS
-    dbg_printf("time to balance: %ld\n", clock() - ticks);
-    dbg_printf("symbol table after balance:\n");
-    symbol_table_metrics();
-#endif
-Lret:
-    balance = balancesave;
-}
-
-#endif
-
-/*****************************************
- * Symbol table search routine for members of structs, given that
- * we don't know which struct it is in.
- * Give error message if it appears more than once.
- * Returns:
- *      NULL            member not found
- *      symbol*         symbol matching member
- */
-
-#if SCPP
-
-struct Paramblock       // to minimize stack usage in helper function
-{   const char *id;     // identifier we are looking for
-    symbol *sm;         // where to put result
-    symbol *s;
-};
-
-STATIC void membersearchx(struct Paramblock *p,symbol *s)
-{   symbol *sm;
-    list_t sl;
-
-    while (s)
-    {   symbol_debug(s);
-
-        switch (s->Sclass)
-        {   case SCstruct:
-                for (sl = s->Sstruct->Sfldlst; sl; sl = list_next(sl))
-                {   sm = list_symbol(sl);
-                    symbol_debug(sm);
-                    if ((sm->Sclass == SCmember || sm->Sclass == SCfield) &&
-                        strcmp(p->id,sm->Sident) == 0)
-                    {
-                        if (p->sm && p->sm->Smemoff != sm->Smemoff)
-                            synerr(EM_ambig_member,p->id,s->Sident,p->s->Sident);       // ambiguous reference to id
-                        p->s = s;
-                        p->sm = sm;
-                        break;
-                    }
-                }
-                break;
-        }
-
-        if (s->Sl)
-            membersearchx(p,s->Sl);
-        s = s->Sr;
-    }
-}
-
-symbol *symbol_membersearch(const char *id)
-{
-    list_t sl;
-    struct Paramblock pb;
-    Scope *sc;
-
-    pb.id = id;
-    pb.sm = NULL;
-    for (sc = scope_end; sc; sc = sc->next)
-    {
-        if (sc->sctype & (CPP ? (SCTglobal | SCTlocal) : (SCTglobaltag | SCTtag)))
-            membersearchx((struct Paramblock *)&pb,(symbol *)sc->root);
-    }
-    return pb.sm;
-}
-
-/*******************************************
- * Generate debug info for global struct tag symbols.
- */
-
-STATIC void symbol_gendebuginfox(symbol *s)
-{
-    for (; s; s = s->Sr)
-    {
-        if (s->Sl)
-            symbol_gendebuginfox(s->Sl);
-        if (s->Scover)
-            symbol_gendebuginfox(s->Scover);
-        switch (s->Sclass)
-        {
-            case SCenum:
-                if (CPP && s->Senum->SEflags & SENnotagname)
-                    break;
-                goto Lout;
-            case SCstruct:
-                if (s->Sstruct->Sflags & STRanonymous)
-                    break;
-                goto Lout;
-            case SCtypedef:
-            Lout:
-                if (!s->Stypidx)
-                    cv_outsym(s);
-                break;
-        }
-    }
-}
-
-void symbol_gendebuginfo()
-{   Scope *sc;
-
-    for (sc = scope_end; sc; sc = sc->next)
-    {
-        if (sc->sctype & (SCTglobaltag | SCTglobal))
-            symbol_gendebuginfox((symbol *)sc->root);
-    }
-}
-
-#endif
 
 /*************************************
  * Reset Symbol so that it's now an "extern" to the next obj file being created.

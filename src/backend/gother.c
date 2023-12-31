@@ -8,7 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if (SCPP || MARS)
+#if (MARS)
 
 #include        <stdio.h>
 #include        <time.h>
@@ -20,10 +20,6 @@
 #include        "oper.h"
 #include        "list.h"
 #include        "type.h"
-
-#if SCPP
-#include        "parser.h"
-#endif
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
@@ -390,17 +386,6 @@ STATIC void chkrd(elem *n,list_t rdlist)
     {
         printf("sv->Sident = %s\n", sv->Sident);
         return;
-    }
-#endif
-#if SCPP
-    {   Outbuffer buf;
-        char *p2;
-
-        type_tostring(&buf, sv->Stype);
-        buf.writeByte(' ');
-        buf.write(sv->Sident);
-        p2 = buf.toString();
-        warerr(WM_used_b4_set, p2);     // variable used before set
     }
 #endif
 #if MARS

@@ -28,7 +28,6 @@
 
 One and only one of these macros must be set by the makefile:
 
-        SCPP            Build C/C++ compiler
         MARS            Build Mars compiler
  */
 
@@ -118,16 +117,6 @@ char *strupr(char *);
 
 #define SUFFIX  ""
 
-// C++ Language Features
-#define ANGLE_BRACKET_HACK      0       // >> means two template arglist closes
-
-// C/C++ Language Features
-#define IMPLIED_PRAGMA_ONCE     1       // include guards count as #pragma once
-const bool HEADER_LIST          = true;
-
-// Support generating code for 16 bit memory models
-#define SIXTEENBIT              (SCPP && 0)
-
 /* Set for supporting the FLAT memory model.
  * This is not quite the same as !SIXTEENBIT, as one could
  * have near/far with 32 bit code.
@@ -176,12 +165,6 @@ typedef long double longdouble;
     #define H_STYLE         H_COMPLEX
     #endif
 #endif
-
-// NT structured exception handling
-//      0: no support
-//      1: old style
-//      2: new style
-#define NTEXCEPTIONS            2
 
 // For Shared Code Base
 #define dbg_printf printf
@@ -452,9 +435,6 @@ typedef enum LINKAGE
 enum EHmethod
 {
     EH_NONE,                    // no exception handling
-    EH_WIN32,                   // Win32 SEH
-    EH_WIN64,                   // Win64 SEH (not supported yet)
-    EH_DM,                      // Digital Mars method
     EH_DWARF,                   // Dwarf method
 };
 

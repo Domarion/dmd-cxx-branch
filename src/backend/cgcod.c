@@ -76,7 +76,7 @@ char calledafunc;       // !=0 if we called a function
 char needframe;         // if TRUE, then we will need the frame
                         // pointer (BP for the 8088)
 char gotref;            // !=0 if the GOTsym was referenced
-unsigned usednteh;              // if !=0, then used NT exception handling
+unsigned usednteh = 0;              // if !=0, then used NT exception handling
 
 /* Register contents    */
 con_t regcon;
@@ -126,9 +126,6 @@ static regm_t lastretregs,last2retregs,last3retregs,last4retregs,last5retregs;
 void codgen()
 {
     bool flag;
-#if SCPP
-    block *btry;
-#endif
     // Register usage. If a bit is on, the corresponding register is live
     // in that basic block.
 
@@ -171,13 +168,6 @@ tryagain:
 #endif
 
     usednteh = 0;
-    if (CPP)
-    {
-        if (config.exe == EX_WIN32 &&
-            (funcsym_p->Stype->Tflags & TFemptyexc || funcsym_p->Stype->Texcspec))
-            usednteh |= NTEHexcspec;
-        except_reset();
-    }
 
     // Set on a trial basis, turning it off if anything might throw
     funcsym_p->Sfunc->Fflags3 |= Fnothrow;
@@ -273,11 +263,6 @@ tryagain:
     }
     cgreg_term();
 
-#if SCPP
-    if (CPP)
-        cgcod_eh();
-#endif
-
     stackoffsets(1);            // compute addresses of stack variables
     cod5_prol_epi();            // see where to place prolog/epilog
 
@@ -370,14 +355,6 @@ tryagain:
     debugw && printf("code jump optimization complete\n");
 #endif
 
-#if MARS
-    if (usednteh & NTEH_try)
-    {
-        // Do this before code is emitted because we patch some instructions
-        nteh_filltables();
-    }
-#endif
-
     // Compute starting offset for switch tables
     targ_size_t swoffset;
     if (config.flags & CFGromable)
@@ -393,9 +370,6 @@ tryagain:
     {
         codout(eecontext.EEcode);
         code_free(eecontext.EEcode);
-#if SCPP
-        el_free(eecontext.EEelem);
-#endif
     }
     else
     {
@@ -423,26 +397,6 @@ tryagain:
                 cod3_align_bytes(nalign);
             }
             assert(b->Boffset == Coffset);
-
-#if SCPP
-            if (CPP &&
-                !(config.exe == EX_WIN32))
-            {
-                //printf("b = %p, index = %d\n",b,b->Bindex);
-                //except_index_set(b->Bindex);
-
-                if (btry != b->Btry)
-                {
-                    btry = b->Btry;
-                    except_pair_setoffset(b,Coffset - funcoffset);
-                }
-                if (b->BC == BCtry)
-                {
-                    btry = b;
-                    except_pair_setoffset(b,Coffset - funcoffset);
-                }
-            }
-#endif
             codout(b->Bcode);   // output code
     }
     if (coffset != Coffset)
@@ -454,12 +408,8 @@ tryagain:
     }
     funcsym_p->Ssize = Coffset - funcoffset;    // size of function
 
-#if NTEXCEPTIONS || MARS
-#if (SCPP && NTEXCEPTIONS)
-    if (usednteh & NTEHcpp)
-#elif MARS
-        if (usednteh & NTEH_try)
-#endif
+#if MARS
+    if (usednteh & NTEH_try)
     {   assert(!(config.flags & CFGromable));
         //printf("framehandleroffset = x%x, coffset = x%x\n",framehandleroffset,coffset);
         objmod->reftocodeseg(cseg,framehandleroffset,coffset);
@@ -509,16 +459,6 @@ tryagain:
         objmod->linnum(funcsym_p->Sfunc->Fendline,funcoffset + retoffset);
 
 #if MARS
-    if (usednteh & NTEH_try)
-    {
-        // Do this before code is emitted because we patch some instructions
-        nteh_gentables();
-    }
-    if (usednteh & EHtry &&             // saw BCtry or BC_try (test EHcleanup too?)
-        config.ehmethod == EH_DM)
-    {
-        except_gentables();
-    }
     if (config.ehmethod == EH_DWARF)
     {
         funcsym_p->Sfunc->Fstartblock = startblock;
@@ -527,26 +467,6 @@ tryagain:
     }
 #endif
 
-#if SCPP
-#if NTEXCEPTIONS
-    // Write out frame handler
-    if (usednteh & NTEHcpp)
-        nteh_framehandler(except_gentables());
-    else
-#endif
-    {
-#if NTEXCEPTIONS
-        if (usednteh & NTEH_try)
-            nteh_gentables();
-        else
-#endif
-        {
-            if (CPP)
-                except_gentables();
-        }
-        ;
-    }
-#endif
     for (block* b = startblock; b; b = b->Bnext)
     {
         code_free(b->Bcode);
@@ -706,12 +626,6 @@ Lagain:
      * individually rather than as a group.
      */
     Fast.size = 0;
-#if NTEXCEPTIONS == 2
-    Fast.size -= nteh_contextsym_size();
-#if MARS
-#endif
-#endif
-
     /* Despite what the comment above says, aligning Fast section to size greater
      * than REGSIZE does not break contract implementation. Fast.offset and
      * Fast.alignment must be the same for the overriding and
@@ -921,57 +835,6 @@ Lagain:
         prolog_allocoffset = calcblksize(c);
     }
 
-#if SCPP
-    /*  The idea is to generate trace for all functions if -Nc is not thrown.
-     *  If -Nc is thrown, generate trace only for global COMDATs, because those
-     *  are relevant to the FUNCTIONS statement in the linker .DEF file.
-     *  This same logic should be in epilog().
-     */
-    if (config.flags & CFGtrace &&
-        (!(config.flags4 & CFG4allcomdat) ||
-         funcsym_p->Sclass == SCcomdat ||
-         funcsym_p->Sclass == SCglobal ||
-         (config.flags2 & CFG2comdat && SymInline(funcsym_p))
-        )
-       )
-    {
-        unsigned spalign = 0;
-        int sz = Para.size + (needframe ? 0 : -REGSIZE) + localsize;
-        if (STACKALIGN == 16 && (sz & (STACKALIGN - 1)))
-            spalign = STACKALIGN - (sz & (STACKALIGN - 1));
-
-        if (spalign)
-        {   /* This could be avoided by moving the function call to after the
-             * registers are saved. But I don't remember why the call is here
-             * and not there.
-             */
-            c = cod3_stackadj(c, spalign);
-        }
-
-        unsigned regsaved;
-        c = cat(c, prolog_trace(farfunc, &regsaved));
-
-        if (spalign)
-            c = cod3_stackadj(c, -spalign);
-        useregs((ALLREGS | mBP | mES) & ~regsaved);
-    }
-#endif
-
-#if MARS
-    if (usednteh & NTEHjmonitor)
-    {   Symbol *sthis;
-
-        for (SYMIDX si = 0; 1; si++)
-        {   assert(si < globsym.top);
-            sthis = globsym.tab[si];
-            if (strcmp(sthis->Sident,"this") == 0)
-                break;
-        }
-        c = cat(c,nteh_monitor_prolog(sthis));
-        EBPtoESP += 3 * 4;
-    }
-#endif
-
     c = prolog_saveregs(c, topush, cfa_offset);
 
 Lcont:
@@ -985,11 +848,6 @@ Lcont:
     }
 
     c = cat(c, prolog_ifunc2(tyf, tym, pushds));
-
-#if NTEXCEPTIONS == 2
-    if (usednteh & NTEH_except)
-        c = cat(c,nteh_setsp(0x89));            // MOV __context[EBP].esp,ESP
-#endif
 
     // Load register parameters off of the stack. Do not use
     // assignaddr(), as it will replace the stack reference with
@@ -1402,192 +1260,6 @@ STATIC void blcodgen(block *bl)
     debugw && printf("code gen complete\n");
 #endif
 }
-
-/*****************************************
- * Add in exception handling code.
- */
-
-#if SCPP
-
-STATIC void cgcod_eh()
-{   block *btry;
-    code *c;
-    code *c1;
-    list_t stack;
-    list_t list;
-    block *b;
-    int idx;
-    int lastidx;
-    int tryidx;
-    int i;
-
-    if (!(usednteh & (EHtry | EHcleanup)))
-        return;
-
-    // Compute Bindex for each block
-    for (b = startblock; b; b = b->Bnext)
-    {   b->Bindex = -1;
-        b->Bflags &= ~BFLvisited;               /* mark as unvisited    */
-    }
-    btry = NULL;
-    lastidx = 0;
-    startblock->Bindex = 0;
-    for (b = startblock; b; b = b->Bnext)
-    {
-        if (btry == b->Btry && b->BC == BCcatch)  // if don't need to pop try block
-        {   block *br;
-
-            br = list_block(b->Bpred);          // find corresponding try block
-            assert(br->BC == BCtry);
-            b->Bindex = br->Bindex;
-        }
-        else if (btry != b->Btry && b->BC != BCcatch ||
-                 !(b->Bflags & BFLvisited))
-            b->Bindex = lastidx;
-        b->Bflags |= BFLvisited;
-#ifdef DEBUG
-        if (debuge)
-        {
-            WRBC(b->BC);
-            dbg_printf(" block (%p) Btry=%p Bindex=%d\n",b,b->Btry,b->Bindex);
-        }
-#endif
-        except_index_set(b->Bindex);
-        if (btry != b->Btry)                    // exited previous try block
-        {
-            except_pop(b,NULL,btry);
-            btry = b->Btry;
-        }
-        if (b->BC == BCtry)
-        {
-            except_push(b,NULL,b);
-            btry = b;
-            tryidx = except_index_get();
-            b->Bcode = cat(nteh_gensindex(tryidx - 1),b->Bcode);
-        }
-
-        stack = NULL;
-        for (c = b->Bcode; c; c = code_next(c))
-        {
-            if ((c->Iop & ESCAPEmask) == ESCAPE)
-            {
-                c1 = NULL;
-                switch (c->Iop & 0xFFFF00)
-                {
-                    case ESCctor:
-//printf("ESCctor\n");
-                        except_push(c,c->IEV1.Vtor,NULL);
-                        goto L1;
-
-                    case ESCdtor:
-//printf("ESCdtor\n");
-                        except_pop(c,c->IEV1.Vtor,NULL);
-                    L1: if (config.exe == EX_WIN32)
-                        {
-                            c1 = nteh_gensindex(except_index_get() - 1);
-                            code_next(c1) = code_next(c);
-                            code_next(c) = c1;
-                        }
-                        break;
-                    case ESCmark:
-//printf("ESCmark\n");
-                        idx = except_index_get();
-                        list_prependdata(&stack,idx);
-                        except_mark();
-                        break;
-                    case ESCrelease:
-//printf("ESCrelease\n");
-                        idx = list_data(stack);
-                        list_pop(&stack);
-                        if (idx != except_index_get())
-                        {
-                            if (config.exe == EX_WIN32)
-                            {   c1 = nteh_gensindex(idx - 1);
-                                code_next(c1) = code_next(c);
-                                code_next(c) = c1;
-                            }
-                            else
-                            {   except_pair_append(c,idx - 1);
-                                c->Iop = ESCAPE | ESCoffset;
-                            }
-                        }
-                        except_release();
-                        break;
-                    case ESCmark2:
-//printf("ESCmark2\n");
-                        except_mark();
-                        break;
-                    case ESCrelease2:
-//printf("ESCrelease2\n");
-                        except_release();
-                        break;
-                }
-            }
-        }
-        assert(stack == NULL);
-        b->Bendindex = except_index_get();
-
-        if (b->BC != BCret && b->BC != BCretexp)
-            lastidx = b->Bendindex;
-
-        // Set starting index for each of the successors
-        i = 0;
-        for (list = b->Bsucc; list; list = list_next(list))
-        {   block *bs = list_block(list);
-
-            if (b->BC == BCtry)
-            {   switch (i)
-                {   case 0:                             // block after catches
-                        bs->Bindex = b->Bendindex;
-                        break;
-                    case 1:                             // 1st catch block
-                        bs->Bindex = tryidx;
-                        break;
-                    default:                            // subsequent catch blocks
-                        bs->Bindex = b->Bindex;
-                        break;
-                }
-#ifdef DEBUG
-                if (debuge)
-                {
-                    dbg_printf(" 1setting %p to %d\n",bs,bs->Bindex);
-                }
-#endif
-            }
-            else if (!(bs->Bflags & BFLvisited))
-            {
-                bs->Bindex = b->Bendindex;
-#ifdef DEBUG
-                if (debuge)
-                {
-                    dbg_printf(" 2setting %p to %d\n",bs,bs->Bindex);
-                }
-#endif
-            }
-            bs->Bflags |= BFLvisited;
-            i++;
-        }
-    }
-
-    if (config.exe == EX_WIN32)
-        for (b = startblock; b; b = b->Bnext)
-        {
-            if (/*!b->Bcount ||*/ b->BC == BCtry)
-                continue;
-            for (list = b->Bpred; list; list = list_next(list))
-            {   int pi;
-
-                pi = list_block(list)->Bendindex;
-                if (b->Bindex != pi)
-                {
-                    b->Bcode = cat(nteh_gensindex(b->Bindex - 1),b->Bcode);
-                    break;
-                }
-            }
-        }
-}
-
-#endif
 
 /******************************
  * Count the number of bits set in a register mask.

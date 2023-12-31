@@ -965,19 +965,8 @@ STATIC int outfixlist_dg(void *parameter, void *pkey, void *pvalue)
             if (s->Sxtrnnum == 0)
             {   if (s->Sclass == SCstatic)
                 {
-#if SCPP
-                    if (s->Sdt)
-                    {
-                        outdata(s);
-                        searchfixlist(s);
-                        continue;
-                    }
-
-                    synerr(EM_no_static_def,prettyident(s));    // no definition found for static
-#else // MARS
                     printf("Error: no definition for static %s\n",prettyident(s));      // no definition found for static
                     err_exit();                         // BUG: do better
-#endif
                 }
                 if (s->Sflags & SFLwasstatic)
                 {

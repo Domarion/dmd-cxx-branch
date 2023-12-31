@@ -966,14 +966,6 @@ void dwarf_initfile(const char *filename)
     }
     if (!config.fulltypes)
         return;
-    if (config.ehmethod == EH_DM)
-    {
-        int seg = dwarf_getsegment(debug_frame_name, 1);
-        Outbuffer *buf = SegData[seg]->SDbuf;
-        buf->reserve(1000);
-        writeDebugFrameHeader(buf);
-    }
-
     /* ======================================== */
 
     if (reset_symbuf)
@@ -1024,13 +1016,6 @@ void dwarf_initfile(const char *filename)
     linebuf->write(&debugline, sizeof(debugline));
 
     // include_directories
-#if SCPP
-    for (size_t i = 0; i < pathlist.length(); ++i)
-    {
-        linebuf->writeString(pathlist[i]);
-        linebuf->writeByte(0);
-    }
-#endif
 #if 0 && MARS
     for (int i = 0; i < global.params.imppath->dim; i++)
     {
@@ -1090,10 +1075,6 @@ void dwarf_initfile(const char *filename)
     infobuf->writeString(global.version.ptr);   // DW_AT_producer
     // DW_AT_language
     infobuf->writeByte((config.fulltypes == CVDWARF_D) ? DW_LANG_D : DW_LANG_C89);
-#elif SCPP
-    infobuf->write("Digital Mars C ");
-    infobuf->writeString(global.version);       // DW_AT_producer
-    infobuf->writeByte(DW_LANG_C89);            // DW_AT_language
 #else
     assert(0);
 #endif
@@ -1473,12 +1454,6 @@ void dwarf_func_term(Symbol *sfunc)
 #endif
 
     unsigned funcabbrevcode;
-
-    if (config.ehmethod == EH_DM)
-    {
-        IDXSEC dfseg = dwarf_getsegment(debug_frame_name, 1);
-        writeDebugFrameFDE(dfseg, sfunc);
-    }
 
     IDXSEC seg = sfunc->Sseg;
     seg_data *sd = SegData[seg];

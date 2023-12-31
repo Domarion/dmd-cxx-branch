@@ -1131,15 +1131,6 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
 
         buildClosure(fd, &irs);
 
-        if (config.ehmethod == EH_WIN32 && fd->isSynchronized() && cd &&
-            !fd->isStatic() && !sbody->usesEH() && !global.params.trace)
-        {
-            /* The "jmonitor" hack uses an optimized exception handling frame
-             * which is a little shorter than the more general EH frame.
-             */
-            s->Sfunc->Fflags3 |= Fjmonitor;
-        }
-
         Statement_toIR(sbody, &irs);
         bx.curblock->BC = BCret;
 

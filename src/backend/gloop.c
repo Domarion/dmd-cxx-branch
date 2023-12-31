@@ -9,7 +9,7 @@
  */
 
 
-#if (SCPP || MARS)
+#if (MARS)
 
 #include        <stdio.h>
 #include        <string.h>

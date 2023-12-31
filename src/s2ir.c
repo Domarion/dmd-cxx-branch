@@ -65,8 +65,6 @@ RET retStyle(TypeFunction *tf, bool needsThis);
 
 void setScopeIndex(Blockx *blx, block *b, int scope_index)
 {
-    if (config.ehmethod == EH_WIN32)
-        block_appendexp(b, nteh_setScopeTableIndex(blx, scope_index));
 }
 
 /****************************************
@@ -983,9 +981,6 @@ public:
     {
         Blockx *blx = irs->blx;
 
-        if (config.ehmethod == EH_WIN32)
-            nteh_declarvars(blx);
-
         IRState mystate(irs, s);
 
         block *tryblock = block_goto(blx,BCgoto,NULL);
@@ -1256,9 +1251,6 @@ public:
         //printf("TryFinallyStatement::toIR()\n");
 
         Blockx *blx = irs->blx;
-
-        if (config.ehmethod == EH_WIN32)
-            nteh_declarvars(blx);
 
         /* Successors to BC_try block:
          *      [0] start of try block code

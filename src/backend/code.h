@@ -509,21 +509,6 @@ code *cdd_u32(elem *e, regm_t *pretregs);
 void iasm_term( void );
 regm_t iasm_regs( block *bp );
 
-// nteh.c
-code *nteh_prolog(void);
-code *nteh_epilog(void);
-void nteh_usevars(void);
-void nteh_filltables(void);
-void nteh_gentables(void);
-code *nteh_setsp(int op);
-code *nteh_filter(block *b);
-void nteh_framehandler(symbol *);
-code *nteh_gensindex(int);
-#define GENSINDEXSIZE 7
-code *nteh_monitor_prolog(Symbol *shandle);
-code *nteh_monitor_epilog(regm_t retregs);
-code *nteh_patchindex(code* c, int index);
-
 // cgen.c
 code *code_last(code *c);
 void code_orflag(code *c,unsigned flag);
