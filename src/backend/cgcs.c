@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <time.h>
 
@@ -685,5 +683,3 @@ STATIC void touchaccess(elem *ev)
             hcstab[i].Helem = NULL;
   }
 }
-
-#endif // !SPP

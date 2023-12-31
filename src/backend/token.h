@@ -326,12 +326,8 @@ Srcpos token_linnum(void);
 enum_TK token_peek();
 
 enum_TK rtoken(int);
-#if SPP
-#define stoken() rtoken(1)
-#else
 enum_TK stokenx(void);
 inline enum_TK stoken() { return toklist ? stokenx() : rtoken(1); }
-#endif
 
 void token_init(void);
 void removext(void);
@@ -366,10 +362,6 @@ macro_t *defmac(const char *name , const char *text);
 int pragma_defined(void);
 #endif
 
-#if SPP && TX86
-#define token_linnum()  getlinnum()
-#endif
-
 //      listing control
 //      Listings can be produce via -l and SCpre
 //              -l      expand all characters not if'd out including
@@ -377,17 +369,11 @@ int pragma_defined(void);
 //              SCpre   list only characters to be compiled
 //                      i.e. exclude comments and # preprocess lines
 
-#if SPP
-#define SCPRE_LISTING_ON()      expflag--; assert(expflag >= 0)
-#define SCPRE_LISTING_OFF()     assert(expflag >= 0); expflag++
-#define EXPANDED_LISTING_ON()   expflag--; assert(expflag >= 0)
-#define EXPANDED_LISTING_OFF()  assert(expflag >= 0); expflag++
-#else
 #define SCPRE_LISTING_OFF()
 #define SCPRE_LISTING_ON()
 #define EXPANDED_LISTING_ON()   expflag--; assert(expflag >= 0)
 #define EXPANDED_LISTING_OFF()  assert(expflag >= 0); expflag++
-#endif
+
 
 #define EXPANDING_LISTING()     (expflag == 0)
 #define NOT_EXPANDING_LISTING() (expflag)

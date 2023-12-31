@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <time.h>
 
@@ -3627,5 +3625,3 @@ code *cdcmpxchg(elem *e, regm_t *pretregs)
 
     return cat4(cr1,cr,cl,c);
 }
-
-#endif // !SPP

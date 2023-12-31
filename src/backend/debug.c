@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <time.h>
 
@@ -392,5 +390,3 @@ void WRfunc()
         for (b = startblock; b; b = b->Bnext)
                 WRblock(b);
 }
-
-#endif /* DEBUG */

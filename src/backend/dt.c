@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -582,5 +580,3 @@ bool DtBuilder::isZeroLength()
 {
     return head == NULL;
 }
-
-#endif /* !SPP */

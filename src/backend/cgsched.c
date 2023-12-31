@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -3194,5 +3192,4 @@ void Cinfo::print()
         printf("\tfp_op %s, fxch_pre %x, fxch_post %x\n",
                 fpops[fp_op-1],fxch_pre,fxch_post);
 }
-#endif
 #endif

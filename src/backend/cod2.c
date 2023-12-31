@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -5162,5 +5160,3 @@ code *cdhalt(elem *e,regm_t *pretregs)
     assert(*pretregs == 0);
     return gen1(NULL, 0xF4);            // HLT
 }
-
-#endif // !SPP

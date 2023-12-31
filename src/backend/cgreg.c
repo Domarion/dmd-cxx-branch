@@ -8,9 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -1002,6 +999,3 @@ static int __cdecl weight_compare(const void *e1,const void *e2)
 
     return (*psp2)->Sweight - (*psp1)->Sweight;
 }
-
-
-#endif

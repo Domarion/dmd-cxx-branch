@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -5369,5 +5367,3 @@ void postoptelem(elem *e)
             break;
     }
 }
-
-#endif // !SPP

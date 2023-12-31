@@ -9,7 +9,7 @@
  */
 
 
-#if (SCPP || MARS) && !HTOD
+#if (SCPP || MARS)
 
 #include        <stdio.h>
 #include        <time.h>

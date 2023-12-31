@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <stdlib.h>
 #include        <time.h>
@@ -715,5 +713,3 @@ STATIC void local_symdef(symbol *s)
             u++;
     }
 }
-
-#endif

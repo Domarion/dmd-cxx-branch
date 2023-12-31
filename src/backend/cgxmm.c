@@ -7,8 +7,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -1178,5 +1176,3 @@ code *cdvecfill(elem *e, regm_t *pretregs)
     cdb.append(c);
     return cdb.finish();
 }
-
-#endif // !SPP

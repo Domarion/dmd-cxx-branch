@@ -8,7 +8,6 @@
 
 // Emit Dwarf symbolic debug info
 
-#if !SPP
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -2910,5 +2909,4 @@ void dwarf_CFA_set_loc(size_t location) { }
 void dwarf_CFA_set_reg_offset(int reg, int offset) { }
 void dwarf_CFA_offset(int reg, int offset) { }
 void dwarf_except_gentables(Funcsym *sfunc, unsigned startoffset, unsigned retoffset) { }
-#endif
 #endif

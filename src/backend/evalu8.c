@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <math.h>
 #include        <stdlib.h>
 #include        <stdio.h>
@@ -2106,5 +2104,3 @@ elem * evalu8(elem *e, goal_t goal)
   //printf("evalu8() returns: "); elem_print(e);
   return e;
 }
-
-#endif /* !SPP */

@@ -8,8 +8,6 @@
 
 // This module generates the .pdata and .xdata sections for Win64
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -28,4 +26,3 @@
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
 
-#endif

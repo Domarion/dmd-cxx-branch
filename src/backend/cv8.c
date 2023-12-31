@@ -9,8 +9,6 @@
 // This module generates the .debug$S and .debug$T sections for Win64,
 // which are the MS-Coff symbolic debug info and type debug info sections.
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -31,5 +29,3 @@
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
-
-#endif

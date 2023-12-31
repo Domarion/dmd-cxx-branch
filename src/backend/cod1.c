@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -4827,5 +4825,3 @@ code *loaddata(elem *e,regm_t *pretregs)
   c = cat(c,fixresult(e,forregs,pretregs));
   return c;
 }
-
-#endif // SPP

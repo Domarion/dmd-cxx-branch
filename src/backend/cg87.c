@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -3886,5 +3884,3 @@ __body
     }
     return cat4(cpush,c,fixresult_complex87(e, retregs, pretregs), NULL);
 }
-
-#endif // !SPP

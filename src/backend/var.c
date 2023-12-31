@@ -20,7 +20,7 @@
 #include        "go.h"
 #include        "ty.h"
 #include        "code.h"
-#if SPP || SCPP
+#if SCPP
 #include        "parser.h"
 #endif
 
@@ -98,13 +98,6 @@ char *argv0;                    // argv[0] (program name)
 FILE *fdep = NULL;              // dependency file stream pointer
 FILE *flst = NULL;              // list file stream pointer
 FILE *fin = NULL;               // input file
-#if SPP
-FILE *fout;
-#endif
-#if HTOD
-char *fdmodulename = NULL;
-FILE *fdmodule = NULL;
-#endif
 char     *foutdir = NULL,       // directory to place output files in
          *finname = NULL,
         *foutname = NULL,
@@ -114,7 +107,7 @@ char     *foutdir = NULL,       // directory to place output files in
         *fdepname = NULL,
         *flstname = NULL;       /* the filename strings                 */
 
-#if SPP || SCPP
+#if SCPP
 phstring_t fdeplist;
 phstring_t pathlist;            // include paths
 #endif
@@ -168,8 +161,6 @@ const unsigned long maskl[32] =
  * SCxxxx types.
  */
 
-#if !SPP
-
 char sytab[SCMAX] =
 {
     #define X(a,b)      b,
@@ -177,7 +168,6 @@ char sytab[SCMAX] =
     #undef X
 };
 
-#endif /* !SPP */
 volatile int controlc_saw;              /* a control C was seen         */
 symtab_t globsym;               /* global symbol table                  */
 Pstate pstate;                  // parser state

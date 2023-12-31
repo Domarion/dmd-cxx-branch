@@ -26,7 +26,7 @@
 #endif
 #include        "exh.h"
 
-#if !SPP && NTEXCEPTIONS
+#if NTEXCEPTIONS
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"

@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -112,7 +110,6 @@ void symtab_free(symbol **tab)
 void symbol_print(symbol *s)
 {
 #ifdef DEBUG
-#if !SPP
     if (!s) return;
     dbg_printf("symbol %p '%s'\n ",s,s->Sident);
     dbg_printf(" Sclass = "); WRclass((enum SC) s->Sclass);
@@ -148,7 +145,6 @@ void symbol_print(symbol *s)
     {
         dbg_printf("  Svbptr = %p, Svptr = %p\n",s->Sstruct->Svbptr,s->Sstruct->Svptr);
     }
-#endif
 #endif
 #endif
 }
@@ -2286,5 +2282,3 @@ void symbol_reset(Symbol *s)
         s->Sfl = FLextern;
     }
 }
-
-#endif /* !SPP */

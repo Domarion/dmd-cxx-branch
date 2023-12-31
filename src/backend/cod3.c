@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -7175,5 +7173,3 @@ void code::print()
   }
   printf("\n");
 }
-
-#endif // !SPP

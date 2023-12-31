@@ -28,7 +28,6 @@
 
 One and only one of these macros must be set by the makefile:
 
-        SPP             Build C/C++ preprocessor
         SCPP            Build C/C++ compiler
         MARS            Build Mars compiler
  */
@@ -670,13 +669,6 @@ struct Config
 #define CFG5out         4       // compile in __out code
 #define CFG5invariant   8       // compile in __invariant code
 
-#if HTOD
-    unsigned htodFlags;         // configuration for htod
-#define HTODFinclude    1       // -hi drill down into #include files
-#define HTODFsysinclude 2       // -hs drill down into system #include files
-#define HTODFtypedef    4       // -ht drill down into typedefs
-#define HTODFcdecl      8       // -hc skip C declarations as comments
-#endif
     char ansi_c;                // strict ANSI C
                                 // 89 for ANSI C89, 99 for ANSI C99
     char asian_char;            /* 0: normal, 1: Japanese, 2: Chinese   */

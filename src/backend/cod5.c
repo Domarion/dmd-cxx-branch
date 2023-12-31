@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -201,5 +199,3 @@ STATIC int need_prolog(block *b)
 Lneed:
     return 1;
 }
-
-#endif

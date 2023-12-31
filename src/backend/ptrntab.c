@@ -7,7 +7,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !DEMO && !SPP
+#if !DEMO
 
 #include        <stdio.h>
 #include        <stdlib.h>
@@ -5780,6 +5780,4 @@ void init_optab()
 #endif
 }
 
-
-
-#endif // !SPP
+#endif

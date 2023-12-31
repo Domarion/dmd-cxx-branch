@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <stdlib.h>
 #include        <string.h>
@@ -1016,5 +1014,3 @@ void outfixlist()
     //printf("outfixlist()\n");
     Flarray::apply(&outfixlist_dg);
 }
-
-#endif // !SPP

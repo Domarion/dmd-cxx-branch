@@ -13,8 +13,6 @@
  * Code to handle debugger expression evaluation
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -117,5 +115,4 @@ void eecontext_parse()
     }
 }
 
-#endif
 #endif

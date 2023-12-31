@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -193,7 +191,6 @@ void dbg_optprint(char *title)
 
 void optfunc()
 {
-#if !HTOD
     block *b;
     int iter;           // iteration count
     clock_t starttime;
@@ -361,7 +358,4 @@ void optfunc()
     {
         block_optimizer_free(b);
     }
-#endif
 }
-
-#endif // !SPP

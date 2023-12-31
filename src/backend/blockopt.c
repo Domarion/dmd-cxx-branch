@@ -13,8 +13,6 @@
  * Handle basic blocks.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -2120,6 +2118,3 @@ int el_anyframeptr(elem *e)
     }
     return 0;
 }
-
-
-#endif //!SPP

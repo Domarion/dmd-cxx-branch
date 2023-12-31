@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -1579,5 +1577,3 @@ int typematch(type *t1,type *t2,int relax)
 }
 
 #endif
-
-#endif /* !SPP */

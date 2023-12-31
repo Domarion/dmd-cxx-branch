@@ -10,8 +10,6 @@
 
 /* Routines to handle elems.                    */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -3258,5 +3256,3 @@ void el_dehydrate(elem **pe)
     }
 }
 #endif
-
-#endif /* !SPP */

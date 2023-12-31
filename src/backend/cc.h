@@ -18,25 +18,15 @@
 #ifdef SCPP
 #define CPP     (config.flags3 & CFG3cpp)       // if compiling for C++
 #else
-#if !SPP
 #define SCPP            0
-#endif
 #endif
 
 #ifndef CPP
 #define CPP             0
 #endif
 
-#ifndef SPP
-#define SPP             0
-#endif
-
 #ifndef MARS
 #define MARS            0       // not compiling MARS code
-#endif
-
-#ifndef HTOD
-#define HTOD            0
 #endif
 
 #define GENOBJ          1       // generating .obj file
@@ -101,7 +91,7 @@ enum LANG
 #define LARGECODE 0
 #endif
 
-#if SPP || SCPP
+#if SCPP
 #include        "msgs2.h"
 #endif
 #include        "ty.h"
@@ -113,16 +103,8 @@ enum LANG
 #include        "list.h"
 #include        "vec.h"
 
-#if SPP
-#define COMPILER "Preprocessor"
-#define ACTIVITY "preprocessing..."
-#elif HTOD
-#define COMPILER ".h to D Migration Tool"
-#define ACTIVITY "migrating..."
-#else
 #define COMPILER "C/C++ Compiler"
 #define ACTIVITY "compiling..."
-#endif
 
 #ifdef DEBUG
 #   define debug(a)     (a)
@@ -192,7 +174,7 @@ typedef struct Srcpos
 {
     unsigned Slinnum;           // 0 means no info available
     unsigned Scharnum;
-#if SPP || SCPP
+#if SCPP
     struct Sfile **Sfilptr;     // file
     #define srcpos_sfile(p)     (**(p).Sfilptr)
     #define srcpos_name(p)      (srcpos_sfile(p).SFname)
@@ -1477,11 +1459,7 @@ typedef struct Srcfiles
 {
 //  Sfile *arr;         // array of Sfiles
     Sfile **pfiles;     // parallel array of pointers into arr[]
-#if SPP
-    #define SRCFILES_MAX (2*512*4)      // no precompiled headers for SPP
-#else
     #define SRCFILES_MAX (2*512)
-#endif
     unsigned dim;       // dimension of array
     unsigned idx;       // # used in array
 } Srcfiles;

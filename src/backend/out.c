@@ -8,9 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-
-#if !SPP
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -81,9 +78,6 @@ void outthunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
 
 void outdata(symbol *s)
 {
-#if HTOD
-    return;
-#endif
     targ_size_t datasize,a;
     int seg;
     targ_size_t offset;
@@ -859,9 +853,7 @@ STATIC void writefunc2(symbol *sfunc);
 
 void writefunc(symbol *sfunc)
 {
-#if HTOD
-    return;
-#elif SCPP
+#if SCPP
     writefunc2(sfunc);
 #else
     cstate.CSpsymtab = &globsym;
@@ -1300,9 +1292,6 @@ void out_reset()
 
 symbol *out_readonly_sym(tym_t ty, void *p, int len)
 {
-#if HTOD
-    return;
-#endif
 #if 0
     printf("out_readonly_sym(ty = x%x)\n", ty);
     for (int i = 0; i < len; i++)
@@ -1370,7 +1359,3 @@ void Srcpos::print(const char *func)
     printf(", Slinnum = %u", Slinnum);
     printf(")\n");
 }
-
-
-#endif /* !SPP */
-
