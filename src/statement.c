@@ -545,7 +545,7 @@ static Statements *compileIt(CompileStatement *cs, Scope *sc)
     Statements *a = new Statements();
     while (p.token.value != TOKeof)
     {
-        Statement *s = p.parseStatement(PSsemi | PScurlyscope);
+        Statement *s = p.parseStatement(PScurlyscope);
         if (!s || global.errors != errors)
             return errorStatements();
         a->push(s);

@@ -4560,8 +4560,8 @@ L1:
     {
         case TOKlcurly:
             if (requireDo)
-                error("missing body { ... } after in or out");
-            f->fbody = parseStatement(PSsemi);
+                error("missing do { ... } after in or out");
+            f->fbody = parseStatement(0);
             f->endloc = endloc;
             break;
 
@@ -5437,7 +5437,7 @@ Statement *Parser::parseStatement(int flags, const utf8_t** endPtr, Loc *pEndloc
             Statements *statements = new Statements();
             while (token.value != TOKrcurly && token.value != TOKeof)
             {
-                statements->push(parseStatement(PSsemi | PScurlyscope));
+                statements->push(parseStatement(PScurlyscope));
             }
             if (endPtr) *endPtr = token.ptr;
             endloc = token.loc;
@@ -5469,10 +5469,7 @@ Statement *Parser::parseStatement(int flags, const utf8_t** endPtr, Loc *pEndloc
         case TOKsemicolon:
             if (!(flags & PSsemi_ok))
             {
-                if (flags & PSsemi)
-                    deprecation("use `{ }` for an empty statement, not a `;`");
-                else
-                    error("use `{ }` for an empty statement, not a `;`");
+                error("use `{ }` for an empty statement, not a `;`");
             }
             nextToken();
             s = new ExpStatement(loc, (Expression *)NULL);
@@ -5741,7 +5738,7 @@ Statement *Parser::parseStatement(int flags, const utf8_t** endPtr, Loc *pEndloc
                 body = NULL;
             }
             else
-                body = parseStatement(PSsemi);
+                body = parseStatement(0);
             s = new PragmaStatement(loc, ident, args, body);
             break;
         }
@@ -5796,12 +5793,12 @@ Statement *Parser::parseStatement(int flags, const utf8_t** endPtr, Loc *pEndloc
                        token.value != TOKeof &&
                        token.value != TOKrcurly)
                 {
-                    statements->push(parseStatement(PSsemi | PScurlyscope));
+                    statements->push(parseStatement(PScurlyscope));
                 }
                 s = new CompoundStatement(loc, statements);
             }
             else
-                s = parseStatement(PSsemi | PScurlyscope);
+                s = parseStatement(PScurlyscope);
             s = new ScopeStatement(loc, s, token.loc);
 
             if (last)
@@ -5833,12 +5830,12 @@ Statement *Parser::parseStatement(int flags, const utf8_t** endPtr, Loc *pEndloc
                        token.value != TOKeof &&
                        token.value != TOKrcurly)
                 {
-                    statements->push(parseStatement(PSsemi | PScurlyscope));
+                    statements->push(parseStatement(PScurlyscope));
                 }
                 s = new CompoundStatement(loc, statements);
             }
             else
-                s = parseStatement(PSsemi | PScurlyscope);
+                s = parseStatement(PScurlyscope);
             s = new ScopeStatement(loc, s, token.loc);
             s = new DefaultStatement(loc, s);
             break;
