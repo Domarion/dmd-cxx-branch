@@ -49,11 +49,6 @@ struct TargetCPP
     unsigned derivedClassOffset(ClassDeclaration *baseClass);
 };
 
-struct TargetObjC
-{
-    bool supported;     // set if compiler can interface with Objective-C
-};
-
 struct Target
 {
     // D ABI
@@ -69,9 +64,6 @@ struct Target
 
     // C++ ABI
     TargetCPP cpp;
-
-    // Objective-C ABI
-    TargetObjC objc;
 
     template <typename T>
     struct FPTypeProperties

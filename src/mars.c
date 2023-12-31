@@ -39,7 +39,6 @@
 #include "declaration.h"
 #include "hdrgen.h"
 #include "doc.h"
-#include "objc.h"
 #include "compiler.h"
 
 bool response_expand(Strings *arguments);
@@ -1074,7 +1073,6 @@ Language changes listed by -transition=id:\n\
     Module::_init();
     target._init(global.params);
     Expression::_init();
-    Objc::_init();
 
     if (global.params.verbose)
     {   fprintf(global.stdmsg, "binary    %s\n", global.params.argv0.ptr);

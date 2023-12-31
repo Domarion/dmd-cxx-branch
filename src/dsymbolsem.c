@@ -25,7 +25,6 @@
 #include "mars.h"
 #include "module.h"
 #include "nspace.h"
-#include "objc.h"
 #include "parse.h"
 #include "scope.h"
 #include "statement.h"
@@ -44,7 +43,6 @@ void MODtoBuffer(OutBuffer *buf, MOD mod);
 bool reliesOnTident(Type *t, TemplateParameters *tparams = NULL, size_t iStart = 0);
 bool expressionsToString(OutBuffer &buf, Scope *sc, Expressions *exps);
 bool symbolIsVisible(Scope *sc, Dsymbol *s);
-Objc *objc();
 
 static unsigned setMangleOverride(Dsymbol *s, char *sym)
 {
@@ -4052,8 +4050,6 @@ public:
 
             if (sc->linkage == LINKcpp)
                 cldec->classKind = ClassKind::cpp;
-            if (sc->linkage == LINKobjc)
-                objc()->setObjc(cldec);
         }
         else if (cldec->symtab && !scx)
         {
@@ -4648,8 +4644,6 @@ public:
 
             if (!idec->baseclasses->length && sc->linkage == LINKcpp)
                 idec->classKind = ClassKind::cpp;
-            if (sc->linkage == LINKobjc)
-                objc()->setObjc(idec);
 
             // Check for errors, handle forward references
             for (size_t i = 0; i < idec->baseclasses->length; )

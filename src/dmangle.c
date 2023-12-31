@@ -329,7 +329,6 @@ public:
             case LINKc:             mc = 'U';       break;
             case LINKwindows:       mc = 'W';       break;
             case LINKcpp:           mc = 'R';       break;
-            case LINKobjc:          mc = 'Y';       break;
             default:
                 assert(0);
         }
@@ -516,7 +515,6 @@ public:
                     break;
                 case LINKc:
                 case LINKwindows:
-                case LINKobjc:
                     return d->ident->toChars();
                 case LINKcpp:
                     return target.cpp.toMangle(d);

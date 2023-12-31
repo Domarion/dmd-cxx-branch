@@ -1001,7 +1001,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
         pi++;
     }
 
-    if ((global.params.isLinux || global.params.isOSX || global.params.isFreeBSD || global.params.isSolaris) &&
+    if ((global.params.isLinux || global.params.isFreeBSD || global.params.isSolaris) &&
          fd->linkage != LINKd && shidden && sthis)
     {
         /* swap shidden and sthis
@@ -1366,7 +1366,7 @@ unsigned totym(Type *tx)
                     assert(0);
                     break;
             }
-            assert(global.params.is64bit || global.params.isOSX);
+            assert(global.params.is64bit);
             break;
         }
 
@@ -1383,7 +1383,6 @@ unsigned totym(Type *tx)
 
                 case LINKc:
                 case LINKcpp:
-                case LINKobjc:
                 Lc:
                     t = TYnfunc;
 #if TARGET_LINUX

@@ -230,8 +230,6 @@ void genDwarfEh(Funcsym *sfunc, int seg, Outbuffer *et, bool scancode, unsigned 
         {
 #if ELFOBJ
                 #define WRITE writeuLEB128
-#elif MACHOBJ
-                #define WRITE write32
 #else
                 assert(0);
 #endif
@@ -279,8 +277,6 @@ void genDwarfEh(Funcsym *sfunc, int seg, Outbuffer *et, bool scancode, unsigned 
                 {
 #if ELFOBJ
                     #define WRITE writeLEB128
-#elif MACHOBJ
-                    #define WRITE write32
 #else
                     assert(0);
 #endif
@@ -345,8 +341,6 @@ void genDwarfEh(Funcsym *sfunc, int seg, Outbuffer *et, bool scancode, unsigned 
 
 #if ELFOBJ
     const unsigned char CallSiteFormat = DW_EH_PE_absptr | DW_EH_PE_uleb128;
-#elif MACHOBJ
-    const unsigned char CallSiteFormat = DW_EH_PE_absptr | DW_EH_PE_udata4;
 #else
     assert(0);
 #endif

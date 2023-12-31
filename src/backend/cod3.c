@@ -33,7 +33,7 @@ static char __file__[] = __FILE__;      /* for tassert.h                */
 extern targ_size_t retsize;
 STATIC void pinholeopt_unittest();
 
-#if ELFOBJ || MACHOBJ
+#if ELFOBJ
 #define JMPSEG  CDATA
 #define JMPOFF  CDoffset
 #else
@@ -1441,7 +1441,6 @@ void doswitch(block *b)
         /* Scan a table of case values, and jump to corresponding address.
          * Since it relies on REPNE SCASW, it has really nothing to recommend it
          * over Lifthen for 32 and 64 bit code.
-         * Note that it has not been tested with MACHOBJ (OSX).
          */
     Lswitch:
         targ_size_t disp;

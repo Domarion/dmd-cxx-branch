@@ -39,7 +39,6 @@
 #include "cgcv.h"
 #include "outbuf.h"
 #include "irstate.h"
-#include "objc.h"
 #include "mach.h"
 
 extern bool obj_includelib(const char *name);
@@ -1360,7 +1359,6 @@ void toObjFile(Dsymbol *ds, bool multiobj)
                 case LINKwindows:
                     return global.params.is64bit ? mTYman_c : mTYman_std;
 
-                case LINKobjc:
                 case LINKc:
                     return mTYman_c;
 

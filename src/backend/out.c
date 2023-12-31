@@ -1005,9 +1005,6 @@ symbol *out_readonly_sym(tym_t ty, void *p, int len)
     if (config.objfmt == OBJ_ELF ||
         (MARS && (config.objfmt == OBJ_OMF || config.objfmt == OBJ_MSCOFF)))
     {
-        /* MACHOBJ can't go here, because the const data segment goes into
-         * the _TEXT segment, and one cannot have a fixup from _TEXT to _TEXT.
-         */
         s = objmod->sym_cdata(ty, (char *)p, len);
     }
     else

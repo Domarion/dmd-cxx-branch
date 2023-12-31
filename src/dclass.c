@@ -26,10 +26,8 @@
 #include "statement.h"
 #include "template.h"
 #include "target.h"
-#include "objc.h"
 
 bool symbolIsVisible(Dsymbol *origin, Dsymbol *s);
-Objc *objc();
 
 
 /********************************* ClassDeclaration ****************************/
@@ -820,8 +818,6 @@ Scope *InterfaceDeclaration::newScope(Scope *sc)
         sc2->linkage = LINKwindows;
     else if (classKind == ClassKind::cpp)
         sc2->linkage = LINKcpp;
-    else if (classKind == ClassKind::objc)
-        sc2->linkage = LINKobjc;
     return sc2;
 }
 

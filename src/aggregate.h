@@ -14,7 +14,6 @@
 
 #include "dsymbol.h"
 #include "declaration.h"
-#include "objc.h"
 
 class Identifier;
 class Type;
@@ -77,9 +76,7 @@ struct ClassKind
         /// the class is a d(efault) class
         d,
         /// the class is a C++ interface
-        cpp,
-        /// the class is an Objective-C class/interface
-        objc,
+        cpp
     };
 };
 

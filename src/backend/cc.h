@@ -669,9 +669,6 @@ typedef struct FUNC_S
 #if ELFOBJ
     unsigned LSDAoffset;        // offset in LSDA segment of the LSDA data for this function
 #endif
-#if MACHOBJ
-    Symbol *LSDAsym;            // GCC_except_table%d
-#endif
 } func_t;
 
 #define func_calloc()   ((func_t *) mem_fcalloc(sizeof(func_t)))

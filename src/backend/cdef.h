@@ -344,9 +344,6 @@ typedef targ_uns        targ_size_t;    /* size_t for the target machine */
 #ifndef ELFOBJ
 #define ELFOBJ          TARGET_LINUX
 #endif
-#ifndef MACHOBJ
-#define MACHOBJ         0
-#endif
 
 #define SYMDEB_DWARF    TARGET_LINUX
 

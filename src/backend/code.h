@@ -581,7 +581,7 @@ struct seg_data
     Ledatarec *ledata;                  // current one we're filling in
 #endif
 
-#if 1 //ELFOBJ || MACHOBJ
+#if 1 //ELFOBJ
     IDXSEC               SDshtidx;      // section header table index
     Outbuffer           *SDbuf;         // buffer to hold data
     Outbuffer           *SDrel;         // buffer to hold relocation info

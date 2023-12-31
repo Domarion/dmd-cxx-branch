@@ -151,7 +151,6 @@ Msgtable msgtable[] =
     { "D", NULL },
     { "Windows", NULL },
     { "System", NULL },
-    { "Objective", NULL },
 
     { "exit", NULL },
     { "success", NULL },

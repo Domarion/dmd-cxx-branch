@@ -151,12 +151,6 @@ void Target::_init(const Param &params)
         realpad = 2;
         realalignsize = 4;
     }
-    else if (params.isOSX)
-    {
-        realsize = 16;
-        realpad = 6;
-        realalignsize = 16;
-    }
     else if (params.isWindows)
     {
         realsize = 10;
@@ -186,8 +180,6 @@ void Target::_init(const Param &params)
 
     if (params.isLinux || params.isFreeBSD || params.isOpenBSD || params.isSolaris)
         c.longsize = 4;
-    else if (params.isOSX)
-        c.longsize = 4;
     else if (params.isWindows)
         c.longsize = 4;
     else
@@ -195,8 +187,6 @@ void Target::_init(const Param &params)
     if (params.is64bit)
     {
         if (params.isLinux || params.isFreeBSD || params.isSolaris)
-            c.longsize = 8;
-        else if (params.isOSX)
             c.longsize = 8;
     }
     if (params.is64bit && params.isWindows)
@@ -211,16 +201,11 @@ void Target::_init(const Param &params)
     if (params.isLinux || params.isFreeBSD
         || params.isOpenBSD || params.isSolaris)
         cpp.twoDtorInVtable = true;
-    else if (params.isOSX)
-        cpp.twoDtorInVtable = true;
     else if (params.isWindows)
         cpp.reverseOverloads = true;
     else
         assert(0);
-    cpp.exceptions = params.isLinux || params.isFreeBSD || params.isOSX;
-
-    if (params.isOSX && params.is64bit)
-        objc.supported = true;
+    cpp.exceptions = params.isLinux || params.isFreeBSD;
 }
 
 /******************************
@@ -239,7 +224,7 @@ unsigned Target::alignsize(Type* type)
             return Target::realalignsize;
 
         case Tcomplex32:
-            if (global.params.isLinux || global.params.isOSX || global.params.isFreeBSD
+            if (global.params.isLinux || global.params.isFreeBSD
                 || global.params.isOpenBSD || global.params.isSolaris)
                 return 4;
             break;
@@ -249,7 +234,7 @@ unsigned Target::alignsize(Type* type)
         case Tfloat64:
         case Timaginary64:
         case Tcomplex64:
-            if (global.params.isLinux || global.params.isOSX || global.params.isFreeBSD
+            if (global.params.isLinux || global.params.isFreeBSD
                 || global.params.isOpenBSD || global.params.isSolaris)
                 return global.params.is64bit ? 8 : 4;
             break;
@@ -286,8 +271,7 @@ Type *Target::va_listType(const Loc &loc, Scope *sc)
     else if (global.params.isLinux ||
              global.params.isFreeBSD ||
              global.params.isOpenBSD ||
-             global.params.isSolaris ||
-             global.params.isOSX)
+             global.params.isSolaris)
     {
         if (global.params.is64bit)
         {
@@ -319,7 +303,7 @@ Type *Target::va_listType(const Loc &loc, Scope *sc)
 
 int Target::isVectorTypeSupported(int sz, Type *type)
 {
-    if (!global.params.is64bit && !global.params.isOSX)
+    if (!global.params.is64bit)
         return 1; // not supported
 
     switch (type->ty)
@@ -574,7 +558,7 @@ L2:
         //printf("  3 true\n");
         return true;
     }
-    else if ((global.params.isLinux || global.params.isOSX || global.params.isFreeBSD || global.params.isSolaris) &&
+    else if ((global.params.isLinux || global.params.isFreeBSD || global.params.isSolaris) &&
              tf->linkage == LINKc &&
              tns->iscomplex())
     {
@@ -618,8 +602,6 @@ Expression *Target::getTargetInfo(const char* name, const Loc& loc)
             {
                 if (global.params.isWindows)
                     return new StringExp(loc, const_cast<char*>(global.params.mscoff ? "coff" : "omf"));
-                else if (global.params.isOSX)
-                    return new StringExp(loc, const_cast<char*>("macho"));
                 else
                     return new StringExp(loc, const_cast<char*>("elf"));
             }

@@ -16,7 +16,6 @@
 #include "init.h"
 #include "module.h"
 #include "nspace.h"
-#include "objc.h"
 #include "scope.h"
 #include "staticassert.h"
 #include "template.h"
@@ -24,7 +23,6 @@
 
 bool evalStaticCondition(Scope *sc, Expression *exp, Expression *e, bool &errors);
 void udaExpressionEval(Scope *sc, Expressions *exps);
-Objc *objc();
 
 class Semantic2Visitor : public Visitor
 {
@@ -288,13 +286,6 @@ public:
         assert(fd->semanticRun <= PASSsemantic2);
         fd->semanticRun = PASSsemantic2;
 
-        objc()->setSelector(fd, sc);
-        objc()->validateSelector(fd);
-
-        if (fd->parent->isClassDeclaration())
-        {
-            objc()->checkLinkage(fd);
-        }
         if (!fd->type || fd->type->ty != Tfunction)
             return;
         TypeFunction *f = fd->type->toTypeFunction();

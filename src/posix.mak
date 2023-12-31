@@ -233,12 +233,6 @@ BACK_FLAGS += \
 	-std=gnu++11
 endif
 
-ifeq ($(OS), osx)
-ifeq ($(MODEL), 64)
-D_OBJC := 1
-endif
-endif
-
 DMD_OBJS = \
 	access.o attrib.o \
 	dcast.o \
@@ -258,7 +252,7 @@ DMD_OBJS = \
 	builtin.o ctfeexpr.o clone.o aliasthis.o \
 	arrayop.o json.o unittests.o \
 	imphint.o argtypes.o apply.o sapply.o safe.o sideeffect.o \
-	intrange.o blockexit.o canthrow.o target.o nspace.o objc.o errors.o \
+	intrange.o blockexit.o canthrow.o target.o nspace.o errors.o \
 	escape.o tokens.o globals.o \
 	utils.o chkformat.o \
 	dsymbolsem.o semantic2.o semantic3.o statementsem.o templateparamsem.o typesem.o
@@ -275,11 +269,7 @@ GLUE_OBJS = \
 	irstate.o typinf.o iasm.o iasmdmd.o iasmgcc.o
 
 
-ifeq ($(D_OBJC),1)
-	GLUE_OBJS += objc_glue.o
-else
-	GLUE_OBJS += objc_glue_stubs.o
-endif
+GLUE_OBJS += objc_glue_stubs.o
 
 ifeq (osx,$(OS))
     GLUE_OBJS += libmach.o scanmach.o
@@ -328,7 +318,7 @@ SRC = win32.mak posix.mak osmodel.mak \
 	intrange.h intrange.c blockexit.c canthrow.c target.c target.h \
 	scanmscoff.c scanomf.c ctfe.h ctfeexpr.c \
 	ctfe.h ctfeexpr.c visitor.h nspace.h nspace.c errors.h errors.c \
-	escape.c tokens.h tokens.c globals.h globals.c objc.c objc.h \
+	escape.c tokens.h tokens.c globals.h globals.c \
 	utils.c chkformat.c \
 	dsymbolsem.c semantic2.c semantic3.c statementsem.c templateparamsem.c typesem.c
 
@@ -600,12 +590,7 @@ endif
 	gcov msc.c
 	gcov mtype.c
 	gcov nspace.c
-ifeq ($(D_OBJC),1)
-	gcov objc.c
-	gcov objc_glue.c
-else
 	gcov objc_glue_stubs.c
-endif
 	gcov opover.c
 	gcov optimize.c
 	gcov parse.c

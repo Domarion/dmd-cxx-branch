@@ -263,7 +263,6 @@ elem *callfunc(Loc loc,
             eresult = ehidden;
         }
         if ((global.params.isLinux ||
-             global.params.isOSX ||
              global.params.isFreeBSD ||
              global.params.isSolaris) && tf->linkage != LINKd)
             ;   // ehidden goes last on Linux/OSX C++
@@ -488,10 +487,6 @@ if (I32) assert(tysize[TYnptr] == 4);
 
     if (retmethod == RETstack)
     {
-        if (global.params.isOSX && eresult)
-            /* ABI quirk: hidden pointer is not returned in registers
-             */
-            e = el_combine(e, el_copytree(eresult));
         e->Ety = TYnptr;
         e = el_una(OPind, tyret, e);
     }

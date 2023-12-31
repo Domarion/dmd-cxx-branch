@@ -140,7 +140,6 @@ FuncDeclaration::FuncDeclaration(Loc loc, Loc endloc, Identifier *id, StorageCla
     flags = 0;
     returns = NULL;
     gotos = NULL;
-    selector = NULL;
 }
 
 FuncDeclaration *FuncDeclaration::create(Loc loc, Loc endloc, Identifier *id, StorageClass storage_class, Type *type)

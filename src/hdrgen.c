@@ -1283,7 +1283,6 @@ public:
             case LINKc:             p = "C";                break;
             case LINKcpp:           p = "C++";              break;
             case LINKwindows:       p = "Windows";          break;
-            case LINKobjc:          p = "Objective-C";      break;
             default:
                 assert(0);
                 break;
@@ -3441,7 +3440,6 @@ const char *linkageToChars(LINK linkage)
         case LINKc:         return "C";
         case LINKcpp:       return "C++";
         case LINKwindows:   return "Windows";
-        case LINKobjc:      return "Objective-C";
         case LINKsystem:    return "System";
         default:            assert(0);
     }

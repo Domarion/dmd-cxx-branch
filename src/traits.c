@@ -1514,9 +1514,6 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
                     case ClassKind::cpp:
                         link = LINKcpp;
                         break;
-                    case ClassKind::objc:
-                        link = LINKobjc;
-                        break;
                     default:
                         assert(0);
                 }

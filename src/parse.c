@@ -1375,22 +1375,6 @@ LINK Parser::parseLinkage(Identifiers **pidents, CPPMANGLE *pcppmangle, bool *pc
                 }
             }
         }
-        else if (id == Id::Objective) // Looking for tokens "Objective-C"
-        {
-            if (token.value == TOKmin)
-            {
-                nextToken();
-                if (token.ident == Id::C)
-                {
-                    link = LINKobjc;
-                    nextToken();
-                }
-                else
-                    goto LinvalidLinkage;
-            }
-            else
-                goto LinvalidLinkage;
-        }
         else if (id == Id::System)
         {
             link = LINKsystem;
@@ -1398,7 +1382,7 @@ LINK Parser::parseLinkage(Identifiers **pidents, CPPMANGLE *pcppmangle, bool *pc
         else
         {
         LinvalidLinkage:
-            error("valid linkage identifiers are D, C, C++, Objective-C, Windows, System");
+            error("valid linkage identifiers are D, C, C++, Windows, System");
             link = LINKd;
         }
     }

@@ -230,7 +230,6 @@ Symbol *toSymbol(Dsymbol *s)
                     m = global.params.is64bit ? mTYman_c : mTYman_std;
                     break;
 
-                case LINKobjc:
                 case LINKc:
                     m = mTYman_c;
                     break;
@@ -327,7 +326,6 @@ Symbol *toSymbol(Dsymbol *s)
                         break;
 
                     case LINKc:
-                    case LINKobjc:
                         t->Tmangle = mTYman_c;
                         break;
 
