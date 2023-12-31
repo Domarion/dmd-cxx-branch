@@ -236,9 +236,11 @@ bool Statement::hasCode()
             }
         }
 
-        void visit(CompoundStatement *) {}
-        void visit(ScopeStatement *)    {}
-        void visit(ImportStatement *)   {}
+        void visit(CompoundStatement *){}
+        void visit(ScopeStatement *){}
+        void visit(ImportStatement *){}
+        void visit(CaseStatement *){}
+        void visit(DefaultStatement *){}
     };
 
     HasCode hc;

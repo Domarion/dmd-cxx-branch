@@ -96,14 +96,16 @@ int blockExit(Statement *s, FuncDeclaration *func, bool mustNotThrow)
                             // Allow if last case/default was empty
                             CaseStatement *sc = slast->isCaseStatement();
                             DefaultStatement *sd = slast->isDefaultStatement();
-                            if (sc && (!sc->statement->hasCode() || sc->statement->isCaseStatement() || sc->statement->isErrorStatement()))
-                                ;
-                            else if (sd && (!sd->statement->hasCode() || sd->statement->isCaseStatement() || sd->statement->isErrorStatement()))
-                                ;
+
+                            Statement* sl = (sc ? sc->statement : (sd ? sd->statement : nullptr));
+
+                            if (sl && (!sl->hasCode() || sl->isErrorStatement()))
+                            {
+                            }
                             else
                             {
                                 const char *gototype = s->isCaseStatement() ? "case" : "default";
-                                s->deprecation("switch case fallthrough - use 'goto %s;' if intended", gototype);
+                                s->error("switch case fallthrough - use 'goto %s;' if intended", gototype);
                             }
                         }
                     }
