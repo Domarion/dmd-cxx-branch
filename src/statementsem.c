@@ -467,6 +467,9 @@ public:
                 ((CommaExp *)fs->increment)->allowCommaExp = true;
             fs->increment = expressionSemantic(fs->increment, sc);
             fs->increment = resolveProperties(sc, fs->increment);
+
+            discardValue(fs->increment);
+
             if (checkNonAssignmentArrayOp(fs->increment))
                 fs->increment = ErrorExp::get();
             fs->increment = fs->increment->optimize(WANTvalue);

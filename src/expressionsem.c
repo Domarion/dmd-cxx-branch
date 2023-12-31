@@ -6815,8 +6815,15 @@ public:
             return setError();
 
         e->type = e->e2->type;
-        if (e->type != Type::tvoid && !e->allowCommaExp && !e->isGenerated)
-            e->deprecation("Using the result of a comma expression is deprecated");
+        if (e->type == Type::tvoid)
+        {
+            discardValue(e->e1);
+        }
+        else if (!e->allowCommaExp && !e->isGenerated)
+        {
+            e->error("Using the result of a comma expression is not allowed");
+        }
+
         result = e;
     }
 
@@ -7155,7 +7162,7 @@ public:
             /* Rewrite to get rid of the comma from rvalue
             */
             if (!((CommaExp *)exp->e2)->isGenerated)
-                exp->deprecation("Using the result of a comma expression is deprecated");
+                exp->error("Using the result of a comma expression is not allowed");
             Expression *e0;
             exp->e2 = Expression::extractLast(exp->e2, &e0);
             Expression *e = Expression::combine(e0, exp);
