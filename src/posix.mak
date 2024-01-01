@@ -154,7 +154,7 @@ MMD=-MMD -MF $(basename $@).deps
 # Default compiler flags for all source files
 CXXFLAGS := $(WARNINGS) \
 	-fno-exceptions -fno-rtti \
-	-D__pascal= -DMARS=1 -DTARGET_$(OS_UPCASE)=1 -DDM_TARGET_CPU_$(TARGET_CPU)=1 \
+	-DMARS=1 -DTARGET_$(OS_UPCASE)=1 -DDM_TARGET_CPU_$(TARGET_CPU)=1 \
 	$(MODEL_FLAG) $(PIC)
 # GCC Specific
 ifeq ($(CXX_KIND), g++)

@@ -26,9 +26,9 @@ vec_t vec_clone (vec_t v);
 void vec_free (vec_t v);
 vec_t vec_realloc (vec_t v , size_t numbits);
 #if _M_I86 && __INTSIZE == 4 && __SC__
-void __pascal vec_setbit (size_t b , vec_t v);
-void __pascal vec_clearbit (size_t b , vec_t v);
-size_t  __pascal vec_testbit (size_t b , vec_t v);
+void vec_setbit (size_t b , vec_t v);
+void vec_clearbit (size_t b , vec_t v);
+size_t vec_testbit (size_t b , vec_t v);
 #else
 void vec_setbit (size_t b , vec_t v);
 void vec_clearbit (size_t b , vec_t v);
