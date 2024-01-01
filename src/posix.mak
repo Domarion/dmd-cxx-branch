@@ -159,12 +159,12 @@ CXXFLAGS := $(WARNINGS) \
 # GCC Specific
 ifeq ($(CXX_KIND), g++)
 CXXFLAGS += \
-	-std=c++11
+	-std=c++17
 endif
 # Clang Specific
 ifeq ($(CXX_KIND), clang++)
 CXXFLAGS += \
-	-xc++ -std=c++11
+	-xc++ -std=c++17
 endif
 # Default D compiler flags for all source files
 DFLAGS := -version=MARS $(PIC)
@@ -230,7 +230,7 @@ ROOT_FLAGS := -I$(ROOT) $(ROOT_WARNINGS)
 # GCC Specific
 ifeq ($(CXX_KIND), g++)
 BACK_FLAGS += \
-	-std=gnu++11
+	-std=gnu++17
 endif
 
 DMD_OBJS = \
