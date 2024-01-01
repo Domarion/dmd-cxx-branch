@@ -103,7 +103,6 @@ public:
     TypeTuple *toArgTypes(Type *t);
     bool isReturnOnStack(TypeFunction *tf, bool needsThis);
     Expression *getTargetInfo(const char* name, const Loc& loc);
-    bool libraryObjectMonitors(FuncDeclaration *fd, Statement *fbody);
 };
 
 extern Target target;

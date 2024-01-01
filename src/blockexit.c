@@ -338,11 +338,6 @@ int blockExit(Statement *s, FuncDeclaration *func, bool mustNotThrow)
             result = s->ident ? BEgoto : BEcontinue;
         }
 
-        void visit(SynchronizedStatement *s)
-        {
-            result = s->_body ? blockExit(s->_body, func, mustNotThrow) : BEfallthru;
-        }
-
         void visit(WithStatement *s)
         {
             result = BEnone;

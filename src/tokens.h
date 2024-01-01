@@ -139,7 +139,7 @@ enum TOK
         // Statements
         TOKif, TOKelse, TOKwhile, TOKfor, TOKdo, TOKswitch,
         TOKcase, TOKdefault, TOKbreak, TOKcontinue, TOKwith,
-        TOKsynchronized, TOKreturn, TOKgoto, TOKtry, TOKcatch, TOKfinally,
+        TOKreturn, TOKgoto, TOKtry, TOKcatch, TOKfinally,
         TOKasm, TOKforeach, TOKforeach_reverse,
         TOKscope,
         TOKon_scope_exit, TOKon_scope_failure, TOKon_scope_success,

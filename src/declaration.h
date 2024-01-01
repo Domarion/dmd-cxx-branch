@@ -53,7 +53,6 @@ enum PINLINE;
 #define STCfield        0x40LL
 #define STCoverride     0x80LL
 #define STCauto         0x100LL
-#define STCsynchronized 0x200LL
 #define STCdeprecated   0x400LL
 #define STCin           0x800LL         // in parameter
 #define STCout          0x1000LL        // out parameter
@@ -102,7 +101,7 @@ enum PINLINE;
 #define STClocal         0x8000000000000LL // do not forward (see ddmd.dsymbol.ForwardingScopeDsymbol).
 
 const StorageClass STCStorageClass = (STCauto | STCscope | STCstatic | STCextern | STCconst | STCfinal |
-    STCabstract | STCsynchronized | STCdeprecated | STCfuture | STCoverride | STClazy | STCalias |
+    STCabstract | STCdeprecated | STCfuture | STCoverride | STClazy | STCalias |
     STCout | STCin |
     STCmanifest | STCimmutable | STCshared | STCwild | STCnothrow | STCnogc | STCpure | STCref | STCtls |
     STCgshared | STCproperty | STCsafe | STCtrusted | STCsystem | STCdisable | STClocal);
@@ -156,7 +155,6 @@ public:
     bool isWild()         { return (storage_class & STCwild) != 0; }
     bool isAuto()         { return (storage_class & STCauto) != 0; }
     bool isScope()        { return (storage_class & STCscope) != 0; }
-    bool isSynchronized() { return (storage_class & STCsynchronized) != 0; }
     bool isParameter()    { return (storage_class & STCparameter) != 0; }
     bool isDeprecated()   { return (storage_class & STCdeprecated) != 0; }
     bool isDisabled()     { return (storage_class & STCdisable) != 0; }

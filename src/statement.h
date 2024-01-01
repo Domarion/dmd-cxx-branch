@@ -559,20 +559,6 @@ public:
     void accept(Visitor *v) { v->visit(this); }
 };
 
-class SynchronizedStatement : public Statement
-{
-public:
-    Expression *exp;
-    Statement *_body;
-
-    SynchronizedStatement(Loc loc, Expression *exp, Statement *body);
-    Statement *syntaxCopy();
-    bool hasBreak();
-    bool hasContinue();
-
-    void accept(Visitor *v) { v->visit(this); }
-};
-
 class WithStatement : public Statement
 {
 public:

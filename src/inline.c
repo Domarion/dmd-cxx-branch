@@ -985,12 +985,6 @@ public:
         inlineScan(&s->exp);
     }
 
-    void visit(SynchronizedStatement *s)
-    {
-        inlineScan(&s->exp);
-        inlineScan(&s->_body);
-    }
-
     void visit(WithStatement *s)
     {
         inlineScan(&s->exp);
@@ -1490,8 +1484,7 @@ bool canInline(FuncDeclaration *fd, int hasthis, int hdrscan, bool statementsToo
         (fd->ident == Id::require &&
          fd->toParent()->isFuncDeclaration() &&
          fd->toParent()->isFuncDeclaration()->needThis()) ||
-        (!hdrscan && (fd->isSynchronized() ||
-                      fd->isImportedSymbol() ||
+        (!hdrscan && (fd->isImportedSymbol() ||
                       fd->hasNestedFrameRefs() ||
                       (fd->isVirtual() && !fd->isFinalFunc()))))
     {

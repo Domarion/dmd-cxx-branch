@@ -189,7 +189,6 @@ bool Statement::usesEH()
         void visit(TryCatchStatement *)     { stop = true; }
         void visit(TryFinallyStatement *)   { stop = true; }
         void visit(ScopeGuardStatement *)      { stop = true; }
-        void visit(SynchronizedStatement *) { stop = true; }
     };
 
     UsesEH ueh;
@@ -1315,32 +1314,6 @@ ContinueStatement::ContinueStatement(Loc loc, Identifier *ident)
 Statement *ContinueStatement::syntaxCopy()
 {
     return new ContinueStatement(loc, ident);
-}
-
-/******************************** SynchronizedStatement ***************************/
-
-SynchronizedStatement::SynchronizedStatement(Loc loc, Expression *exp, Statement *body)
-    : Statement(loc)
-{
-    this->exp = exp;
-    this->_body = body;
-}
-
-Statement *SynchronizedStatement::syntaxCopy()
-{
-    return new SynchronizedStatement(loc,
-        exp ? exp->syntaxCopy() : NULL,
-        _body ? _body->syntaxCopy() : NULL);
-}
-
-bool SynchronizedStatement::hasBreak()
-{
-    return false; //true;
-}
-
-bool SynchronizedStatement::hasContinue()
-{
-    return false; //true;
 }
 
 /******************************** WithStatement ***************************/

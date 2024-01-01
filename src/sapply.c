@@ -111,10 +111,6 @@ public:
     {
         doCond(s->statement) || applyTo(s);
     }
-    void visit(SynchronizedStatement *s)
-    {
-        doCond(s->_body) || applyTo(s);
-    }
     void visit(WithStatement *s)
     {
         doCond(s->_body) || applyTo(s);

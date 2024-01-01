@@ -265,7 +265,6 @@ static Keyword keywords[] =
     {   "default",      TOKdefault      },
     {   "break",        TOKbreak        },
     {   "continue",     TOKcontinue     },
-    {   "synchronized", TOKsynchronized },
     {   "return",       TOKreturn       },
     {   "goto",         TOKgoto         },
     {   "try",          TOKtry          },

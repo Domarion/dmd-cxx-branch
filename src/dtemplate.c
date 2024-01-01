@@ -1207,7 +1207,7 @@ MATCH TemplateDeclaration::deduceFunctionTemplateMatch(
                 mod = MODimmutable;
             else
             {
-                if (stc & (STCshared | STCsynchronized))
+                if (stc & STCshared)
                     mod |= MODshared;
                 if (stc & STCconst)
                     mod |= MODconst;

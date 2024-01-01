@@ -299,7 +299,7 @@ public:
         /* Pick up storage classes from context, but except synchronized,
          * override, abstract, and final.
          */
-        dsym->storage_class |= (sc->stc & ~(STCsynchronized | STCoverride | STCabstract | STCfinal));
+        dsym->storage_class |= (sc->stc & ~(STCoverride | STCabstract | STCfinal));
         if (dsym->storage_class & STCextern && dsym->_init)
             dsym->error("extern symbols cannot have initializers");
 
@@ -611,7 +611,7 @@ public:
         else if (dsym->type->isWild())
             dsym->storage_class |= STCwild;
 
-        if (StorageClass stc = dsym->storage_class & (STCsynchronized | STCoverride | STCabstract | STCfinal))
+        if (StorageClass stc = dsym->storage_class & (STCoverride | STCabstract | STCfinal))
         {
             if (stc == STCfinal)
                 dsym->error("cannot be final, perhaps you meant const?");
@@ -2529,7 +2529,7 @@ public:
         // https://issues.dlang.org/show_bug.cgi?id=16627
         if (ad && !funcdecl->generated)
         {
-            funcdecl->storage_class |= ad->storage_class & (STC_TYPECTOR | STCsynchronized);
+            funcdecl->storage_class |= ad->storage_class & STC_TYPECTOR;
             ad->makeNested();
         }
         if (sc->func)
@@ -2674,7 +2674,7 @@ public:
                 stc |= STCimmutable;
             if (funcdecl->type->isConst())
                 stc |= STCconst;
-            if (funcdecl->type->isShared() || funcdecl->storage_class & STCsynchronized)
+            if (funcdecl->type->isShared())
                 stc |= STCshared;
             if (funcdecl->type->isWild())
                 stc |= STCwild;
@@ -4517,21 +4517,6 @@ public:
             cldec->errors = true;
             if (cldec->deferred)
                 cldec->deferred->errors = true;
-        }
-
-        // Verify fields of a synchronized class are not public
-        if (cldec->storage_class & STCsynchronized)
-        {
-            for (size_t i = 0; i < cldec->fields.length; i++)
-            {
-                VarDeclaration *vd = cldec->fields[i];
-                if (!vd->isThisDeclaration() &&
-                    !vd->prot().isMoreRestrictiveThan(Prot(Prot::public_)))
-                {
-                    vd->error("Field members of a synchronized class cannot be %s",
-                        protectionToChars(vd->prot().kind));
-                }
-            }
         }
 
         if (cldec->deferred && !global.gag)

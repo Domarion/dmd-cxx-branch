@@ -1027,8 +1027,6 @@ void toDocBuffer(Dsymbol *s, OutBuffer *buf, Scope *sc)
                         buf->writestring("const ");
                     if (d->isImmutable())
                         buf->writestring("immutable ");
-                    if (d->isSynchronized())
-                        buf->writestring("synchronized ");
 
                     if (d->storage_class & STCmanifest)
                         buf->writestring("enum ");

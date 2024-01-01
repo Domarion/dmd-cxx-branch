@@ -1155,8 +1155,7 @@ FuncDeclaration *buildInv(AggregateDeclaration *ad, Scope *sc)
                 {
                     // What should do?
                 }
-                StorageClass stcy = (ad->invs[i]->storage_class & STCsynchronized) |
-                                    (ad->invs[i]->type->mod & MODshared ? STCshared : 0);
+                StorageClass stcy = (ad->invs[i]->type->mod & MODshared ? STCshared : 0);
                 if (i == 0)
                     stcx = stcy;
                 else if (stcx ^ stcy)

@@ -552,22 +552,6 @@ public:
         buf->writenl();
     }
 
-    void visit(SynchronizedStatement *s)
-    {
-        buf->writestring("synchronized");
-        if (s->exp)
-        {
-            buf->writeByte('(');
-            s->exp->accept(this);
-            buf->writeByte(')');
-        }
-        if (s->_body)
-        {
-            buf->writeByte(' ');
-            s->_body->accept(this);
-        }
-    }
-
     void visit(WithStatement *s)
     {
         buf->writestring("with (");
@@ -3352,7 +3336,6 @@ const char *stcToChars(StorageClass& stc)
         { STCconst,        TOKconst,    NULL },
         { STCfinal,        TOKfinal,    NULL },
         { STCabstract,     TOKabstract, NULL },
-        { STCsynchronized, TOKsynchronized, NULL },
         { STCdeprecated,   TOKdeprecated, NULL },
         { STCoverride,     TOKoverride, NULL },
         { STClazy,         TOKlazy,     NULL },

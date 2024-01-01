@@ -1423,15 +1423,6 @@ public:
     /****************************************
      */
 
-    void visit(SynchronizedStatement *s)
-    {
-        assert(0);
-    }
-
-
-    /****************************************
-     */
-
     void visit(InlineAsmStatement *s)
     {
         block *bpre;

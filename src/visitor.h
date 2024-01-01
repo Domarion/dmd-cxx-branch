@@ -42,7 +42,6 @@ class SwitchErrorStatement;
 class ReturnStatement;
 class BreakStatement;
 class ContinueStatement;
-class SynchronizedStatement;
 class WithStatement;
 class TryCatchStatement;
 class TryFinallyStatement;
@@ -336,7 +335,6 @@ public:
     virtual void visit(ReturnStatement *s) { visit((Statement *)s); }
     virtual void visit(BreakStatement *s) { visit((Statement *)s); }
     virtual void visit(ContinueStatement *s) { visit((Statement *)s); }
-    virtual void visit(SynchronizedStatement *s) { visit((Statement *)s); }
     virtual void visit(WithStatement *s) { visit((Statement *)s); }
     virtual void visit(TryCatchStatement *s) { visit((Statement *)s); }
     virtual void visit(TryFinallyStatement *s) { visit((Statement *)s); }

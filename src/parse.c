@@ -556,7 +556,6 @@ Dsymbols *Parser::parseDeclDefs(int once, Dsymbol **pLastDecl, PrefixAttributes 
             case TOKscope:        stc = STCscope;        goto Lstc;
             case TOKoverride:     stc = STCoverride;     goto Lstc;
             case TOKabstract:     stc = STCabstract;     goto Lstc;
-            case TOKsynchronized: stc = STCsynchronized; goto Lstc;
             case TOKnothrow:      stc = STCnothrow;      goto Lstc;
             case TOKpure:         stc = STCpure;         goto Lstc;
             case TOKref:          stc = STCref;          goto Lstc;
@@ -3757,7 +3756,6 @@ void Parser::parseStorageClasses(StorageClass &storage_class, LINK &link,
             case TOKscope:      stc = STCscope;          goto L1;
             case TOKoverride:   stc = STCoverride;       goto L1;
             case TOKabstract:   stc = STCabstract;       goto L1;
-            case TOKsynchronized: stc = STCsynchronized; goto L1;
             case TOKdeprecated: stc = STCdeprecated;     goto L1;
             case TOKnothrow:    stc = STCnothrow;        goto L1;
             case TOKpure:       stc = STCpure;           goto L1;
@@ -5909,28 +5907,6 @@ Statement *Parser::parseStatement(int flags, const utf8_t** endPtr, Loc *pEndloc
             break;
         }
 
-        case TOKsynchronized:
-        {   Expression *exp;
-            Statement *body;
-
-            Token *t = peek(&token);
-            if (skipAttributes(t, &t) && t->value == TOKclass)
-                goto Ldeclaration;
-
-            nextToken();
-            if (token.value == TOKlparen)
-            {
-                nextToken();
-                exp = parseExpression();
-                check(TOKrparen);
-            }
-            else
-                exp = NULL;
-            body = parseStatement(PSscope);
-            s = new SynchronizedStatement(loc, exp, body);
-            break;
-        }
-
         case TOKwith:
         {   Expression *exp;
             Statement *body;
@@ -6869,7 +6845,6 @@ bool Parser::skipAttributes(Token *t, Token **pt)
             case TOKscope:
             case TOKoverride:
             case TOKabstract:
-            case TOKsynchronized:
                 break;
             case TOKdeprecated:
                 if (peek(t)->value == TOKlparen)

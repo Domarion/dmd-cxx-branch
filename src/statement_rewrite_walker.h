@@ -122,11 +122,6 @@ public:
     void visit(ReturnStatement *) {  }
     void visit(BreakStatement *) {  }
     void visit(ContinueStatement *) {  }
-    void visit(SynchronizedStatement *s)
-    {
-        if (s->_body)
-            visitStmt(s->_body);
-    }
     void visit(WithStatement *s)
     {
         if (s->_body)

@@ -1140,38 +1140,6 @@ public:
                 // from this point on all possible 'throwers' are checked
                 funcdecl->flags &= ~FUNCFLAGnothrowInprocess;
 
-                if (funcdecl->isSynchronized())
-                {
-                    /* Wrap the entire function body in a synchronized statement
-                    */
-                    ClassDeclaration *cd = funcdecl->isThis() ? funcdecl->isThis()->isClassDeclaration() : funcdecl->parent->isClassDeclaration();
-
-                    if (cd)
-                    {
-                        if (target.libraryObjectMonitors(funcdecl, sbody))
-                        {
-                            Expression *vsync;
-                            if (funcdecl->isStatic())
-                            {
-                                // The monitor is in the ClassInfo
-                                vsync = new DotIdExp(funcdecl->loc, resolve(funcdecl->loc, sc2, cd, false), Id::classinfo);
-                            }
-                            else
-                            {
-                                // 'this' is the monitor
-                                vsync = new VarExp(funcdecl->loc, funcdecl->vthis);
-                            }
-                            sbody = new PeelStatement(sbody);       // don't redo semantic()
-                            sbody = new SynchronizedStatement(funcdecl->loc, vsync, sbody);
-                            sbody = statementSemantic(sbody, sc2);
-                        }
-                    }
-                    else
-                    {
-                        funcdecl->error("synchronized function %s must be a member of a class", funcdecl->toChars());
-                    }
-                }
-
                 // If declaration has no body, don't set sbody to prevent incorrect codegen.
                 if (funcdecl->fbody || allowsContractWithoutBody(funcdecl))
                     funcdecl->fbody = sbody;
