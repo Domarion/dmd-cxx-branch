@@ -8,10 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if __DMC__
-#pragma once
-#endif
-
 #ifndef GO_H
 #define GO_H 1
 

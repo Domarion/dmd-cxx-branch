@@ -2079,14 +2079,6 @@ void MsCoffObj::addrel(segidx_t seg, targ_size_t offset, symbol *targsym,
  * Sort the relocation entry buffer.
  */
 
-#if __DMC__
-static int __cdecl rel_fp(const void *e1, const void *e2)
-{   Relocation *r1 = (Relocation *)e1;
-    Relocation *r2 = (Relocation *)e2;
-
-    return r1->offset - r2->offset;
-}
-#else
 extern "C" {
 static int rel_fp(const void *e1, const void *e2)
 {   Relocation *r1 = (Relocation *)e1;
@@ -2095,7 +2087,6 @@ static int rel_fp(const void *e1, const void *e2)
     return r1->offset - r2->offset;
 }
 }
-#endif
 
 void mach_relsort(Outbuffer *buf)
 {

@@ -16,11 +16,8 @@
 #include        <fcntl.h>
 #include        <ctype.h>
 
-#if __DMC__ || __linux__
-#include        <malloc.h>
-#endif
-
 #if __linux__
+#include        <malloc.h>
 #include        <signal.h>
 #include        <unistd.h>
 #include        <errno.h>

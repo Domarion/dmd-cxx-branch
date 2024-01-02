@@ -11,9 +11,6 @@
 #ifndef DMD_LIB_H
 #define DMD_LIB_H
 
-#ifdef __DMC__
-#pragma once
-#endif /* __DMC__ */
 
 Library *LibMSCoff_factory();
 Library *LibOMF_factory();

@@ -97,29 +97,6 @@ code *setOpcode(code *c, code *cs, unsigned op)
  * Concatenate two code lists together. Return pointer to result.
  */
 
-#if TX86 && __INTSIZE == 4 && __DMC__
-__declspec(naked) code * cat(code *c1,code *c2)
-{
-    _asm
-    {
-        mov     EAX,c1-4[ESP]
-        mov     ECX,c2-4[ESP]
-        test    EAX,EAX
-        jne     L6D
-        mov     EAX,ECX
-        ret     8
-
-L6D:    mov     EDX,EAX
-        cmp     dword ptr [EAX],0
-        je      L7B
-L74:    mov     EDX,[EDX]
-        cmp     dword ptr [EDX],0
-        jne     L74
-L7B:    mov     [EDX],ECX
-        ret     8
-    }
-}
-#else
 code * cat(code *c1,code *c2)
 {   code **pc;
 
@@ -130,7 +107,6 @@ code * cat(code *c1,code *c2)
     *pc = c2;
     return c1;
 }
-#endif
 
 code * cat3(code *c1,code *c2,code *c3)
 {   code **pc;

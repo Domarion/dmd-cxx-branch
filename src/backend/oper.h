@@ -8,11 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-
-#if __DMC__
-#pragma once
-#endif
-
 #ifndef OPER_H
 #define OPER_H  1
 

@@ -79,7 +79,7 @@ extern int mem_inited;          /* != 0 if mem package is initialized.  */
  */
 
 #if !MEM_NONE
-#if __SC__ || __DMC__ || __GNUC__
+#if __SC__ || __GNUC__
 enum MEM_E { MEM_ABORTMSG, MEM_ABORT, MEM_RETNULL, MEM_CALLFP, MEM_RETRY };
 void mem_setexception(enum MEM_E,...);
 #else

@@ -91,10 +91,6 @@ longdouble strtold_dm(const char *p,char **endp)
         int pow;
         int ndigits;
         const char *pinit = p;
-#if __DMC__
-        static char infinity[] = "infinity";
-        static char nans[] = "nans";
-#endif
         unsigned int old_cw;
         while (isspace(*p))
             p++;
@@ -112,39 +108,6 @@ longdouble strtold_dm(const char *p,char **endp)
         msdec = lsdec = 0;
         msscale = 1;
         ndigits = 0;
-
-#if __DMC__
-        switch (*p)
-        {   case 'i':
-            case 'I':
-                if (memicmp(p,infinity,8) == 0)
-                {   p += 8;
-                    goto L4;
-                }
-                if (memicmp(p,infinity,3) == 0)         /* is it "inf"? */
-                {   p += 3;
-                L4:
-                    ldval = HUGE_VAL;
-                    goto L3;
-                }
-                break;
-            case 'n':
-            case 'N':
-                if (memicmp(p,nans,4) == 0)             /* "nans"?      */
-                {   p += 4;
-                    ldval = NANS;
-                    goto L5;
-                }
-                if (memicmp(p,nans,3) == 0)             /* "nan"?       */
-                {   p += 3;
-                    ldval = NAN;
-                L5:
-                    if (*p == '(')              /* if (n-char-sequence) */
-                        goto Lerr;              /* invalid input        */
-                    goto L3;
-                }
-        }
-#endif
 
         if (*p == '0' && (p[1] == 'x' || p[1] == 'X'))
         {   int guard = 0;
@@ -233,23 +196,6 @@ longdouble strtold_dm(const char *p,char **endp)
 
                 if (msdec)
                 {
-#if __DMC__
-                    // The 8087 has no instruction to load an
-                    // unsigned long long
-                    if (msdec < 0)
-                    {
-                        *(long long *)&ldval = msdec;
-                        ((unsigned short *)&ldval)[4] = 0x3FFF + 63;
-                    }
-                    else
-                    {   // But does for a signed one
-                        __asm
-                        {
-                            fild        qword ptr msdec
-                            fstp        tbyte ptr ldval
-                        }
-                    }
-#else
                     int e2 = 0x3FFF + 63;
 
                     // left justify mantissa
@@ -271,8 +217,6 @@ longdouble strtold_dm(const char *p,char **endp)
                     u.s.mantissa = msdec;
                     u.s.exp = e2;
                     ldval = u.ld;
-#endif
-
 #if 0
                     if (0)
                     {   int i;

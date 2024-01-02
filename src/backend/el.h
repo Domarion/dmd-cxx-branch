@@ -10,10 +10,6 @@
 
 /* Routines to handle elems.                            */
 
-#if __DMC__
-#pragma once
-#endif
-
 #ifndef EL_H
 #define EL_H    1
 

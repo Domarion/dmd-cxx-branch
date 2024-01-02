@@ -12,7 +12,6 @@
 /* Macros defined by the compiler, not the code:
 
     Compiler:
-        __DMC__         Digital Mars compiler
         __GNUC__        Gnu compiler
         __clang__       Clang compiler
         __llvm__        Compiler using LLVM as backend (LLVM-GCC/Clang)
@@ -50,7 +49,6 @@ One and only one of these macros must be set by the makefile:
 #define CDEF_H  1
 
 #define VERSION "8.58.0"        // for banner and imbedding in .OBJ file
-#define VERSIONHEX "0x858"      // for __DMC__ macro
 #define VERSIONINT 0x858        // for precompiled headers and DLL version
 
 
@@ -387,13 +385,6 @@ typedef targ_uns        targ_size_t;    /* size_t for the target machine */
 
 typedef unsigned        tym_t;          // data type big enough for type masks
 typedef int             SYMIDX;         // symbol table index
-
-#if 0
-#if defined(__DMC__) && __DMC__ < 0x81e
-typedef int bool;
-#endif
-#define bool int
-#endif
 
 #define _chkstack()     (void)0
 

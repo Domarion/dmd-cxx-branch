@@ -8,9 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if __DMC__
-#pragma once
-#endif
 
 #ifndef __TYPE_H
 #define __TYPE_H

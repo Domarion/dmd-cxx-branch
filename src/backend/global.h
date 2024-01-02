@@ -112,10 +112,6 @@ void util_assert(const char *, int) __attribute__((noreturn));
 #else
 void util_exit(int);
 void util_assert(const char *, int);
-#if __DMC__
-#pragma ZTC noreturn(util_exit)
-#pragma ZTC noreturn(util_assert)
-#endif
 #endif
 
 void util_progress();
@@ -151,10 +147,7 @@ void crlf(FILE *);
 char *unsstr(unsigned);
 int isignore(int);
 int isillegal(int);
-
-#if !defined(__DMC__)
 int ishex(int);
-#endif
 
 /* from cgcs.c */
 extern void comsubs(void);
@@ -191,11 +184,6 @@ void err_fatal(unsigned,...) __attribute__((analyzer_noreturn));
 void err_exit(void);
 void err_nomem(void);
 void err_fatal(unsigned,...);
-#if __DMC__
-#pragma ZTC noreturn(err_exit)
-#pragma ZTC noreturn(err_nomem)
-#pragma ZTC noreturn(err_fatal)
-#endif
 #endif
 
 int cpperr(unsigned,...);

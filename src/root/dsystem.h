@@ -46,15 +46,3 @@
 #include <unistd.h>
 #endif
 
-#ifdef __DMC__
-// If not present, dmc will error 'number is not representable'.
-#undef UINT64_MAX
-#define UINT64_MAX      18446744073709551615ULL
-#undef UINT32_MAX
-#define UINT32_MAX      4294967295U
-
-// If not present, dmc will error 'undefined identifier'.
-#ifndef INVALID_FILE_ATTRIBUTES
-#define INVALID_FILE_ATTRIBUTES -1L
-#endif
-#endif

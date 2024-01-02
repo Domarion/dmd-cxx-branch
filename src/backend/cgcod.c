@@ -94,14 +94,7 @@ regm_t msavereg;        // Mask of registers that we would like to save.
                         // they are temporaries (set by scodelem())
 regm_t mfuncreg;        // Mask of registers preserved by a function
 
-#if __DMC__
-extern "C" {
-// make sure it isn't merged with ALLREGS
-regm_t __cdecl allregs;         // ALLREGS optionally including mBP
-}
-#else
 regm_t allregs;                // ALLREGS optionally including mBP
-#endif
 
 int dfoidx;                     /* which block we are in                */
 struct CSE *csextab = NULL;     /* CSE table (allocated for each function) */
@@ -874,9 +867,6 @@ Lcont:
  */
 
 int
-#if __DMC__
- __cdecl
-#endif
  autosort_cmp(const void *ps1, const void *ps2)
 {
     symbol *s1 = *(symbol **)ps1;

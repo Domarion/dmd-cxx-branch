@@ -9,10 +9,6 @@
  */
 
 
-#if __DMC__
-#pragma once
-#endif
-
 #ifndef TY_H
 #define TY_H 1
 

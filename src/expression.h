@@ -1651,9 +1651,6 @@ private:
         char sliceexp  [sizeof(SliceExp)];
         char vectorexp [sizeof(VectorExp)];
     } u;
-#if defined(__DMC__)
-    #pragma pack()
-#endif
 };
 
 /****************************************************************/

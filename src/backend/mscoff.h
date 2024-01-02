@@ -3,10 +3,6 @@
 #include <time.h>
 #include <stdint.h>
 
-#if defined(__DMC__)
-#pragma ZTC align 1
-#endif
-
 /***********************************************/
 
 struct BIGOBJ_HEADER
@@ -277,9 +273,3 @@ union auxent
 };
 #pragma pack()
 
-
-/***********************************************/
-
-#if defined(__DMC__)
-#pragma ZTC align
-#endif

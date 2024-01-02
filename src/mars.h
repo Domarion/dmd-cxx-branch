@@ -21,7 +21,6 @@ dmd are:
 Macros defined by the compiler, not the code:
 
     Compiler:
-        __DMC__         Digital Mars compiler
         __GNUC__        Gnu compiler
         __clang__       Clang compiler
 
@@ -42,13 +41,6 @@ the target object file format:
 
 
 #include "root/dsystem.h"
-
-#ifdef __DMC__
-#ifdef DEBUG
-#undef assert
-#define assert(e) (static_cast<void>((e) || (printf("assert %s(%d) %s\n", __FILE__, __LINE__, #e), halt())))
-#endif
-#endif
 
 void unittests();
 

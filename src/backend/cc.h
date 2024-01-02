@@ -8,10 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if __DMC__
-#pragma once
-#endif
-
 #ifndef CC_H
 #define CC_H    1
 
@@ -299,11 +295,8 @@ extern Cstate cstate;
 //  done on it, so it is stack and register variables.)
 #define symbol_isintab(s)       (sytab[(s)->Sclass] & SCSS)
 
-#if defined(__DMC__)
-typedef char enum_SC;
-#else
 typedef enum SC enum_SC;
-#endif
+
 
 /******************************************
  * Basic blocks:
@@ -1188,10 +1181,6 @@ struct Symbol
     int needThis();             // !=0 if symbol needs a 'this' pointer
     bool Sisdead(bool anyiasm); // if variable is not referenced
 };
-
-#if __DMC__
-#pragma SC align
-#endif
 
 // Class, struct or union
 

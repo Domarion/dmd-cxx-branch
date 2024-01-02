@@ -24,10 +24,8 @@ static char __file__[] = __FILE__;      /* for tassert.h                */
 
 STATIC void el_weights(int bi,elem *e,unsigned weight);
 
-#ifndef __DMC__
 #undef __cdecl
 #define __cdecl
-#endif
 
 static int __cdecl weight_compare(const void *e1,const void *e2);
 

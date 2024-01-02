@@ -11,9 +11,6 @@
 #ifndef DMD_CONTEXT_H
 #define DMD_CONTEXT_H
 
-#ifdef __DMC__
-#pragma once
-#endif /* __DMC__ */
 
 class Module;
 class Statement;

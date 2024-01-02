@@ -237,11 +237,7 @@ __declspec(naked) int __pascal list_nitems(list_t list)
 
 #else
 
-#if __DMC__
-int __pascal list_nitems(list_t list)
-#else
 int list_nitems(list_t list)
-#endif
 {       register int n;
 
         n = 0;

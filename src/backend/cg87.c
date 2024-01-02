@@ -682,30 +682,18 @@ STATIC code * genftst(code *c,elem *e,int pop)
  */
 
 unsigned char loadconst(elem *e, int im)
-#if __DMC__
-__in
-{
-    elem_debug(e);
-    assert(im == 0 || im == 1);
-}
-__body
-#endif
 {
     static float fval[7] =
         {0.0,1.0,PI,LOG2T,LOG2E,LOG2,LN2};
     static double dval[7] =
         {0.0,1.0,PI,LOG2T,LOG2E,LOG2,LN2};
     static longdouble ldval[7] =
-#if __DMC__    // from math.h
-    {0.0,1.0,M_PI_L,M_LOG2T_L,M_LOG2E_L,M_LOG2_L,M_LN2_L};
-#else          // C99 hexadecimal floats (GCC, CLANG, ...)
 #define M_PI_L          0x1.921fb54442d1846ap+1L        // 3.14159 fldpi
 #define M_LOG2T_L       0x1.a934f0979a3715fcp+1L        // 3.32193 fldl2t
 #define M_LOG2E_L       0x1.71547652b82fe178p+0L        // 1.4427 fldl2e
 #define M_LOG2_L        0x1.34413509f79fef32p-2L        // 0.30103 fldlg2
 #define M_LN2_L         0x1.62e42fefa39ef358p-1L        // 0.693147 fldln2
     {0.0,1.0,M_PI_L,M_LOG2T_L,M_LOG2E_L,M_LOG2_L,M_LN2_L};
-#endif
     static unsigned char opcode[7 + 1] =
         /* FLDZ,FLD1,FLDPI,FLDL2T,FLDL2E,FLDLG2,FLDLN2,0 */
         {0xEE,0xE8,0xEB,0xE9,0xEA,0xEC,0xED,0};
@@ -3549,13 +3537,6 @@ STATIC code *genrnd(code *c, short cw)
  */
 
 STATIC code * genctst(code *c,elem *e,int pop)
-#if __DMC__
-__in
-{
-    assert(pop == 0 || pop == 1);
-}
-__body
-#endif
 {
     // Generate:
     //  if (NOSAHF && pop)
@@ -3782,25 +3763,6 @@ code *cdconvt87(elem *e, regm_t *pretregs)
  */
 
 code *cload87(elem *e, regm_t *pretregs)
-#if __DMC__
-__in
-{
-    //printf("e = %p, *pretregs = %s)\n", e, regm_str(*pretregs));
-    //elem_print(e);
-    assert(!I16);
-    if (I32)
-    {
-        assert(config.inline8087);
-        elem_debug(e);
-        assert(*pretregs & (mST01 | mPSW));
-        assert(!(*pretregs & ~(mST01 | mPSW)));
-    }
-}
-__out (result)
-{
-}
-__body
-#endif
 {
     tym_t ty = tybasic(e->Ety);
     code *c = NULL;

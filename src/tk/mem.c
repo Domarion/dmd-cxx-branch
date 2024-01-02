@@ -14,15 +14,11 @@
 #include        <stddef.h>
 
 #if __cplusplus
-#if __DMC__
-#include        <new.h>
-#else
 #include        <new>
-#endif
 #endif
 
 #ifndef malloc
-#if __SC__ || __DMC__ ||  _MSC_VER
+#if __SC__ || _MSC_VER
 #include        <malloc.h>
 #else
 #include        <stdlib.h>
@@ -545,7 +541,7 @@ void *mem_realloc_debug(void *oldp, size_t n, const char *fil, int lin)
 
 static void mem_checkdl(struct mem_debug *dl)
 {   void *p;
-#if (__SC__ || __DMC__) && !_WIN32
+#if (__SC__) && !_WIN32
     unsigned u;
     int error;
     
@@ -846,7 +842,7 @@ void mem_init()
                 *(long *) &(mem_alloclist.data[0]) = AFTERVAL;
 #endif
 #endif
-#if (__ZTC__ || __SC__ || __DMC__) && !defined(malloc)
+#if (__ZTC__ || __SC__) && !defined(malloc)
                 free(malloc(1));        /* initialize storage allocator */
 #endif
 #if MEM_DEBUG && (__SC__ || _MSC_VER) && !defined(malloc)

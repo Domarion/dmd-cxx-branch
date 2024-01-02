@@ -19,10 +19,6 @@
 #include        <string.h>
 #include        <time.h>
 #include        <assert.h>
-#if __DMC__
-#include        <limits.h>
-#endif
-
 
 // D compiler
 #include        "mars.h"
@@ -425,9 +421,6 @@ int asm_getnum();
 
 static void asmerr(const char *, ...);
 
-#if __DMC__
-#pragma SC noreturn(asmerr)
-#endif
 
 static OPND *asm_equal_exp();
 static OPND *asm_inc_or_exp();

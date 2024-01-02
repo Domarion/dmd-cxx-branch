@@ -9,49 +9,6 @@
 
 #include "port.h"
 
-#if __DMC__
-#include <math.h>
-#include <float.h>
-#include <fp.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
-#include <errno.h>
-
-char *Port::strupr(char *s)
-{
-    return ::strupr(s);
-}
-
-int Port::memicmp(const char *s1, const char *s2, size_t n)
-{
-    return ::memicmp(s1, s2, n);
-}
-
-extern "C" const char * __cdecl __locale_decpoint;
-
-bool Port::isFloat32LiteralOutOfRange(const char *p)
-{
-    errno = 0;
-    const char *save = __locale_decpoint;
-    __locale_decpoint = ".";
-    ::strtof(p, NULL);
-    __locale_decpoint = save;
-    return errno == ERANGE;
-}
-
-bool Port::isFloat64LiteralOutOfRange(const char *p)
-{
-    errno = 0;
-    const char *save = __locale_decpoint;
-    __locale_decpoint = ".";
-    ::strtod(p, NULL);
-    __locale_decpoint = save;
-    return errno == ERANGE;
-}
-
-#endif
-
 #if __linux__
 
 #include <math.h>

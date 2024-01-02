@@ -67,14 +67,5 @@ void vec_println (vec_t v);
 // Loop through all the bits that are set in vector v of size t:
 #define foreach(i,t,v)  for((i)=0;((i)=vec_index((i),(v))), (i) < (t); (i)++)
 
-#if __DMC__
-// Digital Mars inlines some bit operations
-#include        <bitops.h>
-
-#define vec_setbit(b, v)        _inline_bts(v, b)
-#define vec_clearbit(b, v)      _inline_btr(v, b)
-#define vec_testbit(b, v)       (v && _inline_bt(v, b))
-#endif
-
 #endif /* VEC_H */
 

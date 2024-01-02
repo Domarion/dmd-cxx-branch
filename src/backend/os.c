@@ -29,7 +29,7 @@
 #define GetLastError() errno
 #endif
 
-#if __DMC__ || __GNUC__
+#if __GNUC__
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
 #else
@@ -56,9 +56,6 @@ void os_error(int line)
 #endif
 
 #define os_error() os_error(__LINE__)
-#if __DMC__
-#pragma noreturn(os_error)
-#endif
 
 /*******************************************
  * Return !=0 if file exists.
