@@ -15,7 +15,6 @@ cgcod.c         main loop for code generator
 cgcs.c          compute common subexpressions for non-optimized code generation
 cgelem.c        local optimizations of elem trees
 cgen.c          generate/manage linked list of code instructions
-cgobj.c         generate OMF object files
 cgreg.c         register allocator
 cgsched.c       instruction scheduler
 cod1.c          code gen
@@ -46,8 +45,6 @@ gloop.c         global loop optimizations
 go.c            global optimizer main loop
 go.h            global optimizer declarations
 gother.c        other global optimizations
-html.c          support for embedding source code in html
-html.h          header for html.c
 iasm.h          declarations for inline assembler
 md5.c           implementation of MD5 message digest
 md5.h           API for md5.c
