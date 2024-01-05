@@ -327,7 +327,6 @@ public:
         {
             case LINKd:             mc = 'F';       break;
             case LINKc:             mc = 'U';       break;
-            case LINKwindows:       mc = 'W';       break;
             case LINKcpp:           mc = 'R';       break;
             default:
                 assert(0);
@@ -514,7 +513,6 @@ public:
                 case LINKd:
                     break;
                 case LINKc:
-                case LINKwindows:
                     return d->ident->toChars();
                 case LINKcpp:
                     return target.cpp.toMangle(d);

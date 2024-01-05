@@ -571,9 +571,7 @@ public:
             /* Call:
              *      _d_switch_string(string[] si, string econd)
              */
-            if (config.exe == EX_WIN64)
-                econd = addressElem(econd, s->condition->type, true);
-            elem *eparam = el_param(econd, (config.exe == EX_WIN64) ? el_ptr(si) : el_var(si));
+            elem *eparam = el_param(econd, el_var(si));
             switch (s->condition->type->nextOf()->ty)
             {
                 case Tchar:

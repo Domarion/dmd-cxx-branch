@@ -1292,9 +1292,7 @@ LINK Parser::parseLinkage(Identifiers **pidents, CPPMANGLE *pcppmangle, bool *pc
     {   Identifier *id = token.ident;
 
         nextToken();
-        if (id == Id::Windows)
-            link = LINKwindows;
-        else if (id == Id::D)
+        if (id == Id::D)
             link = LINKd;
         else if (id == Id::C)
         {

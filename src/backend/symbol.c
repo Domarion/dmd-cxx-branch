@@ -17,9 +17,6 @@
 #include        "global.h"
 #include        "type.h"
 #include        "dt.h"
-#if TX86
-#include        "cgcv.h"
-#endif
 
 #include        "el.h"
 #include        "oper.h"                /* for OPMAX            */

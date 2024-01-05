@@ -430,11 +430,7 @@ void DtBuilder::dtoff(dt_t *dt, unsigned offset)
 void DtBuilder::coff(unsigned offset)
 {
     dt_t *dt = dt_calloc(DT_coff);
-#if TARGET_SEGMENTED
-    dt->Dty = TYcptr;
-#else
     dt->Dty = TYnptr;
-#endif
     dt->DToffset = offset;
 
     assert(!*pTail);

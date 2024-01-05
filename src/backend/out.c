@@ -18,9 +18,9 @@
 #include        "type.h"
 #include        "filespec.h"
 #include        "code.h"
-#include        "cgcv.h"
 #include        "go.h"
 #include        "dt.h"
+#include        "dwarf.h"
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
@@ -55,8 +55,6 @@ void outdata(symbol *s)
     s->Sdt = NULL;                      // it will be free'd
     datasize = 0;
     ty = s->ty();
-    if (ty & mTYexport && config.wflags & WFexpdef && s->Sclass != SCstatic)
-        objmod->export_symbol(s,0);        // export data definition
     for (dt_t *dt = dtstart; dt; dt = dt->DTnext)
     {
         //printf("\tdt = %p, dt = %d\n",dt,dt->dt);
@@ -65,24 +63,6 @@ void outdata(symbol *s)
             {   // Put out the data for the string, and
                 // reserve a spot for a pointer to that string
                 datasize += size(dt->Dty);      // reserve spot for pointer to string
-#if TARGET_SEGMENTED
-                if (tybasic(dt->Dty) == TYcptr)
-                {   dt->DTseg = cseg;
-                    dt->DTabytes += Coffset;
-                    goto L1;
-                }
-                else if (tybasic(dt->Dty) == TYfptr &&
-                         dt->DTnbytes > config.threshold)
-                {
-                    targ_size_t foffset;
-                    dt->DTseg = objmod->fardata(s->Sident,dt->DTnbytes,&foffset);
-                    dt->DTabytes += foffset;
-                L1:
-                    objmod->write_bytes(SegData[dt->DTseg],dt->DTnbytes,dt->DTpbytes);
-                    break;
-                }
-                else
-#endif
                 {
                     dt->DTabytes += objmod->data_readonly(dt->DTpbytes,dt->DTnbytes,&dt->DTseg);
                 }
@@ -108,30 +88,13 @@ void outdata(symbol *s)
                      */
                     switch (ty & mTYLINK)
                     {
-#if TARGET_SEGMENTED
-                        case mTYfar:                    // if far data
-                            s->Sseg = objmod->fardata(s->Sident,datasize,&s->Soffset);
-                            s->Sfl = FLfardata;
-                            break;
-
-                        case mTYcs:
-                            s->Sseg = cseg;
-                            Coffset = align(datasize,Coffset);
-                            s->Soffset = Coffset;
-                            Coffset += datasize;
-                            s->Sfl = FLcsdata;
-                            break;
-#endif
                         case mTYthreadData:
-                            assert(config.objfmt == OBJ_MACH && I64);
+                            assert(false);
                         case mTYthread:
                         {   seg_data *pseg = objmod->tlsseg_bss();
                             s->Sseg = pseg->SDseg;
                             objmod->data_start(s, datasize, pseg->SDseg);
-                            if (config.objfmt == OBJ_OMF)
-                                pseg->SDoffset += datasize;
-                            else
-                                objmod->lidata(pseg->SDseg, pseg->SDoffset, datasize);
+                            objmod->lidata(pseg->SDseg, pseg->SDoffset, datasize);
                             s->Sfl = FLtlsdata;
                             break;
                         }
@@ -143,7 +106,7 @@ void outdata(symbol *s)
                             break;
                     }
                     assert(s->Sseg && s->Sseg != UNKNOWN);
-                    if (s->Sclass == SCglobal || (s->Sclass == SCstatic && config.objfmt != OBJ_OMF)) // if a pubdef to be done
+                    if (s->Sclass == SCglobal || (s->Sclass == SCstatic)) // if a pubdef to be done
                         objmod->pubdefsize(s->Sseg,s,s->Soffset,datasize);   // do the definition
                     searchfixlist(s);
                     if (config.fulltypes &&
@@ -207,22 +170,9 @@ void outdata(symbol *s)
     {
       switch (ty & mTYLINK)
       {
-#if TARGET_SEGMENTED
-        case mTYfar:                    // if far data
-            seg = objmod->fardata(s->Sident,datasize,&s->Soffset);
-            s->Sfl = FLfardata;
-            break;
-
-        case mTYcs:
-            seg = cseg;
-            Coffset = align(datasize,Coffset);
-            s->Soffset = Coffset;
-            s->Sfl = FLcsdata;
-            break;
-#endif
         case mTYthreadData:
         {
-            assert(config.objfmt == OBJ_MACH && I64);
+            assert(false && I64);
 
             seg_data *pseg = objmod->tlsseg_data();
             s->Sseg = pseg->SDseg;
@@ -253,14 +203,12 @@ void outdata(symbol *s)
             assert(0);
       }
     }
-    if (s->Sseg == UNKNOWN && (config.objfmt == OBJ_ELF || config.objfmt == OBJ_MACH))
-        s->Sseg = seg;
-    else if (config.objfmt == OBJ_OMF)
+    if (s->Sseg == UNKNOWN && (config.objfmt == OBJ_ELF))
         s->Sseg = seg;
     else
         seg = s->Sseg;
 
-    if (s->Sclass == SCglobal || (s->Sclass == SCstatic && config.objfmt != OBJ_OMF))
+    if (s->Sclass == SCglobal || (s->Sclass == SCstatic))
         objmod->pubdefsize(seg,s,s->Soffset,datasize);    /* do the definition            */
 
     assert(s->Sseg != UNKNOWN);
@@ -396,18 +344,7 @@ void outcommon(symbol *s,targ_size_t n)
         else
         {
             s->Sclass = SCcomdef;
-            if (config.objfmt == OBJ_OMF)
-            {
-                s->Sxtrnnum = objmod->common_block(s,(s->ty() & mTYfar) == 0,n,1);
-                if (s->ty() & mTYfar)
-                    s->Sfl = FLfardata;
-                else
-                    s->Sfl = FLextern;
-                s->Sseg = UNKNOWN;
-                pstate.STflags |= PFLcomdef;
-            }
-            else
-                objmod->common_block(s, 0, n, 1);
+            objmod->common_block(s, 0, n, 1);
         }
         if (config.fulltypes)
             cv_outsym(s);
@@ -421,7 +358,7 @@ void outcommon(symbol *s,targ_size_t n)
 void out_readonly(symbol *s)
 {
     // The default is DATA
-    if (config.objfmt == OBJ_ELF || config.objfmt == OBJ_MACH)
+    if (config.objfmt == OBJ_ELF)
     {
         /* Cannot have pointers in CDATA when compiling PIC code, because
          * they require dynamic relocations of the read-only segment.
@@ -875,23 +812,6 @@ STATIC void writefunc2(symbol *sfunc)
     objmod->func_term(sfunc);
     if (eecontext.EEcompile == 1)
         goto Ldone;
-    if (sfunc->Sclass == SCglobal)
-    {
-        if ((config.objfmt == OBJ_OMF || config.objfmt == OBJ_MSCOFF) && !(config.flags4 & CFG4allcomdat))
-        {
-            assert(sfunc->Sseg == cseg);
-            objmod->pubdef(sfunc->Sseg,sfunc,sfunc->Soffset);       // make a public definition
-        }
-    }
-    if (config.wflags & WFexpdef &&
-        sfunc->Sclass != SCstatic &&
-        sfunc->Sclass != SCsinline &&
-        !(sfunc->Sclass == SCinline && !(config.flags2 & CFG2comdat)) &&
-        sfunc->ty() & mTYexport)
-        objmod->export_symbol(sfunc,Para.offset);      // export function definition
-
-    if (config.fulltypes && config.fulltypes != CV8)
-        cv_func(sfunc);                 // debug info for function
 
 #if MARS
     /* This is to make uplevel references to SCfastpar variables
@@ -914,10 +834,6 @@ STATIC void writefunc2(symbol *sfunc)
      */
      cod3_adjSymOffsets();
 #endif
-
-    if ((config.objfmt == OBJ_OMF || config.objfmt == OBJ_MSCOFF) &&
-        symbol_iscomdat(sfunc))         // if generated a COMDAT
-        objmod->setcodeseg(csegsave);       // reset to real code seg
 
     /* Check if function is a constructor or destructor, by     */
     /* seeing if the function name starts with _STI or _STD     */
@@ -1002,8 +918,7 @@ symbol *out_readonly_sym(tym_t ty, void *p, int len)
 
     symbol *s;
 
-    if (config.objfmt == OBJ_ELF ||
-        (MARS && (config.objfmt == OBJ_OMF || config.objfmt == OBJ_MSCOFF)))
+    if (config.objfmt == OBJ_ELF)
     {
         s = objmod->sym_cdata(ty, (char *)p, len);
     }

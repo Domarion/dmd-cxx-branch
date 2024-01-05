@@ -1266,7 +1266,6 @@ public:
             case LINKd:             p = "D";                break;
             case LINKc:             p = "C";                break;
             case LINKcpp:           p = "C++";              break;
-            case LINKwindows:       p = "Windows";          break;
             default:
                 assert(0);
                 break;
@@ -3422,7 +3421,6 @@ const char *linkageToChars(LINK linkage)
         case LINKd:         return "D";
         case LINKc:         return "C";
         case LINKcpp:       return "C++";
-        case LINKwindows:   return "Windows";
         case LINKsystem:    return "System";
         default:            assert(0);
     }

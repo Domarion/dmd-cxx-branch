@@ -23,9 +23,6 @@
 #include        "oper.h"
 #include        "el.h"
 #include        "exh.h"
-#if TX86
-#include        "cgcv.h"
-#endif
 
 #include        "iasm.h"
 

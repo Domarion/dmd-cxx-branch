@@ -35,7 +35,6 @@
 #include "code.h"
 #include "type.h"
 #include "dt.h"
-#include "cgcv.h"
 #include "outbuf.h"
 #include "irstate.h"
 
@@ -413,16 +412,7 @@ void genObjFile(Module *m, bool multiobj)
         elem *ecov  = el_pair(TYdarray, el_long(TYsize_t, m->numlines), el_ptr(m->cov));
         elem *ebcov = el_pair(TYdarray, el_long(TYsize_t, m->numlines), el_ptr(bcov));
 
-        if (config.exe == EX_WIN64)
-        {
-            ecov  = addressElem(ecov,  Type::tvoid->arrayOf(), false);
-            ebcov = addressElem(ebcov, Type::tvoid->arrayOf(), false);
-        }
-
         elem *efilename = toEfilename(m);
-        if (config.exe == EX_WIN64)
-            efilename = addressElem(efilename, Type::tstring, true);
-
         elem *e = el_params(
                       el_long(TYuchar, global.params.covPercent),
                       ecov,
@@ -836,31 +826,11 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
             objmod->external_def("_main");
             objmod->ehsections();   // initialize exception handling sections
 #endif
-            if (global.params.mscoff)
-            {
-                objmod->external_def("main");
-                objmod->ehsections();   // initialize exception handling sections
-            }
-            else if (config.exe == EX_WIN32)
-            {
-                objmod->external_def("_main");
-                objmod->external_def("__acrtused_con");
-            }
             objmod->includelib(libname);
             s->Sclass = SCglobal;
         }
         else if (strcmp(s->Sident, "main") == 0 && fd->linkage == LINKc)
         {
-            if (global.params.mscoff)
-            {
-                objmod->includelib("LIBCMT");
-                objmod->includelib("OLDNAMES");
-            }
-            else if (config.exe == EX_WIN32)
-            {
-                objmod->external_def("__acrtused_con");        // bring in C startup code
-                objmod->includelib("snn.lib");          // bring in C runtime library
-            }
             s->Sclass = SCglobal;
         }
         else if (fd->ident == Id::tls_get_addr && fd->linkage == LINKd)
@@ -1001,7 +971,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
         pi++;
     }
 
-    if ((global.params.isLinux || global.params.isFreeBSD || global.params.isSolaris) &&
+    if ((global.params.isLinux) &&
          fd->linkage != LINKd && shidden && sthis)
     {
         /* swap shidden and sthis
@@ -1030,7 +1000,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
             Symbol *sp = params[i];
             if (fpr.alloc(sp->Stype, sp->Stype->Tty, &sp->Spreg, &sp->Spreg2))
             {
-                sp->Sclass = (config.exe == EX_WIN64) ? SCshadowreg : SCfastpar;
+                sp->Sclass = SCfastpar;
                 sp->Sfl = (sp->Sclass == SCshadowreg) ? FLpara : FLfast;
             }
         }
@@ -1062,8 +1032,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
         if (fd->v_argptr)
         {
             // Declare va_argsave
-            if (global.params.is64bit &&
-                !global.params.isWindows)
+            if (global.params.is64bit)
             {
                 type *t = type_struct_class("__va_argsave_t", 16, 8 * 6 + 8 * 16 + 8 * 3, NULL, NULL, false, false, true);
                 // The backend will pick this up by name
@@ -1247,8 +1216,6 @@ bool onlyOneMain(Loc loc)
         if (global.params.addMain)
             msg = ", -main switch added another main()";
         const char *othermain = "";
-        if (config.exe == EX_WIN32 || config.exe == EX_WIN64)
-            othermain = "/WinMain/DllMain";
         error(lastLoc, "only one main%s allowed%s", othermain, msg);
         return false;
     }
@@ -1375,12 +1342,6 @@ unsigned totym(Type *tx)
             TypeFunction *tf = (TypeFunction *)tx;
             switch (tf->linkage)
             {
-                case LINKwindows:
-                    if (global.params.is64bit)
-                        goto Lc;
-                    t = (tf->parameterList.varargs == VARARGvariadic) ? TYnfunc : TYnsfunc;
-                    break;
-
                 case LINKc:
                 case LINKcpp:
                 Lc:

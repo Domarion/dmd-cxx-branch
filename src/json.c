@@ -320,9 +320,6 @@ public:
             case LINKcpp:
                 property(name, "cpp");
                 break;
-            case LINKwindows:
-                property(name, "windows");
-                break;
             default:
                 assert(false);
         }

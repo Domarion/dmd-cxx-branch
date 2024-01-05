@@ -814,9 +814,7 @@ Dsymbol *InterfaceDeclaration::syntaxCopy(Dsymbol *s)
 Scope *InterfaceDeclaration::newScope(Scope *sc)
 {
     Scope *sc2 = ClassDeclaration::newScope(sc);
-    if (com)
-        sc2->linkage = LINKwindows;
-    else if (classKind == ClassKind::cpp)
+    if (classKind == ClassKind::cpp)
         sc2->linkage = LINKcpp;
     return sc2;
 }

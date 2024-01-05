@@ -54,7 +54,6 @@ void cod5_prol_epi()
         tym == TYjfunc ||       // can't yet handle EAX passed as parameter
         config.flags & (CFGalwaysframe | CFGtrace) ||
 //      config.fulltypes ||
-        (config.wflags & WFwindows && tyfarfunc(tym)) ||
         need_prolog(startblock)
        )
     {   // First block gets the prolog, all return blocks

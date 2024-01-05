@@ -22,8 +22,6 @@
 #include        "melf.h"
 #include        "outbuf.h"
 #include        "filespec.h"
-#include        "cv4.h"
-#include        "cgcv.h"
 #include        "dt.h"
 
 #include        "aa.h"
@@ -1963,13 +1961,8 @@ char *obj_mangle2(Symbol *s,char *dest)
             }
             break;
         case mTYman_std:
-#if TARGET_LINUX
+
             if (tyfunc(s->ty()) && !variadic(s->Stype))
-#else
-            if (!(config.flags4 & CFG4oldstdmangle) &&
-                config.exe == EX_WIN32 && tyfunc(s->ty()) &&
-                !variadic(s->Stype))
-#endif
             {
                 char *pstr = unsstr(type_paramsize(s->Stype));
                 size_t pstrlen = strlen(pstr);

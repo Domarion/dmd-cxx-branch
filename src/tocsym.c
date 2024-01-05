@@ -36,7 +36,6 @@
 #include "code.h"
 #include "type.h"
 #include "dt.h"
-#include "cgcv.h"
 #include "outbuf.h"
 #include "irstate.h"
 
@@ -145,20 +144,11 @@ Symbol *toSymbol(Dsymbol *s)
             }
             else if (vd->storage_class & STClazy)
             {
-                if (config.exe == EX_WIN64 && vd->isParameter())
-                    t = type_fake(TYnptr);
-                else
-                    t = type_fake(TYdelegate);          // Tdelegate as C type
+                t = type_fake(TYdelegate);          // Tdelegate as C type
                 t->Tcount++;
             }
             else if (vd->isParameter())
             {
-                if (config.exe == EX_WIN64 && vd->type->size(Loc()) > REGSIZE)
-                {
-                    t = type_allocn(TYnref, Type_toCtype(vd->type));
-                    t->Tcount++;
-                }
-                else
                 {
                     t = Type_toCtype(vd->type);
                     t->Tcount++;
@@ -180,9 +170,6 @@ Symbol *toSymbol(Dsymbol *s)
                     ts->Tcount++;   // make sure a different t is allocated
                     type_setty(&t, t->Tty | mTYthread);
                     ts->Tcount--;
-
-                    if (config.objfmt == OBJ_MACH && I64)
-                        s->Salignment = 2;
 
                     if (global.params.vtls)
                     {
@@ -226,10 +213,6 @@ Symbol *toSymbol(Dsymbol *s)
             mangle_t m = 0;
             switch (vd->linkage)
             {
-                case LINKwindows:
-                    m = global.params.is64bit ? mTYman_c : mTYman_std;
-                    break;
-
                 case LINKc:
                     m = mTYman_c;
                     break;
@@ -321,10 +304,6 @@ Symbol *toSymbol(Dsymbol *s)
             {
                 switch (fd->linkage)
                 {
-                    case LINKwindows:
-                        t->Tmangle = global.params.is64bit ? mTYman_c : mTYman_std;
-                        break;
-
                     case LINKc:
                         t->Tmangle = mTYman_c;
                         break;
@@ -334,17 +313,6 @@ Symbol *toSymbol(Dsymbol *s)
                         break;
                     case LINKcpp:
                         s->Sflags |= SFLpublic;
-                        if (fd->isThis() && !global.params.is64bit && global.params.isWindows)
-                        {
-                            if (((TypeFunction *)fd->type)->parameterList.varargs == VARARGvariadic)
-                            {
-                                t->Tty = TYnfunc;
-                            }
-                            else
-                            {
-                                t->Tty = TYmfunc;
-                            }
-                        }
                         t->Tmangle = mTYman_cpp;
                         break;
                     default:
@@ -428,18 +396,15 @@ static Symbol *toImport(Symbol *sym)
     char *id = (char *) alloca(6 + strlen(n) + 1 + sizeof(type_paramsize(sym->Stype))*3 + 1);
     if (sym->Stype->Tmangle == mTYman_std && tyfunc(sym->Stype->Tty))
     {
-        if (config.exe == EX_WIN64)
-            sprintf(id,"__imp_%s",n);
-        else
-            sprintf(id,"_imp__%s@%lu",n,(unsigned long)type_paramsize(sym->Stype));
+        sprintf(id,"_imp__%s@%lu",n,(unsigned long)type_paramsize(sym->Stype));
     }
     else if (sym->Stype->Tmangle == mTYman_d)
     {
-        sprintf(id,(config.exe == EX_WIN64) ? "__imp_%s" : "_imp_%s",n);
+        sprintf(id,"_imp_%s",n);
     }
     else
     {
-        sprintf(id,(config.exe == EX_WIN64) ? "__imp_%s" : "_imp__%s",n);
+        sprintf(id,"_imp__%s",n);
     }
     type *t = type_alloc(TYnptr | mTYconst);
     t->Tnext = sym->Stype;

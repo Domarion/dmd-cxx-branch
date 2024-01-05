@@ -98,11 +98,6 @@ struct Param
     bool is64bit;       // generate 64 bit code
     bool isLP64;        // generate code for LP64
     bool isLinux;       // generate code for linux
-    bool isWindows;     // generate code for Windows
-    bool isFreeBSD;     // generate code for FreeBSD
-    bool isOpenBSD;     // generate code for OpenBSD
-    bool isSolaris;     // generate code for Solaris
-    bool mscoff;        // for Win32: write COFF object files instead of OMF
     Diagnostic useDeprecated;
     bool stackstomp;    // add stack stomping code
     bool useUnitTests;  // generate unittest code
@@ -305,7 +300,6 @@ enum LINK
     LINKd,
     LINKc,
     LINKcpp,
-    LINKwindows,
     LINKsystem
 };
 

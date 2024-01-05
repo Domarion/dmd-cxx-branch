@@ -43,7 +43,6 @@
 #include        "toir.h"
 
 bool ISREF(Declaration *var, Type *tb);
-bool ISWIN64REF(Declaration *var);
 
 type *Type_toCtype(Type *t);
 unsigned totym(Type *tx);
@@ -693,26 +692,13 @@ void buildClosure(FuncDeclaration *fd, IRState *irs)
             if (!v->isParameter())
                 continue;
             tym_t tym = totym(v->type);
-            bool win64ref = ISWIN64REF(v);
-            if (win64ref)
-            {
-                if (v->storage_class & STClazy)
-                    tym = TYdelegate;
-            }
-            else if (ISREF(v, NULL))
+            if (ISREF(v, NULL))
                 tym = TYnptr;   // reference parameters are just pointers
             else if (v->storage_class & STClazy)
                 tym = TYdelegate;
             ex = el_bin(OPadd, TYnptr, el_var(sclosure), el_long(TYsize_t, v->offset));
             ex = el_una(OPind, tym, ex);
             elem *ev = el_var(toSymbol(v));
-            if (win64ref)
-            {
-                ev->Ety = TYnptr;
-                ev = el_una(OPind, tym, ev);
-                if (tybasic(ev->Ety) == TYstruct || tybasic(ev->Ety) == TYarray)
-                    ev->ET = Type_toCtype(v->type);
-            }
             if (tybasic(ex->Ety) == TYstruct || tybasic(ex->Ety) == TYarray)
             {
                 ::type *t = Type_toCtype(v->type);

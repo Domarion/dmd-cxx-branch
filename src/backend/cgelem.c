@@ -3083,10 +3083,6 @@ elem * elstruct(elem *e, goal_t goal)
         case 6:
         case 7:  tym = TYllong;
         L2:
-            if (e->Eoper == OPstrpar && config.exe == EX_WIN64)
-            {
-                 goto L1;
-            }
             if (e->Eoper == OPstrpar && I64 && ty == TYstruct)
             {
                 goto L1;
@@ -3105,7 +3101,7 @@ elem * elstruct(elem *e, goal_t goal)
         case 13:
         case 14:
         case 15:
-            if (e->Eoper == OPstrpar && I64 && ty == TYstruct && config.exe != EX_WIN64)
+            if (e->Eoper == OPstrpar && I64 && ty == TYstruct)
             {
                 goto L1;
             }
@@ -3128,26 +3124,19 @@ elem * elstruct(elem *e, goal_t goal)
                     goto L1;
                 }
             }
-            if (I64 && (ty == TYstruct || (ty == TYarray && config.exe == EX_WIN64)))
+            if (I64 && (ty == TYstruct))
             {   tym = TYucent;
                 goto L1;
             }
-            if (config.exe == EX_WIN64)
-                goto Ldefault;
             if (targ1 && !targ2)
                 goto L1;
             goto Ldefault;
 
         L1:
             if (ty == TYstruct)
-            {   // This needs to match what TypeFunction::retStyle() does
-                if (config.exe == EX_WIN64)
-                {
-                    //if (t->Ttag->Sstruct->Sflags & STRnotpod)
-                        //goto Ldefault;
-                }
+            {
                 // If a struct is a wrapper for another type, prefer that other type
-                else if (targ1 && !targ2)
+                if (targ1 && !targ2)
                     tym = targ1->Tty;
                 else if (I64 && !targ1 && !targ2)
                 {   if (t->Ttag->Sstruct->Sflags & STRnotpod)

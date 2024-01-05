@@ -29,8 +29,6 @@
 #include        "type.h"
 #include        "outbuf.h"
 #include        "filespec.h"
-#include        "cv4.h"
-#include        "cgcv.h"
 #include        "dt.h"
 #include        "rtlsym.h"
 
@@ -1724,15 +1722,6 @@ void cv_outsym(symbol *s)
  */
 
 void cv_outlist()
-{
-}
-
-
-/******************************************
- * Write out symbol table for current function.
- */
-
-void cv_func(Funcsym *s)
 {
 }
 

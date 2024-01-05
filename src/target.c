@@ -144,33 +144,18 @@ void Target::_init(const Param &params)
         classinfosize = 0x98;   // 152
     }
 
-    if (params.isLinux || params.isFreeBSD
-        || params.isOpenBSD || params.isSolaris)
+    if (params.isLinux)
     {
         realsize = 12;
         realpad = 2;
         realalignsize = 4;
-    }
-    else if (params.isWindows)
-    {
-        realsize = 10;
-        realpad = 0;
-        realalignsize = 2;
-        cpp.reverseOverloads = !params.is64bit;
-        if (ptrsize == 4)
-        {
-            /* Optlink cannot deal with individual data chunks
-             * larger than 16Mb
-             */
-            maxStaticDataSize = 0x1000000;  // 16Mb
-        }
     }
     else
         assert(0);
 
     if (params.is64bit)
     {
-        if (params.isLinux || params.isFreeBSD || params.isSolaris)
+        if (params.isLinux)
         {
             realsize = 16;
             realpad = 6;
@@ -178,34 +163,23 @@ void Target::_init(const Param &params)
         }
     }
 
-    if (params.isLinux || params.isFreeBSD || params.isOpenBSD || params.isSolaris)
-        c.longsize = 4;
-    else if (params.isWindows)
+    if (params.isLinux)
         c.longsize = 4;
     else
         assert(0);
     if (params.is64bit)
     {
-        if (params.isLinux || params.isFreeBSD || params.isSolaris)
+        if (params.isLinux)
             c.longsize = 8;
     }
-    if (params.is64bit && params.isWindows)
-        c.long_doublesize = 8;
-    else
-        c.long_doublesize = realsize;
-    if (params.isWindows)
-        c.twchar_t = Type::twchar;
-    else
-        c.twchar_t = Type::tdchar;
+    c.long_doublesize = realsize;
+    c.twchar_t = Type::tdchar;
 
-    if (params.isLinux || params.isFreeBSD
-        || params.isOpenBSD || params.isSolaris)
+    if (params.isLinux)
         cpp.twoDtorInVtable = true;
-    else if (params.isWindows)
-        cpp.reverseOverloads = true;
     else
         assert(0);
-    cpp.exceptions = params.isLinux || params.isFreeBSD;
+    cpp.exceptions = params.isLinux;
 }
 
 /******************************
@@ -224,8 +198,7 @@ unsigned Target::alignsize(Type* type)
             return Target::realalignsize;
 
         case Tcomplex32:
-            if (global.params.isLinux || global.params.isFreeBSD
-                || global.params.isOpenBSD || global.params.isSolaris)
+            if (global.params.isLinux)
                 return 4;
             break;
 
@@ -234,8 +207,7 @@ unsigned Target::alignsize(Type* type)
         case Tfloat64:
         case Timaginary64:
         case Tcomplex64:
-            if (global.params.isLinux || global.params.isFreeBSD
-                || global.params.isOpenBSD || global.params.isSolaris)
+            if (global.params.isLinux)
                 return global.params.is64bit ? 8 : 4;
             break;
 
@@ -264,14 +236,7 @@ Type *Target::va_listType(const Loc &loc, Scope *sc)
     if (tvalist)
         return tvalist;
 
-    if (global.params.isWindows)
-    {
-        tvalist = Type::tchar->pointerTo();
-    }
-    else if (global.params.isLinux ||
-             global.params.isFreeBSD ||
-             global.params.isOpenBSD ||
-             global.params.isSolaris)
+    if (global.params.isLinux)
     {
         if (global.params.is64bit)
         {
@@ -409,7 +374,7 @@ bool Target::isVectorOpSupported(Type *type, TOK op, Type *)
  */
 LINK Target::systemLinkage()
 {
-    return global.params.isWindows ? LINKwindows : LINKc;
+    return LINKc;
 }
 
 /**
@@ -458,30 +423,6 @@ bool Target::isReturnOnStack(TypeFunction *tf, bool needsThis)
     d_uns64 sz = tn->size();
     Type *tns = tn;
 
-    if (global.params.isWindows && global.params.is64bit)
-    {
-        // http://msdn.microsoft.com/en-us/library/7572ztz4.aspx
-        if (tns->ty == Tcomplex32)
-            return true;
-        if (tns->isscalar())
-            return false;
-
-        tns = tns->baseElemOf();
-        if (tns->ty == Tstruct)
-        {
-            StructDeclaration *sd = ((TypeStruct *)tns)->sym;
-            if (tf->linkage == LINKcpp && needsThis)
-                return true;
-            if (!sd->isPOD() || sz > 8)
-                return true;
-            if (sd->fields.length == 0)
-                return true;
-        }
-        if (sz <= 16 && !(sz & (sz - 1)))
-            return false;
-        return true;
-    }
-
 Lagain:
     if (tns->ty == Tsarray)
     {
@@ -521,12 +462,7 @@ L2:
             //printf("  2 true\n");
             return true;            // 32 bit C/C++ structs always on stack
         }
-        if (global.params.isWindows && tf->linkage == LINKcpp && !global.params.is64bit &&
-                 sd->isPOD() && sd->ctor)
-        {
-            // win32 returns otherwise POD structs with ctors via memory
-            return true;
-        }
+
         if (sd->arg1type && !sd->arg2type)
         {
             tns = sd->arg1type;
@@ -548,7 +484,7 @@ L2:
                     return false;     // return small structs in regs
                                       // (not 3 byte structs!)
                 case 16:
-                    if (!global.params.isWindows && global.params.is64bit)
+                    if (global.params.is64bit)
                        return false;
 
                 default:
@@ -558,7 +494,7 @@ L2:
         //printf("  3 true\n");
         return true;
     }
-    else if ((global.params.isLinux || global.params.isFreeBSD || global.params.isSolaris) &&
+    else if ((global.params.isLinux) &&
              tf->linkage == LINKc &&
              tns->iscomplex())
     {
@@ -600,18 +536,13 @@ Expression *Target::getTargetInfo(const char* name, const Loc& loc)
         case 12:
             if (strcmp(name, "objectFormat") == 0)
             {
-                if (global.params.isWindows)
-                    return new StringExp(loc, const_cast<char*>(global.params.mscoff ? "coff" : "omf"));
-                else
-                    return new StringExp(loc, const_cast<char*>("elf"));
+                return new StringExp(loc, const_cast<char*>("elf"));
             }
             break;
 
         case 17:
             if (strcmp(name, "cppRuntimeLibrary") == 0)
             {
-                if (global.params.mscoff)
-                    return new StringExp(loc, const_cast<char*>("msvcrt"));
                 return new StringExp(loc, const_cast<char*>("snn"));
             }
             return new StringExp(loc, const_cast<char*>(""));
@@ -703,9 +634,5 @@ bool TargetCPP::fundamentalType(const Type *, bool &)
  */
 unsigned TargetCPP::derivedClassOffset(ClassDeclaration *baseClass)
 {
-    // MSVC adds padding between base and derived fields if required.
-    if (global.params.isWindows)
-        return (baseClass->structsize + baseClass->alignsize - 1) & ~(baseClass->alignsize - 1);
-    else
-        return baseClass->structsize;
+    return baseClass->structsize;
 }

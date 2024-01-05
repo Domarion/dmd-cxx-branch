@@ -13,8 +13,6 @@ cg.c            global variables for code generator
 cg87.c          x87 FPU code generation
 cgcod.c         main loop for code generator
 cgcs.c          compute common subexpressions for non-optimized code generation
-cgcv.c          CodeView symbol debug info generation
-cgcv.h          header for cgcv.c
 cgelem.c        local optimizations of elem trees
 cgen.c          generate/manage linked list of code instructions
 cgobj.c         generate OMF object files
@@ -28,7 +26,6 @@ cod5.c          code gen
 code.c          memory management for code instructions
 code.h          define registers, register masks, and the CPU instruction linked list
 cppman.c        C++ name mangling
-cv4.h           CodeView symbolic debug info declarations
 debug.c         pretty printing for debug builds
 dt.c            static data for later output to object file
 dt.h            API for dt.c
@@ -52,8 +49,6 @@ gother.c        other global optimizations
 html.c          support for embedding source code in html
 html.h          header for html.c
 iasm.h          declarations for inline assembler
-mach.h          declarations for Mach-O object file format
-machobj.c       generate Mach-O object files
 md5.c           implementation of MD5 message digest
 md5.h           API for md5.c
 melf.h          declarations for ELF file format

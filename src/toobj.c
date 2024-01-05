@@ -36,10 +36,8 @@
 #include "code.h"
 #include "type.h"
 #include "dt.h"
-#include "cgcv.h"
 #include "outbuf.h"
 #include "irstate.h"
-#include "mach.h"
 
 extern bool obj_includelib(const char *name);
 void obj_startaddress(Symbol *s);
@@ -996,14 +994,7 @@ void toObjFile(Dsymbol *ds, bool multiobj)
             } while (parent);
             s->Sfl = FLdata;
 
-            if (config.objfmt == OBJ_MACH && I64 && (s->ty() & mTYLINK) == mTYthread)
-            {
-                DtBuilder dtb;
-                tlsToDt(vd, s, dtb);
-                s->Sdt = dtb.finish();
-            }
-
-            else if (vd->_init)
+            if (vd->_init)
             {
                 DtBuilder dtb;
                 initializerToDt(vd, dtb);
@@ -1266,84 +1257,6 @@ void toObjFile(Dsymbol *ds, bool multiobj)
         }
 
         /**
-         * Output a TLS symbol for Mach-O.
-         *
-         * A TLS variable in the Mach-O format consists of two symbols.
-         * One symbol for the data, which contains the initializer, if any.
-         * The name of this symbol is the same as the variable, but with the
-         * "$tlv$init" suffix. If the variable has an initializer it's placed in
-         * the __thread_data section. Otherwise it's placed in the __thread_bss
-         * section.
-         *
-         * The other symbol is for the TLV descriptor. The symbol has the same
-         * name as the variable and is placed in the __thread_vars section.
-         * A TLV descriptor has the following structure, where T is the type of
-         * the variable:
-         *
-         * struct TLVDescriptor(T)
-         * {
-         *     extern(C) T* function(TLVDescriptor*) thunk;
-         *     size_t key;
-         *     size_t offset;
-         * }
-         *
-         * Input:
-         *      vd  the variable declaration for the symbol
-         *      s   the symbol to output
-         */
-        void tlsToDt(VarDeclaration *vd, Symbol *s, DtBuilder& dtb)
-        {
-            assert(config.objfmt == OBJ_MACH && I64 && (s->ty() & mTYLINK) == mTYthread);
-
-            Symbol *tlvInit = createTLVDataSymbol(vd, s);
-            DtBuilder tlvInitDtb;
-
-            if (vd->_init)
-                initializerToDt(vd, tlvInitDtb);
-            else
-                Type_toDt(vd->type, tlvInitDtb);
-
-            tlvInit->Sdt = tlvInitDtb.finish();
-            outdata(tlvInit);
-
-            if (I64)
-                tlvInit->Sclass = SCextern;
-
-            Symbol* tlvBootstrap = objmod->tlv_bootstrap();
-            dtb.xoff(tlvBootstrap, 0, TYnptr);
-            dtb.size(0);
-            dtb.xoff(tlvInit, 0, TYnptr);
-        }
-
-        /**
-         * Creates the data symbol for a TLS variable for Mach-O.
-         *
-         * Input:
-         *      vd  the variable declaration for the symbol
-         *      s   the regular symbol for the variable
-         *
-         * Returns: the newly create symbol
-         */
-        Symbol *createTLVDataSymbol(VarDeclaration *vd, Symbol *s)
-        {
-            assert(config.objfmt == OBJ_MACH && I64 && (s->ty() & mTYLINK) == mTYthread);
-
-            OutBuffer buffer;
-            buffer.writestring(s->Sident);
-            buffer.write("$tlv$init", 9);
-
-            const char *tlvInitName = buffer.extractChars();
-            Symbol *tlvInit = symbol_name(tlvInitName, SCstatic, type_fake(vd->type->ty));
-            tlvInit->Sdt = NULL;
-            tlvInit->Salignment = type_alignsize(s->Stype);
-
-            type_setty(&tlvInit->Stype, tlvInit->Stype->Tty | mTYthreadData);
-            type_setmangle(&tlvInit->Stype, mangle(vd, tlvInit));
-
-            return tlvInit;
-        }
-
-        /**
          * Returns the mangling for the given variable.
          *
          * Input:
@@ -1356,9 +1269,6 @@ void toObjFile(Dsymbol *ds, bool multiobj)
         {
             switch (vd->linkage)
             {
-                case LINKwindows:
-                    return global.params.is64bit ? mTYman_c : mTYman_std;
-
                 case LINKc:
                     return mTYman_c;
 

@@ -12,10 +12,7 @@
 #define DMD_LIB_H
 
 
-Library *LibMSCoff_factory();
-Library *LibOMF_factory();
 Library *LibElf_factory();
-Library *LibMach_factory();
 
 class Library
 {

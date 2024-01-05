@@ -33,8 +33,6 @@
 #include "code.h"
 #include "type.h"
 #include "dt.h"
-#include "cv4.h"
-#include "cgcv.h"
 #include "outbuf.h"
 #include "irstate.h"
 

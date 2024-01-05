@@ -115,17 +115,11 @@ char *strupr(char *);
 
 #define SUFFIX  ""
 
-/* Set for supporting the FLAT memory model.
- * This is not quite the same as !SIXTEENBIT, as one could
- * have near/far with 32 bit code.
- */
-#define TARGET_SEGMENTED     (!MARS && 0)
-
 
 #if __GNUC__
 #define LDOUBLE                 0       // no support for true long doubles
 #else
-#define LDOUBLE         (config.exe == EX_WIN32)   // support true long doubles
+#define LDOUBLE         0   // support true long doubles
 #endif
 
 typedef long double longdouble;
@@ -336,9 +330,6 @@ typedef targ_uns        targ_size_t;    /* size_t for the target machine */
 
 /* Object module format
  */
-#ifndef OMFOBJ
-#define OMFOBJ          0
-#endif
 #ifndef ELFOBJ
 #define ELFOBJ          TARGET_LINUX
 #endif
@@ -408,8 +399,6 @@ typedef enum LINKAGE
 {
     LINK_C,                     /* C style                              */
     LINK_CPP,                   /* C++ style                            */
-    LINK_PASCAL,                /* Pascal style                         */
-    LINK_FORTRAN,
     LINK_SYSCALL,
     LINK_STDCALL,
     LINK_D,                     // D code
@@ -455,32 +444,11 @@ struct Config
     char fulltypes;
 #define CVNONE  0               // No symbolic info
 #define CVOLD   1               // Codeview 1 symbolic info
-#define CV4     2               // Codeview 4 symbolic info
 #define CVSYM   3               // Symantec format
 #define CVTDB   4               // Symantec format written to file
 #define CVDWARF_C 5             // Dwarf in C format
 #define CVDWARF_D 6             // Dwarf in D format
 #define CVSTABS 7               // Elf Stabs in C format
-#define CV8     8               // Codeview 8 symbolic info
-
-    unsigned wflags;            // flags for Windows code generation
-#       define WFwindows 1      // generating code for Windows app or DLL
-#       define WFdll     2      // generating code for Windows DLL
-#       define WFincbp   4      // mark far stack frame with inc BP / dec BP
-#       define WFloadds  8      // assume __loadds for all functions
-#       define WFexpdef  0x10   // generate export definition records for
-                                // exported functions
-#       define WFss      0x20   // load DS from SS
-#       define WFreduced 0x40   // skip DS load for non-exported functions
-#       define WFdgroup  0x80   // load DS from DGROUP
-#       define WFexport  0x100  // assume __export for all far functions
-#       define WFds      0x200  // load DS from DS
-#       define WFmacros  0x400  // define predefined windows macros
-#       define WFssneds  0x800  // SS != DS
-#       define WFthunk   0x1000 // use fixups instead of direct ref to CS
-#       define WFsaveds  0x2000 // use push/pop DS for far functions
-#       define WFdsnedgroup 0x4000      // DS != DGROUP
-#       define WFexe     0x8000 // generating code for Windows EXE
 
     bool fpxmmregs;             // use XMM registers for floating point
     char inline8087;            /* 0:   emulator
@@ -489,42 +457,15 @@ struct Config
                                  */
     short memmodel;             // 0:S,X,N,F, 1:M, 2:C, 3:L, 4:V
     unsigned objfmt;            // target object format
-#define OBJ_OMF         1
-#define OBJ_MSCOFF      2
 #define OBJ_ELF         4
-#define OBJ_MACH        8
     unsigned exe;               // target operating system
-#define EX_DOSX         1       // DOSX 386 program
-#define EX_ZPM          2       // ZPM 286 program
-#define EX_RATIONAL     4       // RATIONAL 286 program
-#define EX_PHARLAP      8       // PHARLAP 386 program
-#define EX_COM          0x10    // MSDOS .COM program
-//#define EX_WIN16      0x20    // Windows 3.x 16 bit program
-#define EX_OS2          0x40    // OS/2 2.0 32 bit program
-#define EX_OS1          0x80    // OS/2 1.x 16 bit program
-#define EX_WIN32        0x100
-#define EX_MZ           0x200   // MSDOS real mode program
 #define EX_XENIX        0x400
 #define EX_SCOUNIX      0x800
 #define EX_UNIXSVR4     0x1000
 #define EX_LINUX        0x2000
-#define EX_WIN64        0x4000  // AMD64 and Windows (64 bit mode)
 #define EX_LINUX64      0x8000  // AMD64 and Linux (64 bit mode)
-#define EX_OSX          0x10000
-#define EX_OSX64        0x20000
-#define EX_FREEBSD      0x40000
-#define EX_FREEBSD64    0x80000
-#define EX_SOLARIS      0x100000
-#define EX_SOLARIS64    0x200000
-#define EX_OPENBSD      0x400000
-#define EX_OPENBSD64    0x800000
 
-#define EX_flat         (EX_OS2 | EX_WIN32 | EX_LINUX | EX_WIN64 | EX_LINUX64 | \
-                         EX_OSX | EX_OSX64 | EX_FREEBSD | EX_FREEBSD64 | \
-                         EX_OPENBSD | EX_OPENBSD64 | \
-                         EX_SOLARIS | EX_SOLARIS64)
-#define EX_dos          (EX_DOSX | EX_ZPM | EX_RATIONAL | EX_PHARLAP | \
-                         EX_COM | EX_MZ /*| EX_WIN16*/)
+#define EX_flat         (EX_LINUX | EX_LINUX64)
 
 /* CFGX: flags ignored in precompiled headers
  * CFGY: flags copied from precompiled headers into current config

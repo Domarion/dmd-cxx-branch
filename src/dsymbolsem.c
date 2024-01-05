@@ -2952,23 +2952,6 @@ public:
                         }
                     }
 
-                    /* These quirky conditions mimic what VC++ appears to do
-                     */
-                    if (global.params.mscoff && cd->isCPPclass() &&
-                        cd->baseClass && cd->baseClass->vtbl.length)
-                    {
-                        /* if overriding an interface function, then this is not
-                         * introducing and don't put it in the class vtbl[]
-                         */
-                        funcdecl->interfaceVirtual = funcdecl->overrideInterface();
-                        if (funcdecl->interfaceVirtual)
-                        {
-                            //printf("\tinterface function %s\n", funcdecl->toChars());
-                            cd->vtblFinal.push(funcdecl);
-                            goto Linterfaces;
-                        }
-                    }
-
                     if (funcdecl->isFinalFunc())
                     {
                         // Don't check here, as it may override an interface function

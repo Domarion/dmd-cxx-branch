@@ -404,7 +404,6 @@ extern int EBPtoESP;            // add to EBP offset to get ESP offset
 
 code* prolog_ifunc(tym_t* tyf);
 code* prolog_ifunc2(tym_t tyf, tym_t tym, bool pushds);
-code* prolog_16bit_windows_farfunc(tym_t* tyf, bool* pushds);
 code* prolog_frame(unsigned farfunc, unsigned* xlocalsize, bool* enter, int* cfa_offset);
 code* prolog_frameadj(tym_t tyf, unsigned xlocalsize, bool enter, bool* pushalloc);
 code* prolog_frameadj2(tym_t tyf, unsigned xlocalsize, bool* pushalloc);
@@ -569,17 +568,6 @@ struct seg_data
     segidx_t             SDseg;         // index into SegData[]
     targ_size_t          SDoffset;      // starting offset for data
     int                  SDalignment;   // power of 2
-
-#if OMFOBJ
-    bool isfarseg;
-    int segidx;                         // internal object file segment number
-    int lnameidx;                       // lname idx of segment name
-    int classidx;                       // lname idx of class name
-    unsigned attr;                      // segment attribute
-    targ_size_t origsize;               // original size
-    long seek;                          // seek position in output file
-    Ledatarec *ledata;                  // current one we're filling in
-#endif
 
 #if 1 //ELFOBJ
     IDXSEC               SDshtidx;      // section header table index

@@ -20,7 +20,6 @@
 #include        "code.h"
 #include        "type.h"
 #include        "dt.h"
-#include        "cgcv.h"
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
@@ -76,7 +75,7 @@ void backend_init()
 #endif
 
     out_config_init(
-        (params->is64bit ? 64 : 32) | (params->mscoff ? 1 : 0),
+        (params->is64bit ? 64 : 32),
         exe,
         false, //params->trace,
         params->nofloat,

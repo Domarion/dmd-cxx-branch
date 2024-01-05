@@ -2964,46 +2964,7 @@ code *cdind(elem *e,regm_t *pretregs)
   return c;
 }
 
-
-
-#if !TARGET_SEGMENTED
 #define cod2_setES(ty) NULL
-#else
-/********************************
- * Generate code to load ES with the right segment value,
- * do nothing if e is a far pointer.
- */
-
-STATIC code *cod2_setES(tym_t ty)
-{   code *c2;
-    int push;
-
-    c2 = CNIL;
-    switch (tybasic(ty))
-    {
-        case TYnptr:
-            if (!(config.flags3 & CFG3eseqds))
-            {   push = 0x1E;            /* PUSH DS              */
-                goto L1;
-            }
-            break;
-        case TYcptr:
-            push = 0x0E;                /* PUSH CS              */
-            goto L1;
-        case TYsptr:
-            if ((config.wflags & WFssneds) || !(config.flags3 & CFG3eseqds))
-            {   push = 0x16;            /* PUSH SS              */
-            L1:
-                /* Must load ES */
-                c2 = getregs(mES);
-                c2 = gen1(c2,push);
-                gen1(c2,0x07);          /* POP ES               */
-            }
-            break;
-    }
-    return c2;
-}
-#endif
 
 /********************************
  * Generate code for intrinsic strlen().
@@ -3107,9 +3068,6 @@ code *cdstrcmp( elem *e, regm_t *pretregs)
             need_DS = FALSE;
             break;
         case TYsptr:
-            if (config.wflags & WFssneds)       /* if sptr can't use DS segment */
-                segreg = SEG_SS;
-            else
                 segreg = SEG_DS;
             goto L1;
         case TYcptr:
@@ -3216,9 +3174,6 @@ code *cdmemcmp(elem *e,regm_t *pretregs)
             need_DS = FALSE;
             break;
         case TYsptr:
-            if (config.wflags & WFssneds)       /* if sptr can't use DS segment */
-                segreg = SEG_SS;
-            else
                 segreg = SEG_DS;
             goto L1;
         case TYcptr:
@@ -3325,9 +3280,6 @@ code *cdstrcpy(elem *e,regm_t *pretregs)
             need_DS = FALSE;
             break;
         case TYsptr:
-            if (config.wflags & WFssneds)       /* if sptr can't use DS segment */
-                segreg = SEG_SS;
-            else
                 segreg = SEG_DS;
             goto L1;
         case TYcptr:
@@ -3441,9 +3393,6 @@ code *cdmemcpy(elem *e,regm_t *pretregs)
             need_DS = FALSE;
             break;
         case TYsptr:
-            if (config.wflags & WFssneds)       /* if sptr can't use DS segment */
-                segreg = SEG_SS;
-            else
                 segreg = SEG_DS;
             goto L1;
         case TYcptr:
@@ -3832,8 +3781,6 @@ code *cdstreq(elem *e,regm_t *pretregs)
         switch (tybasic(e21->Ety))
         {
             case TYsptr:
-                if (config.wflags & WFssneds)   /* if sptr can't use DS segment */
-                    segreg = SEG_SS;
                 break;
             case TYcptr:
                 if (!(config.exe & EX_flat))
@@ -3865,8 +3812,7 @@ code *cdstreq(elem *e,regm_t *pretregs)
         {
             c1a = cdrelconst(e2,&srcregs);
             segreg = segfl[el_fl(e2)];
-            if ((config.wflags & WFssneds) && segreg == SEG_SS || /* if source is on stack */
-                segreg == SEG_CS)               /* if source is in CS */
+            if (segreg == SEG_CS)               /* if source is in CS */
             {   code *c;
 
                 need_DS = TRUE;         /* we need to reload DS         */
@@ -4054,7 +4000,7 @@ code *cdrelconst(elem *e,regm_t *pretregs)
         sclass = (enum SC) s->Sclass;
         ety = tybasic(s->ty());
         if ((tyfarfunc(ety) || ety == TYifunc) &&
-            (sclass == SCextern || ClassInline(sclass) || config.wflags & WFthunk)
+            (sclass == SCextern || ClassInline(sclass))
             || s->Sfl == FLfardata
             || (s->ty() & mTYcs && s->Sseg != cseg && (LARGECODE || s->Sclass == SCcomdat))
            )
@@ -4239,7 +4185,7 @@ code *getoffset(elem *e,unsigned reg)
                 cs.Irex |= REX_B;
             if (I64)
             {   cs.Irex |= REX_W;
-                if (config.flags3 & CFG3pic || config.exe == EX_WIN64)
+                if (config.flags3 & CFG3pic)
                 {   // LEA reg,immed32[RIP]
                     cs.Iop = 0x8D;
                     cs.Irm = modregrm(0,reg & 7,5);

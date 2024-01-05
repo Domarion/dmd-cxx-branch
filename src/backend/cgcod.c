@@ -352,7 +352,7 @@ tryagain:
     targ_size_t swoffset;
     if (config.flags & CFGromable)
         swoffset = coffset;
-    else if (config.objfmt == OBJ_ELF || config.objfmt == OBJ_MACH)
+    else if (config.objfmt == OBJ_ELF)
         swoffset = CDoffset;
     else
         swoffset = Doffset;
@@ -571,7 +571,7 @@ code *prolog()
         /* The exception stack unwinding mechanism relies on the EBP chain being intact,
          * so need frame if function can possibly throw
          */
-        !(config.exe == EX_WIN32) && !(funcsym_p->Sfunc->Fflags3 & Fnothrow) ||
+        !(funcsym_p->Sfunc->Fflags3 & Fnothrow) ||
         sv64
        )
         needframe = 1;
@@ -580,8 +580,6 @@ Lagain:
     spoff = 0;
     char guessneedframe = needframe;
     int cfa_offset = 0;
-//    if (needframe && config.exe & (EX_LINUX | EX_FREEBSD | EX_SOLARIS) && !(usednteh & ~NTEHjmonitor))
-//      usednteh |= NTEHpassthru;
 
     /* Compute BP offsets for variables on stack.
      * The organization is:
@@ -775,13 +773,7 @@ Lagain:
             goto Lagain;
     }
 
-    if (I16 && config.wflags & WFwindows && farfunc)
-    {
-        c = cat(c, prolog_16bit_windows_farfunc(&tyf, &pushds));
-        enter = false;                  /* don't use ENTER instruction  */
-        hasframe = 1;                   /* we have a stack frame        */
-    }
-    else if (needframe)                 // if variables or parameters
+    if (needframe)                 // if variables or parameters
     {
         c = cat(c, prolog_frame(farfunc, &xlocalsize, &enter, &cfa_offset));
         hasframe = 1;
@@ -820,25 +812,9 @@ Lagain:
     c = cat(c, cstackadj);
     }
 
-    /* Win64 unwind needs the amount of code generated so far
-     */
-    if (config.exe == EX_WIN64)
-    {
-        pinholeopt(c, NULL);
-        prolog_allocoffset = calcblksize(c);
-    }
-
     c = prolog_saveregs(c, topush, cfa_offset);
 
 Lcont:
-
-    if (config.exe == EX_WIN64)
-    {
-        if (variadic(funcsym_p->Stype))
-            c = cat(c, prolog_gen_win64_varargs());
-        c = cat(c, prolog_loadparams(tyf, pushalloc, &namedargs));
-        return c;
-    }
 
     c = cat(c, prolog_ifunc2(tyf, tym, pushds));
 
@@ -1021,13 +997,6 @@ void stackoffsets(int flags)
 
             case SCshadowreg:
             case SCparameter:
-                if (config.exe == EX_WIN64)
-                {
-                    assert((Para.offset & 7) == 0);
-                    s->Soffset = Para.offset;
-                    Para.offset += 8;
-                    break;
-                }
                 /* Alignment on OSX 32 is odd. reals are 16 byte aligned in general,
                  * but are 4 byte aligned on the OSX 32 stack.
                  */
@@ -1852,9 +1821,6 @@ bool cssave(elem *e,regm_t regm,unsigned opsflag)
 
 bool evalinregister(elem *e)
 {
-    if (config.exe == EX_WIN64 && e->Eoper == OPrelconst)
-        return TRUE;
-
     if (e->Ecount == 0)             /* elem is not a CSE, therefore */
                                     /* we don't need to evaluate it */
                                     /* in a register                */

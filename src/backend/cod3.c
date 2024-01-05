@@ -535,10 +535,6 @@ regm_t regmask(tym_t tym, tym_t tyf)
         case TYnullptr:
         case TYnptr:
         case TYnref:
-#if TARGET_SEGMENTED
-        case TYsptr:
-        case TYcptr:
-#endif
             return mAX;
 
         case TYfloat:
@@ -552,21 +548,12 @@ regm_t regmask(tym_t tym, tym_t tyf)
         case TYdchar:
             if (!I16)
                 return mAX;
-#if TARGET_SEGMENTED
-        case TYfptr:
-        case TYhptr:
-#endif
             return mDX | mAX;
 
         case TYcent:
         case TYucent:
             assert(I64);
             return mDX | mAX;
-
-#if TARGET_SEGMENTED
-        case TYvptr:
-            return mDX | mBX;
-#endif
 
         case TYdouble:
         case TYdouble_alias:
@@ -1142,13 +1129,8 @@ void doswitch(block *b)
     code *ce = NULL;
 
     targ_ulong msw;
-
-#if TARGET_SEGMENTED
-    // If switch tables are in code segment and we need a CS: override to get at them
-    bool csseg = config.flags & CFGromable;
-#else
     bool csseg = false;
-#endif
+
 
     elem *e = b->Belem;
     elem_debug(e);
@@ -1320,7 +1302,7 @@ void doswitch(block *b)
             {   // Need to clear out high 32 bits of reg
                 c = genmovreg(c,reg,reg);                       // MOV reg,reg
             }
-            if (config.flags3 & CFG3pic || config.exe == EX_WIN64)
+            if (config.flags3 & CFG3pic)
             {
                 /* LEA    R1,disp[RIP]          48 8D 05 00 00 00 00
                  * MOVSXD R2,[reg*4][R1]        48 63 14 B8
@@ -1962,8 +1944,6 @@ void cod3_ptrchk(code **pc,code *pcs,regm_t keepmsk)
         if (segreg == 0x1E && (rm & 0xC0) != 0xC0 &&
             rm & 2 && (rm & 7) != 7)
         {   segreg = 0x16;
-            if (config.wflags & WFssneds)
-                pcs->Iflags |= CFss;    // because BP won't be there anymore
         }
         c = gen1(c,segreg);             // PUSH segreg
     }
@@ -2740,58 +2720,6 @@ code* prolog_ifunc2(tym_t tyf, tym_t tym, bool pushds)
     return c;
 }
 
-code* prolog_16bit_windows_farfunc(tym_t* tyf, bool* pushds)
-{
-    int wflags = config.wflags;
-    if (wflags & WFreduced && !(*tyf & mTYexport))
-    {   // reduced prolog/epilog for non-exported functions
-        wflags &= ~(WFdgroup | WFds | WFss);
-    }
-
-    code* c = getregs(mAX);
-    assert(!c);                     /* should not have any value in AX */
-
-    int segreg;
-    switch (wflags & (WFdgroup | WFds | WFss))
-    {   case WFdgroup:                      // MOV  AX,DGROUP
-            if (wflags & WFreduced)
-                *tyf &= ~mTYloadds;          // remove redundancy
-            c = genc(c,0xC7,modregrm(3,0,AX),0,0,FLdatseg,(targ_uns) 0);
-            c->Iflags ^= CFseg | CFoff;     // turn off CFoff, on CFseg
-            break;
-        case WFss:
-            segreg = 2;                     // SS
-            goto Lmovax;
-        case WFds:
-            segreg = 3;                     // DS
-        Lmovax:
-            c = gen2(c,0x8C,modregrm(3,segreg,AX)); // MOV AX,segreg
-            if (wflags & WFds)
-                gen1(c,0x90);               // NOP
-            break;
-        case 0:
-            break;
-        default:
-#ifdef DEBUG
-            printf("config.wflags = x%x\n",config.wflags);
-#endif
-            assert(0);
-    }
-    if (wflags & WFincbp)
-        c = gen1(c,0x40 + BP);              // INC  BP
-    c = gen1(c,0x50 + BP);                  // PUSH BP
-    genregs(c,0x8B,BP,SP);                  // MOV  BP,SP
-    if (wflags & (WFsaveds | WFds | WFss | WFdgroup))
-    {   gen1(c,0x1E);                       // PUSH DS
-        *pushds = true;
-        BPoff = -REGSIZE;
-    }
-    if (wflags & (WFds | WFss | WFdgroup))
-        gen2(c,0x8E,modregrm(3,3,AX));      // MOV  DS,AX
-
-    return c;
-}
-
 /**********************************************
  * Set up frame register.
  * Input:
@@ -2809,20 +2737,8 @@ code* prolog_frame(unsigned farfunc, unsigned* xlocalsize, bool* enter, int* cfa
     code* c = NULL;
     *cfa_offset = 0;
 
-    if (0 && config.exe == EX_WIN64)
-    {
-        // PUSH RBP
-        // LEA RBP,0[RSP]
-        c = gen1(c,0x50 + BP);
-        c = genc1(c,LEA,(REX_W<<16) | (modregrm(0,4,SP)<<8) | modregrm(2,BP,4),FLconst,0);
-        *enter = false;
-        return c;
-    }
-
-    if (config.wflags & WFincbp && farfunc)
-        c = gen1(c,0x40 + BP);      /* INC  BP                      */
     if (config.target_cpu < TARGET_80286 ||
-        config.exe & (EX_LINUX | EX_LINUX64 | EX_OSX | EX_OSX64 | EX_FREEBSD | EX_FREEBSD64 | EX_SOLARIS | EX_SOLARIS64 | EX_WIN64) ||
+        config.exe & (EX_LINUX | EX_LINUX64) ||
         !localsize ||
         config.flags & CFGstack ||
         (*xlocalsize >= 0x1000 && config.exe & EX_flat) ||
@@ -2835,7 +2751,7 @@ code* prolog_frame(unsigned farfunc, unsigned* xlocalsize, bool* enter, int* cfa
         genregs(c,0x8B,BP,SP);      // MOV  BP,SP
         if (I64)
             code_orrex(c, REX_W);   // MOV RBP,RSP
-        if ((config.objfmt & (OBJ_ELF | OBJ_MACH)) && config.fulltypes)
+        if ((config.objfmt & (OBJ_ELF)) && config.fulltypes)
             // Don't reorder instructions, as dwarf CFA relies on it
             code_orflag(c, CFvolatile);
         if (config.fulltypes == CVDWARF_C || config.fulltypes == CVDWARF_D ||
@@ -3328,7 +3244,7 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
 
             type *t = s->Stype;
             type *t2 = NULL;
-            if (tybasic(t->Tty) == TYstruct && config.exe != EX_WIN64)
+            if (tybasic(t->Tty) == TYstruct)
             {   type *targ1 = t->Ttag->Sstruct->Sarg1type;
                 t2 = t->Ttag->Sstruct->Sarg2type;
                 if (targ1)
@@ -3404,44 +3320,6 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
         }
     }
 
-    if (config.exe == EX_WIN64 && variadic(funcsym_p->Stype))
-    {
-        /* The Microsoft scheme.
-         * http://msdn.microsoft.com/en-US/library/dd2wa36c(v=vs.80)
-         * Copy registers onto stack.
-             mov     8[RSP],RCX or XMM0
-             mov     010h[RSP],RDX or XMM1
-             mov     018h[RSP],R8 or XMM2
-             mov     020h[RSP],R9 or XMM3
-         */
-        static reg_t vregs[4] = { CX,DX,R8,R9 };
-        for (int i = 0; i < sizeof(vregs)/sizeof(vregs[0]); ++i)
-        {
-            unsigned preg = vregs[i];
-            unsigned offset = Para.size + i * REGSIZE;
-            if (!(shadowregm & (mask[preg] | mask[XMM0 + i])))
-            {
-                code *c2;
-                if (hasframe)
-                {
-                    // MOV x[EBP],preg
-                    c2 = genc1(CNIL,0x89,
-                                     modregxrm(2,preg,BPRM),FLconst, offset);
-                    code_orrex(c2, REX_W);
-                }
-                else
-                {
-                    // MOV offset[ESP],preg
-                    c2 = genc1(CNIL,0x89,
-                                     (modregrm(0,4,SP) << 8) |
-                                     modregxrm(2,preg,4),FLconst,offset + EBPtoESP);
-                }
-                c2->Irex |= REX_W;
-                c = cat(c,c2);
-            }
-        }
-    }
-
     /* Copy SCfastpar and SCshadowreg (parameters passed in registers) that were assigned registers
      * into their assigned registers.
      * Note that we have a big problem if Pa is passed in R1 and assigned to R2,
@@ -3460,7 +3338,7 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
 
             type *t = s->Stype;
             type *t2 = NULL;
-            if (tybasic(t->Tty) == TYstruct && config.exe != EX_WIN64)
+            if (tybasic(t->Tty) == TYstruct)
             {   type *targ1 = t->Ttag->Sstruct->Sarg1type;
                 t2 = t->Ttag->Sstruct->Sarg2type;
                 if (targ1)
@@ -3647,31 +3525,6 @@ void epilog(block *b)
     topop = fregsaved & ~mfuncreg;
     c = epilog_restoreregs(c, topop);
 
-    if (config.wflags & WFwindows && farfunc)
-    {
-        int wflags = config.wflags;
-        if (wflags & WFreduced && !(tyf & mTYexport))
-        {   // reduced prolog/epilog for non-exported functions
-            wflags &= ~(WFdgroup | WFds | WFss);
-            if (!(wflags & WFsaveds))
-                goto L4;
-        }
-
-        if (localsize)
-        {
-            c = genc1(c,LEA,modregrm(1,SP,6),FLconst,(targ_uns)-2); /* LEA SP,-2[BP] */
-        }
-        if (wflags & (WFsaveds | WFds | WFss | WFdgroup))
-        {   if (cpopds)
-                cpopds->Iop = NOP;              // don't need previous one
-            c = gen1(c,0x1F);                   // POP DS
-        }
-        c = gen1(c,0x58 + BP);                  // POP BP
-        if (config.wflags & WFincbp)
-            gen1(c,0x48 + BP);                  // DEC BP
-        assert(hasframe);
-    }
-    else
     {
         if (needframe || (xlocalsize && hasframe))
         {
@@ -3712,12 +3565,6 @@ void epilog(block *b)
                     gen1(c1,0x58 + BP);                                 // POP BP
                     c = cat(c,c1);
                 }
-                else if (config.exe == EX_WIN64)
-                {   // See http://msdn.microsoft.com/en-us/library/tawsa7cb(v=vs.80).aspx
-                    // LEA RSP,0[RBP]
-                    c = genc1(c,LEA,(REX_W<<16)|modregrm(2,SP,BPRM),FLconst,0);
-                    c = gen1(c,0x58 + BP);      // POP RBP
-                }
                 else if (config.target_cpu >= TARGET_80286 &&
                     !(config.target_cpu >= TARGET_80386 && config.flags4 & CFG4speed)
                    )
@@ -3737,8 +3584,6 @@ void epilog(block *b)
             }
             else
                 c = gen1(c,0x58 + BP);          // POP BP
-            if (config.wflags & WFincbp && farfunc)
-                gen1(c,0x48 + BP);              // DEC BP
         }
         else if (xlocalsize == REGSIZE && (!I16 || b->BC == BCret))
         {   mfuncreg &= ~mask[regx];
@@ -3756,7 +3601,6 @@ Lret:
             c = genc2(c,0xC2,0,4);                      // RET 4
         }
         else if (!typfunc(tym) ||                       // if caller cleans the stack
-                 config.exe == EX_WIN64 ||
                  Para.offset == 0)                          // or nothing pushed on the stack anyway
         {   op++;                                       // to a regular RET
             c = gen1(c,op);
@@ -3902,11 +3746,6 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
 
     /* Skip over return address */
     thunkty = tybasic(sthunk->ty());
-#if TARGET_SEGMENTED
-    if (tyfarfunc(thunkty))
-        p += I32 ? 8 : tysize[TYfptr];          /* far function */
-    else
-#endif
         p += tysize[TYnptr];
 
     if (!I16)
@@ -3937,9 +3776,7 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
         {                                       // ADD EAX,d
             c = CNIL;
             int rm = AX;
-            if (config.exe == EX_WIN64)
-                rm = CX;
-            else if (I64)
+            if (I64)
                 rm = DI;
             if (d)
                 c = genc2(c,0x81,modregrm(3,reg,rm),d);
@@ -3972,11 +3809,6 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
         c1 = genc(CNIL,0x81,modregrm(2,0,7),
             FLconst,p,                                  /* to this      */
             FLconst,d);                                 /* ADD p[BX],d  */
-        if (config.wflags & WFssneds ||
-            // If DS needs reloading from SS,
-            // then assume SS != DS on thunk entry
-            (LARGEDATA && config.wflags & WFss))
-            c1->Iflags |= CFss;                         /* SS:          */
         c = cat(c,c1);
     }
 
@@ -3985,11 +3817,6 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
 
 #define FARTHIS (tysize(thisty) > REGSIZE)
 #define FARVPTR FARTHIS
-
-#if TARGET_SEGMENTED
-        assert(thisty != TYvptr);               /* can't handle this case */
-#endif
-
         if (!I16)
         {
             assert(!FARTHIS && !LARGECODE);
@@ -4024,12 +3851,6 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
         {
             /* MOV/LES BX,[SS:] p[BX]   */
             c1 = genc1(CNIL,(FARTHIS ? 0xC4 : 0x8B),modregrm(2,BX,7),FLconst,(targ_uns) p);
-            if (config.wflags & WFssneds ||
-                // If DS needs reloading from SS,
-                // then assume SS != DS on thunk entry
-                (LARGEDATA && config.wflags & WFss))
-                c1->Iflags |= CFss;                     /* SS:          */
-
             /* MOV/LES BX,[ES:]d2[BX] */
             c2 = genc1(CNIL,(FARVPTR ? 0xC4 : 0x8B),modregrm(2,BX,7),FLconst,d2);
             if (FARTHIS)
@@ -4443,47 +4264,21 @@ void assignaddrc(code *c)
         switch (c->IFL1)
         {
             case FLdata:
-                if (config.objfmt == OBJ_OMF && s->Sclass != SCcomdat)
-                {
-#if MARS
-                    c->IEVseg1 = s->Sseg;
-#else
-                    c->IEVseg1 = DATA;
-#endif
-                    c->IEVpointer1 += s->Soffset;
-                    c->IFL1 = FLdatseg;
-                }
-                else
-                    c->IFL1 = FLextern;
+                c->IFL1 = FLextern;
                 goto do2;
 
             case FLudata:
-                if (config.objfmt == OBJ_OMF)
-                {
-#if MARS
-                    c->IEVseg1 = s->Sseg;
-#else
-                    c->IEVseg1 = UDATA;
-#endif
-                    c->IEVpointer1 += s->Soffset;
-                    c->IFL1 = FLdatseg;
-                }
-                else
-                    c->IFL1 = FLextern;
+                c->IFL1 = FLextern;
                 goto do2;
 
             case FLtlsdata:
-                if (config.objfmt == OBJ_ELF || config.objfmt == OBJ_MACH)
+                if (config.objfmt == OBJ_ELF)
                     c->IFL1 = FLextern;
                 goto do2;
             case FLdatseg:
                 c->IEVseg1 = DATA;
                 goto do2;
 
-#if TARGET_SEGMENTED
-            case FLfardata:
-            case FLcsdata:
-#endif
             case FLpseudo:
                 goto do2;
 
@@ -4604,7 +4399,7 @@ void assignaddrc(code *c)
         switch (c->IFL2)
         {
             case FLdata:
-                if (config.objfmt == OBJ_ELF || config.objfmt == OBJ_MACH)
+                if (config.objfmt == OBJ_ELF)
                 {
                     c->IFL2 = FLextern;
                     goto do2;
@@ -4622,7 +4417,7 @@ void assignaddrc(code *c)
                 }
 
             case FLudata:
-                if (config.objfmt == OBJ_ELF || config.objfmt == OBJ_MACH)
+                if (config.objfmt == OBJ_ELF)
                 {
                     c->IFL2 = FLextern;
                     goto do2;
@@ -4636,7 +4431,7 @@ void assignaddrc(code *c)
                 }
 
             case FLtlsdata:
-                if (config.objfmt == OBJ_ELF || config.objfmt == OBJ_MACH)
+                if (config.objfmt == OBJ_ELF)
                 {
                     c->IFL2 = FLextern;
                     goto do2;
@@ -4646,11 +4441,6 @@ void assignaddrc(code *c)
             case FLdatseg:
                 c->IEVseg2 = DATA;
                 goto done;
-#if TARGET_SEGMENTED
-            case FLcsdata:
-            case FLfardata:
-                goto done;
-#endif
             case FLreg:
             case FLpseudo:
                 assert(0);
@@ -6236,11 +6026,7 @@ static void do64bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags)
             else
                     objmod->reftodatseg(cseg,pbuf->offset,ad,JMPSEG,CFoff);
             break;
-#if TARGET_SEGMENTED
-        case FLcsdata:
-        case FLfardata:
-            //symbol_print(uev->sp.Vsym);
-#endif
+
             // NOTE: In ELFOBJ all symbol refs have been tagged FLextern
             // strings and statics are treated like offsets from a
             // un-named external with is the start of .rodata or .data
@@ -6257,7 +6043,7 @@ static void do64bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags)
 
         case FLfunc:                        /* function call                */
             s = uev->sp.Vsym;               /* symbol pointer               */
-            assert(TARGET_SEGMENTED || !tyfarfunc(s->ty()));
+            assert(!tyfarfunc(s->ty()));
             pbuf->flush();
             objmod->reftoident(cseg,pbuf->offset,s,0,CFoffset64 | flags);
             break;
@@ -6341,23 +6127,8 @@ static void do32bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags, int 
 
     case FLfunc:                        /* function call                */
         s = uev->sp.Vsym;               /* symbol pointer               */
-#if TARGET_SEGMENTED
-        if (tyfarfunc(s->ty()))
-        {       /* Large code references are always absolute    */
-                pbuf->flush();
-                pbuf->offset += objmod->reftoident(cseg,pbuf->offset,s,0,flags) - 4;
-        }
-        else if (s->Sseg == cseg &&
-                 (s->Sclass == SCstatic || s->Sclass == SCglobal) &&
-                 s->Sxtrnnum == 0 && flags & CFselfrel)
-        {       /* if we know it's relative address     */
-                ad = s->Soffset - pbuf->getOffset() - 4;
-                goto L1;
-        }
-        else
-#endif
         {
-                assert(TARGET_SEGMENTED || !tyfarfunc(s->ty()));
+                assert(!tyfarfunc(s->ty()));
                 pbuf->flush();
                 objmod->reftoident(cseg,pbuf->offset,s,val,flags);
         }
@@ -6405,19 +6176,15 @@ static void do16bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags)
         else
                 objmod->reftodatseg(cseg,pbuf->offset,ad,JMPSEG,CFoff);
         break;
-#if TARGET_SEGMENTED
-    case FLcsdata:
-    case FLfardata:
-#endif
     case FLextern:                      /* external data symbol         */
     case FLtlsdata:
-        assert(TARGET_SEGMENTED);
+        assert(0);
         pbuf->flush();
         s = uev->sp.Vsym;               /* symbol pointer               */
         objmod->reftoident(cseg,pbuf->offset,s,uev->sp.Voffset,flags);
         break;
     case FLfunc:                        /* function call                */
-        assert(TARGET_SEGMENTED);
+        assert(0);
         s = uev->sp.Vsym;               /* symbol pointer               */
         if (tyfarfunc(s->ty()))
         {       /* Large code references are always absolute    */
@@ -6563,10 +6330,6 @@ void code_hydrate(code **pc)
             case FLfast:
             case FLbprel:
             case FLpara:
-#if TARGET_SEGMENTED
-            case FLcsdata:
-            case FLfardata:
-#endif
             case FLtlsdata:
             case FLfunc:
             case FLpseudo:
@@ -6616,10 +6379,6 @@ void code_hydrate(code **pc)
             case FLfast:
             case FLbprel:
             case FLpara:
-#if TARGET_SEGMENTED
-            case FLcsdata:
-            case FLfardata:
-#endif
             case FLtlsdata:
             case FLfunc:
             case FLpseudo:
@@ -6728,10 +6487,6 @@ void code_dehydrate(code **pc)
             case FLfast:
             case FLbprel:
             case FLpara:
-#if TARGET_SEGMENTED
-            case FLcsdata:
-            case FLfardata:
-#endif
             case FLtlsdata:
             case FLfunc:
             case FLpseudo:
@@ -6780,10 +6535,6 @@ void code_dehydrate(code **pc)
             case FLfast:
             case FLbprel:
             case FLpara:
-#if TARGET_SEGMENTED
-            case FLcsdata:
-            case FLfardata:
-#endif
             case FLtlsdata:
             case FLfunc:
             case FLpseudo:

@@ -235,7 +235,6 @@ int tryMain(size_t argc, const char *argv[])
 
     // Default to -m32 for 32 bit dmd, -m64 for 64 bit dmd
     global.params.is64bit = (sizeof(size_t) == 8);
-    global.params.mscoff = false;
 
 #if TARGET_LINUX
     global.params.defaultlibname = "libphobos2.a";
@@ -411,15 +410,10 @@ int tryMain(size_t argc, const char *argv[])
             else if (strcmp(p + 1, "m32") == 0)
             {
                 global.params.is64bit = false;
-                global.params.mscoff = false;
             }
             else if (strcmp(p + 1, "m64") == 0)
             {
                 global.params.is64bit = true;
-            }
-            else if (strcmp(p + 1, "m32mscoff") == 0)
-            {
-                error(Loc(), "-m32mscoff can only be used on windows");
             }
             else if (memcmp(p + 1, "profile", 7) == 0)
             {
@@ -1668,7 +1662,7 @@ static const char* parse_arch_arg(Strings *args, const char* arch)
         const char* p = (*args)[i];
         if (p[0] == '-')
         {
-            if (strcmp(p + 1, "m32") == 0 || strcmp(p + 1, "m32mscoff") == 0 || strcmp(p + 1, "m64") == 0)
+            if (strcmp(p + 1, "m32") == 0 || strcmp(p + 1, "m64") == 0)
                 arch = p + 2;
             else if (strcmp(p + 1, "run") == 0)
                 break;

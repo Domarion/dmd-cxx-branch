@@ -266,18 +266,7 @@ ROOT_OBJS = \
 GLUE_OBJS = \
 	glue.o msc.o s2ir.o todt.o e2ir.o tocsym.o \
 	toobj.o toctype.o toelfdebug.o toir.o \
-	irstate.o typinf.o iasm.o iasmdmd.o iasmgcc.o
-
-
-GLUE_OBJS += objc_glue_stubs.o
-
-ifeq (osx,$(OS))
-    GLUE_OBJS += libmach.o scanmach.o
-else
-    GLUE_OBJS += libelf.o scanelf.o
-endif
-
-#GLUE_OBJS=gluestub.o
+	irstate.o typinf.o iasm.o iasmdmd.o iasmgcc.o objc_glue_stubs.o libelf.o scanelf.o
 
 BACK_OBJS = go.o gdag.o gother.o gflow.o gloop.o var.o el.o \
 	glocal.o os.o evalu8.o cgcs.o \
@@ -286,18 +275,12 @@ BACK_OBJS = go.o gdag.o gother.o gflow.o gloop.o var.o el.o \
 	debug.o code.o ee.o symbol.o \
 	cgcod.o cod5.o outbuf.o \
 	bcomplex.o aa.o ti_achar.o \
-	ti_pvoid.o pdata.o cv8.o backconfig.o \
+	ti_pvoid.o pdata.o backconfig.o \
 	divcoeff.o dwarf.o dwarfeh.o \
 	ph2.o util2.o eh.o tk.o strtold.o \
-	$(TARGET_OBJS)
+	$(TARGET_OBJS) elfobj.o
 
-ifeq (osx,$(OS))
-	BACK_OBJS += machobj.o
-else
-	BACK_OBJS += elfobj.o
-endif
-
-SRC = win32.mak posix.mak osmodel.mak \
+SRC = posix.mak osmodel.mak \
 	mars.c denum.c dstruct.c dsymbol.c dimport.c idgen.c impcnvgen.c \
 	identifier.c mtype.c expression.c expressionsem.c optimize.c template.h \
 	dtemplate.c lexer.c declaration.c dcast.c cond.h cond.c link.c \
@@ -316,7 +299,7 @@ SRC = win32.mak posix.mak osmodel.mak \
 	aliasthis.h aliasthis.c json.h json.c unittests.c imphint.c \
 	argtypes.c apply.c sapply.c safe.c sideeffect.c \
 	intrange.h intrange.c blockexit.c canthrow.c target.c target.h \
-	scanmscoff.c scanomf.c ctfe.h ctfeexpr.c \
+	ctfe.h ctfeexpr.c \
 	ctfe.h ctfeexpr.c visitor.h nspace.h nspace.c errors.h errors.c \
 	escape.c tokens.h tokens.c globals.h globals.c \
 	utils.c chkformat.c \
@@ -341,29 +324,29 @@ ROOT_SRC = $(ROOT)/root.h \
 
 GLUE_SRC = glue.c msc.c s2ir.c todt.c e2ir.c tocsym.c \
 	toobj.c toctype.c tocvdebug.c toir.h toir.c \
-	libmscoff.c scanmscoff.c irstate.h irstate.c typinf.c iasm.c \
-	toelfdebug.c libomf.c scanomf.c libelf.c scanelf.c libmach.c scanmach.c \
+	irstate.h irstate.c typinf.c iasm.c \
+	toelfdebug.c libelf.c scanelf.c \
 	tk.c eh.c gluestub.c objc_glue.c objc_glue_stubs.c
 
 BACK_SRC = \
 	$C/cdef.h $C/cc.h $C/oper.h $C/ty.h $C/optabgen.c \
-	$C/global.h $C/code.h $C/type.h $C/dt.h $C/cgcv.h \
+	$C/global.h $C/code.h $C/type.h $C/dt.h \
 	$C/el.h $C/iasm.h $C/rtlsym.h \
 	$C/bcomplex.c $C/blockopt.c $C/cg.c $C/cg87.c $C/cgxmm.c \
-	$C/cgcod.c $C/cgcs.c $C/cgcv.c $C/cgelem.c $C/cgen.c $C/cgobj.c \
+	$C/cgcod.c $C/cgcs.c $C/cgelem.c $C/cgen.c $C/cgobj.c \
 	$C/cgreg.c $C/var.c $C/strtold.c \
 	$C/cgsched.c $C/cod1.c $C/cod2.c $C/cod3.c $C/cod4.c $C/cod5.c \
 	$C/code.c $C/symbol.c $C/debug.c $C/dt.c $C/ee.c $C/el.c \
 	$C/evalu8.c $C/go.c $C/gflow.c $C/gdag.c \
 	$C/gother.c $C/glocal.c $C/gloop.c $C/newman.c \
 	$C/os.c $C/out.c $C/outbuf.c $C/ptrntab.c $C/rtlsym.c \
-	$C/type.c $C/melf.h $C/mach.h $C/mscoff.h $C/bcomplex.h \
+	$C/type.c $C/melf.h  $C/bcomplex.h \
 	$C/outbuf.h $C/token.h $C/tassert.h \
-	$C/elfobj.c $C/cv4.h $C/dwarf2.h $C/exh.h $C/go.h \
+	$C/elfobj.c $C/dwarf2.h $C/exh.h $C/go.h \
 	$C/dwarf.c $C/dwarf.h $C/aa.h $C/aa.c $C/tinfo.h $C/ti_achar.c \
 	$C/ti_pvoid.c $C/platform_stub.c $C/code_x86.h $C/code_stub.h \
-	$C/machobj.c $C/mscoffobj.c \
-	$C/xmm.h $C/obj.h $C/pdata.c $C/cv8.c $C/backconfig.c $C/divcoeff.c \
+	$C/mscoffobj.c \
+	$C/xmm.h $C/obj.h $C/pdata.c $C/backconfig.c $C/divcoeff.c \
 	$C/md5.c $C/md5.h \
 	$C/ph2.c $C/util2.c $C/dwarfeh.c \
 	$(TARGET_CH)
@@ -577,11 +560,7 @@ gcov:
 	gcov irstate.c
 	gcov json.c
 	gcov lexer.c
-ifeq (osx,$(OS))
-	gcov libmach.c
-else
 	gcov libelf.c
-endif
 	gcov link.c
 	gcov dmacro.c
 	gcov dmangle.c

@@ -843,19 +843,9 @@ size_t addtofixlist(symbol *s,targ_size_t soffset,int seg,targ_size_t val,int fl
         *pv = ln;
 
         size_t numbytes;
-#if TARGET_SEGMENTED
-        switch (flags & (CFoff | CFseg))
-        {
-            case CFoff:         numbytes = tysize[TYnptr];      break;
-            case CFseg:         numbytes = 2;                   break;
-            case CFoff | CFseg: numbytes = tysize[TYfptr];      break;
-            default:            assert(0);
-        }
-#else
         numbytes = tysize[TYnptr];
         if (I64 && !(flags & CFoffset64))
             numbytes = 4;
-#endif
 #ifdef DEBUG
         assert(numbytes <= sizeof(zeros));
 #endif
@@ -929,14 +919,6 @@ STATIC int outfixlist_dg(void *parameter, void *pkey, void *pvalue)
         symbol_debug(s);
         //printf("outfixlist '%s' offset %04x\n",s->Sident,ln->Loffset);
 
-#if TARGET_SEGMENTED
-        if (tybasic(s->ty()) == TYf16func)
-        {
-            Obj::far16thunk(s);          /* make it into a thunk         */
-            searchfixlist(s);
-        }
-        else
-#endif
         {
             if (s->Sxtrnnum == 0)
             {   if (s->Sclass == SCstatic)

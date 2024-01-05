@@ -166,7 +166,7 @@ code *cdeq(elem *e,regm_t *pretregs)
 
         if ((e2oper == OPconst ||       /* if rvalue is a constant      */
              e2oper == OPrelconst &&
-             !(I64 && (config.flags3 & CFG3pic || config.exe == EX_WIN64)) &&
+             !(I64 && (config.flags3 & CFG3pic)) &&
              ((fl = el_fl(e2)) == FLdata ||
               fl==FLudata || fl == FLextern)
               && !(e2->EV.sp.Vsym->ty() & mTYcs)
@@ -1777,7 +1777,7 @@ code *cdcmp(elem *e,regm_t *pretregs)
         }
         break;
       case OPrelconst:
-        if (I64 && (config.flags3 & CFG3pic || config.exe == EX_WIN64))
+        if (I64 && (config.flags3 & CFG3pic))
             goto L2;
         fl = el_fl(e2);
         switch (fl)
