@@ -445,7 +445,7 @@ impcnvgen : mtype.h impcnvgen.c
 # The "-dirty" part is only present when the repository had uncommitted changes
 # at the moment it was compiled (only files already tracked by git are taken
 # into account, untracked files don't affect the dirty state).
-VERSION := $(shell cat ../VERSION)
+VERSION := 0.0.1
 ifneq (1,$(RELEASE))
 VERSION_GIT := $(shell printf "`$(GIT) rev-parse --short HEAD`"; \
        test -n "`$(GIT) status --porcelain -uno`" && printf -- -dirty)
