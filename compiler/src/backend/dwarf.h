@@ -1,6 +1,4 @@
-
-#ifndef DWARF_H
-#define DWARF_H
+#pragma once
 
 /* ==================== Dwarf debug ======================= */
 
@@ -24,4 +22,3 @@ void genDwarfEh(Funcsym *sfunc, int seg, Outbuffer *et, bool scancode, unsigned 
 int dwarf_eh_frame_fixup(int seg, targ_size_t offset, Symbol *s, targ_size_t val, Symbol *seh);
 
 void cv_outsym(symbol *s);
-#endif

@@ -8,10 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-
-#ifndef TY_H
-#define TY_H 1
-
+#pragma once
 /*****************************************
  * Data types.
  * (consists of basic type + modifier bits)
@@ -302,5 +299,3 @@ extern const char *tystring[];
 /* Debugger value for type      */
 extern unsigned char dttab[];
 extern unsigned short dttab4[];
-
-#endif /* TY_H */

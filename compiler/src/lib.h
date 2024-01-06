@@ -8,9 +8,7 @@
  * https://github.com/D-Programming-Language/dmd/blob/master/src/lib.h
  */
 
-#ifndef DMD_LIB_H
-#define DMD_LIB_H
-
+#pragma once
 
 Library *LibElf_factory();
 
@@ -31,6 +29,3 @@ class Library
     virtual void addLibrary(void *buf, size_t buflen) = 0;
     virtual void write() = 0;
 };
-
-#endif /* DMD_LIB_H */
-

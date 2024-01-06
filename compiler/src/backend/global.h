@@ -10,14 +10,9 @@
 
 // Globals
 
-//#pragma once
-#ifndef GLOBAL_H
-#define GLOBAL_H        1
+#pragma once
 
-#ifndef EL_H
 #include        "el.h"
-#endif
-
 #include        "obj.h"
 
 extern char debuga;            /* cg - watch assignaddr()              */
@@ -458,5 +453,3 @@ char *lnx_redirect_funcname(const char *);
 void  lnx_funcdecl(symbol *,enum SC,enum_SC,int);
 int  lnx_attributes(int hinttype,const void *hint, type **ptyp, tym_t *ptym,int *pattrtype);
 #endif
-
-#endif /* GLOBAL_H */

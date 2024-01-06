@@ -8,9 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-
-#ifndef __TYPE_H
-#define __TYPE_H
+#pragma once
 
 #include <limits.h>
 
@@ -196,4 +194,3 @@ type *type_enum(const char *name, type *tbase);
 type *type_struct_class(const char *name, unsigned alignsize, unsigned structsize,
         type *arg1type, type *arg2type, bool isUnion, bool isClass, bool isPOD);
 
-#endif

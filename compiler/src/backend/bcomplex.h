@@ -1,7 +1,4 @@
-// public domain
-
-#ifndef BCOMPLEX_H
-#define BCOMPLEX_H 1
+#pragma once
 
 typedef long double longdouble;
 
@@ -35,4 +32,3 @@ struct Complex_ld
     static Complex_ld sqrtc(Complex_ld &z);
 };
 
-#endif

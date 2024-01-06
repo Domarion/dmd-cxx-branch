@@ -8,8 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#ifndef CC_H
-#define CC_H    1
+#pragma once
 
 #ifndef MARS
 #define MARS            0       // not compiling MARS code
@@ -168,9 +167,7 @@ typedef struct Srcpos
     void print(const char *func);
 } Srcpos;
 
-#ifndef TOKEN_H
 #include "token.h"
-#endif
 
 /**********************************
  * Current 'state' of the compiler.
@@ -1536,6 +1533,3 @@ enum
         for (size_t i = 0; i < sz / sizeof(size_t); ++i)        \
             ((size_t *)(p))[i] = 0;                             \
     }
-
-
-#endif

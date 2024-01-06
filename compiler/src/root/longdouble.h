@@ -8,8 +8,7 @@
 
 // 80 bit floating point value implementation for Microsoft compiler
 
-#ifndef __LONG_DOUBLE_H__
-#define __LONG_DOUBLE_H__
+#pragma once
 
 #include <stdio.h>
 typedef long double longdouble;
@@ -19,4 +18,3 @@ typedef volatile long double volatile_longdouble;
 // template<typename T> longdouble ldouble(T x) { return (longdouble) x; }
 #define ldouble(x) ((longdouble)(x))
 
-#endif // __LONG_DOUBLE_H__

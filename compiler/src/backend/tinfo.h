@@ -6,9 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt
 // https://github.com/D-Programming-Language/dmd/blob/master/src/backend/tinfo.h
 
-
-#ifndef TYPEINFO_H
-#define TYPEINFO_H
+#pragma once
 
 #include <stdlib.h>
 
@@ -47,5 +45,3 @@ struct TypeInfo_Pvoid : TypeInfo
 };
 
 extern TypeInfo_Pvoid ti_pvoid;
-
-#endif

@@ -3,8 +3,7 @@
 /* All Rights Reserved                                  */
 /* Written by Walter Bright                             */
 
-#ifndef FILESPEC_H
-#define FILESPEC_H      1
+#pragma once
 
 /*********************************
  * String compare of filenames.
@@ -120,5 +119,3 @@ char *filespecmultitilde(char *);
  */
 
 char *filespecbackup(const char *);
-
-#endif /* FILESPEC_H */

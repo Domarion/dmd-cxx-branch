@@ -10,9 +10,7 @@
 /* Interface to object file format
  */
 
-//#pragma once
-#ifndef OBJ_H
-#define OBJ_H        1
+#pragma once
 
 struct seg_data;
 
@@ -105,5 +103,3 @@ struct ElfObj : Obj
 #undef VIRTUAL
 
 extern Obj *objmod;
-
-#endif

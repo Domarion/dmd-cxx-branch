@@ -8,8 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#ifndef OPER_H
-#define OPER_H  1
+#pragma once
 
 enum OPER
 {
@@ -371,6 +370,3 @@ extern const unsigned char opcost[OPMAX];
                             (e)->E1->Eoper == OPvar)
 
 #define EOP(e)  (!OTleaf((e)->Eoper))
-
-#endif /* OPER_H */
-

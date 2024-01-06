@@ -34,9 +34,7 @@
  * TKfilespec   <filespec>
  */
 
-//#pragma once
-#ifndef TOKEN_H
-#define TOKEN_H 1
+#pragma once
 
 // Keyword tokens. Needn't be ascii sorted
 typedef unsigned char enum_TK;
@@ -428,6 +426,3 @@ struct Token_lookahead
         token_free(toks);
     }
 };
-
-
-#endif /* TOKEN_H */

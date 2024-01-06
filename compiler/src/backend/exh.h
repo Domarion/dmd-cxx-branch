@@ -8,9 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-//#pragma once
-#ifndef EXCEPT_H
-#define EXCEPT_H 1
+#pragma once
 
 struct Aobject
 {
@@ -40,9 +38,3 @@ symbol *except_gensym();
 symbol *except_gentables();
 void except_fillInEHTable(symbol *s);
 void  except_reset();
-
-/* pdata.c */
-void win64_pdata(Symbol *sf);
-
-#endif
-

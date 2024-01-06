@@ -1,7 +1,5 @@
 
-//#pragma once
-#ifndef DT_H
-#define DT_H    1
+#pragma once
 
 struct dt_t;
 struct Symbol;
@@ -46,6 +44,3 @@ struct DtBuilder
     unsigned length();
     bool isZeroLength();
 };
-
-#endif /* DT_H */
-

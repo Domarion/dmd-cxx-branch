@@ -8,9 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-//#pragma once
-#ifndef TASSERT_H
-#define TASSERT_H 1
+#pragma once
 
 /*****************************
  * Define a local assert function.
@@ -39,6 +37,3 @@ static void local_assert(int line)
 }
 
 #endif
-
-
-#endif /* TASSERT_H */

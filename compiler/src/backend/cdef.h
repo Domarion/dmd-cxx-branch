@@ -45,8 +45,7 @@ One and only one of these macros must be set by the makefile:
  * with these goals, and should be fixed.
  */
 
-#ifndef CDEF_H
-#define CDEF_H  1
+#pragma once
 
 #define VERSION "8.58.0"        // for banner and imbedding in .OBJ file
 #define VERSIONINT 0x858        // for precompiled headers and DLL version
@@ -803,6 +802,3 @@ inline void swap(int *a,int *b)
   *a = *b;
   *b = tmp;
 }
-
-
-#endif /* CDEF_H */

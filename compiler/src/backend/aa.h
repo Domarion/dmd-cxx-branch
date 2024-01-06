@@ -6,10 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt
 // https://github.com/D-Programming-Language/dmd/blob/master/src/backend/aa.h
 
-
-
-#ifndef AA_H
-#define AA_H
+#pragma once
 
 #include <stdlib.h>
 
@@ -103,6 +100,3 @@ struct AArray
     void rehash_x(aaA* olde, aaA** newbuckets, size_t newbuckets_length);
     int apply_x(aaA* e, dg2_t dg, size_t keysize, void *parameter);
 };
-
-#endif
-

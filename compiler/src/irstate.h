@@ -8,9 +8,7 @@
  * https://github.com/D-Programming-Language/dmd/blob/master/src/irstate.h
  */
 
-#ifndef DMD_CONTEXT_H
-#define DMD_CONTEXT_H
-
+#pragma once
 
 class Module;
 class Statement;
@@ -155,5 +153,3 @@ struct IRState
     FuncDeclaration *getFunc();
     bool arrayBoundsCheck();
 };
-
-#endif /* DMD_CONTEXT_H */

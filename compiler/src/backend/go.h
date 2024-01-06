@@ -8,8 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#ifndef GO_H
-#define GO_H 1
+#pragma once
 
 /***************************************
  * Bit masks for various optimizations.
@@ -98,4 +97,3 @@ void deadvar(void);
 void verybusyexp(void);
 list_t listrds(vec_t, elem *, vec_t);
 
-#endif /*  GO_H */
