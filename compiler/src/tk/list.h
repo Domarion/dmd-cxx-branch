@@ -3,12 +3,7 @@
 /* All Rights Reserved                                  */
 /* Written by Walter Bright                             */
 
-#ifndef LIST_H
-#define LIST_H  1
-
-#if __SC__
 #pragma once
-#endif
 
 /*
  * List is a complete package of functions to deal with singly linked
@@ -282,5 +277,3 @@ extern  int list_nitems (list_t),
 #ifdef __cplusplus
 void list_free(list_t *l); // { list_free(l,FPNULL); }
 #endif
-
-#endif /* LIST_H */

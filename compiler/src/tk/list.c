@@ -179,7 +179,7 @@ list_t list_append_debug(list_t *plist,void *ptr,char *file,int line)
 #else
 list_t list_append(list_t *plist,void *ptr)
 #endif
-{       register list_t list;
+{       list_t list;
 
         while (*plist)
                 plist = &(list_next(*plist));   /* find end of list     */
@@ -201,7 +201,7 @@ list_t list_append(list_t *plist,void *ptr)
 /*************************/
 
 list_t list_prepend(list_t *plist,void *ptr)
-{       register list_t list;
+{       list_t list;
 
         list = list_alloc(fileline);
         if (list)
@@ -238,14 +238,13 @@ __declspec(naked) int __pascal list_nitems(list_t list)
 #else
 
 int list_nitems(list_t list)
-{       register int n;
-
-        n = 0;
-        while (list)
-        {       n++;
-                list = list_next(list);
-        }
-        return n;
+{
+    int n = 0;
+    while (list)
+    {       n++;
+            list = list_next(list);
+    }
+    return n;
 }
 
 #endif
@@ -253,23 +252,22 @@ int list_nitems(list_t list)
 /*************************/
 
 list_t list_nth(list_t list,int n)
-{       register int i;
-
-        for (i = 0; i < n; i++)
-        {       assert(list);
-                list = list_next(list);
-        }
-        return list;
+{
+    for (int i = 0; i < n; i++)
+    {       assert(list);
+            list = list_next(list);
+    }
+    return list;
 }
 
 /*************************/
 
 list_t list_last(list_t list)
 {
-        if (list)
-                while (list_next(list))
-                        list = list_next(list);
-        return list;
+    if (list)
+            while (list_next(list))
+                    list = list_next(list);
+    return list;
 }
 
 /**************************/
@@ -291,9 +289,8 @@ list_t list_prev(list_t start,list_t list)
 /****************************/
 
 list_t list_copy(list_t list)
-{   list_t c;
-
-    c = NULL;
+{
+    list_t c = NULL;
     for (; list; list = list_next(list))
         list_append(&c,list_ptr(list));
     return c;

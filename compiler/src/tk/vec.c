@@ -344,8 +344,8 @@ size_t vec_testbit(size_t b,vec_t v)
  */
 
 size_t vec_index(size_t b,vec_t vec)
-{       register size_t starv;
-        register vec_t v,vtop;
+{       size_t starv;
+        vec_t v,vtop;
         size_t bit;
 
     if (!vec)

@@ -20,12 +20,7 @@
 #include        <pwd.h>
 #endif
 
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-#include        <direct.h>
-#include        <ctype.h>
-#endif
-
-#if M_UNIX || M_XENIX || __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if M_UNIX || __linux__
 #include        <stdlib.h>
 #include        <unistd.h>
 #endif
@@ -35,9 +30,6 @@
 #endif
 
 /* Macro to determine if char is a path or drive delimiter      */
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-#define ispathdelim(c)  ((c) == '\\' || (c) == ':' || (c) == '/')
-#else
 #ifdef VMS
 #define ispathdelim(c)  ((c)==':' || (c)=='[' || (c)==']' )
 #else
@@ -47,7 +39,6 @@
 #define ispathdelim(c)  ((c) == '/')
 #endif /* MPW */
 #endif /* VMS */
-#endif
 
 /**********************/
 
@@ -62,10 +53,6 @@ char * filespecaddpath(const char *path,const char *filename)
         filespec = (char *) mem_malloc(pathlen + 1 + strlen(filename) + 1);
         if (filespec)
         {   strcpy(filespec,path);
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-            if (!ispathdelim(filespec[pathlen - 1]))
-                strcat(filespec,"\\");
-#else
 #if VMS
 #else
 #if MPW
@@ -76,7 +63,6 @@ char * filespecaddpath(const char *path,const char *filename)
                 strcat(filespec,"/");
 #endif /* MPW   */
 #endif /* VMS   */
-#endif
             strcat(filespec,filename);
         }
     }
@@ -87,11 +73,8 @@ char * filespecaddpath(const char *path,const char *filename)
 /**********************/
 char * filespecrootpath(char *filespec)
 {
-#if SUN || M_UNIX || M_XENIX || __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if M_UNIX || __linux__
 #define DIRCHAR '/'
-#endif
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-#define DIRCHAR '\\'
 #endif
 #ifdef MPW
 #define DIRCHAR ':'
@@ -102,25 +85,12 @@ char * filespecrootpath(char *filespec)
 
     if (!filespec)
         return filespec;
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-    /* if already absolute (with \ or drive:) ... */
-    if (*filespec == DIRCHAR || (isalpha((unsigned char)*filespec) && *(filespec+1) == ':'))
-        return filespec;        /*      ... return input string */
-#else
     if (*filespec == DIRCHAR)   /* already absolute ... */
         return filespec;        /*      ... return input string */
-#endif
 
     /* get current working directory path */
-#if SUN || M_UNIX || M_XENIX || __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if M_UNIX || __linux__
     cwd_t = (char *)getcwd(NULL, 256);
-#endif
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-    char cwd_d[132];
-    if (getcwd(cwd_d, sizeof(cwd_d)))
-       cwd_t = cwd_d;
-    else
-       cwd_t = NULL;
 #endif
 
     if (cwd_t == NULL)
@@ -129,12 +99,8 @@ char * filespecrootpath(char *filespec)
         return NULL;    /* error - path too long (more than 256 chars !)*/
     }
     cwd = mem_strdup(cwd_t);    /* convert cwd to mem package */
-#if MSDOS
-    assert(strlen(cwd) > 0);
-    if (cwd[strlen(cwd) - 1] == DIRCHAR)
-        cwd[strlen(cwd) - 1] = '\0';
-#endif
-#if SUN || M_UNIX || M_XENIX || __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+
+#if M_UNIX || __linux__
     free(cwd_t);
 #endif
     p = filespec;
@@ -151,11 +117,8 @@ char * filespecrootpath(char *filespec)
             {
                 cwd_t = cwd;
                 cwd = (char *)mem_calloc(strlen(cwd_t) + 1 + strlen(p) + 1);
-#if SUN || M_UNIX || M_XENIX || __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if M_UNIX || __linux__
                 sprintf(cwd, "%s/%s", cwd_t, p);  /* add relative directory */
-#endif
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-                sprintf(cwd, "%s\\%s", cwd_t, p);  /* add relative directory */
 #endif
                 mem_free(cwd_t);
             }
@@ -172,11 +135,8 @@ char * filespecrootpath(char *filespec)
         {   /* ... save remaining string */
             cwd_t = cwd;
             cwd = (char *)mem_calloc(strlen(cwd_t) + 1 + strlen(p) + 1);
-#if SUN || M_UNIX || M_XENIX || __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if M_UNIX || __linux__
             sprintf(cwd, "%s/%s", cwd_t, p);  /* add relative directory */
-#endif
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-            sprintf(cwd, "%s\\%s", cwd_t, p);  /* add relative directory */
 #endif
             mem_free(cwd_t);
         }
@@ -215,7 +175,7 @@ char * filespecdotext(const char *filespec)
 /**********************/
 
 char * filespecname(const char *filespec)
-{   register const char *p;
+{   const char *p;
 
     /* Start at end of string and back up till we find the beginning    */
     /* of the filename or a path.                                       */
@@ -243,8 +203,8 @@ char * filespecgetroot(const char *name)
 /*****************************/
 
 char * filespecforceext(const char *filespec,const char *ext)
-{   register char *p;
-    register const char *pext;
+{   char *p;
+    const char *pext;
 
     if (ext && *ext == '.')
         ext++;
@@ -268,8 +228,8 @@ char * filespecforceext(const char *filespec,const char *ext)
 /*****************************/
 
 char * filespecdefaultext(const char *filespec,const char *ext)
-{       register char *p;
-        register const char *pext;
+{       char *p;
+        const char *pext;
 
         pext = filespecdotext(filespec);
         if (*pext == '.')               /* if already got an extension  */
@@ -297,7 +257,7 @@ char *filespectilde(char *filespec)
 {
 #if BSDUNIX
     struct passwd *passwdPtr;
-    register char *f;
+    char *f;
 
     if (filespec && *filespec == '~')
     {
@@ -344,7 +304,7 @@ char *filespectilde(char *filespec)
 
 char *filespecmultitilde(char *string)
 {
-    register char *p, *p2, *p3, *p4;
+    char *p, *p2, *p3, *p4;
 
     string = filespectilde(string);     /* expand if first character is a '~' */
 
@@ -400,10 +360,7 @@ char *filespecmultitilde(char *string)
 
 char * filespecbackup(const char *filespec)
 {
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-    return filespecforceext(filespec,"BAK");
-#endif
-#if BSDUNIX || __linux__ || __APPLE__ || __FreeBSD__ || __OpenBSD__ || __sun
+#if __linux__
     char *p,*f;
 
     /* Prepend .B to file name, if it isn't already there       */

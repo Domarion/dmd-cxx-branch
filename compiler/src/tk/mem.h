@@ -3,12 +3,7 @@
 /* All Rights Reserved                                                       */
 /* Written by Walter Bright                                                  */
 
-#ifndef MEM_H
-#define MEM_H   1
-
-#if __SC__
 #pragma once
-#endif
 
 #include <stdio.h> // for size_t
 
@@ -79,7 +74,7 @@ extern int mem_inited;          /* != 0 if mem package is initialized.  */
  */
 
 #if !MEM_NONE
-#if __SC__ || __GNUC__
+#if __GNUC__
 enum MEM_E { MEM_ABORTMSG, MEM_ABORT, MEM_RETNULL, MEM_CALLFP, MEM_RETRY };
 void mem_setexception(enum MEM_E,...);
 #else
@@ -269,5 +264,3 @@ void mem_setnewfileline (void *,const char *,int);
 
 #endif /* MEM_DEBUG */
 #endif /* MEM_NONE  */
-
-#endif /* MEM_H */

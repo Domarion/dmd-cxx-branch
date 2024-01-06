@@ -2050,7 +2050,8 @@ STATIC elem * elcond(elem *e, goal_t goal)
  */
 
 STATIC elem * elcomma(elem *e, goal_t goal)
-{ register elem *e1,**pe1;
+{
+  elem *e1,**pe1;
   elem *e2;
   int e1op;
   int changes;

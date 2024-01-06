@@ -225,7 +225,7 @@ void WReqn(elem *e)
 void WRblocklist(list_t bl)
 {
         for (; bl; bl = list_next(bl))
-        {       register block *b = list_block(bl);
+        {       block *b = list_block(bl);
 
                 if (b && b->Bweight)
                         printf("B%d (%p) ",b->Bdfoidx,b);
@@ -236,13 +236,13 @@ void WRblocklist(list_t bl)
 }
 
 void WRdefnod()
-{ register int i;
-
-  for (i = 0; i < go.deftop; i++)
-  {     printf("defnod[%d] in B%d = (", go.defnod[i].DNblock->Bdfoidx, i);
+{
+    for (int i = 0; i < go.deftop; i++)
+    {
+        printf("defnod[%d] in B%d = (", go.defnod[i].DNblock->Bdfoidx, i);
         WReqn(go.defnod[i].DNelem);
         printf(");\n");
-  }
+    }
 }
 
 void WRFL(enum FL fl)
