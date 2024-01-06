@@ -632,7 +632,7 @@ public:
             return;
         }
 
-        if (fd->isWinMain() || fd->isDllMain() || fd->ident == Id::tls_get_addr)
+        if (fd->isDllMain() || fd->ident == Id::tls_get_addr)
         {
             buf->writestring(fd->ident->toChars());
             return;

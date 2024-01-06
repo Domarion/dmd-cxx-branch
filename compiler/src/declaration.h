@@ -662,7 +662,6 @@ public:
     const char *toFullSignature();  // for diagnostics, e.g. 'int foo(int x, int y) pure'
     bool isMain();
     bool isCMain();
-    bool isWinMain();
     bool isDllMain();
     bool isExport() const;
     bool isImportedSymbol() const;

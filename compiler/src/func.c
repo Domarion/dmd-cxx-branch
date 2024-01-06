@@ -1719,13 +1719,6 @@ bool FuncDeclaration::isCMain()
         linkage == LINKc && !isMember() && !isNested();
 }
 
-bool FuncDeclaration::isWinMain()
-{
-    //printf("FuncDeclaration::isWinMain() %s\n", toChars());
-    return ident == Id::WinMain &&
-        linkage != LINKc && !isMember();
-}
-
 bool FuncDeclaration::isDllMain()
 {
     return ident == Id::DllMain &&

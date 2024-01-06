@@ -3268,7 +3268,7 @@ public:
         static bool printedMain = false;  // semantic might run more than once
         if (global.params.verbose && !printedMain)
         {
-            const char *type = funcdecl->isMain() ? "main" : funcdecl->isWinMain() ? "winmain" : funcdecl->isDllMain() ? "dllmain" : (const char *)NULL;
+            const char *type = funcdecl->isMain() ? "main" : funcdecl->isDllMain() ? "dllmain" : (const char *)NULL;
             Module *mod = sc->_module;
 
             if (type && mod)
