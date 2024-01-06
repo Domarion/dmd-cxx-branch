@@ -37,7 +37,7 @@ One and only one of these macros must be set by the makefile:
  * The "linux" and "__GNUC__" macros control hosting issues
  * for operating system and compiler dependencies, respectively.
  * To target linux executables, use ELFOBJ for things specific to the
- * ELF object file format, and TARGET_LINUX for things specific to
+ * ELF object file format for things specific to
  * the linux memory model.
  * If this is all done right, one could generate a linux object file
  * even when compiling on win32, and vice versa.
@@ -55,22 +55,8 @@ One and only one of these macros must be set by the makefile:
  * Target machine types:
  */
 
-#if !MARS
-#define DM_TARGET_CPU_X86 1
-#define TX86            1               // target is Intel 80X86 processor
-#endif
-
 #if DM_TARGET_CPU_X86
 #define TX86            1               // target is Intel 80X86 processor
-#endif
-
-// Set to 1 using the makefile
-#ifndef TARGET_LINUX
-#if 0 //__linux__
-#define TARGET_LINUX    1
-#else
-#define TARGET_LINUX    0               // target is a linux executable
-#endif
 #endif
 
 #if __GNUC__
@@ -147,15 +133,8 @@ typedef long double longdouble;
 //      NT console:     H_NONE
 //      NT DLL:         H_OFFSET
 //      DOSX:           H_COMPLEX
-#if MARS
+
 #define H_STYLE         H_NONE                  // precompiled headers only used for C/C++ compiler
-#else
-    #if MMFIO
-            #define H_STYLE         H_OFFSET //H_NONE
-    #else
-    #define H_STYLE         H_COMPLEX
-    #endif
-#endif
 
 // For Shared Code Base
 #define dbg_printf printf
@@ -225,15 +204,9 @@ typedef long double longdouble;
 #define I386 (config.target_cpu >= TARGET_80386)
 
 // If we are generating 32 bit code
-#if MARS
-#define I16     0               // no 16 bit code for D
 #define I32     (NPTRSIZE == 4)
 #define I64     (NPTRSIZE == 8) // 1 if generating 64 bit code
-#else
-#define I16     (NPTRSIZE == 2)
-#define I32     (NPTRSIZE == 4)
-#define I64     (NPTRSIZE == 8) // 1 if generating 64 bit code
-#endif
+
 
 /**********************************
  * Limits & machine dependent stuff.
@@ -305,13 +278,8 @@ typedef unsigned        targ_uns;
 #define REGMASK         0xFFFF
 
 // targ_llong is also used to store host pointers, so it should have at least their size
-#if TARGET_LINUX || MARS
 typedef targ_llong      targ_ptrdiff_t; /* ptrdiff_t for target machine  */
 typedef targ_ullong     targ_size_t;    /* size_t for the target machine */
-#else
-typedef targ_int        targ_ptrdiff_t; /* ptrdiff_t for target machine  */
-typedef targ_uns        targ_size_t;    /* size_t for the target machine */
-#endif
 
 /* Enable/disable various features
    (Some features may no longer work the old way when compiled out,
@@ -330,10 +298,10 @@ typedef targ_uns        targ_size_t;    /* size_t for the target machine */
 /* Object module format
  */
 #ifndef ELFOBJ
-#define ELFOBJ          TARGET_LINUX
+#define ELFOBJ          1
 #endif
 
-#define SYMDEB_DWARF    TARGET_LINUX
+#define SYMDEB_DWARF    1
 
 #define TOOLKIT_H
 
@@ -516,21 +484,14 @@ struct Config
 #define CFG3relax       0x200   // relaxed type checking (C only)
 #define CFG3cpp         0x400   // C++ compile
 #define CFG3igninc      0x800   // ignore standard include directory
-#if TARGET_LINUX
 #define CFG3mars        0x1000  // use mars libs and headers
 #define NO_FAR          (TRUE)  // always ignore __far and __huge keywords
-#else
-#define CFG3nofar       0x1000  // ignore __far and __huge keywords
-#define NO_FAR          (config.flags3 & CFG3nofar)
-#endif
 #define CFG3noline      0x2000  // do not output #line directives
 #define CFG3comment     0x4000  // leave comments in preprocessed output
 #define CFG3cppcomment  0x8000  // allow C++ style comments
 #define CFG3wkfloat     0x10000 // make floating point references weak externs
 #define CFG3digraphs    0x20000 // support ANSI C++ digraphs
-#if TARGET_LINUX
 #define CFG3semirelax   0x40000 // moderate relaxed type checking
-#endif
 #define CFG3pic         0x80000 // position independent code
 #define CFGX3   (CFG3strcod | CFG3ptrchk)
 
@@ -796,9 +757,8 @@ enum SC {
  */
 
 inline void swap(int *a,int *b)
-{ int tmp;
-
-  tmp = *a;
-  *a = *b;
-  *b = tmp;
+{
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
 }

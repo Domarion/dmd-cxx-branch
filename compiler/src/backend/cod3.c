@@ -546,9 +546,7 @@ regm_t regmask(tym_t tym, tym_t tyf)
         case TYlong:
         case TYulong:
         case TYdchar:
-            if (!I16)
                 return mAX;
-            return mDX | mAX;
 
         case TYcent:
         case TYucent:
@@ -573,10 +571,8 @@ regm_t regmask(tym_t tym, tym_t tyf)
             return mST0;
 
         case TYcfloat:
-#if TARGET_LINUX
             if (I32 && tybasic(tyf) == TYnfunc)
                 return mDX | mAX;
-#endif
         case TYcdouble:
             if (I64)
                 return mXMM0 | mXMM1;
@@ -601,9 +597,6 @@ regm_t regmask(tym_t tym, tym_t tyf)
             return mXMM0;
 
         default:
-#if DEBUG
-            WRTYxx(tym);
-#endif
             assert(0);
             return 0;
     }
@@ -653,21 +646,6 @@ void cgreg_set_priorities(tym_t ty, char **pseq, char **pseqmsw)
         }
         else
         {
-            static char sequence[] = {AX,CX,DX,BX,SI,DI,BP,NOREG};
-            *pseq = sequence;
-        }
-    }
-    else
-    {   assert(I16);
-        if (typtr(ty))
-        {
-            // For pointer types, try to pick index register first
-            static char seqidx[] = {BX,SI,DI,AX,CX,DX,BP,NOREG};
-            *pseq = seqidx;
-        }
-        else
-        {
-            // Otherwise, try to pick index registers last
             static char sequence[] = {AX,CX,DX,BX,SI,DI,BP,NOREG};
             *pseq = sequence;
         }
@@ -753,7 +731,6 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             doswitch(bl);               /* hide messy details           */
             bl->Bcode = cat(c,bl->Bcode);
             break;
-#if MARS
         case BCjcatch:
         {
             // Mark all registers as destroyed. This will prevent
@@ -761,11 +738,9 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             c = cat(c,getregs(lpadregs()));
             goto case_goto;
         }
-#endif
         case BCgoto:
             nextb = bl->nthSucc(0);
-            if ((MARS ||
-                 funcsym_p->Sfunc->Fflags3 & Fnteh) &&
+            if (
                 config.ehmethod != EH_DWARF &&
                 bl->Btry != nextb->Btry &&
                 nextb->BC != BC_finally)
@@ -776,7 +751,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
                 int toindex = nextb->Btry ? nextb->Btry->Bscope_index : -1;
                 assert(bl->Btry);
                 int fromindex = bl->Btry->Bscope_index;
-#if MARS
+
                 if (toindex + 1 == fromindex)
                 {   // Simply call __finally
                     if (bl->Btry &&
@@ -813,7 +788,6 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
                         c = cat(c, callFinallyBlock(bf->nthSucc(0), retregs));
                     }
                 }
-#endif
                 goto L2;
             }
         case_goto:
@@ -957,19 +931,18 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
                 if (config.flags4 & CFG4optimized)
                     mfuncreg = mfuncregsave;
             }
-            else if (MARS || usednteh & NTEH_try)
+            else
             {
                 block *bt = bl;
                 while ((bt = bt->Btry) != NULL)
                 {
                     block *bf = bt->nthSucc(1);
-#if MARS
                     // Only look at try-finally blocks
                     if (bf->BC == BCjcatch)
                     {
                         continue;
                     }
-#endif
+
                     {
                         // call __finally
                         c = cat(c, callFinallyBlock(bf->nthSucc(0), retregs));
@@ -979,7 +952,6 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             }
             break;
 
-#if MARS
         case BCasm:
             assert(!e);
             // Mark destroyed registers
@@ -1003,11 +975,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
                 }
             }
             break;
-#endif
         default:
-#ifdef DEBUG
-            printf("bl->BC = %d\n",bl->BC);
-#endif
             assert(0);
     }
 }
@@ -1175,12 +1143,8 @@ void doswitch(block *b)
      */
     if (ncases <= 3)
         goto Lifthen;
-    else if (I16 && (targ_ullong)(vmax - vmin) <= ncases * 2)
-        goto Ljmptab;           // >=50% of the table is case values, rest is default
     else if ((targ_ullong)(vmax - vmin) <= ncases * 3)
         goto Ljmptab;           // >= 33% of the table is case values, rest is default
-    else if (I16)
-        goto Lswitch;
     else
         goto Lifthen;
 
@@ -1262,11 +1226,11 @@ void doswitch(block *b)
         regm_t retregs = IDXREGS;
         if (dword)
             retregs |= mMSW;
-#if TARGET_LINUX
+
         if (I32 && config.flags3 & CFG3pic)
             retregs &= ~mBX;                            // need EBX for GOT
-#endif
-        bool modify = (I16 || I64 || vmin);
+
+        bool modify = (I64 || vmin);
         c = scodelem(e,&retregs,0,!modify);
         unsigned reg = findreg(retregs & IDXREGS); // reg that result is in
         unsigned reg2;
@@ -1402,13 +1366,6 @@ void doswitch(block *b)
             }
 #endif
         }
-        else if (I16)
-        {
-            c = gen2(c,0xD1,modregrm(3,4,reg));                   // SHL reg,1
-            unsigned rm = getaddrmode(retregs) | modregrm(0,4,0);
-            ce = genc1(CNIL,0xFF,rm,FLswitch,0);                  // JMP [CS:]disp[idxreg]
-            ce->Iflags |= csseg ? CFcs : 0;                       // segment override
-        }
         else
             assert(0);
         ce->IEV1.Vswitch = b;
@@ -1439,7 +1396,7 @@ void doswitch(block *b)
             genjmp(c,JNE,FLblock,b->nthSucc(0)); // JNE default
         }
         ce = getregs(mCX|mDI);
-#if TARGET_LINUX
+
         if (config.flags3 & CFG3pic)
         {   // Add in GOT
             code *cx;
@@ -1464,7 +1421,6 @@ void doswitch(block *b)
             esw = cat3(cx, cgot, esw);
         }
         else
-#endif
         {
                                         // MOV DI,offset of switch table
             esw = gencs(CNIL,0xC7,modregrm(3,0,DI),FLswitch,NULL);
@@ -1519,7 +1475,6 @@ void doswitch(block *b)
         mod = (disp > 127) ? 2 : 1;     /* 1 or 2 byte displacement     */
         if (csseg)
             gen1(ce,SEGCS);             // table is in code segment
-#if TARGET_LINUX
         if (config.flags3 & CFG3pic)
         {                               // ADD EDX,(ncases-1)*2[EDI]
             ct = genc1(CNIL,0x03,modregrm(mod,DX,7),FLconst,disp);
@@ -1527,7 +1482,7 @@ void doswitch(block *b)
             gen2(ct,0xFF,modregrm(3,4,DX));
         }
         else
-#endif
+
         {                               // JMP (ncases-1)*2[DI]
             ct = genc1(CNIL,0xFF,modregrm(mod,4,(I32 ? 7 : 5)),FLconst,disp);
             ct->Iflags |= csseg ? CFcs : 0;
@@ -1592,7 +1547,7 @@ void outjmptab(block *b)
                         break;
                 }
         }
-#if TARGET_LINUX
+
         if (I64)
         {
             if (config.flags3 & CFG3pic)
@@ -1620,9 +1575,6 @@ void outjmptab(block *b)
                 objmod->reftocodeseg(jmpseg,*poffset,targ);
             *poffset += 4;
         }
-#else
-        assert(0);
-#endif
         if (u == vmax)                  // for case that (vmax == ~0)
             break;
     }
@@ -1861,7 +1813,7 @@ void cod3_ptrchk(code **pc,code *pcs,regm_t keepmsk)
     int i;
 
     assert(!I64);
-    if (!I16 && pcs->Iflags & (CFes | CFss | CFcs | CFds | CFfs | CFgs))
+    if (pcs->Iflags & (CFes | CFss | CFcs | CFds | CFfs | CFgs))
         return;         // not designed to deal with 48 bit far pointers
 
     c = *pc;
@@ -1871,18 +1823,13 @@ void cod3_ptrchk(code **pc,code *pcs,regm_t keepmsk)
 
     // If the addressing mode is already a register
     reg = rm & 7;
-    if (I16)
-    {   static const unsigned char imode[8] = { BP,BP,BP,BP,SI,DI,BP,BX };
-
-        reg = imode[reg];               // convert [SI] to SI, etc.
-    }
     idxregs = mask[reg];
     if ((rm & 0x80 && (pcs->IFL1 != FLoffset || pcs->IEV1.Vuns)) ||
         !(idxregs & ALLREGS)
        )
     {
         // Load the offset into a register, so we can push the address
-        idxregs = (I16 ? IDXREGS : ALLREGS) & ~keepmsk; // only these can be index regs
+        idxregs = (ALLREGS) & ~keepmsk; // only these can be index regs
         assert(idxregs);
         c = cat(c,allocreg(&idxregs,&reg,TYoffset));
 
@@ -1924,28 +1871,6 @@ void cod3_ptrchk(code **pc,code *pcs,regm_t keepmsk)
             cs2 = cat(gen1(CNIL,pop),cs2);      // POP i
             tosave &= ~mi;
         }
-    }
-
-    // For 16 bit models, push a far pointer
-    if (I16)
-    {   int segreg;
-
-        switch (pcs->Iflags & (CFes | CFss | CFcs | CFds | CFfs | CFgs))
-        {   case CFes:  segreg = 0x06;  break;
-            case CFss:  segreg = 0x16;  break;
-            case CFcs:  segreg = 0x0E;  break;
-            case 0:     segreg = 0x1E;  break;  // DS
-            default:
-                assert(0);
-        }
-
-        // See if we should default to SS:
-        // (Happens when BP is part of the addressing mode)
-        if (segreg == 0x1E && (rm & 0xC0) != 0xC0 &&
-            rm & 2 && (rm & 7) != 7)
-        {   segreg = 0x16;
-        }
-        c = gen1(c,segreg);             // PUSH segreg
     }
 
     c = gen1(c,0x50 + reg);             // PUSH reg
@@ -2032,7 +1957,7 @@ bool cse_simple(code *c, elem *e)
     unsigned reg;
     int sz = tysize[tybasic(e->Ety)];
 
-    if (!I16 &&                                  // don't bother with 16 bit code
+    if (
         e->Eoper == OPadd &&
         sz == REGSIZE &&
         e->E2->Eoper == OPconst &&
@@ -2138,7 +2063,6 @@ code *cdframeptr(elem *e, regm_t *pretregs)
 
 code *cdgot(elem *e, regm_t *pretregs)
 {
-#if TARGET_LINUX
     regm_t retregs;
     unsigned reg;
     code *c;
@@ -2165,10 +2089,6 @@ code *cdgot(elem *e, regm_t *pretregs)
 
     makeitextern(gotsym);
     return cat3(c,cgot,fixresult(e,retregs,pretregs));
-#else
-    assert(0);
-    return NULL;
-#endif
 }
 
 /**************************************************
@@ -2177,7 +2097,7 @@ code *cdgot(elem *e, regm_t *pretregs)
 
 code *load_localgot()
 {
-#if TARGET_LINUX
+
     if (config.flags3 & CFG3pic && I32)
     {
         if (localgot && !(localgot->Sflags & SFLdead))
@@ -2199,11 +2119,10 @@ code *load_localgot()
             return c;
         }
     }
-#endif
+
     return NULL;
 }
 
-#if TARGET_LINUX
 /*****************************
  * Returns:
  *      # of bytes stored
@@ -2231,7 +2150,6 @@ STATIC int obj_namestring(char *p,const char *name)
     }
     return len;
 }
-#endif
 
 code *genregs(code *c,unsigned op,unsigned dstreg,unsigned srcreg)
 { return gen2(c,op,modregxrmx(3,dstreg,srcreg)); }
@@ -2444,12 +2362,10 @@ code *movregconst(code *c,unsigned reg,targ_size_t value,regm_t flags)
         return c;
     }
 L3:
-    if (I16)
-        value = (targ_short) value;             /* sign-extend MSW      */
-    else if (I32)
+    if (I32)
         value = (targ_int) value;
 
-    if (!I16 && flags & 2)                      // load 16 bit value
+    if ( flags & 2)                      // load 16 bit value
     {
         value &= 0xFFFF;
         if (value == 0)
@@ -2535,22 +2451,6 @@ L1:
                         goto done;
                     }
                 }
-                else if (I16)
-                {
-                    if (reg == AX &&
-                        (targ_short) value == (signed char) regv)
-                    {   c = gen1(c,0x98);               /* CBW          */
-                        goto done;
-                    }
-
-                    if (reg == DX &&
-                        (targ_short) value == (regcon.immed.value[AX] & 0x8000 ? (targ_short) 0xFFFF : (targ_short) 0) &&
-                        !(config.flags4 & CFG4speed && config.target_cpu >= TARGET_Pentium)
-                       )
-                    {   c = gen1(c,0x99);               /* CWD          */
-                        goto done;
-                    }
-                }
             }
             if (value == 0 && !(flags & 8) && config.target_cpu >= TARGET_80486)
             {   c = genclrreg(c,reg);           // CLR reg
@@ -2558,9 +2458,7 @@ L1:
             }
 
             if (!I64 && regm && !(flags & 8))
-            {   if (regv + 1 == value ||
-                    /* Catch case of (0xFFFF+1 == 0) for 16 bit compiles */
-                    (I16 && (targ_short)(regv + 1) == (targ_short)value))
+            {   if (regv + 1 == value)
                 {
                 inc:
                     c = gen1(c,0x40 + reg);     /* INC reg              */
@@ -2578,9 +2476,6 @@ L1:
             r = 0;
             for (mreg = regcon.immed.mval; mreg; mreg >>= 1)
             {
-#ifdef DEBUG
-                assert(!I16 || regcon.immed.value[r] == (targ_short)regcon.immed.value[r]);
-#endif
                 if (mreg & 1 && regcon.immed.value[r] == value)
                 {   c = genmovreg(c,reg,r);
                     goto done;
@@ -2779,52 +2674,6 @@ code* prolog_frameadj(tym_t tyf, unsigned xlocalsize, bool enter, bool* pushallo
 {
     unsigned pushallocreg = (tyf == TYmfunc) ? CX : AX;
     code* c = NULL;
-#if !TARGET_LINUX               // seems that Linux doesn't need to fault in stack pages
-    if ((config.flags & CFGstack && !(I32 && xlocalsize < 0x1000)) // if stack overflow check
-       )
-    {
-        if (I16)
-        {
-            // BUG: Won't work if parameter is passed in AX
-            c = movregconst(c,AX,xlocalsize,FALSE); // MOV AX,localsize
-            makeitextern(getRtlsym(RTLSYM_CHKSTK));
-                                                    // CALL _chkstk
-            gencs(c,(LARGECODE) ? 0x9A : CALL,0,FLfunc,getRtlsym(RTLSYM_CHKSTK));
-            useregs((ALLREGS | mBP | mES) & ~getRtlsym(RTLSYM_CHKSTK)->Sregsaved);
-        }
-        else
-        {
-            /* Watch out for 64 bit code where EDX is passed as a register parameter
-             */
-            int reg = I64 ? R11 : DX;  // scratch register
-
-            /*      MOV     EDX, xlocalsize/0x1000
-             *  L1: SUB     ESP, 0x1000
-             *      TEST    [ESP],ESP
-             *      DEC     EDX
-             *      JNE     L1
-             *      SUB     ESP, xlocalsize % 0x1000
-             */
-            c = movregconst(c, reg, xlocalsize / 0x1000, FALSE);
-            code *csub = cod3_stackadj(NULL, 0x1000);
-            code_orflag(csub, CFtarg2);
-            gen2sib(csub, 0x85, modregrm(0,SP,4),modregrm(0,4,SP));
-            if (I64)
-            {   gen2(csub, 0xFF, modregrmx(3,1,R11));   // DEC R11D
-                genc2(csub,JNE,0,(targ_uns)-15);
-            }
-            else
-            {   gen1(csub, 0x48 + DX);                  // DEC EDX
-                genc2(csub,JNE,0,(targ_uns)-12);
-            }
-            regimmed_set(reg,0);             // reg is now 0
-            cod3_stackadj(csub, xlocalsize & 0xFFF);
-            c = cat(c,csub);
-            useregs(mask[reg]);
-        }
-    }
-    else
-#endif
     {
         if (enter)
         {   // ENTER xlocalsize,0
@@ -3387,10 +3236,8 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
         if ((s->Sclass == SCregpar || s->Sclass == SCparameter) &&
             s->Sfl == FLreg &&
             (refparam
-#if MARS
                 // This variable has been reference by a nested function
                 || s->Stype->Tty & mTYvolatile
-#endif
                 ))
         {
             /* MOV reg,param[BP]        */
@@ -3412,7 +3259,7 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
             {
                 code *c2 = genc1(CNIL,0x8B ^ (sz == 1),
                     modregxrm(2,s->Sreglsw,BPRM),FLconst,Para.size + s->Soffset);
-                if (!I16 && sz == SHORTSIZE)
+                if ( sz == SHORTSIZE)
                     c2->Iflags |= CFopsize; // operand size
                 if (I64 && sz >= REGSIZE)
                     c2->Irex |= REX_W;
@@ -3420,7 +3267,6 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
                     c2->Irex |= REX;
                 if (!hasframe)
                 {   /* Convert to ESP relative address rather than EBP      */
-                    assert(!I16);
                     c2->Irm = modregxrm(2,s->Sreglsw,4);
                     c2->Isib = modregrm(0,4,SP);
                     c2->IEVpointer1 += EBPtoESP;
@@ -3433,7 +3279,6 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
                         c3->Irex |= REX_W;
                     if (!hasframe)
                     {   /* Convert to ESP relative address rather than EBP  */
-                        assert(!I16);
                         c3->Irm = modregxrm(2,s->Sregmsw,4);
                         c3->Isib = modregrm(0,4,SP);
                         c3->IEVpointer1 += EBPtoESP;
@@ -3506,8 +3351,7 @@ void epilog(block *b)
     {
         symbol *s = getRtlsym(farfunc ? RTLSYM_TRACE_EPI_F : RTLSYM_TRACE_EPI_N);
         makeitextern(s);
-        c = gencs(c,I16 ? 0x9A : CALL,0,FLfunc,s);      // CALLF _trace
-        if (!I16)
+        c = gencs(c,CALL,0,FLfunc,s);      // CALLF _trace
             code_orflag(c,CFoff | CFselfrel);
         useregs((ALLREGS | mBP | mES) & ~s->Sregsaved);
     }
@@ -3585,7 +3429,7 @@ void epilog(block *b)
             else
                 c = gen1(c,0x58 + BP);          // POP BP
         }
-        else if (xlocalsize == REGSIZE && (!I16 || b->BC == BCret))
+        else if (xlocalsize == REGSIZE && (true || b->BC == BCret))
         {   mfuncreg &= ~mask[regx];
             c = gen1(c,0x58 + regx);                    // POP regx
         }
@@ -3748,7 +3592,6 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
     thunkty = tybasic(sthunk->ty());
         p += tysize[TYnptr];
 
-    if (!I16)
     {
         /*
            Generate:
@@ -3791,33 +3634,12 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
         if (I64 && c)
             c->Irex |= REX_W;
     }
-    else
-    {
-        /*
-           Generate:
-            MOV BX,SP
-            ADD [SS:] p[BX],d
-           For direct call:
-            JMP sfunc
-           For virtual call:
-            MOV BX, p[BX]                       BX = this
-            MOV BX, d2[BX]                      BX = this->vptr
-            JMP i[BX]                           jump to virtual function
-         */
-
-        c = genregs(CNIL,0x89,SP,BX);                   /* MOV BX,SP    */
-        c1 = genc(CNIL,0x81,modregrm(2,0,7),
-            FLconst,p,                                  /* to this      */
-            FLconst,d);                                 /* ADD p[BX],d  */
-        c = cat(c,c1);
-    }
 
     if ((i & 0xFFFF) != 0xFFFF)                 /* if virtual call      */
     {   code *c2,*c3;
 
 #define FARTHIS (tysize(thisty) > REGSIZE)
 #define FARVPTR FARTHIS
-        if (!I16)
         {
             assert(!FARTHIS && !LARGECODE);
             if (thunkty == TYmfunc)     // if 'this' is in ECX
@@ -3847,32 +3669,10 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
                                                         /* JMP i[EAX]   */
             c3 = genc1(CNIL,0xFF,modregrm(2,4,0),FLconst,(targ_uns) i);
         }
-        else
-        {
-            /* MOV/LES BX,[SS:] p[BX]   */
-            c1 = genc1(CNIL,(FARTHIS ? 0xC4 : 0x8B),modregrm(2,BX,7),FLconst,(targ_uns) p);
-            /* MOV/LES BX,[ES:]d2[BX] */
-            c2 = genc1(CNIL,(FARVPTR ? 0xC4 : 0x8B),modregrm(2,BX,7),FLconst,d2);
-            if (FARTHIS)
-                c2->Iflags |= CFes;                     /* ES:          */
-
-                                                        /* JMP i[BX]    */
-            c3 = genc1(CNIL,0xFF,modregrm(2,(LARGECODE ? 5 : 4),7),FLconst,(targ_uns) i);
-            if (FARVPTR)
-                c3->Iflags |= CFes;                     /* ES:          */
-        }
         c = cat4(c,c1,c2,c3);
     }
     else
     {
-#if 0
-        localgot = NULL;                // no local variables
-        code *c1 = load_localgot();
-        if (c1)
-        {   assignaddrc(c1);
-            c = cat(c, c1);
-        }
-#endif
         code *c1 = gencs(CNIL,(LARGECODE ? 0xEA : 0xE9),0,FLfunc,sfunc); /* JMP sfunc */
         c1->Iflags |= LARGECODE ? (CFseg | CFoff) : (CFselfrel | CFoff);
         c = cat(c,c1);
@@ -3886,9 +3686,9 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
     sthunk->Soffset = thunkoffset;
     sthunk->Ssize = Coffset - thunkoffset; /* size of thunk */
     sthunk->Sseg = cseg;
-#if TARGET_LINUX
+
     objmod->pubdef(cseg,sthunk,sthunk->Soffset);
-#endif
+
     searchfixlist(sthunk);              /* resolve forward refs */
 }
 
@@ -4048,17 +3848,17 @@ int branch(block *bl,int flag)
             {
                 if (op == JMP)
                 {   c->Iop = JMPS;              // JMP SHORT
-                    bytesaved += I16 ? 1 : 3;
+                    bytesaved += 3;
                 }
                 else                            // else Jcond
                 {   c->Iflags &= ~CFjmp16;      // a branch is ok
-                    bytesaved += I16 ? 3 : 4;
+                    bytesaved += 4;
 
                     // Replace a cond jump around a call to a function that
                     // never returns with a cond jump to that function.
                     if (config.flags4 & CFG4optimized &&
                         config.target_cpu >= TARGET_80386 &&
-                        disp == (I16 ? 3 : 5) &&
+                        disp == (5) &&
                         cn &&
                         cn->Iop == CALL &&
                         cn->IFL2 == FLfunc &&
@@ -4109,8 +3909,6 @@ L3:
  * are all relative to the frame pointer.
  */
 
-#if MARS
-
 void cod3_adjSymOffsets()
 {   SYMIDX si;
 
@@ -4153,14 +3951,9 @@ if (0 && !(funcsym_p->Sfunc->Fflags3 & Fmember))
             default:
                 continue;
         }
-#if 0
-        if (!hasframe)
-            s->Soffset += EBPtoESP;
-#endif
     }
 }
 
-#endif
 
 /*******************************
  * Take symbol info in union ev and replace it with a real address
@@ -4326,7 +4119,6 @@ void assignaddrc(code *c)
                     {   /* Convert to ESP relative address instead of EBP */
                         unsigned char rm;
 
-                        assert(!I16);
                         c->IEVpointer1 += EBPtoESP;
                         rm = c->Irm;
                         if ((rm & 7) == 4)              // if SIB byte
@@ -4376,9 +4168,8 @@ void assignaddrc(code *c)
                 c->Iflags |= CFunambig;
                 goto L2;
             case FLndp:
-#if MARS
                 assert(c->IEV1.Vuns < NDP::savetop);
-#endif
+
                 c->IEVpointer1 = c->IEV1.Vuns * tysize[TYldouble] + NDPoff + BPoff;
                 c->Iflags |= CFunambig;
                 goto L2;
@@ -4410,7 +4201,7 @@ void assignaddrc(code *c)
                     {   c->IFL2 = FLextern;
                         goto do2;
                     }
-                    c->IEVseg2 = MARS ? s->Sseg : DATA;
+                    c->IEVseg2 = s->Sseg;
                     c->IEVpointer2 += s->Soffset;
                     c->IFL2 = FLdatseg;
                     goto done;
@@ -4424,7 +4215,7 @@ void assignaddrc(code *c)
                 }
                 else
                 {
-                    c->IEVseg2 = MARS ? s->Sseg : UDATA;
+                    c->IEVseg2 = s->Sseg;
                     c->IEVpointer2 += s->Soffset;
                     c->IFL2 = FLdatseg;
                     goto done;
@@ -4545,27 +4336,15 @@ void pinholeopt(code *c,block *b)
   int space;
   block *bn;
 
-#ifdef DEBUG
-    static int tested; if (!tested) { tested++; pinholeopt_unittest(); }
-#endif
-
-#if 0
-  code *cstart = c;
-  if (debugc)
-  {
-      printf("+pinholeopt(%p)\n",c);
-  }
-#endif
-
   if (b)
   {     bn = b->Bnext;
         usespace = (config.flags4 & CFG4space && b->BC != BCasm);
-        useopsize = (I16 || (config.flags4 & CFG4space && b->BC != BCasm));
+        useopsize = ((config.flags4 & CFG4space && b->BC != BCasm));
   }
   else
   {     bn = NULL;
         usespace = (config.flags4 & CFG4space);
-        useopsize = (I16 || config.flags4 & CFG4space);
+        useopsize = (config.flags4 & CFG4space);
   }
   for (; c; c = code_next(c))
   {
@@ -4580,7 +4359,7 @@ void pinholeopt(code *c,block *b)
         else
             ins = inssize[op & 0xFF];
         if (ins & M)            // if modregrm byte
-        {   int shortop = (c->Iflags & CFopsize) ? !I16 : I16;
+        {   int shortop = (c->Iflags & CFopsize) ? 1 : 0;
             int local_BPRM = BPRM;
 
             if (c->Iflags & CFaddrsize)
@@ -4831,7 +4610,7 @@ void pinholeopt(code *c,block *b)
                 }
 
                 /* Replace MOV REG1,REG2 with MOV EREG1,EREG2   */
-                else if (!I16 &&
+                else if (
                          (op == 0x89 || op == 0x8B) &&
                          (rm & 0xC0) == 0xC0 &&
                          (!b || b->BC != BCasm)
@@ -4903,7 +4682,7 @@ void pinholeopt(code *c,block *b)
                 c->Irm = (rm & modregrm(3,0,7)) | (ereg << 3);
                 if (c->Irex & REX_B)
                     c->Irex |= REX_R;
-                if (!(c->Iflags & CFpsw) && !I16)
+                if (!(c->Iflags & CFpsw))
                     c->Iflags &= ~CFopsize;
                 goto L1;
             }
@@ -4920,13 +4699,11 @@ void pinholeopt(code *c,block *b)
                     !(local_BPRM == 5 && (rm & 7) == 4 && (c->Isib & 7) == BP)
                    )
                     c->Irm &= 0x3F;
-                else if (!I16)
+                else
                 {
                     if ((targ_size_t)(targ_schar)a == a)
                         c->Irm ^= 0xC0;                 /* do 8 sx      */
                 }
-                else if (((targ_size_t)(targ_schar)a & 0xFFFF) == (a & 0xFFFF))
-                    c->Irm ^= 0xC0;                     /* do 8 sx      */
             }
 
             /* Look for LEA reg,[ireg], replace with MOV reg,ireg       */
@@ -4935,7 +4712,6 @@ void pinholeopt(code *c,block *b)
                 mod = c->Irm & modregrm(3,0,0);
                 if (mod == 0)
                 {
-                    if (!I16)
                     {
                         switch (rm)
                         {
@@ -4946,18 +4722,6 @@ void pinholeopt(code *c,block *b)
                                 c->Irm |= modregrm(3,0,0);
                                 c->Iop = 0x8B;
                                 break;
-                        }
-                    }
-                    else
-                    {
-                        switch (rm)
-                        {
-                            case 4:     rm = modregrm(3,0,SI);  goto L6;
-                            case 5:     rm = modregrm(3,0,DI);  goto L6;
-                            case 7:     rm = modregrm(3,0,BX);  goto L6;
-                            L6:     c->Irm = rm + reg;
-                                    c->Iop = 0x8B;
-                                    break;
                         }
                     }
                 }
@@ -5031,7 +4795,7 @@ void pinholeopt(code *c,block *b)
                     {
                         targ_long u = c->IEV2.Vuns;
                         if (I64 ||
-                            ((c->Iflags & CFopsize) ? I16 : I32))
+                            ((c->Iflags & CFopsize) ? 0 : I32))
                         {   // PUSH 32/64 bit operand
                             if (u == (signed char) u)
                                 c->Iop = 0x6A;          // PUSH immed8
@@ -5045,101 +4809,8 @@ void pinholeopt(code *c,block *b)
             }
         }
   }
-#if 0
-  if (1 || debugc) {
-      printf("-pinholeopt(%p)\n",cstart);
-        for (c = cstart; c; c = code_next(c))
-            c->print();
-  }
-#endif
 }
 
-#ifdef DEBUG
-STATIC void pinholeopt_unittest()
-{
-    //printf("pinholeopt_unittest()\n");
-    struct CS {
-        unsigned model,op,ea;
-        targ_size_t ev1,ev2;
-        unsigned flags;
-    } tests[][2] =
-    {
-        // XOR reg,immed                            NOT regL
-        {{ 16,0x81,modregrm(3,6,BX),0,0xFF,0 },    { 0,0xF6,modregrm(3,2,BX),0,0xFF }},
-
-        // MOV 0[BX],3                               MOV [BX],3
-        {{ 16,0xC7,modregrm(2,0,7),0,3},           { 0,0xC7,modregrm(0,0,7),0,3 }},
-
-#if 0 // only if config.flags4 & CFG4space
-        // TEST regL,immed8
-        {{ 0,0xF6,modregrm(3,0,BX),0,0xFF,0 },    { 0,0x84,modregrm(3,BX,BX),0,0xFF }},
-        {{ 0,0xF7,modregrm(3,0,BX),0,0xFF,0 },    { 0,0x84,modregrm(3,BX,BX),0,0xFF }},
-        {{ 64,0xF6,modregrmx(3,0,R8),0,0xFF,0 },  { 0,0x84,modregxrmx(3,R8,R8),0,0xFF }},
-        {{ 64,0xF7,modregrmx(3,0,R8),0,0xFF,0 },  { 0,0x84,modregxrmx(3,R8,R8),0,0xFF }},
-#endif
-
-        // PUSH immed => PUSH immed8
-        {{ 0,0x68,0,0,0 },    { 0,0x6A,0,0,0 }},
-        {{ 0,0x68,0,0,0x7F }, { 0,0x6A,0,0,0x7F }},
-        {{ 0,0x68,0,0,0x80 }, { 0,0x68,0,0,0x80 }},
-        {{ 16,0x68,0,0,0,CFopsize },    { 0,0x6A,0,0,0,CFopsize }},
-        {{ 16,0x68,0,0,0x7F,CFopsize }, { 0,0x6A,0,0,0x7F,CFopsize }},
-        {{ 16,0x68,0,0,0x80,CFopsize }, { 0,0x68,0,0,0x80,CFopsize }},
-        {{ 16,0x68,0,0,0x10000,0 },     { 0,0x6A,0,0,0x10000,0 }},
-        {{ 16,0x68,0,0,0x10000,CFopsize }, { 0,0x68,0,0,0x10000,CFopsize }},
-        {{ 32,0x68,0,0,0,CFopsize },    { 0,0x6A,0,0,0,CFopsize }},
-        {{ 32,0x68,0,0,0x7F,CFopsize }, { 0,0x6A,0,0,0x7F,CFopsize }},
-        {{ 32,0x68,0,0,0x80,CFopsize }, { 0,0x68,0,0,0x80,CFopsize }},
-        {{ 32,0x68,0,0,0x10000,CFopsize },    { 0,0x6A,0,0,0x10000,CFopsize }},
-        {{ 32,0x68,0,0,0x8000,CFopsize }, { 0,0x68,0,0,0x8000,CFopsize }},
-
-        // clear r64, for r64 != R8..R15
-        {{ 64,0x31,0x800C0,0,0,0 }, { 0,0x31,0xC0,0,0,0}},
-        {{ 64,0x33,0x800C0,0,0,0 }, { 0,0x33,0xC0,0,0,0}},
-
-        // MOV r64, immed
-        {{ 64,0xC7,0x800C0,0,0xFFFFFFFF,0 }, { 0,0xC7,0x800C0,0,0xFFFFFFFF,0}},
-        {{ 64,0xC7,0x800C0,0,0x7FFFFFFF,0 }, { 0,0xB8,0,0,0x7FFFFFFF,0}},
-        {{ 64,0xB8,0x80000,0,0xFFFFFFFF,0 }, { 0,0xB8,0,0,0xFFFFFFFF,0 }},
-        {{ 64,0xB8,0x80000,0,0x1FFFFFFFF,0 }, { 0,0xB8,0x80000,0,0x1FFFFFFFF,0 }},
-        {{ 64,0xB8,0x80000,0,0xFFFFFFFFFFFFFFFF,0 }, { 0,0xC7,0x800C0,0,0xFFFFFFFF,0}},
-    };
-
-    //config.flags4 |= CFG4space;
-    for (int i = 0; i < sizeof(tests)/sizeof(tests[0]); i++)
-    {   CS *pin  = &tests[i][0];
-        CS *pout = &tests[i][1];
-        code cs;
-        memset(&cs, 0, sizeof(cs));
-        if (pin->model)
-        {
-            if (I16 && pin->model != 16)
-                continue;
-            if (I32 && pin->model != 32)
-                continue;
-            if (I64 && pin->model != 64)
-                continue;
-        }
-        //printf("[%d]\n", i);
-        cs.Iop = pin->op;
-        cs.Iea = pin->ea;
-        cs.IFL1 = FLconst;
-        cs.IFL2 = FLconst;
-        cs.IEV1.Vsize_t = pin->ev1;
-        cs.IEV2.Vsize_t = pin->ev2;
-        cs.Iflags = pin->flags;
-        pinholeopt(&cs, NULL);
-        if (cs.Iop != pout->op)
-        {   printf("[%d] Iop = x%02x, pout = x%02x\n", i, cs.Iop, pout->op);
-            assert(0);
-        }
-        assert(cs.Iea == pout->ea);
-        assert(cs.IEV1.Vsize_t == pout->ev1);
-        assert(cs.IEV2.Vsize_t == pout->ev2);
-        assert(cs.Iflags == pout->flags);
-    }
-}
-#endif
 
 void simplify_code(code* c)
 {
@@ -5148,7 +4819,7 @@ void simplify_code(code* c)
         (c->Iop == 0x81 || c->Iop == 0x80) &&
         c->IFL2 == FLconst &&
         reghasvalue((c->Iop == 0x80) ? BYTEREGS : ALLREGS,I64 ? c->IEV2.Vsize_t : c->IEV2.Vlong,&reg) &&
-        !(I16 && c->Iflags & CFopsize)
+        !(false && c->Iflags & CFopsize)
        )
     {
         // See if we can replace immediate instruction with register instruction
@@ -5194,24 +4865,7 @@ void jmpaddr(code *c)
                 }
                 if (!ci)
                     goto Lbackjmp;      // couldn't find it
-                if (!I16 || op == JMP || op == JMPS || op == JCXZ || op == CALL)
                         c->IEVpointer2 = ad;
-                else                    /* else conditional             */
-                {       if (!(c->Iflags & CFjmp16))     /* if branch    */
-                                c->IEVpointer2 = ad;
-                        else            /* branch around a long jump    */
-                        {       cn = code_next(c);
-                                code_next(c) = code_calloc();
-                                code_next(code_next(c)) = cn;
-                                c->Iop = op ^ 1;        /* converse jmp */
-                                c->Iflags &= ~CFjmp16;
-                                c->IEVpointer2 = I16 ? 3 : 5;
-                                cn = code_next(c);
-                                cn->Iop = JMP;          /* long jump    */
-                                cn->IFL2 = FLconst;
-                                cn->IEVpointer2 = ad;
-                        }
-                }
                 c->IFL2 = FLconst;
         }
         if (op == LOOP && c->IFL2 == FLcode)    /* backwards refs       */
@@ -5374,9 +5028,7 @@ unsigned calccodsize(code *c)
                     }
                 }
                 else if (iflags & CFopsize)
-                {   if (I16)
-                        size += 2;
-                    else
+                {
                         size -= 2;
                 }
             }
@@ -5393,7 +5045,7 @@ unsigned calccodsize(code *c)
 Lmodrm:
     if ((op & ~0x0F) == 0x70)
     {   if (iflags & CFjmp16)           // if long branch
-            size += I16 ? 3 : 4;        // + 3(4) bytes for JMP
+            size += 4;        // + 3(4) bytes for JMP
     }
     else if (ins & M)                   // if modregrm byte
     {
@@ -5681,24 +5333,11 @@ unsigned codout(code *c)
 
             if ((op & ~0x0F) == 0x70 && flags & CFjmp16) /* long condit jmp */
             {
-                if (!I16)
+
                 {   // Put out 16 bit conditional jump
                     c->Iop = op = 0x0F00 | (0x80 | (op & 0x0F));
                 }
-                else
-                {
-                    cn = code_calloc();
-                    /*cxcalloc++;*/
-                    code_next(cn) = code_next(c);
-                    code_next(c) = cn;          // link into code
-                    cn->Iop = JMP;              // JMP block
-                    cn->IFL2 = c->IFL2;
-                    cn->IEV2.Vblock = c->IEV2.Vblock;
-                    c->Iop = op ^= 1;           // toggle condition
-                    c->IFL2 = FLconst;
-                    c->IEVpointer2 = I16 ? 3 : 5; // skip over JMP block
-                    c->Iflags &= ~CFjmp16;
-                }
+
             }
         }
 
@@ -5849,7 +5488,7 @@ unsigned codout(code *c)
         if (ins & T)                    /* if second operand            */
         {       if (ins & E)            /* if data-8                    */
                     do8bit(&ggen, (enum FL) c->IFL2,&c->IEV2);
-                else if (!I16)
+                else
                 {
                     switch (op)
                     {   case 0xC2:              /* RETN imm16           */
@@ -5876,10 +5515,20 @@ unsigned codout(code *c)
                             break;
                         case 0x9A:
                         case 0xEA:
-                            if (c->Iflags & CFopsize)
-                                goto ptr1616;
+                            //assert(c->IFL2 == FLfunc);
+                            ggen.flush();
+                            if (c->IFL2 == FLdatseg)
+                            {
+                                objmod->reftodatseg(cseg,ggen.offset,c->IEVpointer2,
+                                        c->IEVseg2,flags);
+                                ggen.offset += 4;
+                            }
                             else
-                                goto ptr1632;
+                            {
+                                s = c->IEVsym2;
+                                ggen.offset += objmod->reftoident(cseg,ggen.offset,s,0,flags);
+                            }
+                            break;
 
                         case 0x68:              // PUSH immed32
                             if ((enum FL)c->IFL2 == FLblock)
@@ -5908,65 +5557,6 @@ unsigned codout(code *c)
                             break;
                     }
                 }
-                else
-                {
-                    switch (op) {
-                        case 0xC2:
-                        case 0xCA:
-                            goto do16;
-                        case 0xA0:
-                        case 0xA1:
-                        case 0xA2:
-                        case 0xA3:
-                            if (c->Iflags & CFaddrsize)
-                                goto do32;
-                            else
-                                goto do16;
-                            break;
-                        case 0x9A:
-                        case 0xEA:
-                            if (c->Iflags & CFopsize)
-                                goto ptr1632;
-                            else
-                                goto ptr1616;
-
-                        ptr1616:
-                        ptr1632:
-                            //assert(c->IFL2 == FLfunc);
-                            ggen.flush();
-                            if (c->IFL2 == FLdatseg)
-                            {
-                                objmod->reftodatseg(cseg,ggen.offset,c->IEVpointer2,
-                                        c->IEVseg2,flags);
-                                ggen.offset += 4;
-                            }
-                            else
-                            {
-                                s = c->IEVsym2;
-                                ggen.offset += objmod->reftoident(cseg,ggen.offset,s,0,flags);
-                            }
-                            break;
-
-                        case 0x68:              // PUSH immed16
-                            if ((enum FL)c->IFL2 == FLblock)
-                            {   c->IFL2 = FLblockoff;
-                                goto do16;
-                            }
-                            else
-                                goto case_default16;
-
-                        case CALL:
-                        case JMP:
-                            flags |= CFselfrel;
-                        default:
-                        case_default16:
-                            if (c->Iflags & CFopsize)
-                                goto do32;
-                            else
-                                goto do16;
-                            break;
-                    }
-                }
         }
         else if (op == 0xF6)            /* TEST mem8,immed8             */
         {       if ((rm & (7<<3)) == 0)
@@ -5981,14 +5571,6 @@ unsigned codout(code *c)
                     do16bit(&ggen, (enum FL)c->IFL2,&c->IEV2,flags);
             }
         }
-#ifdef DEBUG
-        if (ggen.getOffset() - startoffset != calccodsize(c))
-        {
-            printf("actual: %d, calc: %d\n", (int)(ggen.getOffset() - startoffset), (int)calccodsize(c));
-            c->print();
-            assert(0);
-        }
-#endif
     }
     ggen.flush();
     Coffset = ggen.offset;
@@ -6032,10 +5614,8 @@ static void do64bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags)
             // un-named external with is the start of .rodata or .data
         case FLextern:                      /* external data symbol         */
         case FLtlsdata:
-#if TARGET_LINUX
         case FLgot:
         case FLgotoff:
-#endif
             pbuf->flush();
             s = uev->sp.Vsym;               /* symbol pointer               */
             objmod->reftoident(cseg,pbuf->offset,s,uev->sp.Voffset,CFoffset64 | flags);
@@ -6116,10 +5696,8 @@ static void do32bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev,int flags, int 
         // un-named external with is the start of .rodata or .data
     case FLextern:                      /* external data symbol         */
     case FLtlsdata:
-#if TARGET_LINUX
     case FLgot:
     case FLgotoff:
-#endif
         pbuf->flush();
         s = uev->sp.Vsym;               /* symbol pointer               */
             objmod->reftoident(cseg,pbuf->offset,s,uev->sp.Voffset + val,flags);
@@ -6240,22 +5818,16 @@ static void do8bit(MiniCodeBuf *pbuf, enum FL fl,union evc *uev)
         delta = uev->Vblock->Boffset - pbuf->getOffset() - 1;
         if ((signed char)delta != delta)
         {
-#if MARS
             if (uev->Vblock->Bsrcpos.Slinnum)
                 fprintf(stderr, "%s(%d): ", uev->Vblock->Bsrcpos.Sfilename, uev->Vblock->Bsrcpos.Slinnum);
-#endif
+
             fprintf(stderr, "block displacement of %lld exceeds the maximum offset of -128 to 127.\n", (long long)delta);
             err_exit();
         }
         c = delta;
-#ifdef DEBUG
-        assert(uev->Vblock->Boffset > pbuf->getOffset() || c != 0x7F);
-#endif
+
         break;
     default:
-#ifdef DEBUG
-        fprintf(stderr,"fl = %d\n",fl);
-#endif
         assert(0);
   }
   pbuf->gen(c);
@@ -6652,7 +6224,7 @@ void code::print()
   if (ins & M)
   {     unsigned rm = c->Irm;
         printf(" rm=0x%02X=%d,%d,%d",rm,(rm>>6)&3,(rm>>3)&7,rm&7);
-        if (!I16 && issib(rm))
+        if ( issib(rm))
         {   unsigned char sib = c->Isib;
             printf(" sib=%02x=%d,%d,%d",sib,(sib>>6)&3,(sib>>3)&7,sib&7);
         }

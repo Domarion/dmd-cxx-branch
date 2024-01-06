@@ -72,10 +72,8 @@ struct elem
                 #define NFLaecp 0x10    // AE or CP or VBE expression
                 #define NFLdelcse 0x40  // this is not the generating CSE
                 #define NFLtouns 0x80   // relational operator was changed from signed to unsigned
-#if MARS
             unsigned char Ejty_;                // original Mars type
             #define Ejty _EU._EO.Ejty_
-#endif
         }_EO;
 
         // CODGEN
@@ -96,7 +94,7 @@ struct elem
     Srcpos Esrcpos;             // source file position
 };
 
-#define typemask(e)     ((!MARS && PARSER) ? (e)->ET->Tty : (e)->Ety )
+#define typemask(e)     ((e)->Ety)
 #define typetym(e)      ((e)->ET->Tty)
 #define el_fl(e)        ((enum FL)((e)->EV.sp.Vsym->Sfl))
 #define Eoffset         EV.sp.Voffset

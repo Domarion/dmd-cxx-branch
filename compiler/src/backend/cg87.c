@@ -832,40 +832,27 @@ code *fixresult87(elem *e,regm_t retregs,regm_t *pretregs)
     if (*pretregs & mST0 && retregs & (mBP | ALLREGS))
     {
         assert(sz <= DOUBLESIZE);
-        if (!I16)
+
+        if (*pretregs & mPSW)
+        {   // Set flags
+            regm_t r = retregs | mPSW;
+            c1 = fixresult(e,retregs,&r);
+        }
+        c2 = push87();
+        if (sz == REGSIZE || (I64 && sz == 4))
         {
-
-            if (*pretregs & mPSW)
-            {   // Set flags
-                regm_t r = retregs | mPSW;
-                c1 = fixresult(e,retregs,&r);
-            }
-            c2 = push87();
-            if (sz == REGSIZE || (I64 && sz == 4))
-            {
-                unsigned reg = findreg(retregs);
-                c2 = genfltreg(c2,0x89,reg,0);          // MOV fltreg,reg
-                genfltreg(c2,0xD9,0,0);                 // FLD float ptr fltreg
-            }
-            else
-            {   unsigned msreg,lsreg;
-
-                msreg = findregmsw(retregs);
-                lsreg = findreglsw(retregs);
-                c2 = genfltreg(c2,0x89,lsreg,0);        // MOV fltreg,lsreg
-                genfltreg(c2,0x89,msreg,4);             // MOV fltreg+4,msreg
-                genfltreg(c2,0xDD,0,0);                 // FLD double ptr fltreg
-            }
+            unsigned reg = findreg(retregs);
+            c2 = genfltreg(c2,0x89,reg,0);          // MOV fltreg,reg
+            genfltreg(c2,0xD9,0,0);                 // FLD float ptr fltreg
         }
         else
-        {
-            regm = (sz == FLOATSIZE) ? FLOATREGS : DOUBLEREGS;
-            regm |= *pretregs & mPSW;
-            c1 = fixresult(e,retregs,&regm);
-            regm = 0;           // don't worry about result from CLIBxxx
-            c2 = callclib(e,
-                    ((sz == FLOATSIZE) ? CLIBfltto87 : CLIBdblto87),
-                    &regm,0);
+        {   unsigned msreg,lsreg;
+
+            msreg = findregmsw(retregs);
+            lsreg = findreglsw(retregs);
+            c2 = genfltreg(c2,0x89,lsreg,0);        // MOV fltreg,lsreg
+            genfltreg(c2,0x89,msreg,4);             // MOV fltreg+4,msreg
+            genfltreg(c2,0xDD,0,0);                 // FLD double ptr fltreg
         }
     }
     else if (*pretregs & (mBP | ALLREGS) && retregs & mST0)
@@ -883,22 +870,11 @@ code *fixresult87(elem *e,regm_t retregs,regm_t *pretregs)
         c2 = allocreg(pretregs,&reg,(sz == FLOATSIZE) ? TYfloat : TYdouble);
         if (sz == FLOATSIZE)
         {
-            if (!I16)
-                c2 = genfltreg(c2,0x8B,reg,0);
-            else
-            {   c2 = genfltreg(c2,0x8B,reg,REGSIZE);
-                genfltreg(c2,0x8B,findreglsw(*pretregs),0);
-            }
+            c2 = genfltreg(c2,0x8B,reg,0);
         }
         else
         {   assert(sz == DOUBLESIZE);
-            if (I16)
-            {   c2 = genfltreg(c2,0x8B,AX,6);
-                genfltreg(c2,0x8B,BX,4);
-                genfltreg(c2,0x8B,CX,2);
-                genfltreg(c2,0x8B,DX,0);
-            }
-            else if (I32)
+            if (I32)
             {   c2 = genfltreg(c2,0x8B,reg,REGSIZE);
                 genfltreg(c2,0x8B,findreglsw(*pretregs),0);
             }
@@ -1847,13 +1823,6 @@ code *load87(elem *e,unsigned eoffset,regm_t *pretregs,elem *eleft,int op)
                     retregs = ALLREGS;
                     c = codelem(e->E1,&retregs,FALSE);
                 L3:
-                    if (I16 && e->Eoper != OPs16_d)
-                    {
-                        /* MOV floatreg+2,reg   */
-                        reg = findregmsw(retregs);
-                        c = genfltreg(c,0x89,reg,REGSIZE);
-                        retregs &= mLSW;
-                    }
                     reg = findreg(retregs);
                     c = genfltreg(c,0x89,reg,0);        /* MOV floatreg,reg */
                     if (op != -1)
@@ -3182,21 +3151,7 @@ code *cnvt87(elem *e,regm_t *pretregs)
                 assert(0);
         }
 
-        if (I16)                       // C may change the default control word
-        {
-            if (clib == CLIBdblllng)
-            {   retregs = I32 ? DOUBLEREGS_32 : DOUBLEREGS_16;
-                c1 = codelem(e->E1,&retregs,FALSE);
-                c2 = callclib(e,clib,pretregs,0);
-            }
-            else
-            {   retregs = mST0; //I32 ? DOUBLEREGS_32 : DOUBLEREGS_16;
-                c1 = codelem(e->E1,&retregs,FALSE);
-                c2 = callclib(e,clib,pretregs,0);
-                pop87();
-            }
-        }
-        else if (1)
+        if (1)
         {   //  Generate:
             //  sub     ESP,12
             //  fstcw   8[ESP]

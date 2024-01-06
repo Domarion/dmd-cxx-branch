@@ -23,31 +23,11 @@ void Global::_init()
     ddoc_ext = "ddoc";
     json_ext = "json";
     map_ext  = "map";
-
-#if TARGET_LINUX
     obj_ext  = "o";
-#else
-#error "fix this"
-#endif
-
-#if TARGET_LINUX
     lib_ext  = "a";
-#else
-#error "fix this"
-#endif
-
-#if TARGET_LINUX
     dll_ext  = "so";
-#else
-#error "fix this"
-#endif
-
-#if TARGET_LINUX
     // Allow 'script' D source files to have no extension.
     run_noext = true;
-#else
-#error "fix this"
-#endif
 
     copyright = "Copyright (C) 1999-2021 by The D Language Foundation, All Rights Reserved";
     written = "written by Walter Bright";

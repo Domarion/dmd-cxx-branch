@@ -8,9 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-
-#if (MARS)
-
 #include        <stdio.h>
 #include        <time.h>
 
@@ -73,46 +70,7 @@ void builddags()
         if (go.exptop <= 1)                /* if no AEs                    */
                 return;
         aetype = AEcse;
-#ifdef DEBUG
-        for (i = 0; i < go.exptop; i++)
-        {
-            //dbg_printf("go.expnod[%d] = %p\n",i,go.expnod[i]);
-            if (go.expnod[i])
-                elem_debug(go.expnod[i]);
-        }
-#endif
-#if 0
-        dbg_printf("defkill  "); vec_println(go.defkill,go.exptop);
-        dbg_printf("starkill "); vec_println(go.starkill,go.exptop);
-        dbg_printf("vptrkill "); vec_println(go.vptrkill,go.exptop);
-#endif
 
-#if 0
-        /* This is the 'correct' algorithm for CSEs. We can't use it    */
-        /* till we fix the code generator.                              */
-        for (i = 0; i < dfotop; i++)
-        {       block *b;
-
-                b = dfo[i];
-                if (b->Belem)
-                {
-#if 0
-                        dbg_printf("dfo[%d] = %p\n",i,b);
-                        dbg_printf("b->Bin   "); vec_println(b->Bin,go.exptop);
-                        dbg_printf("b->Bout  "); vec_println(b->Bout,go.exptop);
-                        aewalk(&(b->Belem),b->Bin);
-                        dbg_printf("b->Bin   "); vec_println(b->Bin,go.exptop);
-                        dbg_printf("b->Bout  "); vec_println(b->Bout,go.exptop);
-#else
-                        aewalk(&(b->Belem),b->Bin);
-#endif
-                        /* Bin and Bout would be equal at this point    */
-                        /* except that we deleted some elems from       */
-                        /* go.expnod[] and so it's a subset of Bout        */
-                        /* assert(veceq(b->Bin,b->Bout));               */
-                }
-        }
-#else
         /* Do CSEs across extended basic blocks only. This is because   */
         /* the code generator can only track register contents          */
         /* properly across extended basic blocks.                       */
@@ -131,9 +89,8 @@ void builddags()
                     || b->BC == BCasm
                     || b->BC == BC_finally
                     || b->BC == BC_lpad
-#if MARS
                     || b->BC == BCjcatch
-#endif
+
                    )
                         vec_clear(aevec);
                 if (b->Belem)           /* if there is an expression    */
@@ -141,7 +98,6 @@ void builddags()
 
         }
         vec_free(aevec);
-#endif
         // Need 2 passes to converge on solution
         for (int j = 0; j < 2; j++)
             for (i = 0; i < dfotop; i++)
@@ -150,9 +106,6 @@ void builddags()
                 b = dfo[i];
                 if (b->Belem)
                 {
-#if 0
-                        dbg_printf("b = 0x%x\n",b);
-#endif
                         removecses(&(b->Belem));
                 }
             }
@@ -612,9 +565,7 @@ void boolopt()
                     || b->BC == BCasm
                     || b->BC == BC_finally
                     || b->BC == BC_lpad
-#if MARS
                     || b->BC == BCjcatch
-#endif
                    )
                         vec_clear(aevec);
                 if (b->Belem)           /* if there is an expression    */
@@ -914,4 +865,3 @@ STATIC void abeset(elem *e,vec_t ae,vec_t aeval,int flag)
     }
 }
 
-#endif

@@ -235,18 +235,8 @@ void outdata(symbol *s)
                 if (tybasic(dt->Dty) == TYcptr)
                     objmod->reftocodeseg(seg,offset,dt->DTabytes);
                 else
-#if TARGET_LINUX
                     objmod->reftodatseg(seg,offset,dt->DTabytes,dt->DTseg,flags);
-#else
-                /*else*/ if (dt->DTseg == DATA)
-                    objmod->reftodatseg(seg,offset,dt->DTabytes,DATA,flags);
-#if MARS
-                else if (dt->DTseg == CDATA)
-                    objmod->reftodatseg(seg,offset,dt->DTabytes,CDATA,flags);
-#endif
-                else
-                    objmod->reftofarseg(seg,offset,dt->DTabytes,dt->DTseg,flags);
-#endif
+
                 offset += size(dt->Dty);
                 break;
             case DT_ibytes:
@@ -737,12 +727,10 @@ STATIC void writefunc2(symbol *sfunc)
         memset(&b->_BLU,0,sizeof(b->_BLU));
         if (b->Belem)
         {   outelem(b->Belem);
-#if MARS
             if (b->Belem->Eoper == OPhalt)
             {   b->BC = BCexit;
                 list_free(&b->Bsucc,FPNULL);
             }
-#endif
         }
         if (b->BC == BCasm)
             anyasm = 1;
@@ -813,7 +801,6 @@ STATIC void writefunc2(symbol *sfunc)
     if (eecontext.EEcompile == 1)
         goto Ldone;
 
-#if MARS
     /* This is to make uplevel references to SCfastpar variables
      * from nested functions work.
      */
@@ -833,7 +820,6 @@ STATIC void writefunc2(symbol *sfunc)
      * Necessary for nested function access to lexically enclosing frames.
      */
      cod3_adjSymOffsets();
-#endif
 
     /* Check if function is a constructor or destructor, by     */
     /* seeing if the function name starts with _STI or _STD     */
@@ -957,12 +943,7 @@ symbol *out_readonly_sym(tym_t ty, void *p, int len)
 void Srcpos::print(const char *func)
 {
     printf("%s(", func);
-#if MARS
     printf("Sfilename = %s", Sfilename ? Sfilename : "null");
-#else
-    Sfile *sf = Sfilptr ? *Sfilptr : NULL;
-    printf("Sfilptr = %p (filename = %s)", sf, sf ? sf->SFname : "null");
-#endif
     printf(", Slinnum = %u", Slinnum);
     printf(")\n");
 }

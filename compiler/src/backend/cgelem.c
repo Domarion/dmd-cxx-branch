@@ -637,7 +637,6 @@ STATIC elem * elmemxxx(elem *e, goal_t goal)
                     elem *enbytes = e->E2->E1;
                     elem *evalue = e->E2->E2;
 
-#if MARS
                     if (enbytes->Eoper == OPconst && evalue->Eoper == OPconst)
                     {   tym_t tym;
                         tym_t ety;
@@ -681,7 +680,7 @@ STATIC elem * elmemxxx(elem *e, goal_t goal)
                                 break;
                         }
                     }
-#endif
+
                 }
                 break;
 
@@ -1084,25 +1083,6 @@ L1:
     }
 
   }
-
-    if (I16 && tybasic(e2->Ety) == TYhptr && tybasic(e->E1->Ety) == TYhptr)
-    {   // Convert to _aNahdiff(e1,e2)
-        static symbol *hdiff;
-        if (!hdiff)
-        {
-            symbol *s = symbol_calloc(LARGECODE ? "_aFahdiff" : "_aNahdiff");
-            s->Stype = tsclib;
-            s->Sclass = SCextern;
-            s->Sfl = FLfunc;
-            s->Ssymnum = 0;
-            s->Sregsaved = mBX|mCX|mSI|mDI|mBP|mES;
-            hdiff = s;
-        }
-        e->Eoper = OPcall;
-        e->E2 = el_bin(OPparam,TYint,e2,e->E1);
-        e->E1 = el_var(hdiff);
-        return e;
-    }
 
   /* Disallow the optimization on doubles. The - operator is not        */
   /* rearrangable by K+R, and can cause floating point problems if      */
@@ -2179,10 +2159,6 @@ Lret:
 
 STATIC elem * elremquo(elem *e, goal_t goal)
 {
-#if 0 && MARS
-    if (cnst(e->E2) && !boolres(e->E2))
-        error(e->Esrcpos.Sfilename, e->Esrcpos.Slinnum, e->Esrcpos.Scharnum, "divide by zero\n");
-#endif
     return e;
 }
 
@@ -2216,10 +2192,6 @@ STATIC elem * eldiv(elem *e, goal_t goal)
     uns = tyuns(tym) | tyuns(e2->Ety);
     if (cnst(e2))
     {
-#if 0 && MARS
-      if (!boolres(e2))
-        error(e->Esrcpos.Sfilename, e->Esrcpos.Slinnum, e->Esrcpos.Scharnum, "divide by zero\n");
-#endif
       if (uns)
       { int i;
 
@@ -2431,8 +2403,6 @@ L1:
 
 STATIC bool optim_loglog(elem **pe)
 {
-    if (I16)
-        return false;
     elem *e = *pe;
     int op = e->Eoper;
     assert(op == OPandand || op == OPoror);
@@ -3498,67 +3468,9 @@ STATIC elem * eleq(elem *e, goal_t goal)
 
    if (e1->Eoper == OPcomma)
         return cgel_lvalue(e);
-#if MARS
+
     // No bit fields to deal with
     return e;
-#else
-  if (e1->Eoper != OPbit)
-        return e;
-  if (e1->E1->Eoper == OPcomma || OTassign(e1->E1->Eoper))
-        return cgel_lvalue(e);
-  t = e->Ety;
-  l = e1->E1;                           /* lvalue                       */
-  r = e->E2;
-  tym_t tyl = l->Ety;
-  sz = tysize(tyl) * 8;
-  w = (e1->E2->EV.Vuns >> 8);           /* width in bits of field       */
-  m = ((targ_ullong)1 << w) - 1;        // mask w bits wide
-  b = e1->E2->EV.Vuns & 0xFF;           /* bits to shift                */
-
-  eres =  el_bin(OPeq,t,
-                l,
-                el_bin(OPor,t,
-                        el_bin(OPshl,t,
-                                (r2 = el_bin(OPand,t,r,el_long(t,m))),
-                                el_int(TYint,b)
-                        ),
-                        el_bin(OPand,t,
-                                (l2 = el_copytree(l)),
-                                el_long(t,~(m << b))
-                        )
-                )
-          );
-  eres->Esrcpos = e->Esrcpos;           // save line information
-  if (OPTIMIZER && w + b == sz)
-        r2->E2->EV.Vllong = ~ZEROLL;    // no need to mask if left justified
-  if (wantres)
-  {     unsigned c;
-        elem **pe;
-        elem *e2;
-
-        r = el_copytree(r);
-        if (tyuns(tyl))                 /* unsigned bit field           */
-        {
-            e2 = el_bin(OPand,t,r,el_long(t,m));
-            pe = &e2->E1;
-        }
-        else                            /* signed bit field             */
-        {
-            c = sz - w;                 /* e2 = (r << c) >> c           */
-            e2 = el_bin(OPshr,t,el_bin(OPshl,tyl,r,el_long(TYint,c)),el_long(TYint,c));
-            pe = &e2->E1->E1;
-        }
-        eres = el_bin(OPcomma,t,eres,e2);
-        if (EOP(r))
-            fixside(&(r2->E1),pe);
-  }
-
-  if (EOP(l) && EOP(l->E1))
-        fixside(&(l2->E1),&(l->E1));
-  e1->E1 = e->E2 = NULL;
-  el_free(e);
-  return optelem(eres,GOALvalue);
-#endif
 }
 
 /**********************************
@@ -4688,8 +4600,6 @@ STATIC elem * elvalist(elem *e, goal_t goal)
         return e;
     }
 
-#if TARGET_LINUX
-
     assert(I64); // va_start is not an intrinsic on 32-bit
     // (OPva_start &va)
     // (OPeq (OPind E1) __va_argsave+offset)
@@ -4717,7 +4627,6 @@ STATIC elem * elvalist(elem *e, goal_t goal)
     else
         e->E2 = el_long(TYnptr, 0);
     //elem_print(e);
-#endif
 
     return e;
 }
@@ -5034,7 +4943,6 @@ beg:
         {
               /* see if we should swap the leaves       */
               if (
-#if MARS
                 cost(e2) > cost(e1)
                 /* Swap only if order of evaluation can be proved
                  * to not matter, as we must evaluate Left-to-Right
@@ -5047,9 +4955,6 @@ beg:
                     (e1->Eoper == OPvar && e1->EV.sp.Vsym->Sflags & SFLunambig && !el_appears(e2,e1->EV.sp.Vsym)) ||
                     !(el_sideeffect(e1) || el_sideeffect(e2))
                    )
-#else
-                cost(e2) > cost(e1)
-#endif
                  )
               {
                     e->E1 = e2;
@@ -5064,10 +4969,8 @@ beg:
                       e1->E2->Eoper == OPconst &&
                       e->Ety == e1->Ety &&
                       tysize(e1->E2->Ety) == tysize(e2->Ety)
-#if MARS
                       // Reordering floating point can change the semantics
                       && !tyfloating(e1->Ety)
-#endif
                      )
                   {
                         // look for ((e op c1) op c2),
@@ -5225,31 +5128,26 @@ void postoptelem(elem *e)
         {
             /* This is necessary as the optimizer tends to lose this information
              */
-#if MARS
             if (e->Esrcpos.Slinnum > pos.Slinnum)
                 pos = e->Esrcpos;
-#endif
             if (e->Eoper == OPind)
             {
-#if MARS
                 if (e->E1->Eoper == OPconst &&
                     el_tolong(e->E1) >= 0 && el_tolong(e->E1) < 4096)
                 {
                     error(pos.Sfilename, pos.Slinnum, pos.Scharnum, "null dereference in function %s", funcsym_p->Sident);
                     e->E1->EV.Vlong = 4096;     // suppress redundant messages
                 }
-#endif
             }
             e = e->E1;
         }
         else if (OTbinary(e->Eoper))
         {
-#if MARS
             /* This is necessary as the optimizer tends to lose this information
              */
             if (e->Esrcpos.Slinnum > pos.Slinnum)
                 pos = e->Esrcpos;
-#endif
+
             if (e->Eoper == OPparam)
             {
                 if (!I64)

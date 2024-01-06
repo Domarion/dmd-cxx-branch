@@ -168,13 +168,11 @@ enum TK {
         TK_stdcall,
         TK_syscall,
         TK_try,
-#if TARGET_LINUX
         TK_attribute,
         TK_extension,
         TK_format,
         TK_restrict,
         TK_bltin_const,
-#endif
 #else
         TKcomp,
         TKextended,
@@ -200,9 +198,7 @@ enum TK {
         TKandand,TKshl,TKshr,TKrcur,TKeq,TKaddass,TKminass,TKmulass,TKdivass,
         TKmodass,TKshrass,TKshlass,TKandass,TKxorass,TKorass,TKsemi,
         TKadd,TKellipsis,
-#if !TX86 || TARGET_LINUX
         TKdollar,
-#endif
 
  /* The following relational tokens must be in the same order as the
     corresponding operators.
@@ -346,19 +342,6 @@ void token_term(void);
 
 #define ptoken()        rtoken(1)
 #define token()         rtoken(0)
-
-#if !MARS
-/* from pragma.c */
-//enum_TK ptoken(void);
-void pragma_process();
-int pragma_search(const char *id);
-macro_t * macfind(void);
-macro_t *macdefined(const char *id, unsigned hash);
-void listident(void);
-void pragma_term(void);
-macro_t *defmac(const char *name , const char *text);
-int pragma_defined(void);
-#endif
 
 //      listing control
 //      Listings can be produce via -l and SCpre

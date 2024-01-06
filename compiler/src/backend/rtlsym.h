@@ -21,12 +21,7 @@
 #define SYMBOL_SCPP(e, fl, saved, n, flags, ty)
 #define SYMBOL_SCPP_TX86(e, fl, saved, n, flags, ty)
 
-#if MARS
 #define SYMBOL_MARS(e, fl, saved, n, flags, ty) SYMBOL_Z(e,fl,saved,n,flags,ty)
-#else
-#define SYMBOL_MARS(e, fl, saved, n, flags, ty)
-#endif
-
 
 #define RTLSYMS \
 \

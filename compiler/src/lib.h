@@ -17,11 +17,7 @@ class Library
   public:
     static Library *factory()
     {
-#if TARGET_LINUX
         return LibElf_factory();
-#else
-        assert(0); // unsupported system
-#endif
     }
 
     virtual void setFilename(const char *dir, const char *filename) = 0;

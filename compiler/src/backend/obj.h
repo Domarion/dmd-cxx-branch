@@ -82,12 +82,10 @@ struct Obj
 
     VIRTUAL symbol *tlv_bootstrap();
 
-#if TARGET_LINUX
     static unsigned addstr(Outbuffer *strtab, const char *);
     static void gotref(symbol *s);
     static symbol *getGOTsym();
     static void refGOTsym();
-#endif
 };
 
 struct ElfObj : Obj

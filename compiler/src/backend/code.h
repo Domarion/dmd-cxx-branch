@@ -14,10 +14,8 @@ extern "C" {
 
 #include <stddef.h>
 
-#if MARS
 class LabelDsymbol;
 class Declaration;
-#endif
 
 typedef int segidx_t;           // index into SegData[]
 
@@ -48,7 +46,7 @@ union evc
         targ_size_t Voffset;    // offset from symbol
         symbol  *Vsym;          // pointer to symbol table (FLfunc,FLextern)
     } sp;
-#if MARS
+
     struct
     {
         targ_size_t Voffset;    // offset from symbol
@@ -59,7 +57,7 @@ union evc
         targ_size_t Voffset;    // offset from symbol
         LabelDsymbol *Vsym;     // pointer to Label
     } lab;
-#endif
+
     struct
     {   size_t len;
         char *bytes;
@@ -306,9 +304,7 @@ void WRcodlst (code *c );
 cd_t cdcomma;
 cd_t cdloglog;
 cd_t cdshift;
-#if TARGET_LINUX
 cd_t cdindpic;
-#endif
 cd_t cdind;
 cd_t cdstrlen;
 cd_t cdstrcmp;

@@ -10,10 +10,6 @@
 
 #pragma once
 
-#ifndef MARS
-#define MARS            0       // not compiling MARS code
-#endif
-
 #define GENOBJ          1       // generating .obj file
 
 #define mskl(i)         (1L << (i))     /* convert int to mask          */
@@ -51,12 +47,10 @@ enum WM
         WM_badnumber    = 24,
         WM_ccast        = 25,
         WM_obsolete     = 26,
-#if TARGET_LINUX
         WM_skip_attribute   = 27, // skip GNUC attribute specification
         WM_warning_message  = 28, // preprocessor warning message
         WM_bad_vastart      = 29, // args for builtin va_start bad
         WM_undefined_inline = 30, // static inline not expanded or defined
-#endif
 };
 
 // Language for error messages
@@ -77,11 +71,7 @@ enum LANG
 #endif
 
 #include        "ty.h"
-#if TARGET_LINUX
 #include        "../tk/mem.h"
-#else
-#include        "mem.h"
-#endif
 #include        "list.h"
 #include        "vec.h"
 
@@ -140,10 +130,6 @@ typedef struct Symbol symbol;
 typedef Symbol Funcsym;
 //typedef Symbol Classsym;      // a Symbol that is an SCclass, SCstruct or SCunion
 struct elem;
-#if !MARS
-typedef struct MACRO macro_t;
-typedef struct BLKLST blklst;
-#endif
 typedef list_t symlist_t;       /* list of pointers to Symbols          */
 typedef struct SYMTAB_S symtab_t;
 struct code;
@@ -156,10 +142,9 @@ typedef struct Srcpos
 {
     unsigned Slinnum;           // 0 means no info available
     unsigned Scharnum;
-#if MARS
     const char *Sfilename;
     #define srcpos_name(p)      ((p)->Sfilename)
-#endif
+
 #if M_UNIX
     short Sfilnum;              // file number
 #endif
@@ -193,9 +178,6 @@ typedef struct Pstate
     char STinconstexp;          // if !=0, then parsing a constant expression
     char STisaddr;              // is this a possible pointer to member expression?
     unsigned STinexp;           // if !=0, then in an expression
-#if !MARS
-    int STinitseg;              // segment for static constructor function pointer
-#endif
     Funcsym *STfuncsym_p;       // if inside a function, then this is the
                                 // function Symbol.
 
@@ -222,13 +204,6 @@ typedef struct Pstate
 #       define PFLsymdef        0x4000  // declared a global Symbol in the source
 #       define PFLinclude       0x8000  // read a .h file
 #       define PFLmfc           0x10000 // something will affect MFC compatibility
-#endif
-#if !MARS
-    int STinparamlist;          // if != 0, then parser is in
-                                // function parameter list
-    int STingargs;              // in template argument list
-    list_t STincalias;          // list of include aliases
-    list_t STsysincalias;       // list of system include aliases
 #endif
 
 #if TX86
@@ -301,15 +276,12 @@ typedef enum SC enum_SC;
  *      in a function. startblock heads the list.
  */
 
-#if MARS
 class ClassDeclaration;
 class Declaration;
 class Module;
-#endif
 
 struct Blockx
 {
-#if MARS
     block *startblock;
     block *curblock;
     Funcsym *funcsym;
@@ -322,7 +294,6 @@ struct Blockx
     ClassDeclaration *classdec;
     Declaration *member;        // member we're compiling for
     Module *module;             // module we're in
-#endif
 };
 
 typedef struct block
@@ -357,15 +328,14 @@ typedef struct block
             #define catchvar BS.BITRY.catchvar
         } BITRY;                        // BCtry
 
-#if MARS
         struct
         {   Symbol *catchtype;          // one type for each catch block
             #define Bcatchtype BS.BIJCATCH.catchtype
 
             unsigned *actionTable;      // EH_DWARF: indices into typeTable, first is # of entries
         } BIJCATCH;                     // BCjcatch
-#endif
-#if MARS
+
+
         struct
         {
             Symbol *jcatchvar;          // __d_throw() fills in this
@@ -375,7 +345,6 @@ typedef struct block
             int Blast_index;            // enclosing index into scope table
             #define Blast_index BS.BI_TRY.Blast_index
         } BI_TRY;                       // BC_try
-#endif
 
         struct
         {
@@ -1067,13 +1036,11 @@ struct Symbol
 
     regm_t Spregm();            // return mask of Spreg and Spreg2
 
-#if MARS
     Symbol *Sscope;             // enclosing scope (could be struct tag,
                                 // enclosing inline function for statics,
                                 // or namespace)
 #define isclassmember(s)        ((s)->Sscope && (s)->Sscope->Sclass == SCstruct)
     const char *prettyIdent;    // the symbol identifier as the user sees it
-#endif
 
     enum_SC Sclass;             // storage class (SCxxxx)
     char Sfl;                   // flavor (FLxxxx)
@@ -1103,9 +1070,8 @@ struct Symbol
         #define SFLmutable      0x100000        // SCmember or SCfield is mutable
         #define SFLdyninit      0x200000        // symbol has dynamic initializer
         #define SFLtmp          0x400000        // symbol is a generated temporary
-#if TARGET_LINUX
         #define SFLthunk        0x40000 // symbol is temporary for thunk
-#endif
+
 
         // Possible values for protection bits
         #define SFLprivate      0x60
@@ -1193,15 +1159,10 @@ struct Aliassym : Symbol { };
 //struct Funcsym : Symbol { };
 
 // Determine if this Symbol is stored in a COMDAT
-#if MARS
+
 #define symbol_iscomdat(s)      ((s)->Sclass == SCcomdat ||             \
         config.flags2 & CFG2comdat && (s)->Sclass == SCinline ||        \
         config.flags4 & CFG4allcomdat && ((s)->Sclass == SCglobal))
-#else
-#define symbol_iscomdat(s)      ((s)->Sclass == SCcomdat ||             \
-        config.flags2 & CFG2comdat && (s)->Sclass == SCinline ||        \
-        config.flags4 & CFG4allcomdat && ((s)->Sclass == SCglobal || (s)->Sclass == SCstatic))
-#endif
 
 /* Format the identifier for presentation to the user   */
 inline char *prettyident(Symbol *s) { return s->Sident; }
@@ -1315,58 +1276,6 @@ enum FL
 
         FLMAX
 };
-
-////////// Srcfiles
-
-#if !MARS
-// Collect information about a source file.
-typedef struct Sfile
-{
-#ifdef DEBUG
-    unsigned short      id;
-#define IDsfile (('f' << 8) | 's')
-#define sfile_debug(sf) assert((sf)->id == IDsfile)
-#else
-#define sfile_debug(sf)
-#endif
-
-    char     *SFname;           // name of file
-    unsigned  SFflags;
-        #define SFonce    0x01      // file is to be #include'd only once
-        #define SFhx      0x02      // file is in an HX file and has not been loaded
-        #define SFtop     0x04      // file is a top level source file
-        #define SFloaded  0x08      // read from PH file
-    list_t    SFfillist;        // file pointers of Sfile's that this Sfile is
-                                //     dependent on (i.e. they were #include'd).
-                                //     Does not include nested #include's
-    macro_t  *SFmacdefs;        // threaded list of macros #defined by this file
-    macro_t **SFpmacdefs;       // end of macdefs list
-    Symbol   *SFsymdefs;        // threaded list of global symbols declared by this file
-    symlist_t SFcomdefs;        // comdefs defined in PH
-    symlist_t SFtemp_ft;        // template_ftlist
-    symlist_t SFtemp_class;     // template_class_list
-    Symbol   *SFtagsymdefs;     // list of tag names (C only)
-    char     *SFinc_once_id;    // macro include guard identifier
-    unsigned SFhashval;         // hash of file name
-} Sfile;
-
-// Source files are referred to by a pointer into pfiles[]. This is so that
-// when PH files are hydrated, only pfiles[] needs updating. Of course, this
-// means that pfiles[] cannot be reallocated to larger numbers, its size is
-// fixed at SRCFILES_MAX.
-
-typedef struct Srcfiles
-{
-//  Sfile *arr;         // array of Sfiles
-    Sfile **pfiles;     // parallel array of pointers into arr[]
-    #define SRCFILES_MAX (2*512)
-    unsigned dim;       // dimension of array
-    unsigned idx;       // # used in array
-} Srcfiles;
-
-#define sfile(fi)               (*srcfiles.pfiles[fi])
-#define srcfiles_name(fi)       (sfile(fi).SFname)
-#endif
 
 /**************************************************
  * This is to support compiling expressions within the context of a function.

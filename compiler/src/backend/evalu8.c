@@ -94,9 +94,6 @@ int boolres(elem *e)
                 case TYbool:
                 case TYwchar_t:
                 case TYenum:
-#if !MARS
-                case TYmemptr:
-#endif
                 case TYlong:
                 case TYulong:
                 case TYdchar:
@@ -855,10 +852,6 @@ elem * evalu8(elem *e, goal_t goal)
                     }
                     break;
                 default:
-#ifdef DEBUG
-                    dbg_printf("tym = x%x\n",tym);
-                    elem_print(e);
-#endif
                     assert(0);
             }
         }
@@ -866,9 +859,7 @@ elem * evalu8(elem *e, goal_t goal)
     case OPdiv:
         if (!boolres(e2))                       // divide by 0
         {
-#if MARS
             if (!tyfloating(tym))
-#endif
                 goto div0;
         }
         if (uns)
@@ -1041,16 +1032,13 @@ elem * evalu8(elem *e, goal_t goal)
         }
         break;
     case OPmod:
-#if MARS
+
         if (!tyfloating(tym))
-#endif
         {
             if (!boolres(e2))
             {
                 div0:
-#if MARS
                     error(e->Esrcpos.Sfilename, e->Esrcpos.Slinnum, e->Esrcpos.Scharnum, "divide by zero");
-#endif
                     break;
             }
         }
@@ -1183,10 +1171,9 @@ elem * evalu8(elem *e, goal_t goal)
     case OPshr:
         if ((targ_ullong) i2 > sizeof(targ_ullong) * 8)
             i2 = sizeof(targ_ullong) * 8;
-#if MARS
+
         // Always unsigned
         e->EV.Vullong = ((targ_ullong) l1) >> i2;
-#endif
         break;
 
     case OPbtst:
@@ -1195,14 +1182,12 @@ elem * evalu8(elem *e, goal_t goal)
         e->EV.Vullong = (((targ_ullong) l1) >> i2) & 1;
         break;
 
-#if MARS
     case OPashr:
         if ((targ_ullong) i2 > sizeof(targ_ullong) * 8)
             i2 = sizeof(targ_ullong) * 8;
         // Always signed
         e->EV.Vllong = l1 >> i2;
         break;
-#endif
 
     case OPpair:
         switch (tysize[tym])
@@ -1611,19 +1596,6 @@ elem * evalu8(elem *e, goal_t goal)
         break;
     }
     case OPind:
-#if 0 && MARS
-        /* The problem with this is that although the only reaching definition
-         * of the variable is null, it still may never get executed, as in:
-         *   int* p = null; if (p) *p = 3;
-         * and the error will be spurious.
-         */
-        if (l1 >= 0 && l1 < 4096)
-        {
-            error(e->Esrcpos.Sfilename, e->Esrcpos.Slinnum, e->Esrcpos.Scharnum,
-                "dereference of null pointer");
-            e->E1->EV.Vlong = 4096;     // suppress redundant messages
-        }
-#endif
         return e;
 
     case OPvecfill:

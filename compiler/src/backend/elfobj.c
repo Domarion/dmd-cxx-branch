@@ -10,7 +10,6 @@
 
 // Output to ELF object files
 
-#if MARS
 #include        <stdio.h>
 #include        <string.h>
 #include        <stdlib.h>
@@ -35,11 +34,7 @@
 #include        "tinfo.h"
 
 #ifndef ELFOSABI
-# if TARGET_LINUX
 #  define ELFOSABI ELFOSABI_LINUX
-# else
-#  error "No ELF OS ABI defined.  Please fix"
-# endif
 #endif
 
 //#define DEBSYM 0x7E
@@ -54,16 +49,14 @@ static char __file__[] = __FILE__;      // for tassert.h
 #define DEST_LEN (IDMAX + IDOHD + 1)
 char *obj_mangle2(Symbol *s,char *dest);
 
-#if MARS
 // C++ name mangling is handled by front end
 #define cpp_mangle(s) ((s)->Sident)
-#endif
 
 /**
  * If set the compiler requires full druntime support of the new
  * section registration.
  */
-#define REQUIRE_DSO_REGISTRY (DMDV2 && TARGET_LINUX)
+#define REQUIRE_DSO_REGISTRY (DMDV2 && 1)
 
 /***************************************************
  * Correspondence of relocation types
@@ -108,9 +101,8 @@ STATIC char * objmodtoseg (const char *modname);
 STATIC void objfixupp (struct FIXUP *);
 STATIC void ledata_new (int seg,targ_size_t offset);
 STATIC void obj_tlssections();
-#if MARS
+
 static void obj_rtinit();
-#endif
 
 static IDXSYM elf_addsym(IDXSTR sym, targ_size_t val, unsigned sz,
                          unsigned typ,unsigned bind,IDXSEC sec,
@@ -1036,9 +1028,7 @@ void Obj::term(const char *objfilename)
         dwarf_termfile();
     }
 
-#if MARS
     obj_rtinit();
-#endif
 
     long foffset;
     Elf32_Shdr *sechdr;
@@ -1340,17 +1330,8 @@ void Obj::linnum(Srcpos srcpos, targ_size_t offset)
     if (srcpos.Slinnum == 0)
         return;
 
-#if 0
-#if MARS
-    printf("Obj::linnum(cseg=%d, offset=0x%lx) ", cseg, offset);
-#endif
-    srcpos.print("");
-#endif
-
-#if MARS
     if (!srcpos.Sfilename)
         return;
-#endif
 
     size_t i;
     seg_data *seg = SegData[cseg];
@@ -1371,14 +1352,11 @@ void Obj::linnum(Srcpos srcpos, targ_size_t offset)
                 seg->SDlinnum_max = newmax;
             }
             seg->SDlinnum_count++;
-#if MARS
             seg->SDlinnum_data[i].filename = srcpos.Sfilename;
-#endif
+
             break;
         }
-#if MARS
         if (seg->SDlinnum_data[i].filename == srcpos.Sfilename)
-#endif
             break;
     }
 
@@ -1938,11 +1916,9 @@ char *obj_mangle2(Symbol *s,char *dest)
     //dbg_printf("Obj::mangle('%s'), mangle = x%x\n",s->Sident,type_mangle(s->Stype));
     symbol_debug(s);
     assert(dest);
-#if MARS
+
     name = cpp_mangle(s);
-#else
-    name = s->Sident;
-#endif
+
     size_t len = strlen(name);                 // # of bytes in name
     //dbg_printf("len %d\n",len);
     switch (type_mangle(s->Stype))
@@ -3045,8 +3021,6 @@ long elf_align(targ_size_t size,long foffset)
  * Stuff pointer to ModuleInfo into its own section (minfo).
  */
 
-#if MARS
-
 void Obj::moduleinfo(Symbol *scc)
 {
     const int CFflags = I64 ? (CFoffset64 | CFoff) : CFoff;
@@ -3160,12 +3134,6 @@ static void obj_rtinit()
                                     SHF_ALLOC|SHF_EXECINSTR|SHF_GROUP, NPTRSIZE);
             // add to section group
             SegData[groupseg]->SDbuf->write32(MAP_SEG2SECIDX(codseg));
-
-#if DEBUG
-            // adds a local symbol (name) to the code, useful to set a breakpoint
-            namidx = ElfObj::addstr(symtab_strings, "__d_dso_init");
-            elf_addsym(namidx, 0, 0, STT_FUNC, STB_LOCAL, MAP_SEG2SECIDX(codseg));
-#endif
         }
         Outbuffer *buf = SegData[codseg]->SDbuf;
         assert(!buf->size());
@@ -3410,7 +3378,6 @@ static void obj_rtinit()
 #endif
 }
 
-#endif // MARS
 
 /*************************************
  */
@@ -3493,4 +3460,3 @@ int dwarf_reftoident(int seg, targ_size_t offset, Symbol *s, targ_size_t val)
 
 #endif
 
-#endif

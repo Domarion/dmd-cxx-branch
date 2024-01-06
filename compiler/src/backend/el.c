@@ -427,8 +427,6 @@ void el_copy(elem *to,elem *from)
 elem * el_alloctmp(tym_t ty)
 {
   symbol *s;
-
-  assert(MARS || !PARSER);
   s = symbol_generate(SCauto,type_fake(ty));
   symbol_add(s);
   s->Sfl = FLauto;
@@ -456,12 +454,10 @@ elem * el_selecte1(elem *e)
             e1->Esrcpos = e->Esrcpos;
     }
     e1->Ety = e->Ety;
-//    if (tyaggregate(e1->Ety))
-//      e1->Enumbytes = e->Enumbytes;
-#if MARS
+
     if (!e1->Ejty)
         e1->Ejty = e->Ejty;
-#endif
+
     el_free(e);
     return e1;
 }
@@ -520,25 +516,6 @@ elem * el_copytree(elem *e)
     {
         switch (e->Eoper)
         {   case OPstring:
-#if 0
-                if (OPTIMIZER)
-                {
-                    /* Convert the string to a static symbol and
-                       then just refer to it, because two OPstrings can't
-                       refer to the same string.
-                     */
-
-                    el_convstring(e);   // convert string to symbol
-                    d->Eoper = OPrelconst;
-                    d->EV.sp.Vsym = e->EV.sp.Vsym;
-                    break;
-                }
-#endif
-#if 0
-            case OPrelconst:
-                e->EV.sm.ethis = NULL;
-                break;
-#endif
             case OPasm:
                 d->EV.ss.Vstring = (char *) mem_malloc(d->EV.ss.Vstrlen);
                 memcpy(d->EV.ss.Vstring,e->EV.ss.Vstring,e->EV.ss.Vstrlen);
@@ -552,18 +529,17 @@ elem * el_copytree(elem *e)
  * Replace (e) with ((stmp = e),stmp)
  */
 
-#if MARS
+
 elem *exp2_copytotemp(elem *e)
 {
     //printf("exp2_copytotemp()\n");
     elem_debug(e);
     tym_t ty = tybasic(e->Ety);
     type *t;
-#if MARS
+
     if ((ty == TYstruct || ty == TYarray) && e->ET)
         t = e->ET;
     else
-#endif
         t = type_fake(ty);
     Symbol *stmp = symbol_genauto(t);
     elem *eeq = el_bin(OPeq,e->Ety,el_var(stmp),e);
@@ -578,7 +554,7 @@ elem *exp2_copytotemp(elem *e)
     }
     return er;
 }
-#endif
+
 
 /*************************
  * Similar to el_copytree(e). But if e has any side effects, it's replaced
@@ -645,44 +621,12 @@ int el_appears(elem *e,Symbol *s)
     return 0;
 }
 
-#if MARS
-
 /*****************************************
  * Look for symbol that is a base of addressing mode e.
  * Returns:
  *      s       symbol used as base
  *      NULL    couldn't find a base symbol
  */
-
-#if 0
-Symbol *el_basesym(elem *e)
-{   Symbol *s;
-
-    s = NULL;
-    while (1)
-    {   elem_debug(e);
-        switch (e->Eoper)
-        {
-            case OPvar:
-                s = e->EV.sp.Vsym;
-                break;
-            case OPcomma:
-                e = e->E2;
-                continue;
-            case OPind:
-                s = el_basesym(e->E1);
-                break;
-            case OPadd:
-                s = el_basesym(e->E1);
-                if (!s)
-                    s = el_basesym(e->E2);
-                break;
-        }
-        break;
-    }
-    return s;
-}
-#endif
 
 /****************************************
  * Does any definition of lvalue ed appear in e?
@@ -724,8 +668,6 @@ int el_anydef(elem *ed, elem *e)
     return 0;
 }
 
-#endif
-
 /************************
  * Make a binary operator node.
  */
@@ -753,13 +695,7 @@ elem * el_bint(unsigned op,type *t,elem *e1,elem *e2)
 
 elem * el_bin(unsigned op,tym_t ty,elem *e1,elem *e2)
 {   elem *e;
-
-#if 0
-    if (!(op < OPMAX && OTbinary(op) && e1 && e2))
-        *(char *)0=0;
-#endif
     assert(op < OPMAX && OTbinary(op) && e1 && e2);
-    assert(MARS || !PARSER);
     elem_debug(e1);
     elem_debug(e2);
     e = el_calloc();
@@ -779,10 +715,6 @@ elem * el_bin(unsigned op,tym_t ty,elem *e1,elem *e2)
 elem * el_unat(unsigned op,type *t,elem *e1)
 {   elem *e;
 
-#ifdef DEBUG
-    if (!(op < OPMAX && OTunary(op) && e1))
-        dbg_printf("op = x%x, e1 = %p\n",op,e1);
-#endif
     assert(op < OPMAX && OTunary(op) && e1);
     assert(PARSER);
     elem_debug(e1);
@@ -801,12 +733,7 @@ elem * el_unat(unsigned op,type *t,elem *e1)
 elem * el_una(unsigned op,tym_t ty,elem *e1)
 {   elem *e;
 
-#ifdef DEBUG
-    if (!(op < OPMAX && OTunary(op) && e1))
-        dbg_printf("op = x%x, e1 = %p\n",op,e1);
-#endif
     assert(op < OPMAX && OTunary(op) && e1);
-    assert(MARS || !PARSER);
     elem_debug(e1);
     e = el_calloc();
     e->Ety = ty;
@@ -837,7 +764,6 @@ elem * el_longt(type *t,targ_llong val)
 elem * el_long(tym_t t,targ_llong val)
 { elem *e;
 
-  assert(MARS || !PARSER);
   e = el_calloc();
   e->Eoper = OPconst;
   e->Ety = t;
@@ -871,16 +797,9 @@ elem * el_long(tym_t t,targ_llong val)
  * Set new type for elem.
  */
 
-elem * el_settype(elem *e,type *t)
+elem * el_settype(elem *e,type *)
 {
-#if MARS
     assert(0);
-#else
-    assert(PARSER);
-    elem_debug(e);
-    type_debug(t);
-    type_settype(&e->ET,t);
-#endif
     return e;
 }
 
@@ -888,32 +807,15 @@ elem * el_settype(elem *e,type *t)
  * Create elem that is the size of a type.
  */
 
-elem * el_typesize(type *t)
+elem * el_typesize(type *)
 {
-#if MARS
     assert(0);
     return NULL;
-#else
-    assert(PARSER);
-    type_debug(t);
-    if (tybasic(t->Tty) == TYarray && type_isvla(t))
-    {
-        type *troot = type_arrayroot(t);
-        elem *en;
-
-        en = el_nelems(t);
-        return el_bint(OPmul, en->ET, en, el_typesize(troot));
-    }
-    else
-        return el_longt(tssize,type_size(t));
-#endif
 }
 
 /************************************
  * Return != 0 if function has any side effects.
  */
-
-#if MARS
 
 int el_funcsideeff(elem *e)
 {   Symbol *s;
@@ -925,8 +827,6 @@ int el_funcsideeff(elem *e)
         return 0;
     return 1;                   // assume it does have side effects
 }
-
-#endif
 
 /****************************
  * Return != 0 if elem has any side effects.
@@ -996,7 +896,6 @@ Lnodep:
 
 symbol *el_alloc_localgot()
 {
-#if TARGET_LINUX
     /* Since localgot is a local variable to each function,
      * localgot must be set back to NULL
      * at the start of code gen for each function.
@@ -1019,17 +918,12 @@ symbol *el_alloc_localgot()
         localgot->Sflags = SFLfree | SFLunambig | GTregcand;
     }
     return localgot;
-#else
-    return NULL;
-#endif
 }
 
 
 /**************************
  * Make an elem out of a symbol, PIC style.
  */
-
-#if TARGET_LINUX
 
 elem *el_picvar(symbol *s)
 {   elem *e;
@@ -1212,25 +1106,22 @@ elem *el_picvar(symbol *s)
     }
     return e;
 }
-#endif
 
 /**************************
  * Make an elem out of a symbol.
  */
 
-#if MARS
 elem * el_var(symbol *s)
 {   elem *e;
 
     //printf("el_var(s = '%s')\n", s->Sident);
     //printf("%x\n", s->Stype->Tty);
-#if TARGET_LINUX
+
     if (config.flags3 & CFG3pic &&
         !tyfunc(s->ty()))
         // Position Independent Code
         return el_picvar(s);
-#endif
-#if TARGET_LINUX
+
     if (config.flags3 & CFG3pic && tyfunc(s->ty()))
     {
         switch (s->Sclass)
@@ -1243,7 +1134,7 @@ elem * el_var(symbol *s)
                 break;
         }
     }
-#endif
+
     symbol_debug(s);
     type_debug(s->Stype);
     e = el_calloc();
@@ -1254,7 +1145,6 @@ elem * el_var(symbol *s)
     if (s->Stype->Tty & mTYthread)
     {
         //printf("thread local %s\n", s->Sident);
-#if TARGET_LINUX
         /* For 32 bit:
          * Generate for var locals:
          *      MOV reg,GS:[00000000]   // add GS: override in back end
@@ -1315,11 +1205,10 @@ elem * el_var(symbol *s)
         e->Eoper = OPind;
         e->E1 = el_bin(OPadd,e1->Ety,e2,e1);
         e->E2 = NULL;
-#endif
+
     }
     return e;
 }
-#endif
 
 /**************************
  * Make a pointer to an elem out of a symbol.
@@ -1333,12 +1222,11 @@ elem * el_ptr(symbol *s)
     //printf("el_ptr\n");
     symbol_debug(s);
     type_debug(s->Stype);
-#if TARGET_LINUX
+
     if (config.flags3 & CFG3pic &&
         tyfunc(s->ty()))
         e = el_picvar(s);
     else
-#endif
         e = el_var(s);
     if (e->Eoper == OPvar)
     {
@@ -1773,7 +1661,6 @@ elem *el_convert(elem *e)
 elem * el_const(tym_t ty,union eve *pconst)
 {   elem *e;
 
-    assert(MARS || !PARSER);
     e = el_calloc();
     e->Eoper = OPconst;
     e->Ety = ty;
@@ -2557,30 +2444,6 @@ unsigned el_alignsize(elem *e)
 }
 
 /*******************************
- * Check for errors in a tree.
- */
-
-#ifdef DEBUG
-
-void el_check(elem *e)
-{
-    elem_debug(e);
-    while (1)
-    {
-        if (OTunary(e->Eoper))
-            e = e->E1;
-        else if (OTbinary(e->Eoper))
-        {   el_check(e->E2);
-            e = e->E1;
-        }
-        else
-            break;
-    }
-}
-
-#endif
-
-/*******************************
  * Write out expression elem.
  */
 
@@ -2599,12 +2462,8 @@ void elem_print(elem *e)
   elem_debug(e);
   if (configv.addlinenumbers)
   {
-#if MARS
         if (e->Esrcpos.Sfilename)
             printf("%s(%u) ", e->Esrcpos.Sfilename, e->Esrcpos.Slinnum);
-#else
-        e->Esrcpos.print("elem_print");
-#endif
   }
   if (!PARSER)
   {     dbg_printf("cnt=%d ",e->Ecount);
@@ -2780,13 +2639,6 @@ case_tym:
         case TYullong2:
             dbg_printf("%llxLL+%llxLL ", e->EV.Vcent.msw, e->EV.Vcent.lsw);
             break;
-
-#if !MARS
-        case TYident:
-            dbg_printf("'%s' ", e->ET->Tident);
-            break;
-#endif
-
         default:
             dbg_printf("Invalid type ");
             WRTYxx(typemask(e));

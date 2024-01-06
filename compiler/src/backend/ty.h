@@ -104,7 +104,6 @@ enum TYM
     TYllong2            = 0x46, // long[2]
     TYullong2           = 0x47, // ulong[2]
 
-// MARS types
 #define TYaarray        TYnptr
 #define TYdelegate      (I64 ? TYcent : TYllong)
 #define TYdarray        (I64 ? TYucent : TYullong)
@@ -149,12 +148,8 @@ extern int TYptrdiff, TYsize, TYsize_t;
 #define mTYnothrow      0x00200000       // nothrow function
 
 // Used only by C/C++ compiler
-#if TARGET_LINUX
 #define mTYnoret        0x01000000        // function has no return
 #define mTYtransu       0x01000000        // transparent union
-#else
-#define mTYfar16        0x01000000
-#endif
 #define mTYstdcall      0x02000000
 #define mTYfastcall     0x04000000
 #define mTYinterrupt    0x08000000
@@ -162,12 +157,7 @@ extern int TYptrdiff, TYsize, TYsize_t;
 #define mTYpascal       0x20000000
 #define mTYsyscall      0x40000000
 #define mTYjava         0x80000000
-
-#if TARGET_LINUX
 #define mTYTFF          0xFE000000
-#else
-#define mTYTFF          0xFF000000
-#endif
 
 /* Flags in tytab[] array       */
 extern unsigned tytab[];
@@ -284,11 +274,7 @@ extern const tym_t tytouns[];
 /* Array to give the 'relaxed' type for relaxed type checking   */
 extern unsigned char _tyrelax[];
 #define type_relax      (config.flags3 & CFG3relax)     // !=0 if relaxed type checking
-#if TARGET_LINUX
 #define type_semirelax  (config.flags3 & CFG3semirelax) // !=0 if semi-relaxed type checking
-#else
-#define type_semirelax  type_relax
-#endif
 
 /* Determine functionally equivalent type       */
 extern unsigned char tyequiv[];

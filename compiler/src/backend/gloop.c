@@ -8,9 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-
-#if (MARS)
-
 #include        <stdio.h>
 #include        <string.h>
 #include        <time.h>
@@ -2480,7 +2477,7 @@ STATIC void elimfrivivs(loop *l)
         cmes2("nrefs = %d\n",nrefs);
         assert(nrefs + 1 >= nfams);
         if (nrefs > nfams ||            // if we won't eliminate the biv
-            (!I16 && nrefs == nfams))
+            (nrefs == nfams))
         {   /* Eliminate any family ivs that only differ by a constant  */
             /* from biv                                                 */
             for (fl = biv->IVfamily; fl; fl = fl->FLnext)
@@ -2490,7 +2487,7 @@ STATIC void elimfrivivs(loop *l)
                 if (elemisone(ec1) ||
                     // Eliminate fl's that can be represented by
                     // an addressing mode
-                    (!I16 && ec1->Eoper == OPconst && tyintegral(ec1->Ety) &&
+                    (ec1->Eoper == OPconst && tyintegral(ec1->Ety) &&
                      ((c = el_tolong(ec1)) == 2 || c == 4 || c == 8)
                     )
                    )
@@ -2693,7 +2690,7 @@ STATIC bool funcprev(Iv *biv,famlist *fl)
                                     el_copytree(fls->c2)));
         if (sz < tysize(tymin) && sz == tysize(e1->Ety))
         {
-            assert(I16);
+            assert(false);
             flse1->E2 = el_una(OPoffset,fl->FLty,flse1->E2);
         }
 
@@ -3449,5 +3446,3 @@ STATIC void elimspecwalk(elem **pn)
         }
   }
 }
-
-#endif

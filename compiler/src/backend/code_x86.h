@@ -115,17 +115,12 @@ enum // #defining R12-R15 interfere with setjmps' _JUMP_BUFFER members
 
 extern regm_t ALLREGS;
 extern regm_t BYTEREGS;
-#if TARGET_LINUX
     // To support positional independent code,
     // must be able to remove BX from available registers
 #define ALLREGS_INIT            (mAX|mBX|mCX|mDX|mSI|mDI)
 #define ALLREGS_INIT_PIC        (mAX|mCX|mDX|mSI|mDI)
 #define BYTEREGS_INIT           (mAX|mBX|mCX|mDX)
 #define BYTEREGS_INIT_PIC       (mAX|mCX|mDX)
-#else
-#define ALLREGS_INIT            (mAX|mBX|mCX|mDX|mSI|mDI)
-#define BYTEREGS_INIT           (mAX|mBX|mCX|mDX)
-#endif
 
 /* We use the same IDXREGS for the 386 as the 8088, because if
    we used ALLREGS, it would interfere with mMSW

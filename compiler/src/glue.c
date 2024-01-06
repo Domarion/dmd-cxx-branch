@@ -822,10 +822,9 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
         // Pull in RTL startup code (but only once)
         if (fd->isMain() && onlyOneMain(fd->loc))
         {
-#if TARGET_LINUX
             objmod->external_def("_main");
             objmod->ehsections();   // initialize exception handling sections
-#endif
+
             objmod->includelib(libname);
             s->Sclass = SCglobal;
         }
@@ -1194,11 +1193,10 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
         }
     }
 
-#if TARGET_LINUX
     // A hack to get a pointer to this function put in the .dtors segment
     if (fd->ident && memcmp(fd->ident->toChars(), "_STD", 4) == 0)
         objmod->staticdtor(s);
-#endif
+
     if (irs.startaddress)
     {
         //printf("Setting start address\n");
@@ -1256,14 +1254,7 @@ unsigned totym(Type *tx)
         case Tbool:     t = TYbool;     break;
         case Tchar:     t = TYchar;     break;
         case Twchar:    t = TYwchar_t;  break;
-#if TARGET_LINUX
         case Tdchar:    t = TYdchar;    break;
-#else
-        case Tdchar:
-            t = (global.params.symdebug == 1) ? TYdchar : TYulong;
-            break;
-#endif
-
         case Taarray:   t = TYaarray;   break;
         case Tclass:
         case Treference:
@@ -1346,10 +1337,9 @@ unsigned totym(Type *tx)
                 case LINKcpp:
                 Lc:
                     t = TYnfunc;
-#if TARGET_LINUX
                     if (I32 && retStyle(tf, false) == RETstack)
                         t = TYhfunc;
-#endif
+
                     break;
 
                 case LINKd:

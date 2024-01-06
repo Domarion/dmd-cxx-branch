@@ -25,9 +25,7 @@
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
 
-#if MARS
 extern void ph_init();
-#endif
 
 /**************************************
  * Initialize configuration variables.
@@ -50,7 +48,6 @@ void out_config_init(
         bool stackstomp         // add stack stomping code
         )
 {
-#if MARS
     //printf("out_config_init()\n");
 
     if (!config.target_cpu)
@@ -63,9 +60,7 @@ void out_config_init(
     config.memmodel = 0;
     config.flags |= CFGuchar;   // make sure TYchar is unsigned
     tytab[TYchar] |= TYFLuns;
-    bool mscoff = model & 1;
     model &= 32 | 64;
-#if TARGET_LINUX
     if (model == 64)
     {   config.exe = EX_LINUX64;
         config.ehmethod = EH_DWARF;
@@ -85,17 +80,10 @@ void out_config_init(
         config.flags |= CFGalwaysframe; // PIC needs a frame for TLS fixups
     }
     config.objfmt = OBJ_ELF;
-#endif
+
     config.flags2 |= CFG2nodeflib;      // no default library
     config.flags3 |= CFG3eseqds;
-#if 0
-    if (env->getEEcontext()->EEcompile != 2)
-        config.flags4 |= CFG4allcomdat;
 
-    if (env->nochecks())
-        config.flags4 |= CFG4nochecks;  // no runtime checking
-    config.flags4 |= CFG4allcomdat;
-#endif
     if (trace)
         config.flags |= CFGtrace;       // turn on profiler
     if (nofloat)
@@ -145,7 +133,6 @@ void out_config_init(
     }
 
     rtlsym_init(); // uses fregsaved, so must be after it's set inside cod3_set*
-#endif
 }
 
 #ifdef DEBUG
@@ -208,13 +195,9 @@ void util_set32()
     tysize[TYnullptr] = LONGSIZE;
     tysize[TYnptr] = LONGSIZE;
     tysize[TYnref] = LONGSIZE;
-#if TARGET_LINUX
     tysize[TYldouble] = 12;
     tysize[TYildouble] = 12;
     tysize[TYcldouble] = 24;
-#else
-    assert(0);
-#endif
     tysize[TYsptr] = LONGSIZE;
     tysize[TYcptr] = LONGSIZE;
     tysize[TYfptr] = 6;     // NOTE: There are codgen test that check
@@ -227,13 +210,9 @@ void util_set32()
     tyalignsize[TYnullptr] = LONGSIZE;
     tyalignsize[TYnref] = LONGSIZE;
     tyalignsize[TYnptr] = LONGSIZE;
-#if TARGET_LINUX
     tyalignsize[TYldouble] = 4;
     tyalignsize[TYildouble] = 4;
     tyalignsize[TYcldouble] = 4;
-#else
-    assert(0);
-#endif
     tyalignsize[TYsptr] = LONGSIZE;
     tyalignsize[TYcptr] = LONGSIZE;
 }
@@ -257,13 +236,9 @@ void util_set64()
     tysize[TYnullptr] = 8;
     tysize[TYnptr] = 8;
     tysize[TYnref] = 8;
-#if TARGET_LINUX
     tysize[TYldouble] = 16;
     tysize[TYildouble] = 16;
     tysize[TYcldouble] = 32;
-#else
-    assert(0);
-#endif
     tysize[TYsptr] = 8;
     tysize[TYcptr] = 8;
     tysize[TYfptr] = 10;    // NOTE: There are codgen test that check
@@ -276,13 +251,9 @@ void util_set64()
     tyalignsize[TYnullptr] = 8;
     tyalignsize[TYnptr] = 8;
     tyalignsize[TYnref] = 8;
-#if TARGET_LINUX
     tyalignsize[TYldouble] = 16;
     tyalignsize[TYildouble] = 16;
     tyalignsize[TYcldouble] = 16;
-#else
-    assert(0);
-#endif
     tyalignsize[TYsptr] = 8;
     tyalignsize[TYcptr] = 8;
     tyalignsize[TYfptr] = 8;

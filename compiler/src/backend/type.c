@@ -83,12 +83,8 @@ targ_size_t type_size(type *t)
                 }
                 s = type_size(t->Tnext);
                 unsigned long u = t->Tdim * (unsigned long) s;
-#if MARS
                 if (t->Tdim && ((u / t->Tdim) != s || (long)u < 0))
                     assert(0);          // overflow should have been detected in front end
-#else
-                assert(0);
-#endif
                 s = u;
                 break;
             }
@@ -106,14 +102,10 @@ targ_size_t type_size(type *t)
                 break;
 
             case TYref:
-#if MARS
                 s = tysize(TYnptr);
                 break;
-#endif
+
             default:
-#ifdef DEBUG
-                WRTYxx(t->Tty);
-#endif
                 assert(0);
         }
     }
@@ -232,9 +224,8 @@ type *type_alloc(tym_t ty)
 type *type_fake(tym_t ty)
 {   type *t;
 
-#if MARS
     assert(ty != TYstruct);
-#endif
+
     t = type_alloc(ty);
     if (typtr(ty) || tyfunc(ty))
     {   t->Tnext = type_alloc(TYvoid);  /* fake with pointer to void    */
@@ -443,15 +434,9 @@ void type_free(type *t)
         }
         else if (t->Tflags & TFvla && t->Tel)
             el_free(t->Tel);
-#if MARS
         else if (t->Tkey && typtr(ty))
             type_free(t->Tkey);
-#endif
-#ifdef DEBUG
-        type_num--;
-        //dbg_printf("Free'ing type %p ",t); WRTYxx(t->Tty); dbg_printf("\n");
-        t->id = 0;                      /* no longer a valid type       */
-#endif
+
         tn = t->Tnext;
         t->Tnext = type_list;
         type_list = t;                  /* link into free list          */
@@ -531,7 +516,7 @@ void type_init()
     }
 
     // Type of trace function
-    tstrace = type_fake(I16 ? TYffunc : TYnfunc);
+    tstrace = type_fake(TYnfunc);
     tstrace->Tmangle = mTYman_c;
     tstrace->Tcount++;
 
@@ -653,10 +638,8 @@ type *type_copy(type *t)
                         assert(!p->Pelem);
                     }
                 }
-#if MARS
                 else if (tn->Tkey && typtr(tn->Tty))
                     tn->Tkey->Tcount++;
-#endif
                 break;
     }
     if (tn->Tnext)
@@ -1336,7 +1319,6 @@ void param_dehydrate(param_t **pp)
 }
 #endif
 
-#if MARS
 
 int typematch(type *t1, type *t2, int relax);
 
@@ -1392,4 +1374,3 @@ int typematch(type *t1,type *t2,int relax)
          ;
 }
 
-#endif

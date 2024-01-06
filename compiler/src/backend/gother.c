@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if (MARS)
-
 #include        <stdio.h>
 #include        <time.h>
 
@@ -379,16 +377,7 @@ STATIC void chkrd(elem *n,list_t rdlist)
         if (sv->Stype->Ttag->Sstruct->Sflags & (STRbitfields | STR0size))
             return;
     }
-#if 0
-    // If variable is zero length static array, don't print message.
-    // BUG: Suppress error even if variable is initialized with void.
-    if (sv->Stype->Tty == TYarray && sv->Stype->Tdim == 0)
-    {
-        printf("sv->Sident = %s\n", sv->Sident);
-        return;
-    }
-#endif
-#if MARS
+
     /* Watch out for:
         void test()
         {
@@ -401,7 +390,7 @@ STATIC void chkrd(elem *n,list_t rdlist)
         error(n->Esrcpos.Sfilename, n->Esrcpos.Slinnum, n->Esrcpos.Scharnum,
             "variable %s used before set", sv->Sident);
     }
-#endif
+
 
     sv->Sflags |= SFLnord;              // no redundant messages
     //elem_print(n);
@@ -1773,5 +1762,3 @@ STATIC int ispath(unsigned j,block *bp,block *b)
 
         return FALSE;           /* j is used along all paths            */
 }
-
-#endif

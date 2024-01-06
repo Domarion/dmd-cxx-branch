@@ -77,24 +77,9 @@ void cgreg_init()
             !s->Srange ||
             (sz = type_size(s->Stype)) == 0 ||
             (tysize(s->ty()) == -1) ||
-            (I16 && sz > REGSIZE) ||
             (tyfloating(s->ty()) && !(config.fpxmmregs && tyxmmreg(s->ty())))
            )
         {
-            #ifdef DEBUG
-            if (debugr)
-            {
-                printf("not considering variable '%s' for register\n",s->Sident);
-                if (!(s->Sflags & GTregcand))
-                    printf("\tnot GTregcand\n");
-                if (!s->Srange)
-                    printf("\tno Srange\n");
-                if (sz == 0)
-                    printf("\tsz == 0\n");
-                if (tysize(s->ty()) == -1)
-                    printf("\ttysize\n");
-            }
-            #endif
             s->Sflags &= ~GTregcand;
             continue;
         }
@@ -107,10 +92,6 @@ void cgreg_init()
                 // more than twice (otherwise we have a net loss).
                 if (s->Sweight <= 2 && !tyxmmreg(s->ty()))
                 {
-                    #ifdef DEBUG
-                    if (debugr)
-                        printf("parameter '%s' weight %d is not enough\n",s->Sident,s->Sweight);
-                    #endif
                     s->Sflags &= ~GTregcand;
                     continue;
                 }
@@ -877,11 +858,6 @@ int cgreg_assign(Symbol *retsym)
             if (reg == BP && !(allregs & mBP))
                 continue;
 
-#if 0 && TARGET_LINUX
-            // Need EBX for static pointer
-            if (reg == BX && !(allregs & mBX))
-                continue;
-#endif
             /* Don't assign register parameter to another register parameter
              */
             if ((s->Sclass == SCfastpar || s->Sclass == SCshadowreg) &&

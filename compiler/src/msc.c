@@ -68,11 +68,7 @@ void backend_init()
     //printf("out_config_init()\n");
     Param *params = &global.params;
 
-    bool exe;
-
-#if TARGET_LINUX
-    exe = params->pic == 0;
-#endif
+    bool exe = params->pic == 0;
 
     out_config_init(
         (params->is64bit ? 64 : 32),

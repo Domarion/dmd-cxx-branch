@@ -341,12 +341,9 @@ tryagain:
                 flag = TRUE;
             }
         }
-        if (!I16 && !(config.flags4 & CFG4optimized))
+        if (!(config.flags4 & CFG4optimized))
             break;                      // use the long conditional jmps
     } while (flag);                     // loop till no more bytes saved
-#ifdef DEBUG
-    debugw && printf("code jump optimization complete\n");
-#endif
 
     // Compute starting offset for switch tables
     targ_size_t swoffset;
@@ -394,21 +391,15 @@ tryagain:
     }
     if (coffset != Coffset)
     {
-#ifdef DEBUG
-        printf("coffset = %ld, Coffset = %ld\n",(long)coffset,(long)Coffset);
-#endif
         assert(0);
     }
     funcsym_p->Ssize = Coffset - funcoffset;    // size of function
 
-#if MARS
     if (usednteh & NTEH_try)
     {   assert(!(config.flags & CFGromable));
         //printf("framehandleroffset = x%x, coffset = x%x\n",framehandleroffset,coffset);
         objmod->reftocodeseg(cseg,framehandleroffset,coffset);
     }
-#endif
-
 
     // Write out switch tables
     flag = FALSE;                       // TRUE if last active block was a ret
@@ -427,14 +418,12 @@ tryagain:
             case BCretexp:
                 /* Compute offset to return code from start of function */
                 retoffset = b->Boffset + b->Bsize - retsize - funcoffset;
-#if MARS
                 /* Add 3 bytes to retoffset in case we have an exception
                  * handler. THIS PROBABLY NEEDS TO BE IN ANOTHER SPOT BUT
                  * IT FIXES THE PROBLEM HERE AS WELL.
                  */
                 if (usednteh & NTEH_try)
                     retoffset += 3;
-#endif
                 flag = TRUE;
                 break;
 
@@ -451,14 +440,12 @@ tryagain:
         /* Instead, try offset to cleanup code  */
         objmod->linnum(funcsym_p->Sfunc->Fendline,funcoffset + retoffset);
 
-#if MARS
     if (config.ehmethod == EH_DWARF)
     {
         funcsym_p->Sfunc->Fstartblock = startblock;
         dwarf_except_gentables(funcsym_p, startoffset, retoffset);
         funcsym_p->Sfunc->Fstartblock = NULL;
     }
-#endif
 
     for (block* b = startblock; b; b = b->Bnext)
     {
@@ -703,7 +690,7 @@ Lagain:
     assert((targ_ptrdiff_t)localsize >= 0);
 
     // Keep the stack aligned by 8 for any subsequent function calls
-    if (!I16 && calledafunc &&
+    if (calledafunc &&
         (STACKALIGN == 16 || config.flags4 & CFG4stackalign))
     {
         int npush = numbitsset(topush);            // number of registers that need saving
@@ -750,8 +737,7 @@ Lagain:
     {
         if (localsize)
         {
-            if (I16 ||
-                !(config.flags4 & CFG4speed) ||
+            if (!(config.flags4 & CFG4speed) ||
                 config.target_cpu < TARGET_Pentium ||
                 farfunc ||
                 config.flags & CFGstack ||
@@ -762,7 +748,7 @@ Lagain:
                )
                 needframe = 1;
         }
-        if (refparam && (anyiasm || I16))
+        if (refparam && anyiasm)
             needframe = 1;
     }
 
@@ -1356,26 +1342,11 @@ int isregvar(elem *e,regm_t *pregm,unsigned *preg)
                 reg = s->Sreglsw;
                 regm = s->Sregm;
                 //assert(tyreg(s->ty()));
-#if 0
-                // Let's just see if there is a CSE in a reg we can use
-                // instead. This helps avoid AGI's.
-                if (e->Ecount && e->Ecount != e->Ecomsub)
-                {   int i;
 
-                    for (i = 0; i < arraysize(regcon.cse.value); i++)
-                    {
-                        if (regcon.cse.value[i] == e)
-                        {   reg = i;
-                            break;
-                        }
-                    }
-                }
-#endif
                 assert(regm & regcon.mvar && !(regm & ~regcon.mvar));
                 goto Lreg;
 
             case FLpseudo:
-#if MARS
                 u = s->Sreglsw;
                 m = mask[u];
                 if (m & ALLREGS && (u & ~3) != 4) // if not BP,SP,EBP,ESP,or ?H
@@ -1383,15 +1354,6 @@ int isregvar(elem *e,regm_t *pregm,unsigned *preg)
                     regm = m;
                     goto Lreg;
                 }
-#else
-                u = s->Sreglsw;
-                m = pseudomask[u];
-                if (m & ALLREGS && (u & ~3) != 4) // if not BP,SP,EBP,ESP,or ?H
-                {   reg = pseudoreg[u] & 7;
-                    regm = m;
-                    goto Lreg;
-                }
-#endif
                 break;
         }
     }
@@ -1494,7 +1456,7 @@ L3:
             if (!regcon.indexregs && r & ~mLSW)
                 r &= ~mLSW;
 
-            if (pass == PASSfinal && r & ~lastretregs && !I16)
+            if (pass == PASSfinal && r & ~lastretregs)
             {   // Try not to always allocate the same register,
                 // to schedule better
 
@@ -1556,15 +1518,6 @@ L3:
             }
             reg = (msreg == ES) ? lsreg : msreg;
             retregs = mask[msreg] | mask[lsreg];
-        }
-        else if (I16 && (tym == TYdouble || tym == TYdouble_alias))
-        {
-#ifdef DEBUG
-            if (retregs != DOUBLEREGS)
-                printf("retregs = %s, *pretregs = %s\n", regm_str(retregs), regm_str(*pretregs));
-#endif
-            assert(retregs == DOUBLEREGS);
-            reg = AX;
         }
         else
         {
@@ -2064,7 +2017,7 @@ if (regcon.cse.mval & 1) elem_print(regcon.cse.value[0]);
   }
   else if (tym == TYdouble || tym == TYdouble_alias)    // double
   {
-        assert(I16);
+        assert(false);
         if (((csemask | emask) & DOUBLEREGS_16) == DOUBLEREGS_16)
         {
             for (reg = 0; reg != -1; reg = dblreg[reg])
@@ -2095,11 +2048,10 @@ reload:                                 /* reload result from memory    */
         case OPrelconst:
             c = cdrelconst(e,pretregs);
             break;
-#if TARGET_LINUX
+
         case OPgot:
             c = cdgot(e,pretregs);
             break;
-#endif
         default:
             c = loaddata(e,pretregs);
             break;
@@ -2431,7 +2383,7 @@ code *scodelem(elem *e,regm_t *pretregs,regm_t keepmsk,bool constflag)
             sz = -(adjesp & (STACKALIGN - 1)) & (STACKALIGN - 1);
         else
             sz = -(adjesp & 7) & 7;
-        if (calledafunc && !I16 && sz && (STACKALIGN == 16 || config.flags4 & CFG4stackalign))
+        if (calledafunc && sz && (STACKALIGN == 16 || config.flags4 & CFG4stackalign))
         {
             regm_t mval_save = regcon.immed.mval;
             regcon.immed.mval = 0;      // prevent reghasvalue() optimizations

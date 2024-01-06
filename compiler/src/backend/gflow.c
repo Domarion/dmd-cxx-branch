@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if (MARS)
-
 #include        <stdio.h>
 #include        <time.h>
 
@@ -1696,4 +1694,3 @@ STATIC void accumvbe(vec_t GEN,vec_t KILL,elem *n)
         } /* if */
 }
 
-#endif

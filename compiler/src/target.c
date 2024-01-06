@@ -558,20 +558,12 @@ Expression *Target::getTargetInfo(const char* name, const Loc& loc)
 
 const char *TargetCPP::toMangle(Dsymbol *s)
 {
-#if TARGET_LINUX
     return toCppMangleItanium(s);
-#else
-#error "fix this"
-#endif
 }
 
 const char *TargetCPP::typeInfoMangle(ClassDeclaration *cd)
 {
-#if TARGET_LINUX
     return cppTypeInfoMangleItanium(cd);
-#else
-#error "fix this"
-#endif
 }
 
 const char *TargetCPP::thunkMangle(FuncDeclaration *, int)

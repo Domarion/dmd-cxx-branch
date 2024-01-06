@@ -27,15 +27,6 @@ Macros defined by the compiler, not the code:
     Host operating system:
         __linux__       Linux
 
-For the target systems, there are the target operating system and
-the target object file format:
-
-    Target operating system:
-        TARGET_LINUX    Covers 32 and 64 bit linux
-
-    It is expected that the compiler for each platform will be able
-    to generate 32 and 64 bit code from the same compiler binary.
-
     There are currently no macros for byte endianness order.
  */
 

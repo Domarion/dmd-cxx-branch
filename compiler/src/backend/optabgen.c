@@ -990,11 +990,7 @@ void dotytab()
             case TYldouble:
             case TYildouble:
             case TYcldouble:
-#if TARGET_LINUX
                 sz = 4;
-#else
-#error "fix this"
-#endif
                 break;
 
             case TYcent:

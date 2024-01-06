@@ -84,13 +84,10 @@ static void logo()
 
 static void usage()
 {
-#if TARGET_LINUX
     const char fpic[] ="\
   -fPIC          generate position independent code\n\
 ";
-#else
-    const char fpic[] = "";
-#endif
+
     logo();
     printf("\
 Documentation: http://dlang.org/\n\
@@ -236,23 +233,16 @@ int tryMain(size_t argc, const char *argv[])
     // Default to -m32 for 32 bit dmd, -m64 for 64 bit dmd
     global.params.is64bit = (sizeof(size_t) == 8);
 
-#if TARGET_LINUX
     global.params.defaultlibname = "libphobos2.a";
-#else
-#error "fix this"
-#endif
 
     // Predefine version identifiers
     VersionCondition::addPredefinedGlobalIdent("DigitalMars");
 
-#if TARGET_LINUX
     VersionCondition::addPredefinedGlobalIdent("Posix");
     VersionCondition::addPredefinedGlobalIdent("linux");
     VersionCondition::addPredefinedGlobalIdent("ELFv1");
     global.params.isLinux = true;
-#else
-#error "fix this"
-#endif
+
 
     VersionCondition::addPredefinedGlobalIdent("LittleEndian");
     VersionCondition::addPredefinedGlobalIdent("D_Version2");
@@ -385,11 +375,7 @@ int tryMain(size_t argc, const char *argv[])
             }
             else if (strcmp(p + 1, "fPIC") == 0)
             {
-#if TARGET_LINUX
                 global.params.pic = 1;
-#else
-                goto Lerror;
-#endif
             }
             else if (strcmp(p + 1, "map") == 0)
                 global.params.map = true;
@@ -884,11 +870,8 @@ Language changes listed by -transition=id:\n\
     if (!setdebuglib)
         global.params.debuglibname = global.params.defaultlibname;
 
-
-#if TARGET_LINUX
     if (global.params.lib && global.params.dll)
         error(Loc(), "cannot mix -lib and -shared");
-#endif
 
     if (global.params.boundscheck != CHECKENABLEdefault)
     {
@@ -1029,10 +1012,9 @@ Language changes listed by -transition=id:\n\
         VersionCondition::addPredefinedGlobalIdent("X86");
     }
 
-#if TARGET_LINUX
     VersionCondition::addPredefinedGlobalIdent("CRuntime_Glibc");
     VersionCondition::addPredefinedGlobalIdent("CppRuntime_Gcc");
-#endif
+
     if (global.params.isLP64)
         VersionCondition::addPredefinedGlobalIdent("D_LP64");
     if (global.params.doDocComments)
@@ -1145,14 +1127,13 @@ Language changes listed by -transition=id:\n\
                 continue;
             }
 
-#if TARGET_LINUX
             if (FileName::equals(ext, global.dll_ext.ptr))
             {
                 global.params.dllfiles.push(files[i]);
                 libmodules.push(files[i]);
                 continue;
             }
-#endif
+
 
             if (strcmp(ext, global.ddoc_ext.ptr) == 0)
             {

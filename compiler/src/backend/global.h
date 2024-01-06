@@ -83,11 +83,7 @@ extern symbol *tls_get_addr_sym;
 Symbol *asm_define_label(const char *id);
 
 // cpp.c
-#if MARS
 char *cpp_mangle(Symbol *s);
-#else
-#define cpp_mangle(s)   ((s)->Sident)
-#endif
 
 // ee.c
 void eecontext_convs(unsigned marksi);
@@ -345,12 +341,8 @@ extern unsigned bc_goal[BCMAX];
 block *block_calloc();
 void block_init();
 void block_term();
-#if MARS
 void block_next(Blockx *bctx,enum BC bc,block *bn);
 block *block_goto(Blockx *bctx,enum BC bc,block *bn);
-#else
-void block_next(enum BC,block *);
-#endif
 void block_setlabel(unsigned lbl);
 void block_goto();
 void block_goto(block *);
@@ -410,23 +402,6 @@ void go_term(void);
 int go_flag(char *cp);
 void optfunc(void);
 
-/* filename.c */
-#if !MARS
-extern Srcfiles srcfiles;
-Sfile **filename_indirect(Sfile *sf);
-Sfile *filename_search( const char *name );
-Sfile *filename_add( const char *name );
-void filename_hydrate( Srcfiles *fn );
-void filename_dehydrate( Srcfiles *fn );
-void filename_merge( Srcfiles *fn );
-void filename_mergefl(Sfile *sf);
-void filename_translate(Srcpos *);
-void filename_free( void );
-int filename_cmp(const char *f1,const char *f2);
-void srcpos_hydrate(Srcpos *);
-void srcpos_dehydrate(Srcpos *);
-#endif
-
 // tdb.c
 unsigned long tdb_gettimestamp();
 void tdb_write(void *buf,unsigned size,unsigned numindices);
@@ -445,11 +420,8 @@ void dwarf_CFA_set_reg_offset(int reg, int offset);
 void dwarf_CFA_offset(int reg, int offset);
 void dwarf_CFA_args_size(size_t sz);
 
-
-#if TARGET_LINUX
 elem * exp_isconst();
 elem *lnx_builtin_next_arg(elem *efunc,list_t arglist);
 char *lnx_redirect_funcname(const char *);
 void  lnx_funcdecl(symbol *,enum SC,enum_SC,int);
 int  lnx_attributes(int hinttype,const void *hint, type **ptyp, tym_t *ptym,int *pattrtype);
-#endif

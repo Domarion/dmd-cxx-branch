@@ -83,10 +83,6 @@ void WRTYxx(tym_t t)
         printf("mTYconst|");
     if (t & mTYvolatile)
         printf("mTYvolatile|");
-#if !MARS && __linux__
-    if (t & mTYtransu)
-        printf("mTYtransu|");
-#endif
     t = tybasic(t);
     if (t >= TYMAX)
     {   printf("TY %lx\n",(long)t);
@@ -323,10 +319,10 @@ void WRblock(block *b)
             printf(" Bindex=%d",b->Bindex);
         if (b->BC == BC_finally)
             printf(" b_ret=%p", b->BS.BI_FINALLY.b_ret);
-#if MARS
+
         if (b->Bsrcpos.Sfilename)
             printf(" %s(%u)", b->Bsrcpos.Sfilename, b->Bsrcpos.Slinnum);
-#endif
+
         printf("\n");
         if (b->Belem) elem_print(b->Belem);
         if (b->Bpred)

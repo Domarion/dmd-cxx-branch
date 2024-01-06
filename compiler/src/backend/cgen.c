@@ -534,7 +534,7 @@ void cgen_prelinnum(code **pc,Srcpos srcpos)
 code *genadjesp(code *c, int offset)
 {   code cs;
 
-    if (!I16 && offset)
+    if (offset)
     {
         cs.Iop = ESCAPE | ESCadjesp;
         cs.IEV1.Vint = offset;
@@ -546,7 +546,7 @@ code *genadjesp(code *c, int offset)
 
 void CodeBuilder::genadjesp(int offset)
 {
-    if (!I16 && offset)
+    if (offset)
     {
         code cs;
         cs.Iop = ESCAPE | ESCadjesp;
@@ -564,7 +564,7 @@ void CodeBuilder::genadjesp(int offset)
 code *genadjfpu(code *c, int offset)
 {   code cs;
 
-    if (!I16 && offset)
+    if (offset)
     {
         cs.Iop = ESCAPE | ESCadjfpu;
         cs.IEV1.Vint = offset;
@@ -576,7 +576,7 @@ code *genadjfpu(code *c, int offset)
 
 void CodeBuilder::genadjfpu(int offset)
 {
-    if (!I16 && offset)
+    if (offset)
     {
         code cs;
         cs.Iop = ESCAPE | ESCadjfpu;
@@ -874,11 +874,8 @@ void searchfixlist(symbol *s)
                 // resolve directly.
                 if (s->Sseg == p->Lseg &&
                     (s->Sclass == SCstatic ||
-#if TARGET_LINUX
                      (!(config.flags3 & CFG3pic) && s->Sclass == SCglobal)) &&
-#else
-                        s->Sclass == SCglobal) &&
-#endif
+
                     s->Sxtrnnum == 0 && p->Lflags & CFselfrel)
                 {   targ_size_t ad;
 

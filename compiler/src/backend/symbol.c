@@ -98,36 +98,8 @@ void symtab_free(symbol **tab)
  * Type out symbol information.
  */
 
-void symbol_print(symbol *s)
+void symbol_print(symbol *)
 {
-#ifdef DEBUG
-    if (!s) return;
-    dbg_printf("symbol %p '%s'\n ",s,s->Sident);
-    dbg_printf(" Sclass = "); WRclass((enum SC) s->Sclass);
-    dbg_printf(" Ssymnum = %d",s->Ssymnum);
-    dbg_printf(" Sfl = "); WRFL((enum FL) s->Sfl);
-    dbg_printf(" Sseg = %d\n",s->Sseg);
-//  dbg_printf(" Ssize   = x%02x\n",s->Ssize);
-    dbg_printf(" Soffset = x%04llx",(unsigned long long)s->Soffset);
-    dbg_printf(" Sweight = %d",s->Sweight);
-    dbg_printf(" Sflags = x%04lx",(unsigned long)s->Sflags);
-    dbg_printf(" Sxtrnnum = %d\n",s->Sxtrnnum);
-    dbg_printf("  Stype   = %p",s->Stype);
-    dbg_printf(" Sl      = %p",s->Sl);
-    dbg_printf(" Sr      = %p\n",s->Sr);
-#if MARS
-    if (s->Sscope)
-        dbg_printf(" Sscope = '%s'\n",s->Sscope->Sident);
-#endif
-    if (s->Stype)
-        type_print(s->Stype);
-    if (s->Sclass == SCmember || s->Sclass == SCfield)
-    {
-        dbg_printf("  Smemoff =%5lld", (long long)s->Smemoff);
-        dbg_printf("  Sbit    =%3d",s->Sbit);
-        dbg_printf("  Swidth  =%3d\n",s->Swidth);
-    }
-#endif
 }
 
 
@@ -194,10 +166,8 @@ bool Symbol::Sisdead(bool anyiasm)
             * during address assignment.
             */
            (!anyiasm && !(Sflags & SFLread) && Sflags & SFLunambig &&
-#if MARS
             // mTYvolatile means this variable has been reference by a nested function
             !(Stype->Tty & mTYvolatile) &&
-#endif
             (config.flags4 & CFG4optimized || !config.fulltypes));
 }
 
@@ -279,9 +249,7 @@ symbol * symbol_generate(int sclass,type *t)
     sprintf(name,"_TMP%d",tmpnum++);
     symbol *s = symbol_name(name,sclass,t);
     //symbol_print(s);
-#if MARS
     s->Sflags |= SFLnodebug | SFLartifical;
-#endif
     return s;
 }
 

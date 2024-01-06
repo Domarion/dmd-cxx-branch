@@ -29,9 +29,7 @@
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
 
-#if MARS
 EEcontext eecontext;
-#endif
 
 //////////////////////////////////////
 // Convert any symbols generated for the debugger expression to SCstack

@@ -3,13 +3,10 @@
 /* Written by Walter Bright     */
 
 #include        <stdio.h>
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-#include        <io.h>
-#else
 #include        <sys/time.h>
 #include        <sys/resource.h>
 #include        <unistd.h>
-#endif
+
 #include        <stdarg.h>
 #include        <stddef.h>
 
@@ -58,15 +55,8 @@ static int mem_count;           /* # of allocs that haven't been free'd */
 static int mem_scount;          /* # of sallocs that haven't been free'd */
 
 /* Determine where to send error messages       */
-#if _WINDLL
-void err_message(const char *,...);
-#define PRINT   err_message(
-#elif MSDOS
-#define PRINT   printf( /* stderr can't be redirected with MS-DOS       */
-#else
 #define ferr    stderr
 #define PRINT   fprintf(ferr,
-#endif
 
 /*******************************/
 
@@ -99,15 +89,7 @@ int mem_exception()
         switch (behavior)
         {
             case MEM_ABORTMSG:
-#if MSDOS || __OS2__ || __NT__ || _WIN32
-                /* Avoid linking in buffered I/O */
-            {   static char msg[] = "Fatal error: out of memory\r\n";
-
-                write(1,msg,sizeof(msg) - 1);
-            }
-#else
                 PRINT "Fatal error: out of memory\n");
-#endif
                 /* FALL-THROUGH */
             case MEM_ABORT:
                 exit(EXIT_FAILURE);
@@ -167,13 +149,6 @@ extern "C++"
 {
 
 /* Cause initialization and termination functions to be called  */
-#if 0
-static struct cMemDebug
-{
-    cMemDebug() { mem_init(); }
-   ~cMemDebug() { mem_term(); }
-} dummy;
-#endif
 
 int __mem_line;
 char *__mem_file;
@@ -700,53 +675,6 @@ static size_t heapleft;
 
 /***************************/
 
-#if 0 && __SC__ && __INTSIZE == 4 && __I86__ && !_DEBUG_TRACE && _WIN32 && (SCC || SCPP || JAVA)
-
-__declspec(naked) void *mem_fmalloc(size_t numbytes)
-{
-    __asm
-    {
-        mov     EDX,4[ESP]
-        mov     EAX,heap
-        add     EDX,3
-        mov     ECX,heapleft
-        and     EDX,~3
-        je      L5A
-        cmp     EDX,ECX
-        ja      L2D
-        sub     ECX,EDX
-        add     EDX,EAX
-        mov     heapleft,ECX
-        mov     heap,EDX
-        ret     4
-
-L2D:    push    EBX
-        mov     EBX,EDX
-//      add     EDX,03FFFh
-//      and     EDX,~03FFFh
-        add     EDX,03C00h
-        mov     heapleft,EDX
-L3D:    push    heapleft
-        call    mem_malloc
-        test    EAX,EAX
-        mov     heap,EAX
-        jne     L18
-        call    mem_exception
-        test    EAX,EAX
-        jne     L3D
-        pop     EBX
-L5A:    xor     EAX,EAX
-        ret     4
-
-L18:    add     heap,EBX
-        sub     heapleft,EBX
-        pop     EBX
-        ret     4
-    }
-}
-
-#else
-
 void *mem_fmalloc(size_t numbytes)
 {   void *p;
 
@@ -779,16 +707,9 @@ void *mem_fmalloc(size_t numbytes)
         return p;
     }
 
-#if 1
     heapleft = numbytes + 0x3C00;
     if (heapleft >= 16372)
         heapleft = numbytes;
-#elif _WIN32
-    heapleft = (numbytes + 0x3FFF) & ~0x3FFF;   /* round to next boundary */
-#else
-    heapleft = 0x3F00;
-    assert(numbytes <= heapleft);
-#endif
 L1:
     heap = (char *)malloc(heapleft);
     if (!heap)
@@ -798,8 +719,6 @@ L1:
     }
     goto L2;
 }
-
-#endif
 
 /***************************/
 

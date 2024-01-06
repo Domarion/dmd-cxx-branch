@@ -338,7 +338,6 @@ enum ASM_MODIFIERS {
 
 enum OP_DB
 {
-#if MARS
     // Integral types
     OPdb,
     OPds,
@@ -354,7 +353,7 @@ enum OP_DB
     OPdw = OPds,
     OPdq = OPdl,
     OPdt = OPde,
-#endif
+
 };
 
 

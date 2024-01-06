@@ -15,10 +15,6 @@
 static char __file__[] = __FILE__;
 #include "tassert.h"
 
-#if SCPP
-#error SCPP not supported
-#endif
-
 int clib_inited = 0;
 const unsigned dblreg[] = { -1 };
 

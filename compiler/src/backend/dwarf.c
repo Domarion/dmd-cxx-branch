@@ -41,9 +41,7 @@
 
 #if ELFOBJ
 
-#if MARS
 #include        "mars.h"
-#endif
 
 #include        "dwarf.h"
 #include        "dwarf2.h"
@@ -916,13 +914,6 @@ void dwarf_initfile(const char *filename)
     linebuf->write(&debugline, sizeof(debugline));
 
     // include_directories
-#if 0 && MARS
-    for (int i = 0; i < global.params.imppath->dim; i++)
-    {
-        linebuf->writeString((*global.params.imppath)[i]);
-        linebuf->writeByte(0);
-    }
-#endif
     linebuf->writeByte(0);              // terminated with 0 byte
 
     /* ======================================== */
@@ -970,19 +961,13 @@ void dwarf_initfile(const char *filename)
 #endif
 
     infobuf->writeuLEB128(1);                   // abbreviation code
-#if MARS
+
     infobuf->write("Digital Mars D ");
     infobuf->writeString(global.version.ptr);   // DW_AT_producer
     // DW_AT_language
     infobuf->writeByte((config.fulltypes == CVDWARF_D) ? DW_LANG_D : DW_LANG_C89);
-#else
-    assert(0);
-#endif
+
     infobuf->writeString(filename);             // DW_AT_name
-#if 0
-    // This relies on an extension to POSIX.1 not always implemented
-    char *cwd = getcwd(NULL, 0);
-#else
     char *cwd;
     size_t sz = 80;
     while (1)
@@ -1005,7 +990,7 @@ void dwarf_initfile(const char *filename)
         cwd[0] = 0;
         break;
     }
-#endif
+
     //infobuf->write32(Obj::addstr(debug_str_buf, cwd)); // DW_AT_comp_dir as DW_FORM_strp, doesn't work on some systems
     infobuf->writeString(cwd);                  // DW_AT_comp_dir as DW_FORM_string
     free(cwd);
@@ -1141,15 +1126,8 @@ void dwarf_termfile()
         {
             linnum_data *ld = &SegData[seg]->SDlinnum_data[i];
             const char *filename;
-#if MARS
             filename = ld->filename;
-#else
-            Sfile *sf = ld->filptr;
-            if (sf)
-                filename = sf->SFname;
-            else
-                filename = ::filename;
-#endif
+
             if (last_filename == filename)
             {
                 ld->filenumber = last_filenumber;
@@ -1320,7 +1298,7 @@ void dwarf_termfile()
 void dwarf_func_start(Symbol *sfunc)
 {
     //printf("dwarf_func_start(%s)\n", sfunc->Sident);
-    if (I16 || I32)
+    if (I32)
         CFA_state_current = CFA_state_init_32;
     else if (I64)
         CFA_state_current = CFA_state_init_64;
@@ -1345,24 +1323,20 @@ void dwarf_func_term(Symbol *sfunc)
     }
     if (!config.fulltypes)
         return;
-#if MARS
+
     if (sfunc->Sflags & SFLnodebug)
         return;
     const char* filename = sfunc->Sfunc->Fstartline.Sfilename;
     if (!filename)
         return;
-#endif
+
 
     unsigned funcabbrevcode;
 
     IDXSEC seg = sfunc->Sseg;
     seg_data *sd = SegData[seg];
 
-#if MARS
     int filenum = dwarf_line_addfile(filename);
-#else
-    int filenum = 1;
-#endif
 
         unsigned ret_type = dwarf_typidx(sfunc->Stype->Tnext);
         if (tybasic(sfunc->Stype->Tnext->Tty) == TYvoid)
@@ -1376,9 +1350,8 @@ void dwarf_func_term(Symbol *sfunc)
         for (si = 0; si < globsym.top; si++)
         {
             symbol *sa = globsym.tab[si];
-#if MARS
+
             if (sa->Sflags & SFLnodebug) continue;
-#endif
 
             static unsigned char formal[] =
             {
@@ -1457,11 +1430,9 @@ void dwarf_func_term(Symbol *sfunc)
         }
 
         const char *name;
-#if MARS
+
         name = sfunc->prettyIdent ? sfunc->prettyIdent : sfunc->Sident;
-#else
-        name = sfunc->Sident;
-#endif
+
         infobuf->writeString(name);             // DW_AT_name
         infobuf->writeString(sfunc->Sident);    // DW_AT_MIPS_linkage_name
         infobuf->writeByte(filenum);            // DW_AT_decl_file
@@ -1489,9 +1460,7 @@ void dwarf_func_term(Symbol *sfunc)
             for (si = 0; si < globsym.top; si++)
             {
                 symbol *sa = globsym.tab[si];
-#if MARS
                 if (sa->Sflags & SFLnodebug) continue;
-#endif
 
                 unsigned vcode;
 
@@ -1650,10 +1619,10 @@ void cv_outsym(symbol *s)
     //symbol_print(s);
 
     symbol_debug(s);
-#if MARS
+
     if (s->Sflags & SFLnodebug)
         return;
-#endif
+
     type *t = s->Stype;
     type_debug(t);
     tym_t tym = tybasic(t->Tty);
