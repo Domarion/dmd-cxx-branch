@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
+source tools/common_funcs.sh
+
 # strip out Dmain since it's symbol differs between windows and non-windows
-grep -v Dmain ${RESULTS_DIR}/runnable/hello-profile.d.trace.def > ${RESULTS_DIR}/runnable/hello-profile.d.trace.def2
+# strip out _d_arraycatnTX and _d_arraysetlengthT since they are part of the
+# lowering of the array concatenation operator
+grep -v 'Dmain\|_d_arraycatnTX\|_d_arraysetlengthT' ${OUTPUT_BASE}.d.trace.def > ${OUTPUT_BASE}.d.trace.def2
 
-diff --strip-trailing-cr runnable/extra-files/hello-profile.d.trace.def ${RESULTS_DIR}/runnable/hello-profile.d.trace.def2
-if [ $? -ne 0 ]; then
-    exit 1;
-fi
+diff -up --strip-trailing-cr ${EXTRA_FILES}/${TEST_NAME}.d.trace.def ${OUTPUT_BASE}.d.trace.def2
 
-tracelog=${RESULTS_DIR}/runnable/hello-profile.d.trace.log
+tracelog=${OUTPUT_BASE}.d.trace.log
 if [ ! -f ${tracelog} ]; then
     echo "missing file: ${tracelog}"
     exit 1
 fi
 
-rm ${RESULTS_DIR}/runnable/hello-profile.d.trace.{def,def2,log}
-
+rm_retry ${OUTPUT_BASE}.d.trace.{def,def2,log}

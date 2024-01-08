@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-name=`basename $0 .sh`
-dir=${RESULTS_DIR}/compilable
-
-if [ "${OS}" == "win32" -o "${OS}" == "Windows_NT" ]; then
+if [ "${OS}" == "windows" ]; then
     kinds=( main winmain dllmain )
 else
     kinds=( main )
@@ -11,12 +8,12 @@ fi
 
 for kind in "${kinds[@]}"
 do
-	file_name=${name}${kind}
-	src_file=compilable/extra-files/${file_name}.d
-	expect_file=compilable/extra-files/${file_name}.out
-	output_file=${dir}/${file_name}.out
+	file_name=${TEST_NAME}${kind}
+	src_file=${EXTRA_FILES}/${file_name}.d
+	expect_file=${EXTRA_FILES}/${file_name}.out
+	output_file=${RESULTS_TEST_DIR}/${file_name}.log
 
-	rm -f ${output_file}{,.2}
+	rm_retry ${output_file}{,.2}
 
 	$DMD -m${MODEL} -v -o- ${src_file} > ${output_file}
 	grep "^entry     ${kind}" ${output_file} > ${output_file}.2
@@ -25,7 +22,5 @@ do
 		exit 1;
 	fi
 
-	rm ${output_file}{,.2}
+	rm_retry ${output_file}{,.2}
 done
-
-echo Success >${dir}/`basename $0`.out

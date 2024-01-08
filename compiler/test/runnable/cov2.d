@@ -1,5 +1,5 @@
 // PERMUTE_ARGS:
-// POST_SCRIPT: runnable/extra-files/cov2-postscript.sh
+// POST_SCRIPT: runnable/extra-files/coverage-postscript.sh
 // REQUIRED_ARGS: -cov
 // EXECUTE_ARGS: ${RESULTS_DIR}/runnable
 
@@ -22,7 +22,7 @@ struct S2
 {
     this(this) { int x = 1; }
     ~this() { int x = 1; }
-    ref S2 opAssign(S2) { return this; }
+    ref S2 opAssign(S2) return { return this; }
     bool opEquals(ref const S2) const { return true; }
 }
 struct T2
@@ -50,6 +50,17 @@ void test3()
 }
 
 /***************************************************/
+// https://issues.dlang.org/show_bug.cgi?id=24264
+// EXTRA_SOURCES: imports/ccov2.c
+
+import ccov2;
+
+int test24264()
+{
+    return def();
+}
+
+/***************************************************/
 
 int main(string[] args)
 {
@@ -57,6 +68,6 @@ int main(string[] args)
     test1();
     test2();
     test3();
+    test24264();
     return 0;
 }
-

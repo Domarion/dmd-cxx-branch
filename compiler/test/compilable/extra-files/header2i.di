@@ -1,3 +1,5 @@
+=== ${RESULTS_DIR}/compilable/testheader2i.di
+// D import file generated from 'compilable/extra-files/header2.d'
 class C
 {
 }
@@ -13,7 +15,7 @@ void foo2(const C2 c);
 struct Foo3
 {
 	int k;
-	@trusted @nogc @disable ~this()
+	@nogc @live @trusted @disable ~this()
 	{
 		k = 1;
 	}
@@ -87,7 +89,7 @@ template templateVariableBar(T) if (is(T == int))
 {
 	enum int templateVariableBar = T.stringof.length;
 }
-auto flit = 3 / 2.00000;
+extern typeof(3 / 2.0) flit;
 void foo11217()(const int[] arr)
 {
 }
@@ -204,9 +206,86 @@ void test13275()
 }
 align (1) struct S9766
 {
-	align (true ? 2 : 3) 
+	align {}
+	align (true ? 2 : 3)
 	{
 		int var1;
 		align int var2;
 	}
+}
+align (2) struct S12200_1
+{
+	align {}
+}
+align (2) struct S12200_2
+{
+	align (1) {}
+}
+pure nothrow @trusted inout(T)[] overlap(T)(inout(T)[] r1, inout(T)[] r2)
+{
+	alias U = inout(T);
+	static nothrow U* max(U* a, U* b)
+	{
+		return a > b ? a : b;
+	}
+	static nothrow U* min(U* a, U* b)
+	{
+		return a < b ? a : b;
+	}
+	auto b = max(r1.ptr, r2.ptr);
+	auto e = min(r1.ptr + r1.length, r2.ptr + r2.length);
+	return b < e ? b[0..e - b] : null;
+}
+void gun()()
+{
+	int[] res;
+	while (auto va = fun())
+	{
+	}
+	while (true)
+	if (auto va = fun())
+	{
+	}
+	else
+		break;
+}
+pragma (inline, true)int fun(int a, int b)
+{
+	return 3;
+}
+void leFoo()()
+{
+	sign = a == 2 ? false : (y < 0) ^ sign;
+	sign = a == 2 ? false : sign ^ (y < 0);
+	sign = 2 + 3 | 7 + 5;
+}
+interface LeInterface
+{
+}
+class LeClass
+{
+	this()
+	{
+		auto foo = new class LeInterface
+		{
+		}
+		;
+	}
+}
+extern const typeof(new class LeClass, LeInterface
+{
+}
+) levar;
+class CC
+{
+	@safe void fun()()
+	{
+		() pure @trusted
+		{
+		}
+		();
+	}
+}
+private struct Export
+{
 }

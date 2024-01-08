@@ -1,8 +1,14 @@
+Hello World
+=== ${RESULTS_DIR}/compilable/testheader1i.di
+// D import file generated from 'compilable/extra-files/header1.d'
 module foo.bar;
 import core.vararg;
-import std.stdio;
+void writeln(T...)(T)
+{
+}
 pragma (lib, "test");
 pragma (msg, "Hello World");
+pragma (linkerDirective, "/DEFAULTLIB:test2");
 static assert(true, "message");
 alias mydbl = double;
 alias fl1 = function ()
@@ -20,7 +26,7 @@ out(r)
 }
 do
 {
-       return 2;
+	return 2;
 }
 ;
 alias fl2 = function ()
@@ -28,7 +34,7 @@ in (true)
 out (; true)
 out (r; true)
 {
-       return 2;
+	return 2;
 }
 ;
 int testmain()
@@ -40,11 +46,11 @@ out(result)
 {
 	assert(result == 0);
 }
-body
+do
 {
 	float f = (float).infinity;
 	int i = cast(int)f;
-	writeln((i , 1), 2);
+	writeln(i, 1, 2);
 	writeln(cast(int)(float).max);
 	assert(i == cast(int)(float).max);
 	assert(i == 2147483648u);
@@ -126,7 +132,7 @@ template Foo(T, int V)
 				break;
 			}
 		}
-		enum Label 
+		enum Label
 		{
 			A,
 			B,
@@ -204,10 +210,15 @@ template Foo(T, int V)
 	}
 }
 static this();
+static ~this();
 nothrow pure @nogc @safe static this();
+nothrow pure @nogc @safe static ~this();
 nothrow pure @nogc @safe static this();
+nothrow pure @nogc @safe static ~this();
 nothrow pure @nogc @safe shared static this();
+nothrow pure @nogc @safe shared static ~this();
 nothrow pure @nogc @safe shared static this();
+nothrow pure @nogc @safe shared static ~this();
 interface iFoo
 {
 }
@@ -230,7 +241,7 @@ class Foo3
 	}
 }
 alias myint = int;
-static notquit = 1;
+static extern typeof(1) notquit;
 class Test
 {
 	void a()
@@ -341,19 +352,12 @@ class Test
 	alias getHUShort = A!ushort;
 	alias getHReal = A!real;
 	alias void F();
-	nothrow pure @nogc @safe new(size_t sz)
-	{
-		return null;
-	}
-	nothrow pure @nogc @safe delete(void* p)
-	{
-	}
 }
 void templ(T)(T val)
 {
 	pragma (msg, "Invalid destination type.");
 }
-static char[] charArray = ['"', '\''];
+static extern char[] charArray;
 class Point
 {
 	auto x = 10;
@@ -475,10 +479,10 @@ struct T12
 	{
 	}
 }
-import std.stdio : writeln, F = File;
+import core.stdc.stdio : printf, F = FILE;
 void foo6591()()
 {
-	import std.stdio : writeln, F = File;
+	import core.stdc.stdio : printf, F = FILE;
 }
 version (unittest)
 {
@@ -582,11 +586,11 @@ class TestClass
 	{
 		return aa;
 	}
-	ref return retFunc()
+	ref retFunc() return
 	{
 		return aa;
 	}
-	@trusted @nogc @disable ~this()
+	@nogc @trusted @disable ~this()
 	{
 	}
 }
@@ -629,17 +633,49 @@ struct Foo3A(T)
 	@disable this(this);
 	@disable this();
 }
-void test13x(@(10) int a, @(20) int, @(tuple(30), tuple(40)) int[] arr...)
+ref @safe int foo(return ref int a)
+{
+	return a;
+}
+@safe int* foo(return scope int* a)
+{
+	return a;
+}
+ref @safe int* foo(return ref scope int* a)
+{
+	return a;
+}
+struct SafeS
+{
+	@safe
+	{
+		ref SafeS foo() return
+		{
+			return this;
+		}
+		scope SafeS foo2() return
+		{
+			return this;
+		}
+		ref scope SafeS foo3() return
+		{
+			static SafeS s;
+			return s;
+		}
+		int* p;
+	}
+}
+void test13x(@(10) int a, @(20) int, @(AliasSeq!(30), AliasSeq!(40)) int[] arr...)
 {
 }
-enum Test14UDA1 ;
+enum Test14UDA1;
 struct Test14UDA2
 {
-       string str;
+	string str;
 }
 Test14UDA2 test14uda3(string name)
 {
-       return Test14UDA2(name);
+	return Test14UDA2(name);
 }
 struct Test14UDA4(string v)
 {
@@ -649,4 +685,30 @@ void test14x(@(Test14UDA1) int, @Test14UDA2("1") int, @test14uda3("2") int, @(Te
 }
 void test15x(@(20) void delegate(int) @safe dg)
 {
+}
+T throwStuff(T)(T t)
+{
+	if (false)
+		test13x(1, throw new Exception(""), 2);
+	return t ? t : throw new Exception("Bad stuff happens!");
+}
+class C12344
+{
+	abstract int c12344(int x)
+	in (x > 0)
+	out(result)
+	{
+		assert(result > 0);
+	}
+	;
+}
+interface I12344
+{
+	int i12344(int x)
+	in (x > 0)
+	out(result)
+	{
+		assert(result > 0);
+	}
+	;
 }

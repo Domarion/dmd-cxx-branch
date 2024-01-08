@@ -1,21 +1,23 @@
-// EXTRA_OBJC_SOURCES
+// EXTRA_OBJC_SOURCES:
 // REQUIRED_ARGS: -L-framework -LFoundation
 
+import core.attribute : selector;
+
 extern (Objective-C)
-interface Class
+extern class Class
 {
     NSObject alloc() @selector("alloc");
 }
 
 extern (Objective-C)
-interface NSObject
+extern class NSObject
 {
-    NSObject initWithUTF8String(in char* str) @selector("initWithUTF8String:");
+    NSObject initWithUTF8String(scope const char* str) @selector("initWithUTF8String:");
     void release() @selector("release");
 }
 
 extern (C) void NSLog(NSObject, ...);
-extern (C) Class objc_lookUpClass(in char* name);
+extern (C) Class objc_lookUpClass(scope const char* name);
 
 void main()
 {

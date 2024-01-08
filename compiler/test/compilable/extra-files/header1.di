@@ -1,8 +1,14 @@
+Hello World
+=== ${RESULTS_DIR}/compilable/testheader1.di
+// D import file generated from 'compilable/extra-files/header1.d'
 module foo.bar;
 import core.vararg;
-import std.stdio;
+void writeln(T...)(T)
+{
+}
 pragma (lib, "test");
 pragma (msg, "Hello World");
+pragma (linkerDirective, "/DEFAULTLIB:test2");
 static assert(true, "message");
 alias mydbl = double;
 alias fl1 = function ()
@@ -20,7 +26,7 @@ out(r)
 }
 do
 {
-       return 2;
+	return 2;
 }
 ;
 alias fl2 = function ()
@@ -28,7 +34,7 @@ in (true)
 out (; true)
 out (r; true)
 {
-       return 2;
+	return 2;
 }
 ;
 int testmain();
@@ -108,13 +114,30 @@ template Foo(T, int V)
 				break;
 			}
 		}
-		enum Label 
+		enum Label
 		{
 			A,
 			B,
 			C,
 		}
-		void fswitch(Label l);
+		void fswitch(Label l)
+		{
+			final switch (l)
+			{
+				case A:
+				{
+					break;
+				}
+				case B:
+				{
+					break;
+				}
+				case C:
+				{
+					break;
+				}
+			}
+		}
 		loop:
 		while (x)
 		{
@@ -169,10 +192,15 @@ template Foo(T, int V)
 	}
 }
 static this();
+static ~this();
 nothrow pure @nogc @safe static this();
+nothrow pure @nogc @safe static ~this();
 nothrow pure @nogc @safe static this();
+nothrow pure @nogc @safe static ~this();
 nothrow pure @nogc @safe shared static this();
+nothrow pure @nogc @safe shared static ~this();
 nothrow pure @nogc @safe shared static this();
+nothrow pure @nogc @safe shared static ~this();
 interface iFoo
 {
 }
@@ -187,15 +215,11 @@ class xFoo2 : iFoo, iFoo2
 }
 class Foo3
 {
-	this(int a, ...)
-	{
-	}
-	this(int* a)
-	{
-	}
+	this(int a, ...);
+	this(int* a);
 }
 alias myint = int;
-static notquit = 1;
+static extern typeof(1) notquit;
 class Test
 {
 	void a();
@@ -244,14 +268,12 @@ class Test
 	alias getHUShort = A!ushort;
 	alias getHReal = A!real;
 	alias void F();
-	nothrow pure @nogc @safe new(size_t sz);
-	nothrow pure @nogc @safe delete(void* p);
 }
 void templ(T)(T val)
 {
 	pragma (msg, "Invalid destination type.");
 }
-static char[] charArray = ['"', '\''];
+static extern char[] charArray;
 class Point
 {
 	auto x = 10;
@@ -342,12 +364,8 @@ struct S6360
 }
 struct S12
 {
-	nothrow this(int n)
-	{
-	}
-	nothrow this(string s)
-	{
-	}
+	nothrow this(int n);
+	nothrow this(string s);
 }
 struct T12
 {
@@ -358,10 +376,10 @@ struct T12
 	{
 	}
 }
-import std.stdio : writeln, F = File;
+import core.stdc.stdio : printf, F = FILE;
 void foo6591()()
 {
-	import std.stdio : writeln, F = File;
+	import core.stdc.stdio : printf, F = FILE;
 }
 version (unittest)
 {
@@ -456,20 +474,16 @@ class TestClass
 	int aa;
 	int b1;
 	int b2;
-	this(int b1, int b2)
-	{
-		this.b1 = b1;
-		this.b2 = b2;
-	}
+	this(int b1, int b2);
 	ref foo()
 	{
 		return aa;
 	}
-	ref return retFunc()
+	ref retFunc() return
 	{
 		return aa;
 	}
-	@trusted @nogc @disable ~this();
+	@nogc @trusted @disable ~this();
 }
 class FooA
 {
@@ -488,20 +502,31 @@ size_t magic();
 class Foo2A
 {
 	immutable(FooA) Dummy = new immutable(FooA);
-	private immutable pure nothrow @nogc @safe this()
-	{
-	}
+	private immutable pure nothrow @nogc @safe this();
 }
 struct Foo3A(T)
 {
 	@disable this(this);
 	@disable this();
 }
-void test13x(@(10) int a, @(20) int, @(tuple(30), tuple(40)) int[] arr...);
-enum Test14UDA1 ;
+ref @safe int foo(return ref int a);
+@safe int* foo(return scope int* a);
+ref @safe int* foo(return ref scope int* a);
+struct SafeS
+{
+	@safe
+	{
+		ref SafeS foo() return;
+		scope SafeS foo2() return;
+		ref scope SafeS foo3() return;
+		int* p;
+	}
+}
+void test13x(@(10) int a, @(20) int, @(AliasSeq!(30), AliasSeq!(40)) int[] arr...);
+enum Test14UDA1;
 struct Test14UDA2
 {
-       string str;
+	string str;
 }
 Test14UDA2 test14uda3(string name);
 struct Test14UDA4(string v)
@@ -509,3 +534,29 @@ struct Test14UDA4(string v)
 }
 void test14x(@(Test14UDA1) int, @Test14UDA2("1") int, @test14uda3("2") int, @(Test14UDA4!"3") int);
 void test15x(@(20) void delegate(int) @safe dg);
+T throwStuff(T)(T t)
+{
+	if (false)
+		test13x(1, throw new Exception(""), 2);
+	return t ? t : throw new Exception("Bad stuff happens!");
+}
+class C12344
+{
+	abstract int c12344(int x)
+	in (x > 0)
+	out(result)
+	{
+		assert(result > 0);
+	}
+	;
+}
+interface I12344
+{
+	int i12344(int x)
+	in (x > 0)
+	out(result)
+	{
+		assert(result > 0);
+	}
+	;
+}

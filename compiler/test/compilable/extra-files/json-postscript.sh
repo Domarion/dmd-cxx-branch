@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
 
-grep -v "\"file\" : " ${RESULTS_DIR}/compilable/json.out | grep -v "\"offset\" : " > ${RESULTS_DIR}/compilable/json.out.2
-grep -v "\"deco\" : " ${RESULTS_DIR}/compilable/json.out.2 > ${RESULTS_DIR}/compilable/json.out.3
-grep -v "\"deco\" : " compilable/extra-files/json.out      > ${RESULTS_DIR}/compilable/json.out.4
+source tools/common_funcs.sh
 
-diff --strip-trailing-cr ${RESULTS_DIR}/compilable/json.out.4 ${RESULTS_DIR}/compilable/json.out.3
-if [ $? -ne 0 ]; then
-    exit 1;
-fi
+echo SANITIZING JSON...
+${RESULTS_DIR}/sanitize_json ${OUTPUT_BASE}.out > ${OUTPUT_BASE}.out.sanitized
 
-rm ${RESULTS_DIR}/compilable/json.out{,.2,.3,.4}
+diff -up --strip-trailing-cr ${EXTRA_FILES}/${TEST_NAME}.json ${OUTPUT_BASE}.out.sanitized
 
+rm_retry ${OUTPUT_BASE}.out{,.sanitized}

@@ -1,13 +1,13 @@
 /*
 TEST_OUTPUT:
 ---
-fail_compilation/misc1.d(108): Error: long has no effect in expression (5)
-fail_compilation/misc1.d(109): Error: + has no effect in expression (1 + 2)
-fail_compilation/misc1.d(115): Error: * has no effect in expression (1 * 1)
-fail_compilation/misc1.d(116): Error: function has no effect in expression (__lambda1)
-fail_compilation/misc1.d(122): Error: long has no effect in expression (false)
-fail_compilation/misc1.d(125): Error: * has no effect in expression (*sp++)
-fail_compilation/misc1.d(126): Error: var has no effect in expression (j)
+fail_compilation/misc1.d(108): Error: `5` has no effect
+fail_compilation/misc1.d(109): Error: `1 + 2` has no effect
+fail_compilation/misc1.d(115): Deprecation: `1 * 1` has no effect
+fail_compilation/misc1.d(116): Deprecation: `__lambda3` has no effect
+fail_compilation/misc1.d(122): Deprecation: `false` has no effect
+fail_compilation/misc1.d(125): Deprecation: `*sp++` has no effect
+fail_compilation/misc1.d(126): Deprecation: `j` has no effect
 ---
 */
 

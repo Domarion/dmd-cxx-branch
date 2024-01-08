@@ -1,12 +1,13 @@
 /*
 TEST_OUTPUT:
 ---
-fail_compilation/fail152.d(15): Error: cannot use type double as an operand
+fail_compilation/fail152.d(16): Error: cannot use type `double` as an operand
+fail_compilation/fail152.d(22): Error: template instance `fail152.a!double` error instantiating
 ---
 */
 
-// 1028 Segfault using tuple inside asm code.
-
+// https://issues.dlang.org/show_bug.cgi?id=1028
+// Segfault using tuple inside asm code.
 void a(X...)(X expr)
 {
     alias X[0] var1;
@@ -20,4 +21,3 @@ void main()
 {
    a(3.6);
 }
-
