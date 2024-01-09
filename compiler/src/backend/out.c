@@ -16,7 +16,6 @@
 #include        "oper.h"
 #include        "global.h"
 #include        "type.h"
-#include        "filespec.h"
 #include        "code.h"
 #include        "go.h"
 #include        "dt.h"

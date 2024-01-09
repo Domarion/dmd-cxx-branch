@@ -22,7 +22,6 @@
 #include        "oper.h"
 #include        "el.h"
 #include        "type.h"
-#include        "filespec.h"
 
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"

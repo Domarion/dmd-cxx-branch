@@ -17,7 +17,6 @@
 #include        "global.h"
 #include        "code.h"
 #include        "type.h"
-#include        "filespec.h"
 
 ///////////////////// GLOBALS /////////////////////
 

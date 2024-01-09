@@ -28,7 +28,6 @@
 #include        "code.h"
 #include        "type.h"
 #include        "outbuf.h"
-#include        "filespec.h"
 #include        "dt.h"
 #include        "rtlsym.h"
 

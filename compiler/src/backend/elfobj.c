@@ -20,7 +20,6 @@
 #include        "type.h"
 #include        "melf.h"
 #include        "outbuf.h"
-#include        "filespec.h"
 #include        "dt.h"
 
 #include        "aa.h"

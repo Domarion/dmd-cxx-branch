@@ -352,8 +352,8 @@ BACK_SRC = \
 	$(TARGET_CH)
 
 TK_SRC = \
-	$(TK)/filespec.h $(TK)/mem.h $(TK)/list.h $(TK)/vec.h \
-	$(TK)/filespec.c $(TK)/mem.c $(TK)/vec.c $(TK)/list.c
+        $(TK)/mem.h $(TK)/list.h $(TK)/vec.h \
+        $(TK)/mem.c $(TK)/vec.c $(TK)/list.c
 
 DEPS = $(patsubst %.o,%.deps,$(DMD_OBJS) $(ROOT_OBJS) $(GLUE_OBJS) $(BACK_OBJS))
 
