@@ -210,7 +210,6 @@ void genDwarfEh(Funcsym *sfunc, int seg, Outbuffer *et, bool scancode, unsigned 
     }
     //printf("deh->dim = %d\n", (int)deh->dim);
 
-#if 1
     /* Build Call Site Table
      * Be sure to not generate empty entries,
      * and generate nested ranges reflecting the layout in the code.
@@ -222,11 +221,8 @@ void genDwarfEh(Funcsym *sfunc, int seg, Outbuffer *et, bool scancode, unsigned 
         DwEhTableEntry *d = deh->index(i);
         if (d->start < d->end)
         {
-#if ELFOBJ
                 #define WRITE writeuLEB128
-#else
-                assert(0);
-#endif
+
                 unsigned CallSiteStart = d->start - startblock->Boffset;
                 cstbuf.WRITE(CallSiteStart);
                 unsigned CallSiteRange = d->end - d->start;
@@ -239,58 +235,6 @@ void genDwarfEh(Funcsym *sfunc, int seg, Outbuffer *et, bool scancode, unsigned 
                 #undef WRITE
         }
     }
-#else
-    /* Build Call Site Table
-     * Be sure to not generate empty entries,
-     * and generate multiple entries for one DwEhTableEntry if the latter
-     * is split by nested DwEhTableEntry's. This is based on the (undocumented)
-     * presumption that there may not
-     * be overlapping entries in the Call Site Table.
-     */
-    assert(deh->dim);
-    unsigned end = deh->index(0)->start;
-    for (unsigned i = 0; i < deh->dim; ++i)
-    {
-        unsigned j = i;
-        do
-        {
-            DwEhTableEntry *d = deh->index(j);
-            //printf(" [%d] start=%x end=%x lpad=%x action=%x bcatch=%p prev=%d\n",
-            //  j, d->start, d->end, d->lpad, d->action, d->bcatch, d->prev);
-            if (d->start <= end && end < d->end)
-            {
-                unsigned start = end;
-                unsigned dend = d->end;
-                if (i + 1 < deh->dim)
-                {
-                    DwEhTableEntry *dnext = deh->index(i + 1);
-                    if (dnext->start < dend)
-                        dend = dnext->start;
-                }
-                if (start < dend)
-                {
-#if ELFOBJ
-                    #define WRITE writeLEB128
-#else
-                    assert(0);
-#endif
-                    unsigned CallSiteStart = start - startblock->Boffset;
-                    cstbuf.WRITE(CallSiteStart);
-                    unsigned CallSiteRange = dend - start;
-                    cstbuf.WRITE(CallSiteRange);
-                    unsigned LandingPad = d->lpad - startblock->Boffset;
-                    cstbuf.WRITE(LandingPad);
-                    unsigned ActionTable = d->action;
-                    cstbuf.WRITE(ActionTable);
-                    //printf("\t%x %x %x %x\n", CallSiteStart, CallSiteRange, LandingPad, ActionTable);
-                    #undef WRITE
-                }
-
-                end = dend;
-            }
-        } while (j--);
-    }
-#endif
 
     /* Write LSDT header */
     const unsigned char LPstart = DW_EH_PE_omit;

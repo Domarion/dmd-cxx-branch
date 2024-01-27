@@ -1523,7 +1523,6 @@ L1:
  * operations, since then it could change the type (eg, in the function call
  * printf("%La", 2.0L); the 2.0 must stay as a long double).
  */
-#if 1
 void shrinkLongDoubleConstantIfPossible(elem *e)
 {
     if (e->Eoper == OPconst && e->Ety == TYldouble)
@@ -1546,8 +1545,6 @@ void shrinkLongDoubleConstantIfPossible(elem *e)
         }
     }
 }
-#endif
-
 
 /*************************
  * Run through a tree converting it to CODGEN.
@@ -1595,7 +1592,6 @@ elem *el_convert(elem *e)
                  */
                 break;
             }
-#if 1
         case OPdiv:
         case OPadd:
         case OPmin:
@@ -1605,7 +1601,6 @@ elem *el_convert(elem *e)
             if (tyreal(e->Ety))
                 shrinkLongDoubleConstantIfPossible(e->E2);
             // fall through...
-#endif
         default:
             if (OTbinary(op))
             {
@@ -2565,102 +2560,3 @@ case_tym:
             /*assert(0);*/
     }
 }
-
-/**********************************
- * Hydrate an elem.
- */
-
-#if HYDRATE
-void el_hydrate(elem **pe)
-{
-    elem *e;
-
-    if (!isdehydrated(*pe))
-        return;
-
-    assert(PARSER);
-    e = (elem *) ph_hydrate(pe);
-    elem_debug(e);
-#ifdef DEBUG
-    if (!(e->Eoper < OPMAX))
-        dbg_printf("e = x%lx, e->Eoper = %d\n",e,e->Eoper);
-#endif
-    debug_assert(e->Eoper < OPMAX);
-    type_hydrate(&e->ET);
-    if (configv.addlinenumbers)
-    {   filename_translate(&e->Esrcpos);
-        srcpos_hydrate(&e->Esrcpos);
-    }
-    if (EOP(e))
-    {   el_hydrate(&e->E1);
-        if (EBIN(e))
-            el_hydrate(&e->E2);
-    }
-    else
-    {
-        switch (e->Eoper)
-        {   case OPstring:
-            case OPasm:
-                ph_hydrate(&e->EV.ss.Vstring);
-                break;
-
-            case OPrelconst:
-                //if (tybasic(e->ET->Tty) == TYmemptr)
-                    //el_hydrate(&e->EV.sm.ethis);
-            case OPvar:
-                symbol_hydrate(&e->EV.sp.Vsym);
-                symbol_debug(e->EV.sp.Vsym);
-                break;
-        }
-    }
-}
-#endif
-
-/**********************************
- * Dehydrate an elem.
- */
-
-#if DEHYDRATE
-void el_dehydrate(elem **pe)
-{   elem *e;
-
-    if ((e = *pe) == NULL || isdehydrated(e))
-        return;
-
-    assert(PARSER);
-    elem_debug(e);
-#ifdef DEBUG
-    if (!(e->Eoper < OPMAX))
-        dbg_printf("e = x%lx, e->Eoper = %d\n",e,e->Eoper);
-#endif
-    debug_assert(e->Eoper < OPMAX);
-    ph_dehydrate(pe);
-#if DEBUG_XSYMGEN
-    if (xsym_gen && ph_in_head(e))
-        return;
-#endif
-    type_dehydrate(&e->ET);
-    if (configv.addlinenumbers)
-        srcpos_dehydrate(&e->Esrcpos);
-    if (EOP(e))
-    {   el_dehydrate(&e->E1);
-        if (EBIN(e))
-            el_dehydrate(&e->E2);
-    }
-    else
-    {
-        switch (e->Eoper)
-        {   case OPstring:
-            case OPasm:
-                ph_dehydrate(&e->EV.ss.Vstring);
-                break;
-            case OPrelconst:
-                //if (tybasic(e->ET->Tty) == TYmemptr)
-                    //el_dehydrate(&e->EV.sm.ethis);
-            case OPvar:
-                symbol_dehydrate(&e->EV.sp.Vsym);
-                break;
-        }
-    }
-}
-#endif

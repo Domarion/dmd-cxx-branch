@@ -68,11 +68,9 @@ static Expression *addInvariant(AggregateDeclaration *ad, VarDeclaration *vthis)
     }
     if (inv)
     {
-    #if 1
         // Workaround for bugzilla 13394: For the correct mangling,
         // run attribute inference on inv if needed.
         inv->functionSemantic();
-    #endif
 
         //e = new DsymbolExp(Loc(), inv);
         //e = new CallExp(Loc(), e);

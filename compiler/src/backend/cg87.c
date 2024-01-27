@@ -952,9 +952,8 @@ code *orth87(elem *e,regm_t *pretregs)
     int reverse = 0;
 
     //printf("orth87(+e = %p, *pretregs = %s)\n", e, regm_str(*pretregs));
-#if 1   // we could be evaluating / for side effects only
     assert(*pretregs != 0);
-#endif
+
     retregs = mST0;
     resregm = mST0;
 
@@ -1697,7 +1696,6 @@ code *load87(elem *e,unsigned eoffset,regm_t *pretregs,elem *eleft,int op)
                     note87(eleft,eoffset,0);    // don't trash this value
                 if (e->E1->Eoper == OPvar || e->E1->Eoper == OPind)
                 {
-#if 1
                 L4:
                     c = getlvalue87(&cs,e->E1,0);
                     cs.Iop = ESC(mf1,0);
@@ -1710,9 +1708,6 @@ code *load87(elem *e,unsigned eoffset,regm_t *pretregs,elem *eleft,int op)
                         c = cat(c,push87());
                     }
                     c = gen(c,&cs);                     /* FLD / Fop    */
-#else
-                    c = loadea(e->E1,&cs,ESC(mf1,1),0,0,0,0); /* FLD e->E1 */
-#endif
                     /* Variable cannot be put into a register anymore   */
                     if (e->E1->Eoper == OPvar)
                         notreg(e->E1);
@@ -1836,7 +1831,7 @@ code *load87(elem *e,unsigned eoffset,regm_t *pretregs,elem *eleft,int op)
             default:
             Ldefault:
                 retregs = mST0;
-#if 1           /* Do this instead of codelem() to avoid the freenode(e).
+           /* Do this instead of codelem() to avoid the freenode(e).
                    We also lose CSE capability  */
                 if (e->Eoper == OPconst)
                 {
@@ -1844,9 +1839,6 @@ code *load87(elem *e,unsigned eoffset,regm_t *pretregs,elem *eleft,int op)
                 }
                 else
                     c = (*cdxxx[e->Eoper])(e,&retregs);
-#else
-                c = codelem(e,&retregs,FALSE);
-#endif
                 if (op != -1)
                 {
                     c = cat(c,makesure87(eleft,eoffset,1,(op == 0 || op == 1)));

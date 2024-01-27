@@ -1160,11 +1160,11 @@ FuncDeclaration *buildInv(AggregateDeclaration *ad, Scope *sc)
                     stcx = stcy;
                 else if (stcx ^ stcy)
                 {
-            #if 1   // currently rejects
+            // currently rejects
                     ad->error(ad->invs[i]->loc, "mixing invariants with shared/synchronized differene is not supported");
                     e = NULL;
                     break;
-            #endif
+
                 }
                 e = Expression::combine(e, new CallExp(loc, new VarExp(loc, ad->invs[i], false)));
             }

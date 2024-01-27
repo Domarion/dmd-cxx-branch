@@ -5793,7 +5793,8 @@ MATCH TypeDelegate::implicitConvTo(Type *to)
     //printf("to  : %s\n", to->toChars());
     if (this == to)
         return MATCHexact;
-#if 1 // not allowing covariant conversions because it interferes with overriding
+
+    // not allowing covariant conversions because it interferes with overriding
     if (to->ty == Tdelegate && this->nextOf()->covariant(to->nextOf()) == 1)
     {
         Type *tret = this->next->nextOf();
@@ -5811,7 +5812,6 @@ MATCH TypeDelegate::implicitConvTo(Type *to)
         }
         return MATCHconvert;
     }
-#endif
     return MATCHnomatch;
 }
 

@@ -49,10 +49,8 @@ void os_error(int line)
     local_assert(line);
 }
 
-#if 1
 #undef dbg_printf
 #define dbg_printf      (void)
-#endif
 
 #define os_error() os_error(__LINE__)
 

@@ -75,12 +75,7 @@ Strings *FileName::splitPath(const char *path)
                         instring ^= 1;  // toggle inside/outside of string
                         continue;
 
-#if MACINTOSH
-                    case ',':
-#endif
-#if POSIX
                     case ':':
-#endif
                         p++;
                         break;          // note that ; cannot appear as part
                                         // of a path, quotes won't protect it
@@ -92,7 +87,6 @@ Strings *FileName::splitPath(const char *path)
                     case '\r':
                         continue;       // ignore carriage returns
 
-#if POSIX
                     case '~':
                     {
                         char *home = getenv("HOME");
@@ -103,7 +97,6 @@ Strings *FileName::splitPath(const char *path)
                             buf.writestring("~");
                         continue;
                     }
-#endif
 
                     default:
                         buf.writeByte(c);

@@ -203,7 +203,7 @@ Initializer *ExpInitializer::syntaxCopy()
     return new ExpInitializer(loc, exp->syntaxCopy());
 }
 
-#if 1   // should be removed and rely on ctfeInterpreter()
+// should be removed and rely on ctfeInterpreter()
 bool arrayHasNonConstPointers(Expressions *elems);
 
 bool hasNonConstPointers(Expression *e)
@@ -279,4 +279,3 @@ bool arrayHasNonConstPointers(Expressions *elems)
     }
     return false;
 }
-#endif

@@ -16,21 +16,7 @@ static int vec_initcount = 0;   /* # of times package is initialized    */
 #define VECMAX  20
 static vec_t vecfreelist[VECMAX];
 
-#if 1
 #define MASK(b)         ((vec_base_t)1 << ((b) & VECMASK))
-#else
-#define MASK(b)         bmask[(b) & VECMASK]
-static vec_base_t bmask[VECMASK + 1] =
-{
-        1,2,4,8,0x10,0x20,0x40,0x80,
-        0x100,0x200,0x400,0x800,0x1000,0x2000,0x4000,0x8000,
-#if __INTSIZE == 4
-        0x10000,0x20000,0x40000,0x80000,0x100000,0x200000,0x400000,0x800000,
-        0x1000000,0x2000000,0x4000000,0x8000000,
-        0x10000000,0x20000000,0x40000000,0x80000000
-#endif
-};
-#endif
 
 /**************************
  * Initialize package.

@@ -565,11 +565,11 @@ struct seg_data
     targ_size_t          SDoffset;      // starting offset for data
     int                  SDalignment;   // power of 2
 
-#if 1 //ELFOBJ
+//ELFOBJ
     IDXSEC               SDshtidx;      // section header table index
     Outbuffer           *SDbuf;         // buffer to hold data
     Outbuffer           *SDrel;         // buffer to hold relocation info
-#if 1 //ELFOBJ
+//ELFOBJ
     IDXSYM               SDsymidx;      // each section is in the symbol table
     IDXSEC               SDrelidx;      // section header for relocation info
     targ_size_t          SDrelmaxoff;   // maximum offset encountered
@@ -578,7 +578,6 @@ struct seg_data
     IDXSEC               SDshtidxout;   // final section header table index
     Symbol              *SDsym;         // if !=NULL, comdat symbol
     segidx_t             SDassocseg;    // for COMDATs, if !=0, this is the "associated" segment
-#endif
 
     unsigned            SDaranges_offset;       // if !=0, offset in .debug_aranges
 
@@ -587,7 +586,7 @@ struct seg_data
     linnum_data         *SDlinnum_data; // array of line number / offset data
 
     int isCode();
-#endif
+
 };
 
 
@@ -646,17 +645,12 @@ inline regm_t Symbol::Spregm()
  *      value.
  */
 
-#if 1
 inline void regimmed_set(int reg, targ_size_t e)
 {
     regcon.immed.value[reg] = e;
     regcon.immed.mval |= 1 << (reg);
     //printf("regimmed_set %s %d\n", regm_str(mask[reg]), (int)e);
 }
-#else
-#define regimmed_set(reg,e) \
-        (regcon.immed.value[reg] = (e),regcon.immed.mval |= 1 << (reg))
-#endif
 
 #if __cplusplus && TX86
 }

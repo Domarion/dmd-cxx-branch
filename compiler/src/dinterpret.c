@@ -3769,14 +3769,14 @@ public:
             // Therefore interpreter should handle them specially.
 
             assert(oldval);
-        #if 1   // todo: instead we can directly access to each elements of the slice
+        // todo: instead we can directly access to each elements of the slice
             newval = resolveSlice(newval);
             if (CTFEExp::isCantExp(newval))
             {
                 e->error("CTFE internal error: assignment %s", e->toChars());
                 return CTFEExp::cantexp;
             }
-        #endif
+
             assert(oldval->op == TOKarrayliteral);
             assert(newval->op == TOKarrayliteral);
 
@@ -3859,7 +3859,7 @@ public:
             // ------------------------------
 
             SliceExp *se = (SliceExp *)e1;
-        #if 1   // should be move in interpretAssignCommon as the evaluation of e1
+        // should be move in interpretAssignCommon as the evaluation of e1
             Expression *oldval = interpret(se->e1, istate);
 
             // Set the $ variable
@@ -3897,7 +3897,6 @@ public:
                     dim, lowerbound, upperbound);
                 return CTFEExp::cantexp;
             }
-        #endif
             aggregate = oldval;
             firstIndex = lowerbound;
 
@@ -3977,7 +3976,7 @@ public:
                         lowerbound, upperbound, srclower, srcupper);
                     return CTFEExp::cantexp;
                 }
-            #if 1   // todo: instead we can directly access to each elements of the slice
+            // todo: instead we can directly access to each elements of the slice
                 Expression *orignewval = newval;
                 newval = resolveSlice(newval);
                 if (CTFEExp::isCantExp(newval))
@@ -3985,7 +3984,6 @@ public:
                     e->error("CTFE internal error: slice %s", orignewval->toChars());
                     return CTFEExp::cantexp;
                 }
-            #endif
                 assert(newval->op != TOKslice);
             }
             if (newval->op == TOKstring)
@@ -4105,7 +4103,7 @@ public:
                         lowerbound, upperbound, srclower, srcupper);
                     return CTFEExp::cantexp;
                 }
-            #if 1   // todo: instead we can directly access to each elements of the slice
+            // todo: instead we can directly access to each elements of the slice
                 Expression *orignewval = newval;
                 newval = resolveSlice(newval);
                 if (CTFEExp::isCantExp(newval))
@@ -4113,7 +4111,6 @@ public:
                     e->error("CTFE internal error: slice %s", orignewval->toChars());
                     return CTFEExp::cantexp;
                 }
-            #endif
                 // no overlapping
                 //length?
                 assert(newval->op != TOKslice);

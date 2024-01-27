@@ -8,8 +8,6 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if !SPP
-
 #include        <stdio.h>
 #include        <ctype.h>
 #include        <string.h>
@@ -642,20 +640,8 @@ STATIC void cpp_primary_data_type(type *t)
 {
     if (tyref(t->Tty))
     {
-#if 1
         // C++98 8.3.2 says cv-qualified references are ignored
         CHAR('A');
-#else
-        switch (t->Tty & (mTYconst | mTYvolatile))
-        {
-            case 0:                      CHAR('A');     break;
-            case mTYvolatile:            CHAR('B');     break;
-
-            // Digital Mars extensions
-            case mTYconst | mTYvolatile: CHAR('_'); CHAR('L');  break;
-            case mTYconst:               CHAR('_'); CHAR('M');  break;
-        }
-#endif
         cpp_reference_type(t);
     }
     else
@@ -1066,5 +1052,3 @@ STATIC void cpp_decorated_name(symbol *s)
     CHAR('@');
     cpp_type_encoding(s);
 }
-
-#endif

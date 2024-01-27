@@ -204,14 +204,6 @@ char *mem_fstrdup(const char *);
  * C++ stuff.
  */
 
-#if !MEM_NONE && MEM_DEBUG
-#define mem_new         !(__mem_line=__LINE__,__mem_file=__FILE__)? 0 : new
-#define mem_delete       (__mem_line=__LINE__,__mem_file=__FILE__), delete
-
-extern int __mem_line;
-extern char *__mem_file;
-#endif
-
 /* The following stuff forms the implementation rather than the
  * definition, so ignore it.
  */

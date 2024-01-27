@@ -120,12 +120,6 @@ typedef long double longdouble;
 #define H_COMPLEX       8       // dehydrated pointers have bit 0 set, hydrated
                                 // pointers are in non-contiguous buffers
 
-// Do we need hydration code
-#define HYDRATE         (H_STYLE & (H_BIT0 | H_OFFSET | H_COMPLEX))
-
-// Do we need dehydration code
-#define DEHYDRATE       (H_STYLE & (H_BIT0 | H_COMPLEX))
-
 // Determine hydration style
 //      NT console:     H_NONE
 //      NT DLL:         H_OFFSET
@@ -344,12 +338,10 @@ typedef int             SYMIDX;         // symbol table index
 #define _chkstack()     (void)0
 
 /* For 32 bit compilations, we don't need far keyword   */
-#if 1
 #define far
 #define _far
 #define __far
 #define __cs
-#endif
 
 #define COPYRIGHT "Copyright (C) 2000-2021 by The D Language Foundation, All Rights Reserved\n\
 Written by Walter Bright, Linux version by Pat Nelson"

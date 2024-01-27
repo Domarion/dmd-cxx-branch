@@ -2032,14 +2032,9 @@ static bool asm_isNonZeroInt(OPND *o)
 
 static bool asm_is_fpreg(const char *szReg)
 {
-#if 1
     return(szReg[0] == 'S' &&
            szReg[1] == 'T' &&
            szReg[2] == 0);
-#else
-    return(szReg[2] == '\0' && (szReg[0] == 's' || szReg[0] == 'S') &&
-            (szReg[1] == 't' || szReg[1] == 'T'));
-#endif
 }
 
 /*******************************

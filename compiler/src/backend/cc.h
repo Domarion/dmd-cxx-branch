@@ -207,7 +207,7 @@ typedef struct Pstate
 #endif
 
 #if TX86
-    // should probably be inside #if HYDRATE, but unclear for the dmc source
+    // should probably be inside #ifHYDRATE, but unclear for the dmc source
     char SThflag;               // FLAG_XXXX: hydration flag
 #define FLAG_INPLACE    0       // in place hydration
 #define FLAG_HX         1       // HX file hydration

@@ -2120,7 +2120,7 @@ L2:
         }
         else
         {
-#if 1       // This optimization is undone in eleq().
+       // This optimization is undone in eleq().
             // Replace ((a op= b),(a op= c)) with (0,a = (a op b) op c)
             for (; e2->Eoper == OPcomma; e2 = e2->E1)
                 ;
@@ -2134,7 +2134,7 @@ L2:
                 e2->Eoper = OPeq;
                 goto L1;
             }
-#endif
+
         }
     }
 Lret:

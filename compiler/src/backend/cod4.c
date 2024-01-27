@@ -735,14 +735,8 @@ code *cdaddass(elem *e,regm_t *pretregs)
                         break;
                     case OPminass:
                     case OPaddass:
-#if 1
                         if ((cs.Irm & 0xC0) == 0xC0)    // EA is register
                             cs.Iflags &= ~CFopsize;
-#else
-                        if ((cs.Irm & 0xC0) == 0xC0 &&  // EA is register and
-                            e1->Eoper == OPind)         // not a register var
-                            cs.Iflags &= ~CFopsize;
-#endif
                         break;
                     default:
                         assert(0);

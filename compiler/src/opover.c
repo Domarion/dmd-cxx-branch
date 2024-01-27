@@ -342,18 +342,6 @@ Expression *op_overload(Expression *e, Scope *sc)
             if (ad)
             {
                 Dsymbol *fd = NULL;
-        #if 1 // Old way, kept for compatibility with D1
-                if (e->op != TOKpreplusplus && e->op != TOKpreminusminus)
-                {
-                    fd = search_function(ad, opId(e));
-                    if (fd)
-                    {
-                        // Rewrite +e1 as e1.add()
-                        result = build_overload(e->loc, sc, e->e1, NULL, fd);
-                        return;
-                    }
-                }
-        #endif
 
                 /* Rewrite as:
                  *      e1.opUnary!(op)()
@@ -538,14 +526,6 @@ Expression *op_overload(Expression *e, Scope *sc)
                 fd = search_function(ad, Id::_cast);
                 if (fd)
                 {
-        #if 1 // Backwards compatibility with D1 if opCast is a function, not a template
-                    if (fd->isFuncDeclaration())
-                    {
-                        // Rewrite as:  e1.opCast()
-                        result = build_overload(e->loc, sc, e->e1, NULL, fd);
-                        return;
-                    }
-        #endif
                     Objects *tiargs = new Objects();
                     tiargs->push(e->to);
                     result = new DotTemplateInstanceExp(e->loc, e->e1, fd->ident, tiargs);
@@ -595,22 +575,6 @@ Expression *op_overload(Expression *e, Scope *sc)
 
             Dsymbol *s = NULL;
             Dsymbol *s_r = NULL;
-
-        #if 1 // the old D1 scheme
-            if (ad1 && id)
-            {
-                s = search_function(ad1, id);
-            }
-            if (ad2 && id_r)
-            {
-                s_r = search_function(ad2, id_r);
-
-                // Bugzilla 12778: If both x.opBinary(y) and y.opBinaryRight(x) found,
-                // and they are exactly same symbol, x.opBinary(y) should be preferred.
-                if (s_r && s_r == s)
-                    s_r = NULL;
-            }
-        #endif
 
             Objects *tiargs = NULL;
             if (e->op == TOKplusplus || e->op == TOKminusminus)
@@ -735,105 +699,6 @@ Expression *op_overload(Expression *e, Scope *sc)
             }
 
         L1:
-        #if 1 // Retained for D1 compatibility
-            if (isCommutative(e->op) && !tiargs)
-            {
-                s = NULL;
-                s_r = NULL;
-                if (ad1 && id_r)
-                {
-                    s_r = search_function(ad1, id_r);
-                }
-                if (ad2 && id)
-                {
-                    s = search_function(ad2, id);
-                    if (s && s == s_r)  // Bugzilla 12778
-                        s = NULL;
-                }
-
-                if (s || s_r)
-                {
-                    /* Try:
-                     *  a.opfunc_r(b)
-                     *  b.opfunc(a)
-                     * and see which is better.
-                     */
-
-                    if (!argsset)
-                    {
-                        args1.setDim(1);
-                        args1[0] = e->e1;
-                        expandTuples(&args1);
-                        args2.setDim(1);
-                        args2[0] = e->e2;
-                        expandTuples(&args2);
-                    }
-
-                    Match m;
-                    memset(&m, 0, sizeof(m));
-                    m.last = MATCHnomatch;
-
-                    if (s_r)
-                    {
-                        functionResolve(&m, s_r, e->loc, sc, tiargs, e->e1->type, &args2);
-                        if (m.lastf && (m.lastf->errors || m.lastf->semantic3Errors))
-                        {
-                            result = ErrorExp::get();
-                            return;
-                        }
-                    }
-
-                    FuncDeclaration *lastf = m.lastf;
-
-                    if (s)
-                    {
-                        functionResolve(&m, s, e->loc, sc, tiargs, e->e2->type, &args1);
-                        if (m.lastf && (m.lastf->errors || m.lastf->semantic3Errors))
-                        {
-                            result = ErrorExp::get();
-                            return;
-                        }
-                    }
-
-                    if (m.count > 1)
-                    {
-                        // Error, ambiguous
-                        e->error("overloads %s and %s both match argument list for %s",
-                                m.lastf->type->toChars(),
-                                m.nextf->type->toChars(),
-                                m.lastf->toChars());
-                    }
-                    else if (m.last <= MATCHnomatch)
-                    {
-                        m.lastf = m.anyf;
-                    }
-
-                    if ((lastf && m.lastf == lastf) || (!s && m.last <= MATCHnomatch))
-                    {
-                        // Rewrite (e1 op e2) as e1.opfunc_r(e2)
-                        result = build_overload(e->loc, sc, e->e1, e->e2, m.lastf ? m.lastf : s_r);
-                    }
-                    else
-                    {
-                        // Rewrite (e1 op e2) as e2.opfunc(e1)
-                        result = build_overload(e->loc, sc, e->e2, e->e1, m.lastf ? m.lastf : s);
-                    }
-
-                    // When reversing operands of comparison operators,
-                    // need to reverse the sense of the op
-                    switch (e->op)
-                    {
-                        case TOKlt:     e->op = TOKgt;     break;
-                        case TOKgt:     e->op = TOKlt;     break;
-                        case TOKle:     e->op = TOKge;     break;
-                        case TOKge:     e->op = TOKle;     break;
-                        default:                           break;
-                    }
-
-                    return;
-                }
-            }
-        #endif
 
             // Try alias this on first operand
             if (ad1 && ad1->aliasthis &&
@@ -1261,13 +1126,6 @@ Expression *op_overload(Expression *e, Scope *sc)
             AggregateDeclaration *ad1 = isAggregate(e->e1->type);
 
             Dsymbol *s = NULL;
-
-        #if 1 // the old D1 scheme
-            if (ad1 && id)
-            {
-                s = search_function(ad1, id);
-            }
-        #endif
 
             Objects *tiargs = NULL;
             if (!s)

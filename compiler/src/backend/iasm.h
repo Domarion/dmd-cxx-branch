@@ -222,7 +222,6 @@ typedef unsigned opflag_t;
 
 ////////////////// FLAGS /////////////////////////////////////
 
-#if 1
 // bit size                      5      3     3         7
 #define CONSTRUCT_FLAGS( uSizemask, aopty, amod, uRegmask ) \
     ( (uSizemask) | (aopty) << 5 | (amod) << 8 | (uRegmask) << 11)
@@ -231,15 +230,6 @@ typedef unsigned opflag_t;
 #define ASM_GET_aopty(us)       ((ASM_OPERAND_TYPE)(((us) >> 5) & 7))
 #define ASM_GET_amod(us)        ((ASM_MODIFIERS)(((us) >> 8) & 7))
 #define ASM_GET_uRegmask(us)    (((us) >> 11) & 0x7F)
-#else
-#define CONSTRUCT_FLAGS( uSizemask, aopty, amod, uRegmask ) \
-    ( (uSizemask) | (aopty) << 4 | (amod) << 7 | (uRegmask) << 10)
-
-#define ASM_GET_uSizemask(us)   ((us) & 0x0F)
-#define ASM_GET_aopty(us)       ((ASM_OPERAND_TYPE)(((us) & 0x70) >> 4))
-#define ASM_GET_amod(us)        ((ASM_MODIFIERS)(((us) & 0x380) >> 7))
-#define ASM_GET_uRegmask(us)    (((us) & 0xFC00) >> 10)
-#endif
 
 // For uSizemask (5 bits)
 #define _8  0x1

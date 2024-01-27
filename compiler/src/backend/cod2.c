@@ -3103,14 +3103,9 @@ code *cdmemcmp(elem *e,regm_t *pretregs)
             assert(0);
     }
 
-#if 1
     c3 = cat(c3,getregs(mAX));
     c3 = gen2(c3,0x33,modregrm(3,AX,AX));       // XOR AX,AX
     code_orflag(c3, CFpsw);                     // keep flags
-#else
-    if (*pretregs != mPSW)                      // if not flags only
-        c3 = regwithvalue(c3,mAX,0,NULL,0);     // put 0 in AX
-#endif
 
     c3 = cat(c3,getregs(mCX | mSI | mDI));
     c3 = gen1(c3,0xF3);                         /* REPE                 */
@@ -3381,7 +3376,6 @@ code *cdmemcpy(elem *e,regm_t *pretregs)
  *      (s OPmemset (n OPparam val))
  */
 
-#if 1
 code *cdmemset(elem *e,regm_t *pretregs)
 {   code *c1,*c2,*c3 = NULL,*c4;
     regm_t retregs1;
@@ -3569,75 +3563,6 @@ fixres:
     regimmed_set(CX,0);
     return cat4(c1,c2,c3,fixresult(e,mES|mBX,pretregs));
 }
-#else
-// BUG: Pat made many improvements in the linux version, I need
-// to verify they work for 16 bits and fold them in. -Walter
-
-code *cdmemset(elem *e,regm_t *pretregs)
-{   code *c1,*c2,*c3 = NULL,*c4;
-    regm_t retregs1;
-    regm_t retregs2;
-    regm_t retregs3;
-    tym_t ty1;
-    elem *e2;
-    targ_size_t value;
-
-    /*
-        les     DI,s
-        mov     BX,DI           ;Return value.
-        mov     CX,n
-        mov     AL,val
-        mov     AH,AL           ;Set up a 16 bit pattern.
-        shr     CX,1
-        rep     stosw
-        adc     CX,CX
-        rep     stosb
-    */
-
-    e2 = e->E2;
-    assert(e2->Eoper == OPparam);
-
-    // Get nbytes into CX
-    retregs2 = mCX;
-    c1 = codelem(e2->E1,&retregs2,FALSE);
-
-    // Get val into AX
-    retregs3 = mAX;
-    c1 = cat(c1,scodelem(e2->E2,&retregs3,retregs2,FALSE));
-    freenode(e2);
-
-    // Get s into ES:DI
-    retregs1 = mDI;
-    ty1 = e->E1->Ety;
-    if (!tyreg(ty1))
-        retregs1 |= mES;
-    c1 = cat(c1,scodelem(e->E1,&retregs1,retregs2 | retregs3,FALSE));
-
-    /* Make sure ES contains proper segment value       */
-    c2 = cod2_setES(ty1);
-
-    c3 = NULL;
-    if (*pretregs)                              // if need return value
-    {   c3 = getregs(mBX);
-        c3 = genmovreg(c3,BX,DI);
-    }
-
-    c3 = cat(c3,getregs(mDI | mCX));
-    if (!I32 && config.flags4 & CFG4speed)      // if speed optimization
-    {
-        c3 = cat(c3,getregs(mAX));
-        c3 = gen2(c3,0x8A,modregrm(3,AH,AL));   // MOV AH,AL
-        gen2(c3,0xD1,modregrm(3,5,CX));         // SHR CX,1
-        gen1(c3,0xF3);                          // REP
-        gen1(c3,0xAB);                          // STOSW
-        gen2(c3,0x11,modregrm(3,CX,CX));        // ADC CX,CX
-    }
-    c3 = gen1(c3,0xF3);                         // REP
-    gen1(c3,0xAA);                              // STOSB
-    regimmed_set(CX,0);
-    return cat4(c1,c2,c3,fixresult(e,mES|mBX,pretregs));
-}
-#endif
 
 /**********************
  * Do structure assignments.
@@ -3756,7 +3681,6 @@ code *cdstreq(elem *e,regm_t *pretregs)
   }
     else
     {
-#if 1
         unsigned remainder;
 
         remainder = numbytes & (REGSIZE - 1);
@@ -3772,21 +3696,6 @@ code *cdstreq(elem *e,regm_t *pretregs)
         {
             gen1(c3, 0xA4);             // MOVSB
         }
-#else
-        unsigned movs;
-
-        if (numbytes & (REGSIZE - 1))   /* if odd                       */
-                movs = 0xA4;            /* MOVSB                        */
-        else
-        {       movs = 0xA5;            /* MOVSW                        */
-                numbytes /= REGSIZE;    /* # of words                   */
-        }
-        c3 = cat(c3,getregs_imm(mCX));
-        c3 = movregconst(c3,CX,numbytes,0);     /* # of bytes/words     */
-        gen1(c3,0xF3);                          /* REP                  */
-        gen1(c3,movs);
-        regimmed_set(CX,0);             /* note that CX == 0            */
-#endif
     }
     if (need_DS)
         gen1(c3,0x1F);                          // POP  DS

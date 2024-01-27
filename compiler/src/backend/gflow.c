@@ -741,7 +741,6 @@ STATIC void defstarkill()
 
                     case OPind:         // if a 'starred' ref
 
-#if 1
 /* The following program fails for this:
 import core.stdc.stdio;
 
@@ -772,7 +771,6 @@ void main()
                             n->E1->EV.sp.Vsym->Sflags & SFLunambig
                            )
                             break;
-#endif
                     case OPstrlen:
                     case OPstrcmp:
                     case OPmemcmp:

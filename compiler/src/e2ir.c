@@ -553,13 +553,7 @@ elem *array_toPtr(Type *t, elem *e)
             }
             else
             {
-#if 1
                 e = el_una(OPmsw, TYnptr, e);
-#else
-                e = el_una(OPaddr, TYnptr, e);
-                e = el_bin(OPadd, TYnptr, e, el_long(TYsize_t, 4));
-                e = el_una(OPind, TYnptr, e);
-#endif
             }
             break;
 
