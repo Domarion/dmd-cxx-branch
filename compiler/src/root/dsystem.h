@@ -14,7 +14,6 @@
 
 #define POSIX (__linux__ || __GLIBC__)
 
-#define __C99FEATURES__ 1       // Needed on Solaris for NaN and more
 #define __USE_ISOC99 1          // so signbit() gets defined
 
 #ifndef __STDC_LIMIT_MACROS
@@ -35,14 +34,10 @@
 
 #include <new>
 
-#if POSIX
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#endif
 
-// For getcwd()
-#if POSIX
-#include <unistd.h>
-#endif
+#include <unistd.h> // getcwd()
+
 

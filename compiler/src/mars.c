@@ -41,8 +41,6 @@
 
 bool response_expand(Strings *arguments);
 
-
-void browse(const char *url);
 void getenv_setargv(const char *envvalue, Strings *args);
 
 void printCtfePerformanceStats();
@@ -785,11 +783,6 @@ Language changes listed by -transition=id:\n\
             else if (strcmp(p + 1, "main") == 0)
             {
                 global.params.addMain = true;
-            }
-            else if (memcmp(p + 1, "man", 3) == 0)
-            {
-                browse("http://dlang.org/dmd-linux.html");
-                exit(EXIT_SUCCESS);
             }
             else if (strcmp(p + 1, "run") == 0)
             {

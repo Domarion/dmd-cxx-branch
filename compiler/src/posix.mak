@@ -258,7 +258,7 @@ DMD_OBJS = \
 	dsymbolsem.o semantic2.o semantic3.o statementsem.o templateparamsem.o typesem.o
 
 ROOT_OBJS = \
-	rmem.o port.o man.o stringtable.o response.o \
+	rmem.o port.o stringtable.o response.o \
 	aav.o speller.o outbuffer.o rootobject.o \
 	filename.o file.o checkedint.o \
 	newdelete.o ctfloat.o
@@ -308,7 +308,7 @@ SRC = posix.mak osmodel.mak \
 ROOT_SRC = $(ROOT)/root.h \
 	$(ROOT)/array.h \
 	$(ROOT)/rmem.h $(ROOT)/rmem.c $(ROOT)/port.h $(ROOT)/port.c \
-	$(ROOT)/man.c $(ROOT)/newdelete.c \
+	$(ROOT)/newdelete.c \
 	$(ROOT)/checkedint.h $(ROOT)/checkedint.c \
 	$(ROOT)/stringtable.h $(ROOT)/stringtable.c \
 	$(ROOT)/response.c \

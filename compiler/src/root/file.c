@@ -9,9 +9,7 @@
 #include "dsystem.h"
 #include "file.h"
 
-#if POSIX
 #include <utime.h>
-#endif
 
 #include "filename.h"
 #include "array.h"
@@ -56,7 +54,6 @@ bool File::read()
 {
     if (len)
         return false;               // already read the file
-#if POSIX
     size_t size;
     struct stat buf;
     ssize_t numread;
@@ -121,7 +118,6 @@ err:
 
 err1:
     return true;
-#endif
 }
 
 /*********************************************
@@ -132,7 +128,6 @@ err1:
 
 bool File::write()
 {
-#if POSIX
     ssize_t numwritten;
 
     const char *name = this->name->toChars();
@@ -154,16 +149,11 @@ err2:
     ::remove(name);
 err:
     return true;
-#endif
 }
 
 void File::remove()
 {
-#if POSIX
     ::remove(this->name->toChars());
-#else
-    assert(0);
-#endif
 }
 
 const char *File::toChars()

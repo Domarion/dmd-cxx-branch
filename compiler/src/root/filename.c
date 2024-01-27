@@ -14,9 +14,7 @@
 #include "file.h"
 #include "rmem.h"
 
-#if POSIX
 #include <utime.h>
-#endif
 
 /****************************** FileName ********************************/
 
@@ -36,14 +34,12 @@ const char *FileName::combine(const char *path, const char *name)
     namelen = strlen(name);
     f = (char *)mem.xmalloc(pathlen + 1 + namelen + 1);
     memcpy(f, path, pathlen);
-#if POSIX
+
     if (path[pathlen - 1] != '/')
     {   f[pathlen] = '/';
         pathlen++;
     }
-#else
-    assert(0);
-#endif
+
     memcpy(f + pathlen, name, namelen + 1);
     return f;
 }
@@ -139,11 +135,7 @@ bool FileName::equals(const char *name1, const char *name2)
 
 bool FileName::absolute(const char *name)
 {
-#if POSIX
     return (*name == '/');
-#else
-    assert(0);
-#endif
 }
 
 /**
@@ -176,10 +168,8 @@ const char *FileName::ext(const char *str)
         switch (*e)
         {   case '.':
                 return e + 1;
-#if POSIX
             case '/':
                 break;
-#endif
             default:
                 if (e == str)
                     break;
@@ -225,10 +215,8 @@ const char *FileName::name(const char *str)
     {
         switch (*e)
         {
-#if POSIX
             case '/':
                return e + 1;
-#endif
                 /* falls through */
             default:
                 if (e == str)
@@ -257,12 +245,8 @@ const char *FileName::path(const char *str)
 
     if (n > str)
     {
-#if POSIX
         if (n[-1] == '/')
             n--;
-#else
-        assert(0);
-#endif
     }
     pathlen = n - str;
     char *path = (char *)mem.xmalloc(pathlen + 1);
@@ -290,14 +274,10 @@ const char *FileName::replaceName(const char *path, const char *name)
     namelen = strlen(name);
     char *f = (char *)mem.xmalloc(pathlen + 1 + namelen + 1);
     memcpy(f, path, pathlen);
-#if POSIX
     if (path[pathlen - 1] != '/')
     {   f[pathlen] = '/';
         pathlen++;
     }
-#else
-    assert(0);
-#endif
     memcpy(f + pathlen, name, namelen + 1);
     return f;
 }
@@ -409,7 +389,6 @@ const char *FileName::searchPath(Strings *path, const char *name, bool cwd)
 
 const char *FileName::safeSearchPath(Strings *path, const char *name)
 {
-#if POSIX
     /* Even with realpath(), we must check for // and disallow it
      */
     for (const char *p = name; *p; p++)
@@ -457,15 +436,11 @@ cont:
         }
     }
     return NULL;
-#else
-    assert(0);
-#endif
 }
 
 
 int FileName::exists(const char *name)
 {
-#if POSIX
     struct stat st;
 
     if (stat(name, &st) < 0)
@@ -473,9 +448,6 @@ int FileName::exists(const char *name)
     if (S_ISDIR(st.st_mode))
         return 2;
     return 1;
-#else
-    assert(0);
-#endif
 }
 
 bool FileName::ensurePathExists(const char *path)
@@ -493,15 +465,11 @@ bool FileName::ensurePathExists(const char *path)
                 if (r)
                     return r;
             }
-#if POSIX
             char sep = '/';
-#endif
             if (path[strlen(path) - 1] != sep)
             {
-                //printf("mkdir(%s)\n", path);
-#if POSIX
                 int r = mkdir(path, (7 << 6) | (7 << 3) | 7);
-#endif
+
                 if (r)
                 {
                     /* Don't error out if another instance of dmd just created
@@ -522,13 +490,8 @@ bool FileName::ensurePathExists(const char *path)
  */
 const char *FileName::canonicalName(const char *name)
 {
-#if POSIX
     // NULL destination buffer is allowed and preferred
     return realpath(name, NULL);
-#else
-    assert(0);
-    return NULL;
-#endif
 }
 
 /********************************

@@ -264,7 +264,6 @@ void OutBuffer::vprintf(const char *format, va_list args)
     for (;;)
     {
         reserve(psize);
-#if POSIX
         va_list va;
         va_copy(va, args);
 /*
@@ -284,9 +283,6 @@ void OutBuffer::vprintf(const char *format, va_list args)
             psize = count + 1;
         else
             break;
-#else
-        assert(0);
-#endif
     }
     offset += count;
 }
