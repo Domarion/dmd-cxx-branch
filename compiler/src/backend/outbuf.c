@@ -41,12 +41,8 @@ Outbuffer::~Outbuffer()
 {
     if (buf != origbuf)
     {
-#if MEM_DEBUG
-        mem_free(buf);
-#else
         if (buf)
             free(buf);
-#endif
     }
 }
 
@@ -74,16 +70,7 @@ void Outbuffer::enlarge(size_t nbytes)
                 len = 8;
         }
     }
-#if MEM_DEBUG
-    if (buf == origbuf)
-    {
-        buf = (unsigned char *) mem_malloc(len);
-        if (buf)
-            memcpy(buf, origbuf, oldlen);
-    }
-    else
-        buf = (unsigned char *)mem_realloc(buf, len);
-#else
+
     if (buf)
     {
         if (buf == origbuf)
@@ -97,7 +84,7 @@ void Outbuffer::enlarge(size_t nbytes)
     }
     else
         buf = (unsigned char *) malloc(len);
-#endif
+
     if (!buf)
     {
         fprintf(stderr, "Fatal Error: Out of memory");

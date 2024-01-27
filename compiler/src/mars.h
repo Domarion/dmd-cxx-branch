@@ -24,9 +24,6 @@ Macros defined by the compiler, not the code:
         __GNUC__        Gnu compiler
         __clang__       Clang compiler
 
-    Host operating system:
-        __linux__       Linux
-
     There are currently no macros for byte endianness order.
  */
 

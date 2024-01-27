@@ -184,8 +184,6 @@ enum TOK
         TOKMAX
 };
 
-#define TOKwild TOKinout
-
 // Token has an anonymous struct, which is not strict ISO C++.
 #if defined(__GNUC__)
 #pragma GCC diagnostic push

@@ -138,10 +138,6 @@ STATIC void rd_compute()
 
                 b = dfo[i];
                 thisblock = b;
-#if 0
-                dbg_printf("block %d Bin ",i); vec_println(b->Binrd);
-                dbg_printf("       Bout "); vec_println(b->Boutrd);
-#endif
                 if (b->Bflags & BFLvisited)
                     continue;                   // not reliable for this block
                 if (b->Belem)
@@ -679,11 +675,6 @@ STATIC void intranges()
         }
         else
             rdinc = list_elem(rel->rdlist);
-#if 0
-        printf("\neq:  "); WReqn(rdeq); printf("\n");
-        printf("rel: "); WReqn(rel->pelem); printf("\n");
-        printf("inc: "); WReqn(rdinc); printf("\n");
-#endif
         incop = rdinc->Eoper;
         if (!OTpost(incop) && incop != OPaddass && incop != OPminass)
             continue;
@@ -765,30 +756,6 @@ STATIC void intranges()
 #endif
                         go.changes++;
                     }
-#if 0
-                    // Eliminate loop if it is empty
-                    if (relatop == OPlt &&
-                        rb->BC == BCiftrue &&
-                        list_block(rb->Bsucc) == rb &&
-                        rb->Belem->Eoper == OPcomma &&
-                        rb->Belem->E1 == rdinc &&
-                        rb->Belem->E2 == rel->pelem
-                       )
-                     {
-                        rel->pelem->Eoper = OPeq;
-                        rel->pelem->Ety = rel->pelem->E1->Ety;
-                        rb->BC = BCgoto;
-                        list_subtract(&rb->Bsucc,rb);
-                        list_subtract(&rb->Bpred,rb);
-#ifdef DEBUG
-                        if (debugc)
-                        {   WReqn(rel->pelem);
-                            dbg_printf(" eliminated loop\n");
-                        }
-#endif
-                        go.changes++;
-                     }
-#endif
                 }
             }
         }
@@ -836,13 +803,6 @@ Lagain:
         flowcp();               /* compute available copy statements    */
         if (go.exptop <= 1)
                 return;                 /* none available               */
-#if 0
-        for (i = 1; i < go.exptop; i++)
-        {       dbg_printf("go.expnod[%d] = (",i);
-                WReqn(go.expnod[i]);
-                dbg_printf(");\n");
-        }
-#endif
         recalc = 0;
         for (i = 0; i < dfotop; i++)    /* for each block               */
         {       block *b;
@@ -850,18 +810,8 @@ Lagain:
                 b = dfo[i];
                 if (b->Belem)
                 {
-#if 0
-                        dbg_printf("B%d, elem (",i);
-                        WReqn(b->Belem); dbg_printf(")\nBin  ");
-                        vec_println(b->Bin);
                         cpwalk(b->Belem,b->Bin);
-                        dbg_printf("Bino ");
-                        vec_println(b->Bin);
-                        dbg_printf("Bout ");
-                        vec_println(b->Bout);
-#else
-                        cpwalk(b->Belem,b->Bin);
-#endif
+
                         /*assert(vec_equal(b->Bin,b->Bout));            */
                         /* The previous assert() is correct except      */
                         /* for the following case:                      */
@@ -1603,10 +1553,7 @@ void verybusyexp()
                 /* Constants are not useful as VBEs.                    */
                 /* Eliminate all elems from Bout that are not in blocks */
                 /* that are dominated by b.                             */
-#if 0
-                dbg_printf("block %d Bout = ",i);
-                vec_println(b->Bout);
-#endif
+
                 done = TRUE;
                 foreach (j,go.exptop,b->Bout)
                 {       if (go.expnod[j] == 0 ||
@@ -1620,10 +1567,6 @@ void verybusyexp()
 
                 /* Eliminate from Bout all elems that are killed by     */
                 /* a block between b and that elem.                     */
-#if 0
-                dbg_printf("block %d Bout = ",i);
-                vec_println(b->Bout);
-#endif
 
                 foreach (j,go.exptop,b->Bout)
                 {       list_t bl;
@@ -1641,10 +1584,6 @@ void verybusyexp()
                 /* exists a path from b to j along which there is       */
                 /* no other use of j (else it would be a CSE, and       */
                 /* it would be a waste of time to hoist it).            */
-#if 0
-                dbg_printf("block %d Bout = ",i);
-                vec_println(b->Bout);
-#endif
 
                 foreach (j,go.exptop,b->Bout)
                 {       list_t bl;
@@ -1661,10 +1600,6 @@ void verybusyexp()
 
                 /* For each elem that appears more than once in Bout    */
                 /*      We have a VBE.                                  */
-#if 0
-                dbg_printf("block %d Bout = ",i);
-                vec_println(b->Bout);
-#endif
 
                 foreach (j,go.exptop,b->Bout)
                 {

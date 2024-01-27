@@ -132,16 +132,6 @@ elem *callfunc(Loc loc,
     int op;
     elem *eresult = ehidden;
 
-#if 0
-    printf("callfunc(directcall = %d, tret = '%s', ec = %p, fd = %p)\n",
-        directcall, tret->toChars(), ec, fd);
-    printf("ec: "); elem_print(ec);
-    if (fd)
-        printf("fd = '%s', vtblIndex = %d, isVirtual() = %d\n", fd->toChars(), fd->vtblIndex, fd->isVirtual());
-    if (ehidden)
-    {   printf("ehidden: "); elem_print(ehidden); }
-#endif
-
     t = t->toBasetype();
     if (t->ty == Tdelegate)
     {
@@ -243,11 +233,6 @@ elem *callfunc(Loc loc,
         {
             if (ep)
             {
-#if 0 // BUG: implement
-                if (reverse && type_mangle(tfunc) == mTYman_cpp)
-                    ep = el_param(ehidden,ep);
-                else
-#endif
                     ep = el_param(ep,ehidden);
             }
             else
@@ -1395,10 +1380,6 @@ elem *toElem(Expression *e, IRState *irs)
 
         void visit(StringExp *se)
         {
-        #if 0
-            printf("StringExp::toElem() %s, type = %s\n", se->toChars(), se->type->toChars());
-        #endif
-
             elem *e;
             Type *tb = se->type->toBasetype();
             if (tb->ty == Tarray)
@@ -2068,11 +2049,6 @@ elem *toElem(Expression *e, IRState *irs)
 
         void visit(CatExp *ce)
         {
-        #if 0
-            printf("CatExp::toElem()\n");
-            ce->print();
-        #endif
-
             /* Do this check during code gen rather than semantic() because concatenation is
              * allowed in CTFE, and cannot distinguish that in semantic().
              */
@@ -2471,11 +2447,6 @@ elem *toElem(Expression *e, IRState *irs)
 
         void visit(AssignExp *ae)
         {
-        #if 0
-            if (ae->op == TOKblit)      printf("BlitExp::toElem('%s')\n", ae->toChars());
-            if (ae->op == TOKassign)    printf("AssignExp::toElem('%s')\n", ae->toChars());
-            if (ae->op == TOKconstruct) printf("ConstructExp::toElem('%s')\n", ae->toChars());
-        #endif
             Type *t1b = ae->e1->type->toBasetype();
 
             elem *e;
@@ -2561,27 +2532,11 @@ elem *toElem(Expression *e, IRState *irs)
                     elem *euprx = eupr;
                     if (eupr) eupr = el_same(&euprx);
 
-        #if 0
-                    printf("sz = %d\n", sz);
-                    printf("n1x\n");        elem_print(n1x);
-                    printf("einit\n");      elem_print(einit);
-                    printf("elwrx\n");      elem_print(elwrx);
-                    printf("euprx\n");      elem_print(euprx);
-                    printf("n1\n");         elem_print(n1);
-                    printf("elwr\n");       elem_print(elwr);
-                    printf("eupr\n");       elem_print(eupr);
-                    printf("enbytes\n");    elem_print(enbytes);
-        #endif
                     einit = el_combine(n1x, einit);
                     einit = el_combine(einit, elwrx);
                     einit = el_combine(einit, euprx);
 
                     elem *evalue = toElem(ae->e2, irs);
-
-        #if 0
-                    printf("n1\n");         elem_print(n1);
-                    printf("enbytes\n");    elem_print(enbytes);
-        #endif
 
                     if (irs->arrayBoundsCheck() && eupr && ta->ty != Tpointer)
                     {
@@ -3329,9 +3284,6 @@ elem *toElem(Expression *e, IRState *irs)
 
         void visit(TypeExp *e)
         {
-        #if 0
-            printf("TypeExp::toElem()\n");
-        #endif
             e->error("type %s is not an expression", e->toChars());
             result = el_long(TYint, 0);
         }
@@ -3581,33 +3533,6 @@ elem *toElem(Expression *e, IRState *irs)
             else if (ce->e1->op == TOKvar)
             {
                 fd = ((VarExp *)ce->e1)->var->isFuncDeclaration();
-        #if 0 // This optimization is not valid if alloca can be called
-              // multiple times within the same function, eg in a loop
-              // see issue 3822
-                if (fd && fd->ident == Id::__alloca &&
-                    !fd->fbody && fd->linkage == LINKc &&
-                    arguments && arguments->length == 1)
-                {   Expression *arg = (*arguments)[0];
-                    arg = arg->optimize(WANTvalue);
-                    if (arg->isConst() && arg->type->isintegral())
-                    {   dinteger_t sz = arg->toInteger();
-                        if (sz > 0 && sz < 0x40000)
-                        {
-                            // It's an alloca(sz) of a fixed amount.
-                            // Replace with an array allocated on the stack
-                            // of the same size: char[sz] tmp;
-
-                            assert(!ehidden);
-                            ::type *t = type_static_array(sz, tschar);  // BUG: fix extra Tcount++
-                            Symbol *stmp = symbol_genauto(t);
-                            ec = el_ptr(stmp);
-                            el_setLoc(ec,loc);
-                            return ec;
-                        }
-                    }
-                }
-        #endif
-
                 ec = toElem(ce->e1, irs);
             }
             else
@@ -3804,13 +3729,6 @@ elem *toElem(Expression *e, IRState *irs)
 
         void visit(VectorExp *ve)
         {
-        #if 0
-            printf("VectorExp::toElem()\n");
-            ve->print();
-            printf("\tfrom: %s\n", ve->e1->type->toChars());
-            printf("\tto  : %s\n", ve->to->toChars());
-        #endif
-
             elem *e;
             if (ve->e1->op == TOKarrayliteral)
             {
@@ -3900,12 +3818,6 @@ elem *toElem(Expression *e, IRState *irs)
 
         void visit(CastExp *ce)
         {
-        #if 0
-            printf("CastExp::toElem()\n");
-            ce->print();
-            printf("\tfrom: %s\n", ce->e1->type->toChars());
-            printf("\tto  : %s\n", ce->to->toChars());
-        #endif
             elem *e = toElem(ce->e1, irs);
 
             result = toElemCast(ce, e);
@@ -5257,9 +5169,6 @@ elem *toElem(Expression *e, IRState *irs)
 
         void visit(ClassReferenceExp *e)
         {
-        #if 0
-            printf("ClassReferenceExp::toElem() %p, value=%p, %s\n", e, e->value, e->toChars());
-        #endif
             result = el_ptr(toSymbol(e));
         }
 

@@ -155,22 +155,12 @@ extern regm_t BYTEREGS;
  * of implementing far pointers.
  */
 
-#if 0
-// Give us an extra one so we can enregister a long
-#define mMSW    (mCX|mDX|mDI|mES)       // most significant regs
-#define mLSW    (mAX|mBX|mSI)           // least significant regs
-#else
 #define mMSW    (mCX|mDX|mES)           /* most significant regs        */
 #define mLSW    (mAX|mBX|mSI|mDI)       /* least significant regs       */
-#endif
 
 /* Return !=0 if there is a SIB byte   */
 #define issib(rm)       (((rm) & 7) == 4 && ((rm) & 0xC0) != 0xC0)
 
-#if 0
-// relocation field size is always 32bits
-#define is32bitaddr(x,Iflags) (1)
-#else
 //
 // is32bitaddr works correctly only when x is 0 or 1.  This is
 // true today for the current definition of I32, but if the definition
@@ -179,7 +169,6 @@ extern regm_t BYTEREGS;
 // Note: even for linux targets, CFaddrsize can be set by the inline
 // assembler.
 #define is32bitaddr(x,Iflags) (I64 || ((x) ^(((Iflags) & CFaddrsize) !=0)))
-#endif
 
 /*******************
  * Some instructions.

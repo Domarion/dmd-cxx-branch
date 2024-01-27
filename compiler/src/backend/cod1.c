@@ -337,15 +337,6 @@ code *genstackclean(code *c,unsigned numpara,regm_t keepmsk)
     //dbg_printf("genstackclean(numpara = %d, stackclean = %d)\n",numpara,cgstate.stackclean);
     if (numpara && (cgstate.stackclean || STACKALIGN == 16))
     {
-#if 0       // won't work if operand of scodelem
-        if (numpara == stackpush &&             // if this is all those pushed
-            needframe &&                        // and there will be a BP
-            !config.windows &&
-            !(regcon.mvar & fregsaved)          // and no registers will be pushed
-        )
-            c = genregs(c,0x89,BP,SP);  // MOV SP,BP
-        else
-#endif
         {   regm_t scratchm = 0;
 
             if (numpara == REGSIZE && config.flags4 & CFG4space)
@@ -1119,11 +1110,6 @@ code *getlvalue(code *pcs,elem *e,regm_t keepmsk)
         break;
     case FLdatseg:
         assert(0);
-#if 0
-        pcs->Irm = modregrm(0,0,BPRM);
-        pcs->IEVpointer1 = e->EVpointer;
-        break;
-#endif
     case FLfltreg:
         reflocal = TRUE;
         pcs->Irm = modregrm(2,0,BPRM);
@@ -3101,42 +3087,6 @@ STATIC code * funccall(elem *e,unsigned numpara,unsigned numalign,
   /* See if we will need the frame pointer.
      Calculate it here so we can possibly use BP to fix the stack.
    */
-#if 0
-  if (!needframe)
-  {     SYMIDX si;
-
-        /* If there is a register available for this basic block        */
-        if (config.flags4 & CFG4optimized && (ALLREGS & ~regcon.used))
-            ;
-        else
-        {
-            for (si = 0; si < globsym.top; si++)
-            {   symbol *s = globsym.tab[si];
-
-                if (s->Sflags & GTregcand && type_size(s->Stype) != 0)
-                {
-                    if (config.flags4 & CFG4optimized)
-                    {   /* If symbol is live in this basic block and    */
-                        /* isn't already in a register                  */
-                        if (s->Srange && vec_testbit(dfoidx,s->Srange) &&
-                            s->Sfl != FLreg)
-                        {   /* Then symbol must be allocated on stack */
-                            needframe = TRUE;
-                            break;
-                        }
-                    }
-                    else
-                    {   if (mfuncreg == 0)      /* if no registers left */
-                        {   needframe = TRUE;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-  }
-#endif
-
     retregs = regmask(e->Ety, tym1);
 
     if (!usefuncarg)

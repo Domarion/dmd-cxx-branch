@@ -593,14 +593,6 @@ PTRNTAB2  aptb2LSL[] = /* LSL */ {
 };
 
 PTRNTAB2 aptb2MOV[] = /* MOV */ {
-#if 0 // Let pinholeopt() do this
-        { 0xa0, 0,              _al,            _moffs8         },
-        { 0xa1, _16_bit,        _ax,            _moffs16        },
-        { 0xa1, _32_bit,        _eax,           _moffs32        },
-        { 0xa2, 0,              _moffs8,        _al             },
-        { 0xa3, _16_bit,        _moffs16,       _ax             },
-        { 0xa3, _32_bit,        _moffs32,       _eax            },
-#endif
         { 0x88, _r,             _rm8,           _r8             },
         { 0x89, _r|_16_bit,     _rm16,          _r16            },
         { 0x89, _r|_32_bit,     _rm32,          _r32            },
@@ -618,11 +610,6 @@ PTRNTAB2 aptb2MOV[] = /* MOV */ {
         { 0xc6, _cb,            _rm8,           _imm8           },
         { 0xc7, _cw|_16_bit,    _rm16,          _imm16          },
         { 0xc7, _cd|_32_bit,    _rm32,          _imm32          },
-#if 0 // Let pinholeopt() do this
-        { 0xc6, _cb,            _moffs8,        _imm8           },
-        { 0xc7, _cw|_16_bit,    _moffs16,       _imm16          },
-        { 0xc7, _cd|_32_bit,    _moffs32,       _imm32          },
-#endif
         { 0x0f20,       _r,     _r32,           _special | _crn },
         { 0x0f22,       _r,     _special|_crn,  _r32            },
         { 0x0f21,       _r,     _r32,           _special | _drn },
@@ -1701,12 +1688,6 @@ PTRNTAB3 aptb3VPXOR[] = /* VPXOR */ {
 };
 
 ////////////////////// New Opcodes /////////////////////////////
-
-#if 0 // Use REP NOP instead
-PTRNTAB0 aptb0PAUSE[] =  /* PAUSE */ {
-        { 0xf390, 0 }
-};
-#endif
 
 PTRNTAB0 aptb0SYSCALL[] =  /* SYSCALL */ {
         { 0x0f05, _modcxr11 }
@@ -4720,10 +4701,6 @@ PTRNTAB2 aptb2SHA256MSG2[] = /* SHA256MSG2 */ {
 
 #define P PPTRNTAB0
 
-#if 0
-#define OPCODETABLE                             \
-        X("aaa",        0,              aptb0AAA )
-#else
 #define OPCODETABLE1                                            \
         X("__emit",     ITdata | OPdb,  NULL )                      \
         X("_emit",      ITdata | OPdb,  NULL )                      \
@@ -5713,7 +5690,6 @@ PTRNTAB2 aptb2SHA256MSG2[] = /* SHA256MSG2 */ {
         X("xsaveopt64",     ITfloat | 1,    (P) aptb1XSAVEOPT64 )           \
         X("xsetbv",         0,              aptb0XSETBV)                    \
 
-#endif
 
 static const char *opcodestr[] =
 {

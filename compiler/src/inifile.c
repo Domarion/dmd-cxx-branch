@@ -58,7 +58,6 @@ const char *findConfFile(const char *argv0, const char *inifile)
     if (FileName::exists(filename))
         return filename;
 
-#if __linux__
     // Search PATH for argv0
     const char *p = getenv("PATH");
 #if LOG
@@ -88,7 +87,6 @@ const char *findConfFile(const char *argv0, const char *inifile)
 #endif
     assert(SYSCONFDIR != NULL && strlen(SYSCONFDIR));
     filename = FileName::combine(SYSCONFDIR, inifile);
-#endif // __linux__
 
     return filename;
 }

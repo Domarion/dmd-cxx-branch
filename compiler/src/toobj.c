@@ -527,16 +527,6 @@ void toObjFile(Dsymbol *ds, bool multiobj)
                     for (; j < id->vtbl.length; j++)
                     {
                         assert(j < b->vtbl.length);
-            #if 0
-                        RootObject *o = b->vtbl[j];
-                        if (o)
-                        {
-                            printf("o = %p\n", o);
-                            assert(o->dyncast() == DYNCAST_DSYMBOL);
-                            Dsymbol *s = (Dsymbol *)o;
-                            printf("s->kind() = '%s'\n", s->kind());
-                        }
-            #endif
                         FuncDeclaration *fd = b->vtbl[j];
                         if (fd)
                         {

@@ -545,7 +545,7 @@ Dsymbols *Parser::parseDeclDefs(int once, Dsymbol **pLastDecl, PrefixAttributes 
                 goto Lstc;
             }
 
-            case TOKwild:
+            case TOKinout:
                 if (peekNext() == TOKlparen)
                     goto Ldeclaration;
                 stc = STCwild;
@@ -1092,7 +1092,7 @@ StorageClass Parser::parsePostfix(StorageClass storageClass, Expressions **pudas
             case TOKconst:      stc = STCconst;         break;
             case TOKimmutable:  stc = STCimmutable;     break;
             case TOKshared:     stc = STCshared;        break;
-            case TOKwild:       stc = STCwild;          break;
+            case TOKinout:       stc = STCwild;          break;
             case TOKnothrow:    stc = STCnothrow;       break;
             case TOKpure:       stc = STCpure;          break;
             case TOKreturn:     stc = STCreturn;        break;
@@ -1140,7 +1140,7 @@ StorageClass Parser::parseTypeCtor()
             case TOKconst:      stc = STCconst;         break;
             case TOKimmutable:  stc = STCimmutable;     break;
             case TOKshared:     stc = STCshared;        break;
-            case TOKwild:       stc = STCwild;          break;
+            case TOKinout:       stc = STCwild;          break;
 
             default:
                 return storageClass;
@@ -1992,7 +1992,7 @@ Parameters *Parser::parseParameters(VarArg *pvarargs, TemplateParameters **tpl)
                     stc = STCshared;
                     goto L2;
 
-                case TOKwild:
+                case TOKinout:
                     if (peek(&token)->value == TOKlparen)
                         goto Ldefault;
                     stc = STCwild;
@@ -3137,7 +3137,7 @@ Type *Parser::parseType(Identifier **pident, TemplateParameters **ptpl)
                 nextToken();
                 continue;
 
-            case TOKwild:
+            case TOKinout:
                 if (peekNext() == TOKlparen)
                     break;
                 stc |= STCwild;
@@ -3294,7 +3294,7 @@ Type *Parser::parseBasicType(bool dontLookDotIdents)
             check(TOKrparen);
             break;
 
-        case TOKwild:
+        case TOKinout:
             // wild(type)
             nextToken();
             check(TOKlparen);
@@ -3742,7 +3742,7 @@ void Parser::parseStorageClasses(StorageClass &storage_class, LINK &link,
                 stc = STCshared;
                 goto L1;
 
-            case TOKwild:
+            case TOKinout:
                 if (peek(&token)->value == TOKlparen)
                     break;
                 stc = STCwild;
@@ -5045,7 +5045,7 @@ Statement *Parser::parseForeach(Loc loc, bool *isRange, bool isDecl)
                 }
                 break;
 
-            case TOKwild:
+            case TOKinout:
                 if (peekNext() != TOKlparen)
                 {
                     stc = STCwild;
@@ -5320,7 +5320,7 @@ Statement *Parser::parseStatement(int flags, const utf8_t** endPtr, Loc *pEndloc
         case TOKalign:
         case TOKimmutable:
         case TOKshared:
-        case TOKwild:
+        case TOKinout:
         case TOKdeprecated:
         case TOKnothrow:
         case TOKpure:
@@ -5576,7 +5576,7 @@ Statement *Parser::parseStatement(int flags, const utf8_t** endPtr, Loc *pEndloc
                         goto LagainStc;
                     }
                     break;
-                case TOKwild:
+                case TOKinout:
                     if (peekNext() != TOKlparen)
                     {
                         stc = STCwild;
@@ -6166,7 +6166,7 @@ bool Parser::isDeclaration(Token *t, int needId, TOK endtok, Token **pt)
     {
         if ((t->value == TOKconst ||
              t->value == TOKimmutable ||
-             t->value == TOKwild ||
+             t->value == TOKinout ||
              t->value == TOKshared) &&
             peek(t)->value != TOKlparen)
         {
@@ -6349,7 +6349,7 @@ bool Parser::isBasicType(Token **pt)
         case TOKconst:
         case TOKimmutable:
         case TOKshared:
-        case TOKwild:
+        case TOKinout:
             // const(type)  or  immutable(type)  or  shared(type)  or  wild(type)
             t = peek(t);
             if (t->value != TOKlparen)
@@ -6544,7 +6544,7 @@ bool Parser::isDeclarator(Token **pt, int *haveId, int *haveTpl, TOK endtok, boo
                         case TOKconst:
                         case TOKimmutable:
                         case TOKshared:
-                        case TOKwild:
+                        case TOKinout:
                         case TOKpure:
                         case TOKnothrow:
                         case TOKreturn:
@@ -6638,7 +6638,7 @@ bool Parser::isParameters(Token **pt)
             case TOKconst:
             case TOKimmutable:
             case TOKshared:
-            case TOKwild:
+            case TOKinout:
                 t = peek(t);
                 if (t->value == TOKlparen)
                 {
@@ -6837,7 +6837,7 @@ bool Parser::skipAttributes(Token *t, Token **pt)
             case TOKconst:
             case TOKimmutable:
             case TOKshared:
-            case TOKwild:
+            case TOKinout:
             case TOKfinal:
             case TOKauto:
             case TOKscope:
@@ -7290,7 +7290,7 @@ Expression *Parser::parsePrimaryExp()
                          (token.value == TOKconst && peek(&token)->value == TOKrparen) ||
                          (token.value == TOKimmutable && peek(&token)->value == TOKrparen) ||
                          (token.value == TOKshared && peek(&token)->value == TOKrparen) ||
-                         (token.value == TOKwild && peek(&token)->value == TOKrparen) ||
+                         (token.value == TOKinout && peek(&token)->value == TOKrparen) ||
                          token.value == TOKfunction ||
                          token.value == TOKdelegate ||
                          token.value == TOKreturn ||
@@ -7648,7 +7648,7 @@ Expression *Parser::parseUnaryExp()
                         nextToken();
                         continue;
 
-                    case TOKwild:
+                    case TOKinout:
                         if (peekNext() == TOKlparen)
                             break;
                         m |= MODwild;
@@ -7677,7 +7677,7 @@ Expression *Parser::parseUnaryExp()
             break;
         }
 
-        case TOKwild:
+        case TOKinout:
         case TOKshared:
         case TOKconst:
         case TOKimmutable:      // immutable(type)(arguments) / immutable(type).init

@@ -1396,16 +1396,6 @@ code *allocreg(regm_t *pretregs,unsigned *preg,tym_t tym
 #if TX86
         unsigned reg;
 
-#if 0
-        if (pass == PASSfinal)
-        {
-            dbg_printf("allocreg %s,%d: regcon.mvar %s regcon.cse.mval %s msavereg %s *pretregs %s tym ",
-                file,line,regm_str(regcon.mvar),regm_str(regcon.cse.mval),
-                regm_str(msavereg),regm_str(*pretregs));
-            WRTYxx(tym);
-            dbg_printf("\n");
-        }
-#endif
         tym = tybasic(tym);
         unsigned size = tysize[tym];
         *pretregs &= mES | allregs | XMMREGS;
@@ -1736,13 +1726,6 @@ bool cssave(elem *e,regm_t regm,unsigned opsflag)
         //printf("cssave(e = %p, regm = %s, opsflag = x%x)\n", e, regm_str(regm), opsflag);
         regm &= mBP | ALLREGS | mES;    /* just to be sure              */
 
-#if 0
-        /* Do not register CSEs if they are register variables and      */
-        /* are not operator nodes. This forces the register allocation  */
-        /* to go through allocreg(), which will prevent using register  */
-        /* variables for scratch.                                       */
-        if (opsflag || !(regm & regcon.mvar))
-#endif
             for (unsigned i = 0; regm; i++)
             {
                 regm_t mi = mask[i];

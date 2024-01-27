@@ -1742,15 +1742,6 @@ STATIC elem * elnot(elem *e, goal_t goal)
                 e->E2 = el_long(e1->Ety,1);
                 e = optelem(e, goal);
             }
-#if 0
-// Can't use this because what if OPd_s32?
-// Note: !(long)(.1) != !(.1)
-            else if (OTconv(op))        // don't use case because of differ target
-            {                           // conversion operators
-                e1->Eoper = e->Eoper;
-                goto L1;
-            }
-#endif
             break;
 
         case OPs32_d:
@@ -2119,9 +2110,6 @@ L2:
                 ;
             if ((OTopeq(e2->Eoper) || e2->Eoper == OPeq) &&
                 el_match(e1->E1,e2->E2) &&
-#if 0
-                !(e1->E1->Eoper == OPvar && el_appears(e2->E1,e1->E1->EV.sp.Vsym)) &&
-#endif
                 ERTOL(e2))
             {
                 e->E1 = e2->E2;
@@ -3227,19 +3215,6 @@ STATIC elem * eleq(elem *e, goal_t goal)
     if (e1->Eoper == OPcomma || OTassign(e1->Eoper))
         return cgel_lvalue(e);
 
-#if 0  // Doesn't work too well, removed
-    // Replace (*p++ = e2) with ((*p = e2),*p++)
-    if (OPTIMIZER && e1->Eoper == OPind &&
-      (e1->E1->Eoper == OPpostinc || e1->E1->Eoper == OPpostdec) &&
-      !el_sideeffect(e1->E1->E1)
-       )
-    {
-        e = el_bin(OPcomma,e->Ety,e,e1);
-        e->E1->E1 = el_una(OPind,e1->Ety,el_copytree(e1->E1->E1));
-        return optelem(e,GOALvalue);
-    }
-#endif
-
     if (OPTIMIZER)
     {   elem *e2 = e->E2;
         elem *ei;
@@ -3302,25 +3277,6 @@ STATIC elem * eleq(elem *e, goal_t goal)
                     goto L2;
                 }
             }
-
-#if 0
-// Note that this optimization is undone in elcomma(), this results in an
-// infinite loop. This optimization is preferable if e1 winds up a register
-// variable, the inverse in elcomma() is preferable if e1 winds up in memory.
-            // Replace (e1 = (e1 op3 ea) op2 eb) with (e1 op3= ea),(e1 op2= eb)
-            op3 = e2->E1->Eoper;
-            if (OTop(op3) && el_match(e1,e2->E1->E1) && !el_depends(e1,e2->E2))
-            {
-                e->Eoper = OPcomma;
-                e->E1 = e2->E1;
-                e->E1->Eoper = optoopeq(op3);
-                e2->E1 = e1;
-                e1->Ety = e->E1->Ety;
-                e2->Eoper = optoopeq(op2);
-                e2->Ety = e->Ety;
-                goto L1;
-            }
-#endif
         }
 
         if (op2 == OPneg && el_match(e1,e2->E1) && !el_sideeffect(e1))
@@ -4649,22 +4605,6 @@ STATIC void elparamx(elem *e)
         e->E1->E2 = e->E1->E1;
         e->E1->E1 = ex;
     }
-#if 0
-    // Unfortunately, these don't work because if the last parameter
-    // is a pair, and it is a D function, the last parameter will get
-    // passed in EAX.
-    else if (e->E2->Eoper == OPrpair)
-    {
-        e->E2->Eoper = OPparam;
-    }
-    else if (e->E2->Eoper == OPpair)
-    {
-        e->E2->Eoper = OPparam;
-        elem *ex = e->E2->E2;
-        e->E2->E2 = e->E2->E1;
-        e->E2->E1 = ex;
-    }
-#endif
 }
 
 STATIC elem * elparam(elem *e, goal_t goal)
@@ -5065,16 +5005,7 @@ L1:
 //  {   dbg_printf("optelem: %p ",e); WROP(op); dbg_printf("\n"); }
 #endif
 
-#if 0
-    {   dbg_printf("xoptelem: %p ",e); WROP(e->Eoper); dbg_printf("\n"); }
-  elem_print(e);
-  e = (*elxxx[op])(e, goal);
-  printf("After:\n");
-  elem_print(e);
-  return e;
-#else
   return (*elxxx[op])(e, goal);
-#endif
 }
 
 /********************************

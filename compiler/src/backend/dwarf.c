@@ -16,12 +16,10 @@
 #include        <fcntl.h>
 #include        <ctype.h>
 
-#if __linux__
 #include        <malloc.h>
 #include        <signal.h>
 #include        <unistd.h>
 #include        <errno.h>
-#endif
 
 #include        "cc.h"
 #include        "global.h"

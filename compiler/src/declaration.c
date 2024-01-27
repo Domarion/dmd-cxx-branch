@@ -903,10 +903,6 @@ Expression *VarDeclaration::expandInitializer(Loc loc)
 
 void VarDeclaration::checkCtorConstInit()
 {
-#if 0 /* doesn't work if more than one static ctor */
-    if (ctorinit == 0 && isCtorinit() && !isField())
-        error("missing initializer in static constructor for const variable");
-#endif
 }
 
 bool lambdaCheckForNestedRef(Expression *e, Scope *sc);

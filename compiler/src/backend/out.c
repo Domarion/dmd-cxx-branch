@@ -888,11 +888,6 @@ void out_reset()
 
 symbol *out_readonly_sym(tym_t ty, void *p, int len)
 {
-#if 0
-    printf("out_readonly_sym(ty = x%x)\n", ty);
-    for (int i = 0; i < len; i++)
-        printf(" [%d] = %02x\n", i, ((unsigned char*)p)[i]);
-#endif
     // Look for previous symbol we can reuse
     for (int i = 0; i < readonly_length; i++)
     {

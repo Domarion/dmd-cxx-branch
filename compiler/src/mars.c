@@ -15,9 +15,7 @@
 #include <limits.h>
 #include <string.h>
 
-#if __linux__
 #include <errno.h>
-#endif
 
 #include "root/rmem.h"
 #include "root/root.h"
@@ -257,11 +255,7 @@ int tryMain(size_t argc, const char *argv[])
     }
     else
     {
-#if __linux__
         global.inifilename = findConfFile(global.params.argv0.ptr, "dmd.conf");
-#else
-#error "fix this"
-#endif
     }
 
     // Read the configurarion file
@@ -301,13 +295,6 @@ int tryMain(size_t argc, const char *argv[])
 
     updateRealEnvironment(&environment);
     environment.reset(1);               // don't need environment cache any more
-
-#if 0
-    for (size_t i = 0; i < arguments.length; i++)
-    {
-        printf("arguments[%d] = '%s'\n", i, arguments[i]);
-    }
-#endif
 
     for (size_t i = 1; i < arguments.length; i++)
     {
@@ -801,9 +788,7 @@ Language changes listed by -transition=id:\n\
             }
             else if (memcmp(p + 1, "man", 3) == 0)
             {
-#if __linux__
                 browse("http://dlang.org/dmd-linux.html");
-#endif
                 exit(EXIT_SUCCESS);
             }
             else if (strcmp(p + 1, "run") == 0)

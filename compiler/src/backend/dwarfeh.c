@@ -117,12 +117,6 @@ void genDwarfEh(Funcsym *sfunc, int seg, Outbuffer *et, bool scancode, unsigned 
     //printf("genDwarfEh: func = %s, offset = x%x, startblock->Boffset = x%x, scancode = %d startoffset=x%x, retoffset=x%x\n",
       //sfunc->Sident, (int)sfunc->Soffset, (int)startblock->Boffset, scancode, startoffset, retoffset);
 
-#if 0
-    printf("------- before ----------\n");
-    for (block *b = startblock; b; b = b->Bnext) WRblock(b);
-    printf("-------------------------\n");
-#endif
-
     unsigned startsize = et->size();
     assert((startsize & 3) == 0);       // should be aligned
 

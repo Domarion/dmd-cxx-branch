@@ -242,10 +242,6 @@ elem * el_combine(elem *e1,elem *e2)
 elem * el_param(elem *e1,elem *e2)
 {
     //printf("el_param(%p, %p)\n", e1, e2);
-#if 0
-    if (e2 && e2->Eoper != OPstrpar && tybasic(e2->Ety) == TYstruct)
-        *(char*)0=0;
-#endif
     if (e1)
     {   if (e2)
             e1 = el_bin(OPparam,TYvoid,e1,e2);
@@ -396,14 +392,7 @@ void el_paramArray(elem ***parray, elem *e)
 
 elem *el_pair(tym_t tym, elem *lo, elem *hi)
 {
-#if 0
-    lo = el_una(OPu32_64, TYullong, lo);
-    hi = el_una(OPu32_64, TYullong, hi);
-    hi = el_bin(OPshl, TYullong, hi, el_long(TYint, 32));
-    return el_bin(OPor, tym, lo, hi);
-#else
     return el_bin(OPpair, tym, lo, hi);
-#endif
 }
 
 
@@ -1415,15 +1404,6 @@ elem *el_convfloat(elem *e)
             assert(0);
     }
 
-#if 0
-    printf("%gL+%gLi\n", (double)e->EV.Vcldouble.re, (double)e->EV.Vcldouble.im);
-    printf("el_convfloat() %g %g sz=%d\n", e->EV.Vcdouble.re, e->EV.Vcdouble.im, sz);
-printf("el_convfloat(): sz = %d\n", sz);
-unsigned short *p = (unsigned short *)&e->EV.Vcldouble;
-for (int i = 0; i < sz/2; i++) printf("%04x ", p[i]);
-printf("\n");
-#endif
-
     symbol *s  = out_readonly_sym(ty, p, sz);
     el_free(e);
     e = el_var(s);
@@ -1446,22 +1426,12 @@ elem *el_convxmm(elem *e)
 
 #if TX86
     // Do not convert if the constants can be loaded with the special XMM instructions
-#if 0
-    if (loadconst(e))
-        return e;
-#endif
 
     go.changes++;
     tym_t ty = e->Ety;
     int sz = tysize(ty);
     assert(sz <= sizeof(buffer));
     void *p = &e->EV.Vcent;
-
-#if 0
-printf("el_convxmm(): sz = %d\n", sz);
-for (size i = 0; i < sz; i++) printf("%02x ", ((unsigned char *)p)[i]);
-printf("\n");
-#endif
 
     symbol *s  = out_readonly_sym(ty, p, sz);
     el_free(e);
@@ -1667,56 +1637,6 @@ elem * el_const(tym_t ty,union eve *pconst)
     memcpy(&e->EV,pconst,sizeof(e->EV));
     return e;
 }
-
-
-/**************************
- * Insert constructor information into tree.
- * A corresponding el_ddtor() must be called later.
- * Params:
- *      e =     code to construct the object
- *      decl =  VarDeclaration of variable being constructed
- */
-
-#if 0
-elem *el_dctor(elem *e,void *decl)
-{
-    elem *ector = el_calloc();
-    ector->Eoper = OPdctor;
-    ector->Ety = TYvoid;
-    ector->EV.ed.Edecl = decl;
-    if (e)
-        e = el_bin(OPinfo,e->Ety,ector,e);
-    else
-        /* Remember that a "constructor" may execute no code, hence
-         * the need for OPinfo if there is code to execute.
-         */
-        e = ector;
-    return e;
-}
-#endif
-
-/**************************
- * Insert destructor information into tree.
- *      e       code to destruct the object
- *      decl    VarDeclaration of variable being destructed
- *              (must match decl for corresponding OPctor)
- */
-
-#if 0
-elem *el_ddtor(elem *e,void *decl)
-{
-    /* A destructor always executes code, or we wouldn't need
-     * eh for it.
-     * An OPddtor must match 1:1 with an OPdctor
-     */
-    elem *edtor = el_calloc();
-    edtor->Eoper = OPddtor;
-    edtor->Ety = TYvoid;
-    edtor->EV.ed.Edecl = decl;
-    edtor->EV.ed.Eleft = e;
-    return edtor;
-}
-#endif
 
 /*********************************************
  * Create constructor/destructor pair of elems.

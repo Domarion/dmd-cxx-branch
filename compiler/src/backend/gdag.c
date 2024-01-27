@@ -524,14 +524,6 @@ void boolopt()
         flowae();                       /* compute available expressions */
         if (go.exptop <= 1)                /* if no AEs                    */
                 return;
-#if 0
-        for (i = 0; i < go.exptop; i++)
-                dbg_printf("go.expnod[%d] = 0x%x\n",i,go.expnod[i]);
-        dbg_printf("defkill  "); vec_println(go.defkill,go.exptop);
-        dbg_printf("starkill "); vec_println(go.starkill,go.exptop);
-        dbg_printf("vptrkill "); vec_println(go.vptrkill,go.exptop);
-#endif
-
         /* Do CSEs across extended basic blocks only. This is because   */
         /* the code generator can only track register contents          */
         /* properly across extended basic blocks.                       */

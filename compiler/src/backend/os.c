@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if __linux__
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -27,7 +26,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #define GetLastError() errno
-#endif
+
 
 #if __GNUC__
 static char __file__[] = __FILE__;      /* for tassert.h                */
@@ -66,14 +65,9 @@ void os_error(int line)
 
 int os_file_exists(const char *name)
 {
-#if __linux__
     struct stat buf;
 
     return stat(name,&buf) == 0;        /* file exists if stat succeeded */
-
-#else
-    return filesize(name) != -1L;
-#endif
 }
 
 /**************************************
@@ -95,7 +89,6 @@ long os_file_size(int fd)
 
 int file_write(char *name, void *buffer, unsigned len)
 {
-#if __linux__
     int fd;
     ssize_t numwritten;
 
@@ -117,8 +110,6 @@ err2:
     close(fd);
 err:
     return 1;
-#endif
-
 }
 
 /********************************
@@ -130,9 +121,7 @@ err:
  *      !=0     failure
  */
 
-int file_createdirs(char *name)
+int file_createdirs(char *)
 {
-#if __linux__
     return 1;
-#endif
 }

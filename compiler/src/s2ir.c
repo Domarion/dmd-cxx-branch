@@ -1047,19 +1047,10 @@ public:
             elem *e1 = el_bin(OPeq, TYvoid, el_var(shandler), el_var(sedx)); // __handler = __RDX
             elem *e2 = el_bin(OPeq, TYvoid, el_var(seo), el_var(seax)); // __exception_object = __RAX
 
-#if 0
-            // jcatchvar = *(__exception_object - target.ptrsize)
-            union eve c;
-            memset(&c, 0, sizeof(c));
-            c.Vllong = target.ptrsize;
-            elem *e = el_bin(OPmin, TYnptr, el_var(seo), el_const(TYsize_t, &c));
-            elem *e3 = el_bin(OPeq, TYvoid, el_var(tryblock->jcatchvar), el_una(OPind, TYnptr, e));
-#else
             //  jcatchvar = __dmd_catch_begin(__exception_object);
             elem *ebegin = el_var(getRtlsym(RTLSYM_BEGIN_CATCH));
             elem *e = el_bin(OPcall, TYnptr, ebegin, el_var(seo));
             elem *e3 = el_bin(OPeq, TYvoid, el_var(tryblock->jcatchvar), e);
-#endif
 
             block *bcatch = blx->curblock;
             tryblock->appendSucc(bcatch);
@@ -1536,11 +1527,6 @@ void insertFinallyBlockCalls(block *startblock)
     block *bcretexp = NULL;
     Symbol *stmp;
 
-#if 0
-    printf("------- before ----------\n");
-    for (block *b = startblock; b; b = b->Bnext) WRblock(b);
-    printf("-------------------------\n");
-#endif
     block **pb;
     block **pbnext;
     for (pb = &startblock; *pb; pb = pbnext)
@@ -1694,10 +1680,4 @@ void insertFinallyBlockCalls(block *startblock)
     }
     if (bcretexp)
         *pb = bcretexp;
-
-#if 0
-    printf("------- after ----------\n");
-    for (block *b = startblock; b; b = b->Bnext) WRblock(b);
-    printf("-------------------------\n");
-#endif
 }

@@ -82,11 +82,7 @@ static unsigned char inssize[256] =
         M|A|2,M|A|2,M|A|2,M|A|2,        M|2,M|2,M|2,M|R|2,      /* 88 */
         1,1,1,1,                1,1,1,1,                /* 90 */
         1,1,T|5,1,              1,1,1,1,                /* 98 */
-#if 0 /* cod3_set32() patches this */
-        T|5,T|5,T|5,T|5,        1,1,1,1,                /* A0 */
-#else
         T|3,T|3,T|3,T|3,        1,1,1,1,                /* A0 */
-#endif
         T|E|2,T|3,1,1,          1,1,1,1,                /* A8 */
         T|E|2,T|E|2,T|E|2,T|E|2, T|E|2,T|E|2,T|E|2,T|E|2,       /* B0 */
         T|3,T|3,T|3,T|3,        T|3,T|3,T|3,T|3,                /* B8 */
@@ -1660,11 +1656,6 @@ int jmpopcode(elem *e)
     {   /* <=  >   <   >=  ==  !=    <=0 >0  <0  >=0 ==0 !=0    */
        { {JLE,JG ,JL ,JGE,JE ,JNE},{JLE,JG ,JS ,JNS,JE ,JNE} }, /* signed   */
        { {JBE,JA ,JB ,JAE,JE ,JNE},{JE ,JNE,JB ,JAE,JE ,JNE} }, /* unsigned */
-#if 0
-       { {JLE,JG ,JL ,JGE,JE ,JNE},{JLE,JG ,JL ,JGE,JE ,JNE} }, /* real     */
-       { {JBE,JA ,JB ,JAE,JE ,JNE},{JBE,JA ,JB ,JAE,JE ,JNE} }, /* 8087     */
-       { {JA ,JBE,JAE,JB ,JE ,JNE},{JBE,JA ,JB ,JAE,JE ,JNE} }, /* 8087 R   */
-#endif
     };
 
 #define XP      (JP  << 8)
@@ -3491,17 +3482,6 @@ Lopt:
                 cr->Irm = modregrm(3,SP,BP);                    // MOV SP,BP
             }
         }
-#if 0   // These optimizations don't work if the called function
-        // cleans off the stack.
-        else if (c->Iop == 0xC3 && cr->Iop == CALL)     // CALL near
-        {   cr->Iop = 0xE9;                             // JMP near
-            c->Iop = NOP;
-        }
-        else if (c->Iop == 0xCB && cr->Iop == 0x9A)     // CALL far
-        {   cr->Iop = 0xEA;                             // JMP far
-            c->Iop = NOP;
-        }
-#endif
     }
 
     pinholeopt(c, NULL);
@@ -4544,14 +4524,9 @@ void pinholeopt(code *c,block *b)
                             goto L2;
                         }
                     }
-#if 0
-                    // BUG: which is right?
-                    else if ((u & 0xFFFF0000) == 0)
-#else
                     else if (0 && op == 0xF7 &&
                              rm >= modregrm(3,0,SP) &&
                              (u & 0xFFFF0000) == 0)
-#endif
                         c->Iflags &= ~CFopsize;
                 }
 
@@ -5094,105 +5069,6 @@ Lret2:
     //printf("op = x%02x, size = %d\n",op,size);
     return size;
 }
-
-/********************************
- * Return !=0 if codes match.
- */
-
-#if 0
-
-int code_match(code *c1,code *c2)
-{   code cs1,cs2;
-    unsigned char ins;
-
-    if (c1 == c2)
-        goto match;
-    cs1 = *c1;
-    cs2 = *c2;
-    if (cs1.Iop != cs2.Iop)
-        goto nomatch;
-    switch (cs1.Iop)
-    {
-        case ESCAPE | ESCctor:
-        case ESCAPE | ESCdtor:
-            goto nomatch;
-
-        case NOP:
-            goto match;
-
-        case ASM:
-            if (cs1.IEV1.as.len == cs2.IEV1.as.len &&
-                memcmp(cs1.IEV1.as.bytes,cs2.IEV1.as.bytes,cs1.EV1.as.len) == 0)
-                goto match;
-            else
-                goto nomatch;
-
-        default:
-            if ((cs1.Iop & 0xFF) == ESCAPE)
-                goto match;
-            break;
-    }
-    if (cs1.Iflags != cs2.Iflags)
-        goto nomatch;
-
-    ins = inssize[cs1.Iop & 0xFF];
-    if ((cs1.Iop & 0xFFFD00) == 0x0F3800)
-    {
-        ins = inssize2[(cs1.Iop >> 8) & 0xFF];
-    }
-    else if ((cs1.Iop & 0xFF00) == 0x0F00)
-    {
-        ins = inssize2[cs1.Iop & 0xFF];
-    }
-
-    if (ins & M)                // if modregrm byte
-    {
-        if (cs1.Irm != cs2.Irm)
-            goto nomatch;
-        if ((cs1.Irm & 0xC0) == 0xC0)
-            goto do2;
-        if (is32bitaddr(I32,cs1.Iflags))
-        {
-            if (issib(cs1.Irm) && cs1.Isib != cs2.Isib)
-                goto nomatch;
-            if (
-                ((rm & 0xC0) == 0 && !((rm & 7) == 4 && (c->Isib & 7) == 5 || (rm & 7) == 5))
-               )
-                goto do2;       /* if no first operand  */
-        }
-        else
-        {
-            if (
-                ((rm & 0xC0) == 0 && !((rm & 7) == 6))
-               )
-                goto do2;       /* if no first operand  */
-        }
-        if (cs1.IFL1 != cs2.IFL1)
-            goto nomatch;
-        if (flinsymtab[cs1.IFL1] && cs1.IEVsym1 != cs2.IEVsym1)
-            goto nomatch;
-        if (cs1.IEVoffset1 != cs2.IEVoffset1)
-            goto nomatch;
-    }
-
-do2:
-    if (!(ins & T))                     // if no second operand
-        goto match;
-    if (cs1.IFL2 != cs2.IFL2)
-        goto nomatch;
-    if (flinsymtab[cs1.IFL2] && cs1.IEVsym2 != cs2.IEVsym2)
-        goto nomatch;
-    if (cs1.IEVoffset2 != cs2.IEVoffset2)
-        goto nomatch;
-
-match:
-    return 1;
-
-nomatch:
-    return 0;
-}
-
-#endif
 
 /**************************
  * Write code to intermediate file.

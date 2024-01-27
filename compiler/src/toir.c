@@ -280,11 +280,7 @@ elem *getEthis(Loc loc, IRState *irs, Dsymbol *fd)
             assert(s);
         }
     }
-#if 0
-    printf("ethis:\n");
-    elem_print(ethis);
-    printf("\n");
-#endif
+
     return ethis;
 }
 

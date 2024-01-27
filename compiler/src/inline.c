@@ -477,21 +477,6 @@ Expression *doInline(Expression *e, InlineDoState *ids)
             //printf("DeclarationExp::doInline(%s)\n", e->toChars());
             if (VarDeclaration *vd = e->declaration->isVarDeclaration())
             {
-        #if 0
-                // Need to figure this out before inlining can work for tuples
-                TupleDeclaration *td = vd->toAlias()->isTupleDeclaration();
-                if (td)
-                {
-                    for (size_t i = 0; i < td->objects->length; i++)
-                    {
-                        DsymbolExp *se = (*td->objects)[i];
-                        assert(se->op == TOKdsymbol);
-                        se->s;
-                    }
-                    result = st->objects->length;
-                    return;
-                }
-        #endif
                 if (!vd->isStatic())
                 {
                     if (ids->fd && vd == ids->fd->nrvo_var)

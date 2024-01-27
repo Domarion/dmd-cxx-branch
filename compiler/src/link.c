@@ -15,19 +15,12 @@
 #include        <string.h>
 #include        <stdlib.h>
 
-
-#if __linux__
 #include        <sys/types.h>
 #include        <sys/wait.h>
 #include        <unistd.h>
-#endif
 
-#if __linux__
-    #define HAS_POSIX_SPAWN 1
-    #include        <spawn.h>
-#else
-    #define HAS_POSIX_SPAWN 0
-#endif
+#define HAS_POSIX_SPAWN 1
+#include        <spawn.h>
 
 #include        "root/file.h"
 #include        "root/port.h"
@@ -73,8 +66,6 @@ void writeFilename(OutBuffer *buf, const char *filename)
 {
     writeFilename(buf, filename, strlen(filename));
 }
-
-#if __linux__
 
 /*****************************
  * As it forwards the linker error message to stderr, checks for the presence
@@ -122,7 +113,7 @@ int findNoMainError(int fd)
     }
     return nmeFound ? 1 : 0;
 }
-#endif
+
 
 /*****************************
  * Run the linker.  Return status of execution.
@@ -130,7 +121,6 @@ int findNoMainError(int fd)
 
 int runLINK()
 {
-#if __linux__
     pid_t childpid;
     int status;
 
@@ -155,7 +145,6 @@ int runLINK()
     }
     else if (global.params.run)
     {
-#if 1
         char name[L_tmpnam + 14 + 1];
         strcpy(name, P_tmpdir);
         strcat(name, "/dmd_runXXXXXX");
@@ -168,20 +157,6 @@ int runLINK()
             close(fd);
         global.params.exefile = mem.xstrdup(name);
         argv.push(global.params.exefile.ptr);
-#else
-        /* The use of tmpnam raises the issue of "is this a security hole"?
-         * The hole is that after tmpnam and before the file is opened,
-         * the attacker modifies the file system to get control of the
-         * file with that name. I do not know if this is an issue in
-         * this context.
-         * We cannot just replace it with mkstemp, because this name is
-         * passed to the linker that actually opens the file and writes to it.
-         */
-        char s[L_tmpnam + 1];
-        char *n = tmpnam(s);
-        global.params.exefile = mem.xstrdup(n);
-        argv.push(global.params.exefile.ptr);
-#endif
     }
     else
     {   // Generate exe file name from first obj name
@@ -236,22 +211,6 @@ int runLINK()
         }
         argv.push("-Xlinker");
         argv.push(global.params.mapfile.ptr);
-    }
-
-    if (0 && global.params.exefile.length)
-    {
-        /* This switch enables what is known as 'smart linking'
-         * in the Windows world, where unreferenced sections
-         * are removed from the executable. It eliminates unreferenced
-         * functions, essentially making a 'library' out of a module.
-         * Although it is documented to work with ld version 2.13,
-         * in practice it does not, but just seems to be ignored.
-         * Thomas Kuehne has verified that it works with ld 2.16.1.
-         * BUG: disabled because it causes exception handling to fail
-         * because EH sections are "unreferenced" and elided
-         */
-        argv.push("-Xlinker");
-        argv.push("--gc-sections");
     }
 
     for (size_t i = 0; i < global.params.linkswitches.length; i++)
@@ -323,12 +282,10 @@ int runLINK()
 //    argv.push("-ldruntime");
     argv.push("-lpthread");
     argv.push("-lm");
-#if __linux__
     // Changes in ld for Ubuntu 11.10 require this to appear after phobos2
     argv.push("-lrt");
     // Link against libdl for phobos usage of dlopen
     argv.push("-ldl");
-#endif
 
     if (global.params.verbose)
     {
@@ -392,10 +349,6 @@ int runLINK()
         status = 1;
     }
     return status;
-#else
-    printf ("Linking is not yet supported for this version of DMD.\n");
-    return -1;
-#endif
 }
 
 /**********************************
@@ -437,7 +390,6 @@ int runProgram()
     }
     argv.push(NULL);
 
-#if __linux__
     pid_t childpid;
     int status;
 
@@ -467,7 +419,4 @@ int runProgram()
         status = 1;
     }
     return status;
-#else
-    assert(0);
-#endif
 }

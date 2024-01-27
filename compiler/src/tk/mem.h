@@ -193,17 +193,11 @@ void mem_term(void);
 #define mem_ffree(p)    ((void)0)
 #define mem_fstrdup(p)  strdup(p)
 #else
-#if MEM_DEBUG
-#define mem_fmalloc     mem_malloc
-#define mem_fcalloc     mem_calloc
-#define mem_ffree       mem_free
-#define mem_fstrdup     mem_strdup
-#else
 void *mem_fmalloc(size_t);
 void *mem_fcalloc(size_t);
 #define mem_ffree(p)    ((void)0)
 char *mem_fstrdup(const char *);
-#endif
+
 #endif
 
 /***********************************
@@ -240,27 +234,8 @@ extern char *__mem_file;
 
 #else
 
-#if MEM_DEBUG           /* if creating debug version    */
-#define mem_strdup(p)   mem_strdup_debug((p),__FILE__,__LINE__)
-#define mem_malloc(u)   mem_malloc_debug((u),__FILE__,__LINE__)
-#define mem_calloc(u)   mem_calloc_debug((u),__FILE__,__LINE__)
-#define mem_realloc(p,u)        mem_realloc_debug((p),(u),__FILE__,__LINE__)
-#define mem_free(p)     mem_free_debug((p),__FILE__,__LINE__)
-
-char *mem_strdup_debug  (const char *,const char *,int);
-void *mem_calloc_debug  (size_t,const char *,int);
-void *mem_malloc_debug  (size_t,const char *,int);
-void *mem_realloc_debug (void *,size_t,const char *,int);
-void  mem_free_debug    (void *,const char *,int);
-void  mem_freefp        (void *);
-
-void mem_setnewfileline (void *,const char *,int);
-
-#else
-
 #define mem_freefp      mem_free
 #define mem_check()
 #define mem_checkptr(p)
 
-#endif /* MEM_DEBUG */
 #endif /* MEM_NONE  */

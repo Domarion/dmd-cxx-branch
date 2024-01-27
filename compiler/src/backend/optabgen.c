@@ -948,16 +948,6 @@ void dotytab()
     }
     fprintf(f,"\n};\n");
 
-#if 0
-    fprintf(f,"unsigned char tytab2[] =\n{ ");
-    for (i = 0; i < arraysize(tytab2); i++)
-    {   fprintf(f,"0x%02x,",tytab2[i]);
-        if ((i & 7) == 7 && i < arraysize(tytab2) - 1)
-            fprintf(f,"\n  ");
-    }
-    fprintf(f,"\n};\n");
-#endif
-
     for (i = 0; i < arraysize(typetab); i++)
     {   tytouns[typetab[i].ty] = typetab[i].unsty;
     }

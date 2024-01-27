@@ -1034,11 +1034,6 @@ public:
                 dsym->edtor = expressionSemantic(dsym->edtor, sc->_module->_scope);
             else
                 dsym->edtor = expressionSemantic(dsym->edtor, sc);
-
-    #if 0 // currently disabled because of std.stdio.stdin, stdout and stderr
-            if (dsym->isDataseg() && !(dsym->storage_class & STCextern))
-                dsym->error("static storage variables cannot have destructors");
-    #endif
         }
 
         dsym->semanticRun = PASSsemanticdone;

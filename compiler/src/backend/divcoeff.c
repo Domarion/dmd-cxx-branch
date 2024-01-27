@@ -74,12 +74,6 @@ void u128Div(ullong xh, ullong xl, ullong yh, ullong yl, ullong *pqh, ullong *pq
     *pql = ql;
 
     // Remainder is xh,xl
-
-#if 0
-    printf("%016llx_%016llx / %016llx_%016llx = %016llx_%016llx\n", xxh,xxl,yyh,yyl,qh,ql);
-    if (xxh == 0 && yyh == 0)
-        printf("should be %llx\n", xxl / yyl);
-#endif
 }
 
 /************************************
@@ -288,20 +282,3 @@ void test_udiv_coefficients()
 }
 #endif
 
-#if 0
-#include <stdlib.h>
-
-void main(int argc, char **argv)
-{
-    if (argc == 2)
-    {
-        ullong d = atoi(argv[1]);
-        ullong m;
-        int shpre;
-        int shpost;
-        bool mhighbit = udiv_coefficients(64, d, &shpre, &m, &shpost);
-
-        printf("%d %d %llx, %d\n", shpre, mhighbit, m, shpost);
-    }
-}
-#endif

@@ -741,15 +741,6 @@ TYPE_SIZE_ERROR:
                             goto PARAM_ERROR;
                     }
                 }
-#if 0
-                if (asmstate.ucItype == ITshift &&
-                    !table2->usOp2 &&
-                    bMatch1 && popnd2->disp == 1 &&
-                    asm_match_flags(opflags2,
-                        CONSTRUCT_FLAGS(_8|_16|_32, _imm,_normal,0))
-                  )
-                    break;
-#endif
             }
         Lfound2:
             if (table2->opcode == ASM_END)
@@ -1008,26 +999,6 @@ static opflag_t asm_determine_float_flags(OPND *popnd)
         return(CONSTRUCT_FLAGS(us, _m, _addr32, usFloat));
     }
 
-#if 0
-    if (popnd->real)
-    {
-        switch (popnd->ptype->ty)
-        {
-            case Tfloat32:
-                popnd->s = fconst(popnd->real);
-                return(CONSTRUCT_FLAGS(_32, _m, _normal, 0));
-
-            case Tfloat64:
-                popnd->s = dconst(popnd->real);
-                return(CONSTRUCT_FLAGS(0, _m, _normal, _f64));
-
-            case Tfloat80:
-                popnd->s = ldconst(popnd->real);
-                return(CONSTRUCT_FLAGS(0, _m, _normal, _f80));
-        }
-    }
-#endif
-
     asmerr("unknown operand for floating point instruction");
     return 0;
 }
@@ -1221,13 +1192,6 @@ static code *asm_emit(Loc loc,
     }
     if (popnd2)
     {
-#if 0
-        printf("\nasm_emit:\nop: ");
-        asm_output_flags(popnd2->usFlags);
-        printf("\ntb: ");
-        asm_output_flags(ptb.pptb2->usOp2);
-        printf("\n");
-#endif
         //aopty2 = ASM_GET_aopty(popnd2->usFlags);
         amod2 = ASM_GET_amod(popnd2->usFlags);
 
@@ -1700,9 +1664,6 @@ L1:
                         }
                         else if (d)
                         {
-#if 0
-                            if ((pc->IFL2 = d->Sfl) == 0)
-#endif
                                 pc->IFL2 = FLdsymbol;
                             pc->Iflags &= ~(CFseg | CFoff);
                             if (popndTmp->bSeg)
@@ -1743,15 +1704,6 @@ L1:
             (popnd1->usFlags == _r32 && popnd2->usFlags == _xmm) ||
             (popnd1->usFlags == _r32 && popnd2->usFlags == _mm))
         {
-#if 0
-            printf("test4 %d,%d,%d,%d\n",
-                (aoptyTable2 == _m),
-                (aoptyTable2 == _rel),
-                (amodTable1 == _rspecial && !(uRegmaskTable1 & (0x08 | 0x10))),
-                (aoptyTable2 == _rm)
-                );
-            printf("opcode = %x\n", opcode);
-#endif
             if (ptb.pptb0->opcode == 0x0F7E ||    // MOVD _rm32,_mm
                 ptb.pptb0->opcode == 0x660F7E     // MOVD _rm32,_xmm
                )
@@ -2298,12 +2250,6 @@ static void asm_merge_symbol(OPND *o1, Dsymbol *s)
             asmstate.statement->refparam = true;
 
         v->checkNestedReference(asmstate.sc, asmstate.loc);
-#if 0
-        if (!v->isDataseg() && v->parent != asmstate.sc->parent && v->parent)
-        {
-            asmerr("uplevel nested reference to variable %s", v->toChars());
-        }
-#endif
         if (v->isField())
         {
             o1->disp += v->offset;
@@ -2399,18 +2345,6 @@ static void asm_make_modrm_byte(
     ASM_OPERAND_TYPE    aopty;
     ASM_MODIFIERS           amod;
     bool                bOffsetsym = false;
-
-#if 0
-    printf("asm_make_modrm_byte(usFlags = x%x)\n", usFlags);
-    printf("op1: ");
-    asm_output_flags(popnd->usFlags);
-    if (popnd2)
-    {
-        printf(" op2: ");
-        asm_output_flags(popnd2->usFlags);
-    }
-    printf("\n");
-#endif
 
     uSizemask = ASM_GET_uSizemask(popnd->usFlags);
     aopty = ASM_GET_aopty(popnd->usFlags);
@@ -3049,13 +2983,6 @@ Lok:
         assert(0);
     }
 EXIT:
-#if 0
-    printf("OP : ");
-    asm_output_flags(usOp);
-    printf("\nTBL: ");
-    asm_output_flags(usTable);
-    printf(": %s\n", bRetval ? "MATCH" : "NOMATCH");
-#endif
     return bRetval;
 
 Lmatch:
@@ -4125,32 +4052,6 @@ static OPND *asm_una_exp()
                 o1->disp = ~o1->disp;
             break;
 
-#if 0
-        case TOKlparen:
-            // stoken() is called directly here because we really
-            // want the INT token to be an INT.
-            stoken();
-            if (type_specifier(&ptypeSpec)) /* if type_name     */
-            {
-
-                ptype = declar_abstract(ptypeSpec);
-                            /* read abstract_declarator  */
-                fixdeclar(ptype);/* fix declarator               */
-                type_free(ptypeSpec);/* the declar() function
-                                    allocates the typespec again */
-                chktok(TOKrparen,") expected instead of '%s'");
-                ptype->Tcount--;
-                goto CAST_REF;
-            }
-            else
-            {
-                type_free(ptypeSpec);
-                o1 = asm_cond_exp();
-                chktok(TOKrparen, ") expected instead of '%s'");
-            }
-            break;
-#endif
-
         case TOKidentifier:
             // Check for offset keyword
             if (asmtok->ident == Id::offset)
@@ -4262,10 +4163,6 @@ static OPND *asm_primary_exp()
             asm_token();
             break;
 
-#if 0
-        case TOKthis:
-            strcpy(tok.TKid,cpp_name_this);
-#endif
         case TOKthis:
         case TOKidentifier:
             o1 = new OPND();
@@ -4414,11 +4311,6 @@ static OPND *asm_primary_exp()
                 }
 
             Lpost:
-#if 0
-                // for []
-                if (tok_value == TOKlbracket)
-                        o1 = asm_prim_post(o1);
-#endif
                 goto Lret;
             }
             break;
@@ -4528,17 +4420,6 @@ Statement* inlineAsmSemantic(InlineAsmStatement *s, Scope *sc)
 
     asmstate.statement = s;
     asmstate.sc = sc;
-
-#if 0 // don't use bReturnax anymore, and will fail anyway if we use return type inference
-    // Scalar return values will always be in AX.  So if it is a scalar
-    // then asm block sets return value if it modifies AX, if it is non-scalar
-    // then always assume that the ASM block sets up an appropriate return
-    // value.
-
-    asmstate.bReturnax = true;
-    if (sc->func->type->nextOf()->isscalar())
-        asmstate.bReturnax = false;
-#endif
 
     // Assume assembler code takes care of setting the return value
     sc->func->hasReturnExp |= 8;
@@ -4658,15 +4539,7 @@ Statement* inlineAsmSemantic(InlineAsmStatement *s, Scope *sc)
 
                 ptb = asm_classify(o, o1, o2, o3, o4, &usNumops);
             }
-#if 0
-            else if (asmstate.ucItype == ITshift && (ptb.pptb2->usOp2 == 0 ||
-                    (ptb.pptb2->usOp2 & _cl)))
-            {
-                delete o2;
-                o2 = NULL;
-                usNumops = 1;
-            }
-#endif
+
             s->asmcode = asm_emit(s->loc, usNumops, ptb, o, o1, o2, o3, o4);
             break;
 

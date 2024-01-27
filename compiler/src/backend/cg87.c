@@ -284,10 +284,6 @@ void note87(elem *e, unsigned offset, int i)
 #if NDPP
         printf("note87(e = %p.%d, i = %d, stackused = %d, line = %d)\n",e,offset,i,stackused,linnum);
 #endif
-#if 0 && DEBUG
-        if (_8087elems[i].e)
-                printf("_8087elems[%d].e = %p\n",i,_8087elems[i].e);
-#endif
         //if (i >= stackused) *(char*)0=0;
         assert(i < stackused);
         while (e->Eoper == OPcomma)
@@ -1977,10 +1973,6 @@ code *eq87(elem *e,regm_t *pretregs)
         {                                       // FSTP e->E1
             pop87();
         }
-#if 0
-        // Doesn't work if ST(0) gets saved to the stack by getlvalue()
-        c2 = loadea(e->E1,&cs,op1,op2,0,0,0);
-#else
         cs.Irex = 0;
         cs.Iflags = 0;
         cs.Iop = op1;
@@ -2036,7 +2028,6 @@ code *eq87(elem *e,regm_t *pretregs)
             c2 = gen(c2, &cs);
         }
         }
-#endif
         c2 = genfwait(c2);
         freenode(e->E1);
         c1 = cat3(c1,c2,fixresult87(e,mST0 | mPSW,pretregs));
@@ -3587,10 +3578,6 @@ code *fixresult_complex87(elem *e,regm_t retregs,regm_t *pretregs)
     code *c1,*c2;
     unsigned sz;
 
-#if 0
-    printf("fixresult_complex87(e = %p, retregs = %s, *pretregs = %s)\n",
-        e,regm_str(retregs),regm_str(*pretregs));
-#endif
     assert(!*pretregs || retregs);
     c1 = CNIL;
     c2 = CNIL;

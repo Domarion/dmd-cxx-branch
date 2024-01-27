@@ -304,17 +304,6 @@ elem * evalu8(elem *e, goal_t goal)
 
   /*elem_print(e);*/
   /*dbg_printf("x%lx ",l1); WROP(op); dbg_printf("x%lx = ",l2);*/
-#if 0
-  if (0 && e2)
-  {
-      dbg_printf("d1 = %Lg, d2 = %Lg, op = %d, OPne = %d, tym = x%lx\n",d1,d2,op,OPne,tym);
-      dbg_printf("tym1 = x%lx, tym2 = x%lx, e2 = %g\n",tym,tym2,e2->EV.Vdouble);
-
-      union eve u;
-      dbg_printf("d1 = x%16llx\n", (u.Vldouble = d1, u.Vullong));
-      dbg_printf("d2 = x%16llx\n", (u.Vldouble = d2, u.Vullong));
-  }
-#endif
   i = 0;
   switch (op)
   {

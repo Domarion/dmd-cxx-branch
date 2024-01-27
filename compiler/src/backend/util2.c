@@ -80,7 +80,6 @@ void util_exit(int exitcode)
     exit(exitcode);                     /* terminate abnormally         */
 }
 
-#if __linux__
 void util_progress()
 {
 }
@@ -88,7 +87,6 @@ void util_progress()
 void util_progress(int linnum)
 {
 }
-#endif
 
 /**********************************
  * Binary string search.

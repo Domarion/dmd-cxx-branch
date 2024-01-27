@@ -9,8 +9,6 @@
 
 #include "port.h"
 
-#if __linux__
-
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,8 +63,6 @@ bool Port::isFloat64LiteralOutOfRange(const char *p)
     ::strtod(p, NULL);
     return errno == ERANGE;
 }
-
-#endif
 
 // Little endian
 void Port::writelongLE(unsigned value, void* buffer)

@@ -419,16 +419,6 @@ int blockExit(Statement *s, FuncDeclaration *func, bool mustNotThrow)
                     blockExit(s->finalbody, func, mustNotThrow);
             }
 
-        #if 0
-            // Bugzilla 13201: Mask to prevent spurious warnings for
-            // destructor call, exit of synchronized statement, etc.
-            if (result == BEhalt && finalresult != BEhalt && s->finalbody &&
-                s->finalbody->hasCode())
-            {
-                s->finalbody->warning("statement is not reachable");
-            }
-        #endif
-
             if (!(finalresult & BEfallthru))
                 result &= ~BEfallthru;
             result |= finalresult & ~BEfallthru;

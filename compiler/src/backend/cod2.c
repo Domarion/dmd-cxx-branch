@@ -1691,16 +1691,6 @@ code *cdcom(elem *e,regm_t *pretregs)
         retregs = possregs;
   c1 = codelem(e->E1,&retregs,FALSE);
   cg = getregs(retregs);                /* retregs will be destroyed    */
-#if 0
-  if (sz == 4 * REGSIZE)
-  {
-        c = gen2(CNIL,0xF7,modregrm(3,2,AX));   // NOT AX
-        gen2(c,0xF7,modregrm(3,2,BX));          // NOT BX
-        gen2(c,0xF7,modregrm(3,2,CX));          // NOT CX
-        gen2(c,0xF7,modregrm(3,2,DX));          // NOT DX
-  }
-  else
-#endif
   {
         reg = (sz <= REGSIZE) ? findreg(retregs) : findregmsw(retregs);
         op = (sz == 1) ? 0xF6 : 0xF7;
@@ -2677,14 +2667,6 @@ code *cdind(elem *e,regm_t *pretregs)
             if (*pretregs & (mES | mCX) || e->Ety & mTYfar)
                     tym = TYfptr;
 
-#if 0
-  c = getlvalue(&cs,e,RMload);          // get addressing mode
-  if (*pretregs == 0)
-        return c;
-  idxregs = idxregm(&cs);               // mask of index regs used
-  c = cat(c,fixresult(e,idxregs,pretregs));
-  return c;
-#endif
             break;
   }
   sz = tysize[tym];

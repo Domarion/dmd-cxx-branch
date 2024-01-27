@@ -11,8 +11,6 @@
 #include "ctfloat.h"
 #include "hash.h"
 
-#if __linux__
-
 #include <math.h>
 #include <string.h>
 #include <float.h>
@@ -28,9 +26,6 @@ real_t CTFloat::half = real_t(0.5);
 #if __i386 || __x86_64__
 bool CTFloat::yl2x_supported = true;
 bool CTFloat::yl2xp1_supported = true;
-#else
-bool CTFloat::yl2x_supported = false;
-bool CTFloat::yl2xp1_supported = false;
 #endif
 
 #if __i386 || __x86_64__
@@ -42,16 +37,6 @@ void CTFloat::yl2x(const real_t* x, const real_t* y, real_t* res)
 void CTFloat::yl2xp1(const real_t* x, const real_t* y, real_t* res)
 {
     __asm__ volatile("fyl2xp1": "=t" (*res): "u" (*y), "0" (*x) : "st(1)" );
-}
-#else
-void CTFloat::yl2x(const real_t* x, const real_t* y, real_t* res)
-{
-    assert(0);
-}
-
-void CTFloat::yl2xp1(const real_t* x, const real_t* y, real_t* res)
-{
-    assert(0);
 }
 #endif
 
@@ -88,8 +73,6 @@ size_t CTFloat::hash(real_t a)
     size_t sz = (std::numeric_limits<real_t>::digits == 64) ? 10 : sizeof(real_t);
     return calcHash((uint8_t *) &a, sz);
 }
-
-#endif // __linux__
 
 real_t CTFloat::sin(real_t x) { return sinl(x); }
 real_t CTFloat::cos(real_t x) { return cosl(x); }

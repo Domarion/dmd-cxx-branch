@@ -14,14 +14,12 @@
 #include <string.h>
 #include <assert.h>
 
-#if __linux__
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
 #include <utime.h>
-#endif
 
 #include "file.h"
 #include "filename.h"

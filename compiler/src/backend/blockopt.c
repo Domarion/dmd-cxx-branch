@@ -917,29 +917,6 @@ STATIC void brrear()
                         if (b->BC == BCasm)
                             break;
                 }
-#if 0
-                /* Replace cases of                     */
-                /*      IF (e) GOTO L1 ELSE L2          */
-                /*      L1:                             */
-                /* with                                 */
-                /*      IF OPnot (e) GOTO L2 ELSE L1    */
-                /*      L1:                             */
-
-                if (b->BC == BCiftrue || b->BC == BCiffalse)
-                {       block *bif,*belse;
-
-                        bif = b->nthSucc(0);
-                        belse = b->nthSucc(1);
-
-                        if (bif == b->Bnext)
-                        {       b->BC ^= BCiffalse ^ BCiftrue;  /* toggle */
-                                b->setNthSucc(0, belse);
-                                b->setNthSucc(1, bif);
-                                b->Bflags |= bif->Bflags & BFLvisited;
-                                cmes("if (e) L1 else L2\n");
-                        }
-                }
-#endif
         } /* for */
 }
 
@@ -979,10 +956,6 @@ void compdfo()
         }
   }
   dfotop = numblks - dfotop;
-#if 0
-  for (i = 0; i < dfotop; i++)
-        dbg_printf("dfo[%d] = 0x%x\n",i,dfo[i]);
-#endif
 }
 
 /******************************
@@ -1560,48 +1533,6 @@ STATIC void brmin()
     L1: ;
     }
 }
-
-/********************************
- * Check integrity of blocks.
- */
-
-#if 0
-
-STATIC void block_check()
-{   block *b;
-    list_t bl;
-
-    for (b = startblock; b; b = b->Bnext)
-    {   int nsucc;
-        int npred;
-
-        nsucc = list_nitems(b->Bsucc);
-        npred = list_nitems(b->Bpred);
-        switch (b->BC)
-        {
-            case BCgoto:
-                assert(nsucc == 1);
-                break;
-            case BCiftrue:
-                assert(nsucc == 2);
-                break;
-        }
-
-        for (bl = b->Bsucc; bl; bl = list_next(bl))
-        {   block *bs = list_block(bl);
-            list_t bls;
-
-            for (bls = bs->Bpred; 1; bls = list_next(bls))
-            {
-                assert(bls);
-                if (list_block(bls) == b)
-                    break;
-            }
-        }
-    }
-}
-
-#endif
 
 /***************************************
  * Do tail recursion.

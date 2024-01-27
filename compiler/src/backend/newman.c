@@ -50,18 +50,10 @@ struct MangleInuse
 {
     MangleInuse()
     {
-#if 0
-        assert(mangle_inuse == 0);
-        mangle_inuse++;
-#endif
     }
 
     ~MangleInuse()
     {
-#if 0
-        assert(mangle_inuse == 1);
-        mangle_inuse--;
-#endif
     }
 };
 
@@ -366,28 +358,6 @@ STATIC void cpp_dimension(targ_ullong u)
         CHAR('@');
     }
 }
-
-#if 0
-STATIC void cpp_dimension_ld(targ_ldouble ld)
-{   unsigned char ldbuf[sizeof(targ_ldouble)];
-
-    memcpy(ldbuf,&ld,sizeof(ld));
-    if (u && u <= 10)
-        CHAR('0' + (char)u - 1);
-    else
-    {   char buffer[sizeof(u) * 2 + 1];
-        char *p;
-
-        buffer[sizeof(buffer) - 1] = 0;
-        for (p = &buffer[sizeof(buffer) - 1]; u; u >>= 4)
-        {
-            *--p = 'A' + (u & 0x0F);
-        }
-        STR(p);
-        CHAR('@');
-    }
-}
-#endif
 
 STATIC void cpp_enum_name(symbol *s)
 {   type *t;

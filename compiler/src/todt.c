@@ -222,19 +222,12 @@ void Expression_toDt(Expression *e, DtBuilder& dtb)
 
         void visit(Expression *e)
         {
-        #if 0
-            printf("Expression::toDt() %d\n", e->op);
-            print();
-        #endif
             e->error("non-constant expression %s", e->toChars());
             dtb.nzeros(1);
         }
 
         void visit(CastExp *e)
         {
-        #if 0
-            printf("CastExp::toDt() %d from %s to %s\n", e->op, e->e1->type->toChars(), e->type->toChars());
-        #endif
             if (e->e1->type->ty == Tclass && e->type->ty == Tclass)
             {
                 if (((TypeClass *)e->type)->sym->isInterfaceDeclaration()) // casting from class to interface
@@ -258,9 +251,6 @@ void Expression_toDt(Expression *e, DtBuilder& dtb)
 
         void visit(AddrExp *e)
         {
-        #if 0
-            printf("AddrExp::toDt() %d\n", e->op);
-        #endif
             if (e->e1->op == TOKstructliteral)
             {
                 StructLiteralExp* sl = (StructLiteralExp *)e->e1;
@@ -465,9 +455,6 @@ void Expression_toDt(Expression *e, DtBuilder& dtb)
                 e->var->needThis() ||
                 e->var->isThreadlocal())
             {
-        #if 0
-                printf("SymOffExp::toDt()\n");
-        #endif
                 e->error("non-constant expression %s", e->toChars());
                 return;
             }
@@ -498,9 +485,6 @@ void Expression_toDt(Expression *e, DtBuilder& dtb)
                 StructDeclaration_toDt(sd->dsym, dtb);
                 return;
             }
-        #if 0
-            printf("VarExp::toDt(), kind = %s\n", e->var->kind());
-        #endif
             e->error("non-constant expression %s", e->toChars());
             dtb.nzeros(1);
         }
@@ -641,14 +625,6 @@ static void membersToDt(AggregateDeclaration *ad, DtBuilder& dtb,
 {
     //printf("membersToDt(ad = '%s', concrete = '%s', ppb = %p)\n", ad->toChars(), concreteType ? concreteType->toChars() : "null", ppb);
     ClassDeclaration *cd = ad->isClassDeclaration();
-#if 0
-    printf(" interfaces.length = %d\n", (int)cd->interfaces.length);
-    for (size_t i = 0; i < cd->vtblInterfaces->length; i++)
-    {
-        BaseClass *b = (*cd->vtblInterfaces)[i];
-        printf("  vbtblInterfaces[%d] b = %p, b->sym = %s\n", (int)i, b, b->sym->toChars());
-    }
-#endif
 
     /* Order:
      *  { base class } or { __vptr, __monitor }
@@ -1315,15 +1291,6 @@ public:
         StructFlags::Type m_flags = 0;
         if (tc->hasPointers()) m_flags |= StructFlags::hasPointers;
         dtb.size(m_flags);
-
-    #if 0
-        // xgetMembers
-        FuncDeclaration *sgetmembers = sd->findGetMembers();
-        if (sgetmembers)
-            dtb.xoff(toSymbol(sgetmembers), 0);
-        else
-            dtb.size(0);                     // xgetMembers
-    #endif
 
         // xdtor
         FuncDeclaration *sdtor = sd->dtor;

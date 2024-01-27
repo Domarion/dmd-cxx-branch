@@ -1421,7 +1421,7 @@ void MODtoBuffer(OutBuffer *buf, MOD mod)
             buf->writeByte(' ');
             /* fall through */
         case MODwild:
-            buf->writestring(Token::tochars[TOKwild]);
+            buf->writestring(Token::tochars[TOKinout]);
             break;
 
         case MODshared | MODwildconst:
@@ -1429,7 +1429,7 @@ void MODtoBuffer(OutBuffer *buf, MOD mod)
             buf->writeByte(' ');
             /* fall through */
         case MODwildconst:
-            buf->writestring(Token::tochars[TOKwild]);
+            buf->writestring(Token::tochars[TOKinout]);
             buf->writeByte(' ');
             buf->writestring(Token::tochars[TOKconst]);
             break;

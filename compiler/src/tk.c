@@ -17,10 +17,9 @@ static char __file__[] = __FILE__;      /* for tassert.h                */
 
 #include        "mem.h"
 
-#if !MEM_DEBUG
 #define MEM_NOMEMCOUNT  1
 #define MEM_NONEW       1
-#endif
+
 #include        "mem.c"
 #include        "list.c"
 #include        "vec.c"

@@ -332,16 +332,12 @@ void genObjFile(Module *m, bool multiobj)
             if (!s->Sxtrnnum)
             {
                 //printf("%s\n", s->Sident);
-#if 0 /* This should work, but causes optlink to fail in common/newlib.asm */
-                objextdef(s->Sident);
-#else
                 Symbol *sref = symbol_generate(SCstatic, type_fake(TYnptr));
                 sref->Sfl = FLdata;
                 DtBuilder dtb;
                 dtb.xoff(s, 0, TYnptr);
                 sref->Sdt = dtb.finish();
                 outdata(sref);
-#endif
             }
         }
     }
@@ -672,21 +668,6 @@ UnitTestDeclaration *needsDeferredNested(FuncDeclaration *fd)
 void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
 {
     ClassDeclaration *cd = fd->parent->isClassDeclaration();
-    //printf("FuncDeclaration::toObjFile(%p, %s.%s)\n", fd, fd->parent->toChars(), fd->toChars());
-
-    //if (type) printf("type = %s\n", type->toChars());
-#if 0
-    //printf("line = %d\n", getWhere() / LINEINC);
-    EEcontext *ee = env->getEEcontext();
-    if (ee->EEcompile == 2)
-    {
-        if (ee->EElinnum < (getWhere() / LINEINC) ||
-            ee->EElinnum > (endwhere / LINEINC)
-           )
-            return;             // don't compile this function
-        ee->EEfunc = toSymbol(this);
-    }
-#endif
 
     if (fd->semanticRun >= PASSobj) // if toObjFile() already run
         return;
@@ -945,28 +926,18 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
 
     if (shidden)
     {
-#if 0
-        // shidden becomes last parameter
-        params[pi] = shidden;
-#else
         // shidden becomes first parameter
         memmove(params + 1, params, pi * sizeof(params[0]));
         params[0] = shidden;
-#endif
         pi++;
     }
 
 
     if (sthis)
     {
-#if 0
-        // sthis becomes last parameter
-        params[pi] = sthis;
-#else
         // sthis becomes first parameter
         memmove(params + 1, params, pi * sizeof(params[0]));
         params[0] = sthis;
-#endif
         pi++;
     }
 

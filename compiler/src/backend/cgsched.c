@@ -25,11 +25,7 @@ static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
 
 // If we use Pentium Pro scheduler
-#if 0
-#define PRO     (config.target_scheduler >= TARGET_PentiumPro)
-#else
 #define PRO     (config.target_cpu >= TARGET_PentiumPro)
-#endif
 
 // Struct where we gather information about an instruction
 struct Cinfo
@@ -518,12 +514,7 @@ static unsigned grprw[8][8][2] =
         mAX|EA, F|mAX|mDX,      // MUL
         mAX|EA, F|mAX|mDX,      // IMUL
         mAX|mDX|EA,     F|mAX|mDX,      // DIV
-#if 0
-        // Could generate an exception we want to catch
-        mAX|mDX|EA|N,   F|mAX|mDX|N,    // IDIV
-#else
         mAX|mDX|EA,     F|mAX|mDX,      // IDIV
-#endif
 
         // Grp 5
         EA,     F|EA,           // INC Ev
@@ -543,13 +534,7 @@ static unsigned grprw[8][8][2] =
         mAX|EA, F|mAX,          // MUL
         mAX|EA, F|mAX,          // IMUL
         mAX|EA, F|mAX,          // DIV
-#if 0
-        // Could generate an exception we want to catch
-        mAX|EA|N,       F|mAX|N,        // IDIV
-#else
         mAX|EA, F|mAX,          // IDIV
-#endif
-
 };
 
 /********************************************
@@ -1855,28 +1840,12 @@ STATIC int conflict(Cinfo *ci1,Cinfo *ci2,int fpsched)
     {
         goto Lconflict;
     }
-
-#if 0
-    if (c1->Iop == 0xFF && c2->Iop == 0x8B)
-    {   c1->print(); c2->print(); i = 1;
-        printf("r1=%lx, w1=%lx, a1=%lx, sz1=%d, r2=%lx, w2=%lx, a2=%lx, sz2=%d\n",r1,w1,a1,sz1,r2,w2,a2,sz2);
-    }
-#endif
 L1:
     if (w1 & r2 || (r1 | w1) & w2)
     {   unsigned char ifl1,ifl2;
 
 if (i) printf("test\n");
 
-#if 0
-if (c1->IFL1 != c2->IFL1) printf("t1\n");
-if ((c1->Irm & modregrm(3,0,7)) != (c2->Irm & modregrm(3,0,7))) printf("t2\n");
-if ((issib(c1->Irm) && c1->Isib != c2->Isib)) printf("t3\n");
-if (c1->IEVpointer1 + sz1 <= c2->IEVpointer1) printf("t4\n");
-if (c2->IEVpointer1 + sz2 <= c1->IEVpointer1) printf("t5\n");
-#endif
-
-#if 1   // make sure CFpsw is reliably set
         if (w1 & w2 & F &&              // if both instructions write to flags
             w1 != F &&
             w2 != F &&
@@ -1887,7 +1856,7 @@ if (c2->IEVpointer1 + sz2 <= c1->IEVpointer1) printf("t5\n");
             w2 &= ~F;                   // remove conflict
             goto L1;                    // and try again
         }
-#endif
+
         // If other than the memory reference is a conflict
         if (w1 & r2 & ~mMEM || (r1 | w1) & w2 & ~mMEM)
         {   if (i) printf("\t1\n");

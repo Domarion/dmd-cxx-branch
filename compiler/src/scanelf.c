@@ -162,22 +162,5 @@ void scanElfObjModule(void* pctx, void (*pAddSymbol)(void* pctx, char* name, int
         error(loc, "ELF object module %s is unrecognized class %d", module_name, buf[EI_CLASS]);
         return;
     }
-
-#if 0
-    /* String table section
-     */
-    Elf32_Shdr *string_section = (Elf32_Shdr *)(buf + eh->e_shoff +
-        eh->e_shentsize * eh->e_shstrndx);
-    if (string_section->sh_type != SHT_STRTAB)
-    {
-        //printf("buf = %p, e_shentsize = %d, e_shstrndx = %d\n", buf, eh->e_shentsize, eh->e_shstrndx);
-        //printf("sh_type = %d, SHT_STRTAB = %d\n", string_section->sh_type, SHT_STRTAB);
-        reason = 2;
-        goto Lcorrupt;
-    }
-    printf("strtab sh_offset = x%x\n", string_section->sh_offset);
-    char *string_tab = (char *)(buf + string_section->sh_offset);
-#endif
-
 }
 

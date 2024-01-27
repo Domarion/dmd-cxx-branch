@@ -3345,7 +3345,7 @@ const char *stcToChars(StorageClass& stc)
         { STCimmutable,    TOKimmutable, NULL },
         { STCshared,       TOKshared,   NULL },
         { STCnothrow,      TOKnothrow,  NULL },
-        { STCwild,         TOKwild,     NULL },
+        { STCwild,         TOKinout,     NULL },
         { STCpure,         TOKpure,     NULL },
         { STCref,          TOKref,      NULL },
         { STCtls,          TOKreserved, NULL },

@@ -566,18 +566,6 @@ symbol *Obj::sym_cdata(tym_t ty,char *p,int len)
 {
     symbol *s;
 
-#if 0
-    if (OPT_IS_SET(OPTfwritable_strings))
-    {
-        alignOffset(DATA, tysize(ty));
-        s = symboldata(Doffset, ty);
-        SegData[DATA]->SDbuf->write(p,len);
-        s->Sseg = DATA;
-        s->Soffset = Doffset;   // Remember its offset into DATA section
-        Doffset += len;
-    }
-    else
-#endif
     {
         //printf("Obj::sym_cdata(ty = %x, p = %x, len = %d, CDoffset = %x)\n", ty, p, len, CDoffset);
         alignOffset(CDATA, tysize(ty));
@@ -836,14 +824,6 @@ void Obj::initfile(const char *filename, const char *csegname, const char *modna
         SymbolTable64[STI_FILE].st_name = name;
     else
         SymbolTable[STI_FILE].st_name = name;
-
-#if 0
-    // compiler flag for linker
-    if (I64)
-        SymbolTable64[STI_GCC].st_name = Obj::addstr(symtab_strings,"gcc2_compiled.");
-    else
-        SymbolTable[STI_GCC].st_name = Obj::addstr(symtab_strings,"gcc2_compiled.");
-#endif
 
     if (csegname && *csegname && strcmp(csegname,".text"))
     {   // Define new section and make it the default for cseg segment
@@ -2106,11 +2086,6 @@ void Obj::pubdefsize(int seg, Symbol *s, targ_size_t offset, targ_size_t symsize
             break;
     }
 
-#if 0
-    //printf("\nObj::pubdef(%d,%s,%d)\n",seg,s->Sident,offset);
-    //symbol_print(s);
-#endif
-
     symbol_debug(s);
     reset_symbuf->write(&s, sizeof(s));
     IDXSTR namidx = elf_addmangled(s);
@@ -2223,19 +2198,6 @@ int Obj::common_block(Symbol *s,targ_size_t size,targ_size_t count)
         searchfixlist(s);
         return s->Sseg;
     }
-#if 0
-    reset_symbuf->write(s);
-    IDXSTR namidx = elf_addmangled(s);
-    alignOffset(UDATA,size);
-    IDXSYM symidx = elf_addsym(namidx, SegData[UDATA]->SDoffset, size*count,
-                    (s->ty() & mTYthread) ? STT_TLS : STT_OBJECT,
-                    STB_WEAK, SHN_BSS);
-    //dbg_printf("\tObj::common_block returning symidx %d\n",symidx);
-    s->Sseg = UDATA;
-    s->Sfl = FLudata;
-    SegData[UDATA]->SDoffset += size * count;
-    return symidx;
-#endif
 }
 
 int Obj::common_block(Symbol *s, int flag, targ_size_t size, targ_size_t count)
@@ -2320,12 +2282,6 @@ void Obj::write_bytes(seg_data *pseg, unsigned nbytes, void *p)
 
 unsigned Obj::bytes(int seg, targ_size_t offset, unsigned nbytes, void *p)
 {
-#if 0
-    if (!(seg >= 0 && seg <= seg_count))
-    {   printf("Obj::bytes: seg = %d, seg_count = %d\n", seg, seg_count);
-        *(char*)0=0;
-    }
-#endif
     assert(seg >= 0 && seg <= seg_count);
     Outbuffer *buf = SegData[seg]->SDbuf;
     if (buf == NULL)
@@ -2639,10 +2595,6 @@ size_t ElfObj::writerel(int targseg, size_t offset, unsigned reltype,
 void Obj::reftodatseg(int seg,targ_size_t offset,targ_size_t val,
         unsigned targetdatum,int flags)
 {
-#if 0
-    printf("Obj::reftodatseg(seg=%d, offset=x%llx, val=x%llx,data %x, flags %x)\n",
-        seg,(unsigned long long)offset,(unsigned long long)val,targetdatum,flags);
-#endif
     int relinfo;
     IDXSYM targetsymidx = STI_RODAT;
     if (I64)
@@ -2695,13 +2647,6 @@ void Obj::reftocodeseg(int seg,targ_size_t offset,targ_size_t val)
     //dbg_printf("Obj::reftocodeseg(seg=%d, offset=x%lx, val=x%lx )\n",seg,offset,val);
 
     int relinfo;
-#if 0
-    if (MAP_SEG2TYP(seg) == CODE)
-    {
-        relinfo = RI_TYPE_PC32;
-    }
-    else
-#endif
     {
         if (I64)
             relinfo = (config.flags3 & CFG3pic) ? R_X86_64_PC32 : R_X86_64_32;
@@ -2736,13 +2681,6 @@ int Obj::reftoident(int seg, targ_size_t offset, Symbol *s, targ_size_t val,
     int segtyp = MAP_SEG2TYP(seg);
     //assert(val == 0);
     int retsize = (flags & CFoffset64) ? 8 : 4;
-
-#if 0
-    printf("\nObj::reftoident('%s' seg %d, offset x%llx, val x%llx, flags x%x)\n",
-        s->Sident,seg,offset,val,flags);
-    dbg_printf("Sseg = %d, Sxtrnnum = %d, retsize = %d\n",s->Sseg,s->Sxtrnnum,retsize);
-    symbol_print(s);
-#endif
 
     tym_t ty = s->ty();
     if (s->Sxtrnnum)
@@ -2791,16 +2729,6 @@ int Obj::reftoident(int seg, targ_size_t offset, Symbol *s, targ_size_t val,
         case SCcomdat:
         case_SCcomdat:
         case SCstatic:
-#if 0
-            if ((s->Sflags & SFLthunk) && s->Soffset)
-            {                   // A thunk symbol that has be defined
-                assert(s->Sseg == seg);
-                val = (s->Soffset+val) - (offset+4);
-                goto outaddrval;
-            }
-            // FALL_THROUGH
-#endif
-
         case SCextern:
         case SCcomdef:
         case_extern:

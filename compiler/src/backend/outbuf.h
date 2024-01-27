@@ -123,14 +123,9 @@ struct Outbuffer
     {
         if (pend - p < 2)
             reserve(2);
-#if 0
-        p[0] = ((unsigned char *)&v)[1];
-        p[1] = v;
-#else
         unsigned char *q = p;
         q[0] = v >> 8;
         q[1] = v;
-#endif
         p += 2;
     }
 

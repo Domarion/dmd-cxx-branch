@@ -3971,7 +3971,7 @@ public:
                     tded = e->targ;
                     break;
 
-                case TOKwild:
+                case TOKinout:
                     if (!e->targ->isWild())
                         goto Lno;
                     tded = e->targ;

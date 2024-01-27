@@ -353,13 +353,6 @@ void symbol_tree_check(symbol *s)
  *      NULL if couldn't find it
  */
 
-#if 0
-symbol * lookupsym(const char *p)
-{
-    return scope_search(p,SCTglobal | SCTlocal);
-}
-#endif
-
 /*********************************
  * Delete symbol from symbol table, taking care to delete
  * all children of a symbol.
@@ -414,11 +407,6 @@ void symbol_free(symbol *s)
                     symbol_free(s->Sstruct->Sroot);
                     struct_free(s->Sstruct);
                   }
-#if 0               /* Don't complain anymore about these, ANSI C says  */
-                    /* it's ok                                          */
-                    if (t && t->Tflags & TFsizeunknown)
-                        synerr(EM_unknown_tag,s->Sident);
-#endif
                     break;
                 case SCenum:
                     /* The actual member symbols are either in a local  */
@@ -438,11 +426,6 @@ void symbol_free(symbol *s)
                 case SCauto:
                     vec_free(s->Srange);
                     /* FALL-THROUGH */
-#if 0
-                case SCconst:
-                    if (s->Sflags & (SFLvalue | SFLdtorexp))
-                        el_free(s->Svalue);
-#endif
                     break;
                 default:
                     break;
@@ -462,21 +445,6 @@ void symbol_free(symbol *s)
         s = sr;
     }
 }
-
-/********************************
- * Undefine a symbol.
- * Assume error msg was already printed.
- */
-
-#if 0
-STATIC void symbol_undef(symbol *s)
-{
-  s->Sclass = SCunde;
-  s->Ssymnum = -1;
-  type_free(s->Stype);                  /* free type data               */
-  s->Stype = NULL;
-}
-#endif
 
 /*****************************
  * Add symbol to current symbol array.
@@ -903,73 +871,6 @@ void symbol_symdefs_dehydrate(symbol **ps)
     }
 }
 #endif
-
-#if 0
-
-/*************************************
- * Put symbol table s into parent symbol table.
- */
-
-void symboltable_hydrate(symbol *s,symbol **parent)
-{
-    while (s)
-    {   symbol *sl,*sr;
-        char *p;
-
-        symbol_debug(s);
-
-        sl = s->Sl;
-        sr = s->Sr;
-        p = s->Sident;
-
-        //dbg_printf("symboltable_hydrate('%s')\n",p);
-
-        /* Put symbol s into symbol table       */
-        {   symbol **ps;
-            symbol *rover;
-            int c = *p;
-
-            ps = parent;
-            while ((rover = *ps) != NULL)
-            {   int cmp;
-
-                if ((cmp = c - rover->Sident[0]) == 0)
-                {   cmp = strcmp(p,rover->Sident); /* compare identifier strings */
-                    if (cmp == 0)
-                    {
-                        {
-                            if (!typematch(s->Stype,rover->Stype,0))
-                            {
-                                // cpp_predefine() will define this again
-                                if (type_struct(rover->Stype) &&
-                                    rover->Sstruct->Sflags & STRpredef)
-                                {   s->Sl = s->Sr = NULL;
-                                    symbol_keep(s);
-                                }
-                                else
-                                    synerr(EM_multiple_def,p);  // already defined
-                            }
-                        }
-                        goto L1;
-                    }
-                }
-                ps = (cmp < 0) ?        /* if we go down left side      */
-                    &rover->Sl :
-                    &rover->Sr;
-            }
-            {
-                s->Sl = s->Sr = NULL;
-                *ps = s;
-            }
-        }
-    L1:
-        symboltable_hydrate(sl,parent);
-        s = sr;
-    }
-}
-
-#endif
-
 
 /************************************
  * Hydrate/dehydrate an mptr_t.

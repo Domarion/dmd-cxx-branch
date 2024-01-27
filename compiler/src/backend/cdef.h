@@ -16,9 +16,6 @@
         __clang__       Clang compiler
         __llvm__        Compiler using LLVM as backend (LLVM-GCC/Clang)
 
-    Host operating system:
-        __linux__       Linux
-
     Compiler executable type:
 
     Host CPU:
@@ -110,7 +107,7 @@ char *strupr(char *);
 typedef long double longdouble;
 
 // Precompiled header variations
-#define MMFIO           __linux__  // if memory mapped files
+#define MMFIO           1  // if memory mapped files
 
 // H_STYLE takes on one of these precompiled header methods
 #define H_NONE          1       // no hydration/dehydration necessary

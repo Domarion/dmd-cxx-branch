@@ -22,11 +22,7 @@
 #include        "mem.h"
 #endif
 
-#if MEM_DEBUG
-#define fileline        __FILE__,__LINE__
-#else
 #define fileline
-#endif
 
 #ifndef list_freelist
 list_t list_freelist = NULL;    /* list of free list entries            */
@@ -37,17 +33,9 @@ int list_inited = 0;            /* 1 if initialized                     */
 /* Free storage allocation      */
 #ifndef list_new
 
-#if (__ZTC__ || __SC__) && !MEM_DEBUG
-#define list_new()              ((list_t) mem_fmalloc(sizeof(struct LIST)))
-#define list_delete(list)       mem_ffree(list)
-#else
-#if MEM_DEBUG
-#define list_new()              ((list_t) mem_calloc_debug(sizeof(struct LIST),file,line))
-#else
 #define list_new()              ((list_t) mem_malloc(sizeof(struct LIST)))
-#endif
 #define list_delete(list)       mem_free(list)
-#endif
+
 
 #endif
 
@@ -85,9 +73,8 @@ void list_term()
             if (nlist)
                 printf("nlist = %d\n",nlist);
 #endif
-#if !MEM_DEBUG
+
             assert(nlist == 0);
-#endif
             list_inited = 0;
         }
 }
@@ -96,20 +83,12 @@ void list_term()
  * Allocate list item.
  */
 
-static list_t list_alloc
-#if MEM_DEBUG
-        (char *file,int line)
-#else
-        ()
-#endif
+static list_t list_alloc()
 {   list_t list;
 
     if (list_freelist)
     {   list = list_freelist;
         list_freelist = list_next(list);
-#if MEM_DEBUG
-        mem_setnewfileline(list,file,line);
-#endif
     }
     else
     {   nlist++;
@@ -132,13 +111,8 @@ void list_free(list_t *plist,list_free_fp freeptr)
 #if DEBUG
                 memset(list,0,sizeof(*list));
 #endif
-#if 1
                 list->next = list_freelist;
                 list_freelist = list;
-#else
-                list_delete(list);
-                nlist--;
-#endif
                 list = listnext;
         }
 }
@@ -167,28 +141,14 @@ void *list_subtract(list_t *plist,void *ptr)
 
 /*************************/
 
-#if MEM_DEBUG
-#undef list_append
-
 list_t list_append(list_t *plist,void *ptr)
-{
-    return list_append_debug(plist,ptr,__FILE__,__LINE__);
-}
-
-list_t list_append_debug(list_t *plist,void *ptr,char *file,int line)
-#else
-list_t list_append(list_t *plist,void *ptr)
-#endif
 {       list_t list;
 
         while (*plist)
                 plist = &(list_next(*plist));   /* find end of list     */
 
-#if MEM_DEBUG
-        list = list_alloc(file,line);
-#else
         list = list_alloc();
-#endif
+
         if (list)
         {       *plist = list;
                 list_next(list) = 0;
@@ -215,28 +175,6 @@ list_t list_prepend(list_t *plist,void *ptr)
 
 /*************************/
 
-#if __SC__ && __INTSIZE == 4 && _M_I86 && !_DEBUG_TRACE
-
-__declspec(naked) int __pascal list_nitems(list_t list)
-{
-    _asm
-    {
-        mov     ECX,list-4[ESP]
-        xor     EAX,EAX
-        test    ECX,ECX
-        jz      L1
-    L2:
-        mov     ECX,[ECX]LIST.next
-        inc     EAX
-        test    ECX,ECX
-        jnz     L2
-    L1:
-        ret     4
-    }
-}
-
-#else
-
 int list_nitems(list_t list)
 {
     int n = 0;
@@ -246,8 +184,6 @@ int list_nitems(list_t list)
     }
     return n;
 }
-
-#endif
 
 /*************************/
 

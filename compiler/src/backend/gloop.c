@@ -826,32 +826,11 @@ restart:
             if (b->Belem)
             {
                 vec_copy(rd, b->Binrd); // IN reaching defs
-#if 0
-                dbg_printf("i = %d\n",i);
-                {   int j;
-                    for (j = 0; j < go.deftop; j++)
-                        elem_print(go.defnod[j].DNelem);
-                }
-                dbg_printf("rd    : "); vec_println(rd);
-#endif
                 gblock = b;
                 gref = 0;
                 if (b != l->Lhead)
                     gref = 1;
                 markinvar(b->Belem, rd);
-#if 0
-                dbg_printf("B%d\n", i);
-                {
-                    for (int j = 0; j < go.deftop; j++)
-                    {
-                        printf("  [%2d] ", j);
-                        WReqn(go.defnod[j].DNelem);
-                        printf("\n");
-                    }
-                }
-                dbg_printf("rd    : "); vec_println(rd);
-                dbg_printf("Boutrd: "); vec_println(b->Boutrd);
-#endif
                 assert(vec_equal(rd, b->Boutrd));
             }
             else
@@ -1116,59 +1095,6 @@ STATIC void markinvar(elem *n,vec_t rd)
                 markinvar(n->E1,rd);
                 if (isLI(n->E1))
                 {
-#if 0
-                    // This doesn't work with C++, because exp2_ptrtocomtype() will
-                    // transfer const to where it doesn't belong.
-                    if (n->Ety & mTYconst)
-                    {
-                        makeLI(n);
-                    }
-#endif
-#if 0
-                    // This was disabled because it was marking as LI
-                    // the loop dimension for the [i] array if
-                    // a[j][i] was in a loop. This meant the a[j] array bounds
-                    // check for the a[j].length was skipped.
-                    else if (n->Ejty)
-                    {
-                        tmp = vec_calloc(go.deftop);
-                        filterrdind(tmp,rd,n);  // only the RDs pertaining to n
-
-                        // if (no RDs within loop)
-                        //      then it's loop invariant
-
-                        foreach (i,go.deftop,tmp)          // for each RD
-                            if (vec_testbit(go.defnod[i].DNblock->Bdfoidx,lv))
-                                goto L10;       // found a RD in the loop
-
-                        // If gref has occurred, this can still be LI
-                        // if n is an AE that was also an AE at the
-                        // point of gref.
-                        // We can catch a subset of these cases by looking
-                        // at the AEs at the start of the loop.
-                        if (gref)
-                        {   int j;
-
-                            //printf("\tn is: "); WReqn(n); printf("\n");
-                            foreach (j,go.exptop,gin)
-                            {   elem *e = go.expnod[j];
-
-                                //printf("\t\tgo.expnod[%d] = %p\n",j,e);
-                                //printf("\t\tAE is: "); WReqn(e); printf("\n");
-                                if (el_match2(n,e))
-                                {
-                                    makeLI(n);
-                                    //printf("Ind LI: "); WReqn(n); printf("\n");
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                            makeLI(n);
-                L10:    vec_free(tmp);
-                        break;
-                    }
-#endif
                 }
                 break;
         case OPvar:
@@ -1287,34 +1213,6 @@ void updaterd(elem *n,vec_t GEN,vec_t KILL)
         }
         assert(ni != -1);
     }
-#if 0
-    else if (OTassign(op) && t->Eoper != OPvar && t->Ejty)
-    {
-        ni = -1;
-
-        // for all unambig defs in go.defnod[]
-        for (i = 0; i < go.deftop; i++)
-        {   elem *tn = go.defnod[i].DNelem;
-            elem *tn1;
-
-            if (tn == n)
-                ni = i;
-
-            if (!OTassign(tn->Eoper))
-                continue;
-
-            // If def of same variable, kill that def
-            tn1 = tn->E1;
-            if (tn1->Eoper != OPind || t->Ejty != tn1->Ejty)
-                continue;
-
-            if (KILL)
-                vec_setbit(i,KILL);
-            vec_clearbit(i,GEN);
-        }
-        assert(ni != -1);
-    }
-#endif
     else
     {
         /* Set bit in GEN for this def */
@@ -1664,43 +1562,6 @@ L3:
 
   if (el_sideeffect(n))
         goto Lret;
-
-#if 0
-    printf("*pdomexit = %d\n",*pdomexit);
-    if (*pdomexit & 2)
-    {
-        // If any indirections, can't LI it
-
-        // If this operand has already been indirected, we can let
-        // it pass.
-        Symbol *s;
-
-        printf("looking at:\n");
-        elem_print(n);
-        s = el_basesym(n->E1);
-        if (s)
-        {
-            for (nl = l->Llis; nl; nl = list_next(nl))
-            {   elem *el;
-                tym_t ty2;
-
-                el = list_elem(nl);
-                el = el->E2;
-                elem_print(el);
-                if (el->Eoper == OPind && el_basesym(el->E1) == s)
-                {
-                    printf("  pass!\n");
-                    goto Lpass;
-                }
-            }
-        }
-        printf("  skip!\n");
-        goto Lret;
-
-    Lpass:
-        ;
-    }
-#endif
 
   // Move the LI expression to the preheader
   cmes("Moved LI expression ");
@@ -2056,10 +1917,6 @@ STATIC void findbasivs(loop *l)
                 }
         }
   }
-#if 0
-  dbg_printf("poss    "); vec_println(poss);
-  dbg_printf("notposs "); vec_println(notposs);
-#endif
   vec_subass(poss,notposs);             /* poss = poss - notposs        */
 
   /* create list of IVs */
@@ -2189,11 +2046,6 @@ STATIC void findopeqs(loop *l)
         vec_setbit(s->Ssymnum,notposs);
     }
 
-
-#if 0
-    dbg_printf("poss    "); vec_println(poss);
-    dbg_printf("notposs "); vec_println(notposs);
-#endif
     vec_subass(poss,notposs);           // poss = poss - notposs
 
     // create list of IVs
@@ -3147,12 +2999,7 @@ STATIC famlist * flcmp(famlist *f1,famlist *f2)
     t1 = &(f1->c1->EV);
     t2 = &(f2->c1->EV);
     ty = (*f1->FLpelem)->Ety;           /* type of elem                 */
-#if 0
-    printf("f1: c1 = %d, c2 = %d\n",t1->Vshort,f1->c2->EV.Vshort);
-    printf("f2: c1 = %d, c2 = %d\n",t2->Vshort,f2->c2->EV.Vshort);
-    WRTYxx((*f1->FLpelem)->Ety);
-    WRTYxx((*f2->FLpelem)->Ety);
-#endif
+
     /* Wimp out and just pick f1 if the types don't match               */
     if (tysize(ty) == tysize((*f2->FLpelem)->Ety))
     {
@@ -3270,11 +3117,7 @@ STATIC elem ** onlyref(symbol *x,loop *l,elem *incn,int *prefcount)
             countrefs(&b->Belem,b->BC == BCiftrue);
         }
   }
-#if 0
-  dbg_printf("count = %d, nd = (");
-  if (nd) WReqn(*nd);
-  dbg_printf(")\n");
-#endif
+
   *prefcount = count;
   return nd;
 }

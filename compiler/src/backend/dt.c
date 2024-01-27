@@ -87,15 +87,6 @@ void dt_free(dt_t *dt)
 
 void dt_term()
 {
-#if 0 && TERMCODE
-    dt_t *dtn;
-
-    while (dt_freelist)
-    {   dtn = dt_freelist->DTnext;
-        mem_ffree(dt_freelist);
-        dt_freelist = dtn;
-    }
-#endif
 }
 
 dt_t **dtend(dt_t **pdtend)

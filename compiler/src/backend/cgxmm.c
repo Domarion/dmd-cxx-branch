@@ -804,15 +804,6 @@ code *cdvector(elem *e, regm_t *pretregs)
     elem **tmp = params;
     el_paramArray(&tmp, e->E1);
 
-#if 0
-    printf("cdvector()\n");
-    for (int i = 0; i < n; i++)
-    {
-        printf("[%d]: ", i);
-        elem_print(params[i]);
-    }
-#endif
-
     if (*pretregs == 0)
     {   /* Evaluate for side effects only
          */
@@ -1012,23 +1003,6 @@ code *cdvecfill(elem *e, regm_t *pretregs)
     code cs;
 
     elem *e1 = e->E1;
-#if 0
-    if ((e1->Eoper == OPind && !e1->Ecount) || e1->Eoper == OPvar)
-    {
-        cr = getlvalue(&cs, e1, RMload | retregs);     // get addressing mode
-    }
-    else
-    {
-        unsigned rretregs = XMMREGS & ~retregs;
-        cr = scodelem(op2, &rretregs, retregs, TRUE);
-        unsigned rreg = findreg(rretregs) - XMM0;
-        cs.Irm = modregrm(3,0,rreg & 7);
-        cs.Iflags = 0;
-        cs.Irex = 0;
-        if (rreg & 8)
-            cs.Irex |= REX_B;
-    }
-#endif
 
     unsigned reg;
     unsigned rreg;

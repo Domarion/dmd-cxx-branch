@@ -219,18 +219,6 @@ vec_t vec_realloc(vec_t v, size_t numbits)
 
 #ifndef vec_setbit
 
-#if _M_I86 && __INTSIZE == 4 && __SC__
-__declspec(naked) void __pascal vec_setbit(size_t b,vec_t v)
-{
-    _asm
-    {
-        mov     EAX,b-4[ESP]
-        mov     ECX,v-4[ESP]
-        bts     [ECX],EAX
-        ret     8
-    }
-}
-#else
 void vec_setbit(size_t b,vec_t v)
 {
 #ifdef DEBUG
@@ -243,32 +231,17 @@ void vec_setbit(size_t b,vec_t v)
 }
 #endif
 
-#endif
-
 /**************************
  * Clear bit b in vector v.
  */
 
 #ifndef vec_clearbit
 
-#if _M_I86 && __INTSIZE == 4 && __SC__
-__declspec(naked) void __pascal vec_clearbit(size_t b,vec_t v)
-{
-    _asm
-    {
-        mov     EAX,b-4[ESP]
-        mov     ECX,v-4[ESP]
-        btr     [ECX],EAX
-        ret     8
-    }
-}
-#else
 void vec_clearbit(size_t b,vec_t v)
 {
   assert(v && b < vec_numbits(v));
   *(v + (b >> VECSHIFT)) &= ~MASK(b);
 }
-#endif
 
 #endif
 
@@ -278,21 +251,6 @@ void vec_clearbit(size_t b,vec_t v)
 
 #ifndef vec_testbit
 
-#if _M_I86 && __INTSIZE == 4 && __SC__
-__declspec(naked) size_t __pascal vec_testbit(size_t b,vec_t v)
-{
-    _asm
-    {
-        mov     EAX,v-4[ESP]
-        mov     ECX,b-4[ESP]
-        test    EAX,EAX
-        jz      L1
-        bt      [EAX],ECX
-        sbb     EAX,EAX
-    L1: ret     8
-    }
-}
-#else
 size_t vec_testbit(size_t b,vec_t v)
 {
   if (!v)
@@ -305,36 +263,8 @@ size_t vec_testbit(size_t b,vec_t v)
   }
 #endif
   assert(b < vec_numbits(v));
-#if __I86__ >= 3 && __SC__
-  _asm
-  {
-#if __INTSIZE == 4
-        mov     EAX,b
-        mov     ECX,v
-        bt      [ECX],EAX
-        sbb     EAX,EAX
-#elif __COMPACT__ || __LARGE__ || __VCM__
-        mov     AX,b
-        les     BX,v
-        bt      ES:[BX],AX
-        sbb     AX,AX
-#else
-        mov     AX,b
-        mov     CX,v
-        bt      [CX],AX
-        sbb     AX,AX
-#endif
-  }
-#ifdef DEBUG
-  {     int x = _AX;
-        assert((x != 0) == ((*(v + (b >> VECSHIFT)) & MASK(b)) != 0));
-  }
-#endif
-#else
   return *(v + (b >> VECSHIFT)) & MASK(b);
-#endif
 }
-#endif
 
 #endif
 
@@ -480,9 +410,6 @@ void vec_orass(vec_t v1,vec_t v2)
                 cmp     DI,CX
                 jb      L2
             L1: pop     DS
-        #if __SC__ <= 0x610
-                jmp     Lret
-        #endif
         }
 #else
         for (; v1 < vtop; v1++,v2++)

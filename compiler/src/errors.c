@@ -10,11 +10,9 @@
 
 #include <stdio.h>
 
-#if __linux__
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#endif
 
 #include "errors.h"
 #include "root/outbuffer.h"
@@ -35,12 +33,8 @@ enum COLOR
 
 bool isConsoleColorSupported()
 {
-#if __linux__
     const char *term = getenv("TERM");
     return isatty(STDERR_FILENO) && term && term[0] && 0 != strcmp(term, "dumb");
-#else
-    return false;
-#endif
 }
 
 void setConsoleColorBright(bool bright)
@@ -285,9 +279,6 @@ void vdeprecationSupplemental(const Loc& loc, const char *format, va_list ap)
 
 void fatal()
 {
-#if 0
-    halt();
-#endif
     exit(EXIT_FAILURE);
 }
 

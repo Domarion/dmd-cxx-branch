@@ -111,19 +111,6 @@ void flowrd()
                 }
         } while (anychng);              /* while any changes to Boutrd  */
         vec_free(tmp);
-
-#if 0
-        dbg_printf("Reaching definitions\n");
-        for (i = 0; i < dfotop; i++)
-        {       block *b = dfo[i];
-
-                assert(vec_numbits(b->Binrd) == go.deftop);
-                dbg_printf("B%d Bin ",i); vec_println(b->Binrd);
-                dbg_printf("  Bgen "); vec_println(b->Bgen);
-                dbg_printf(" Bkill "); vec_println(b->Bkill);
-                dbg_printf("  Bout "); vec_println(b->Boutrd);
-        }
-#endif
 }
 
 /***************************
@@ -503,17 +490,6 @@ STATIC void aecpgenkill()
 
         defstarkill();                  /* compute go.defkill and go.starkill */
 
-#if 0
-        assert(vec_numbits(go.defkill) == go.exptop);
-        assert(vec_numbits(go.starkill) == go.exptop);
-        assert(vec_numbits(go.vptrkill) == go.exptop);
-        dbg_printf("defkill  "); vec_println(go.defkill);
-        if (go.starkill)
-            {   dbg_printf("starkill "); vec_println(go.starkill);}
-        if (go.vptrkill)
-            {   dbg_printf("vptrkill "); vec_println(go.vptrkill); }
-#endif
-
         for (i = 0; i < dfotop; i++)    /* for each block               */
         {       block *b = dfo[i];
                 elem *e;
@@ -602,10 +578,6 @@ STATIC void aecpgenkill()
                             accumaecp(b->Bgen,b->Bkill,b->Belem);
                         break;
                 }
-#if 0
-                dbg_printf("block %d Bgen ",i); vec_println(b->Bgen);
-                dbg_printf("       Bkill "); vec_println(b->Bkill);
-#endif
                 b->Bin = vec_calloc(go.exptop);
                 b->Bout = vec_calloc(go.exptop);
         }
@@ -1190,19 +1162,6 @@ void flowlv()
         } while (anychng);
         vec_free(tmp);
         vec_free(livexit);
-#if 0
-        dbg_printf("Live variables\n");
-        for (i = 0; i < dfotop; i++)
-        {       dbg_printf("B%d IN\t",i);
-                vec_println(dfo[i]->Binlv);
-                dbg_printf("B%d GEN\t",i);
-                vec_println(dfo[i]->Bgen);
-                dbg_printf("  KILL\t");
-                vec_println(dfo[i]->Bkill);
-                dbg_printf("  OUT\t");
-                vec_println(dfo[i]->Boutlv);
-        }
-#endif
 }
 
 /***********************************
