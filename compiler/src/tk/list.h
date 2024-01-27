@@ -269,6 +269,4 @@ extern  list_t
 extern  int list_nitems (list_t),
         list_equal (list_t,list_t);
 
-#ifdef __cplusplus
 void list_free(list_t *l); // { list_free(l,FPNULL); }
-#endif

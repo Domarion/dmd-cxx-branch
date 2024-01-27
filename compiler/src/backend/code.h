@@ -8,7 +8,7 @@
  * For any other uses, please contact Digital Mars.
  */
 
-#if __cplusplus && TX86
+#if TX86
 extern "C" {
 #endif
 
@@ -652,7 +652,7 @@ inline void regimmed_set(int reg, targ_size_t e)
     //printf("regimmed_set %s %d\n", regm_str(mask[reg]), (int)e);
 }
 
-#if __cplusplus && TX86
+#if TX86
 }
 #endif
 

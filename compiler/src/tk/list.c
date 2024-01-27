@@ -385,7 +385,6 @@ list_t list_insert(list_t *pl,void *ptr,int n)
     return list;
 }
 
-#ifdef __cplusplus
 void list_free(list_t *l) { list_free(l,FPNULL); }
-#endif
+
 

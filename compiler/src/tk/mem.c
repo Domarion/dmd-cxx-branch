@@ -10,9 +10,7 @@
 #include        <stdarg.h>
 #include        <stddef.h>
 
-#if __cplusplus
 #include        <new>
-#endif
 
 #ifndef malloc
 #include        <stdlib.h>
@@ -32,16 +30,7 @@
 #include        <assert.h>
 #endif
 
-#ifndef VAX11C
-#ifdef BSDUNIX
-#include <strings.h>
-#else
 #include <string.h>
-#endif
-#else
-extern char *strcpy(),*memcpy();
-extern int strlen();
-#endif  /* VAX11C */
 
 int mem_inited = 0;             /* != 0 if initialized                  */
 
@@ -117,7 +106,7 @@ char *mem_strdup(const char *s)
 
 /************* C++ Implementation ***************/
 
-#if __cplusplus && !MEM_NONE
+#if !MEM_NONE
 extern "C++"
 {
 
