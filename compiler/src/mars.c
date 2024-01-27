@@ -158,32 +158,6 @@ Usage:\n\
 
 extern signed char tyalignsize[];
 
-void setParamToDefaults()
-{
-    global.params.color = isConsoleColorSupported();
-    global.params.link = true;
-    global.params.useAssert = CHECKENABLEdefault;
-    global.params.useInvariants = CHECKENABLEdefault;
-    global.params.useIn = CHECKENABLEdefault;
-    global.params.useOut = CHECKENABLEdefault;
-    global.params.useArrayBounds = CHECKENABLEdefault;   // set correct value later
-    global.params.useSwitchError = CHECKENABLEdefault;
-    global.params.boundscheck = CHECKENABLEdefault;
-    global.params.checkAction = CHECKACTION_D;
-    global.params.useModuleInfo = true;
-    global.params.useTypeInfo = true;
-    global.params.useExceptions = true;
-    global.params.useInline = false;
-    global.params.obj = true;
-    global.params.useDeprecated = DIAGNOSTICinform;
-    global.params.warnings = DIAGNOSTICoff;
-    global.params.cplusplus = CppStdRevisionCpp98;
-    global.params.errorLimit = 20;
-    global.params.isLinux = true;
-    global.params.is64bit = (sizeof(size_t) == 8); // // Default to -m32 for 32 bit dmd, -m64 for 64 bit dmd
-    global.params.defaultlibname = "libphobos2.a";
-}
-
 void addDefaultVersions()
 {
     VersionCondition::addPredefinedGlobalIdent("DigitalMars");
@@ -201,7 +175,6 @@ int tryMain(size_t argc, const char *argv[])
     Strings libmodules;
     size_t argcstart = argc;
     bool setdebuglib = false;
-    global._init();
     unittests();
 
     // Check for malformed input
@@ -227,7 +200,6 @@ int tryMain(size_t argc, const char *argv[])
 
     files.reserve(arguments.length - 1);
 
-    setParamToDefaults();
     global.params.argv0 = arguments[0];
 
     addDefaultVersions();
@@ -358,10 +330,6 @@ int tryMain(size_t argc, const char *argv[])
                 global.params.alwaysframe = true;
             else if (strcmp(p + 1, "gx") == 0)
                 global.params.stackstomp = true;
-            else if (strcmp(p + 1, "gt") == 0)
-            {   error(Loc(), "use -profile instead of -gt");
-                global.params.trace = true;
-            }
             else if (strcmp(p + 1, "m32") == 0)
             {
                 global.params.is64bit = false;

@@ -14,33 +14,6 @@
 
 Global global;
 
-void Global::_init()
-{
-    inifilename = NULL;
-    mars_ext = "d";
-    hdr_ext  = "di";
-    doc_ext  = "html";
-    ddoc_ext = "ddoc";
-    json_ext = "json";
-    map_ext  = "map";
-    obj_ext  = "o";
-    lib_ext  = "a";
-    dll_ext  = "so";
-    // Allow 'script' D source files to have no extension.
-    run_noext = true;
-
-    copyright = "Copyright (C) 1999-2021 by The D Language Foundation, All Rights Reserved";
-    written = "written by Walter Bright";
-    version = "v"
-#include "verstr.h"
-    ;
-
-    vendor = "Digital Mars D";
-    stdmsg = stdout;
-
-    main_d = "__main.d";
-}
-
 unsigned Global::startGagging()
 {
     ++gag;

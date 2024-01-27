@@ -75,8 +75,8 @@ enum CppStdRevision
 // Put command line switches in here
 struct Param
 {
-    bool obj;           // write object file
-    bool link;          // perform link
+    bool obj = true;           // write object file
+    bool link = true;          // perform link
     bool dll;           // generate shared dynamic library
     bool lib;           // write library file instead of object file(s)
     bool multiobj;      // break one object file into multiple ones
@@ -94,17 +94,17 @@ struct Param
     bool alwaysframe;   // always emit standard stack frame
     bool optimize;      // run optimizer
     bool map;           // generate linker .map file
-    bool is64bit;       // generate 64 bit code
+    bool is64bit = (sizeof(size_t) == 8);       // generate 64 bit code
     bool isLP64;        // generate code for LP64
-    bool isLinux;       // generate code for linux
-    Diagnostic useDeprecated;
+    bool isLinux = true;       // generate code for linux
+    Diagnostic useDeprecated = DIAGNOSTICinform;
     bool stackstomp;    // add stack stomping code
     bool useUnitTests;  // generate unittest code
-    bool useInline;     // inline expand functions
+    bool useInline = false;     // inline expand functions
     bool useDIP25;      // implement http://wiki.dlang.org/DIP25
     bool release;       // build release version
     bool preservePaths; // true means don't strip path from source file
-    Diagnostic warnings;
+    Diagnostic warnings = DIAGNOSTICoff;
     bool pic;           // generate position-independent-code for shared libs
     bool color;         // use ANSI colors in console output
     bool cov;           // generate code coverage data
@@ -112,34 +112,34 @@ struct Param
     bool nofloat;       // code should not pull in floating point support
     bool ignoreUnsupportedPragmas;      // rather than error on them
     bool enforcePropertySyntax;
-    bool useModuleInfo; // generate runtime module information
-    bool useTypeInfo;   // generate runtime type information
-    bool useExceptions; // support exception handling
+    bool useModuleInfo = true; // generate runtime module information
+    bool useTypeInfo = true;   // generate runtime type information
+    bool useExceptions = true; // support exception handling
     bool betterC;       // be a "better C" compiler; no dependency on D runtime
     bool addMain;       // add a default main() function
     bool allInst;       // generate code for all template instantiations
     bool vsafe;         // use enhanced @safe checking
-    unsigned cplusplus;     // version of C++ name mangling to support
+    unsigned cplusplus = CppStdRevisionCpp98;     // version of C++ name mangling to support
     bool showGaggedErrors;  // print gagged errors anyway
 
     CPU cpu;                // CPU instruction set to target
 
-    CHECKENABLE useInvariants;     // generate class invariant checks
-    CHECKENABLE useIn;             // generate precondition checks
-    CHECKENABLE useOut;            // generate postcondition checks
-    CHECKENABLE useArrayBounds;    // when to generate code for array bounds checks
-    CHECKENABLE useAssert;         // when to generate code for assert()'s
-    CHECKENABLE useSwitchError;    // check for switches without a default
-    CHECKENABLE boundscheck;       // state of -boundscheck switch
+    CHECKENABLE useInvariants = CHECKENABLEdefault;     // generate class invariant checks
+    CHECKENABLE useIn = CHECKENABLEdefault;             // generate precondition checks
+    CHECKENABLE useOut = CHECKENABLEdefault;            // generate postcondition checks
+    CHECKENABLE useArrayBounds = CHECKENABLEdefault;    // when to generate code for array bounds checks
+    CHECKENABLE useAssert = CHECKENABLEdefault;         // when to generate code for assert()'s
+    CHECKENABLE useSwitchError = CHECKENABLEdefault;    // check for switches without a default
+    CHECKENABLE boundscheck = CHECKENABLEdefault;       // state of -boundscheck switch
 
-    CHECKACTION checkAction;       // action to take when bounds, asserts or switch defaults are violated
+    CHECKACTION checkAction = CHECKACTION_D;       // action to take when bounds, asserts or switch defaults are violated
 
-    unsigned errorLimit;
+    unsigned errorLimit = 20;
 
     DString  argv0;    // program name
-    Array<const char *> modFileAliasStrings; // array of char*'s of -I module filename alias strings
-    Array<const char *> *imppath;     // array of char*'s of where to look for import modules
-    Array<const char *> *fileImppath; // array of char*'s of where to look for file import modules
+    Strings modFileAliasStrings; // array of char*'s of -I module filename alias strings
+    Strings *imppath;     // array of char*'s of where to look for import modules
+    Strings *fileImppath; // array of char*'s of where to look for file import modules
     DString objdir;    // .obj/.lib file output directory
     DString objname;   // .obj file output name
     DString libname;   // .lib file output name
@@ -147,7 +147,7 @@ struct Param
     bool doDocComments;  // process embedded documentation comments
     DString docdir;      // write documentation file to docdir directory
     DString docname;     // write documentation file to docname
-    Array<const char *> ddocfiles;  // macro include files for Ddoc
+    Strings ddocfiles;  // macro include files for Ddoc
 
     bool doHdrGeneration;  // process embedded documentation comments
     DString hdrdir;        // write 'header' file to docdir directory
@@ -157,11 +157,11 @@ struct Param
     bool doJsonGeneration;    // write JSON file
     DString jsonfilename;     // write JSON file to jsonfilename
 
-    Array<const char *> *debugids;     // debug identifiers
+    Strings *debugids;     // debug identifiers
 
-    Array<const char *> *versionids;   // version identifiers
+    Strings *versionids;   // version identifiers
 
-    DString defaultlibname;     // default library for non-debug builds
+    DString defaultlibname = "libphobos2.a";     // default library for non-debug builds
     DString debuglibname;       // default library for debug builds
     DString mscrtlib;           // MS C runtime library
 
@@ -180,10 +180,10 @@ struct Param
     Strings runargs;    // arguments for executable
 
     // Linker stuff
-    Array<const char *> objfiles;
-    Array<const char *> linkswitches;
-    Array<const char *> libfiles;
-    Array<const char *> dllfiles;
+    Strings objfiles;
+    Strings linkswitches;
+    Strings libfiles;
+    Strings dllfiles;
     DString deffile;
     DString resfile;
     DString exefile;
@@ -197,32 +197,34 @@ typedef unsigned structalign_t;
 
 struct Global
 {
-    DString inifilename;
-    DString mars_ext;
-    DString obj_ext;
-    DString lib_ext;
-    DString dll_ext;
-    DString doc_ext;            // for Ddoc generated files
-    DString ddoc_ext;           // for Ddoc macro include files
-    DString hdr_ext;            // for D 'header' import files
+    DString inifilename = nullptr;
+    DString mars_ext = "d";
+    DString obj_ext = "o";
+    DString lib_ext = "a";
+    DString dll_ext = "so";
+    DString doc_ext = "html";            // for Ddoc generated files
+    DString ddoc_ext = "ddoc";           // for Ddoc macro include files
+    DString hdr_ext = "di";            // for D 'header' import files
     DString cxxhdr_ext;         // for C/C++ 'header' files
-    DString json_ext;           // for JSON files
-    DString map_ext;            // for .map files
-    bool run_noext;             // allow -run sources without extensions.
+    DString json_ext = "json";           // for JSON files
+    DString map_ext = "map";            // for .map files
+    bool run_noext = true;             // allow -run sources without extensions.
 
-    DString copyright;
-    DString written;
-    const char *main_d;         // dummy filename for dummy main()
-    Array<const char *> *path;        // Array of char*'s which form the import lookup path
-    Array<const char *> *filePath;    // Array of char*'s which form the file import lookup path
+    DString copyright = "Copyright (C) 1999-2021 by The D Language Foundation, All Rights Reserved";
+    DString written = "written by Walter Bright";
+    const char *main_d = "__main.d";         // dummy filename for dummy main()
+    Strings *path;        // Array of char*'s which form the import lookup path
+    Strings *filePath;    // Array of char*'s which form the file import lookup path
 
-    DString version;         // Compiler version string
-    DString vendor;          // Compiler backend name
+    DString version = "v"
+        #include "verstr.h"
+            ;         // Compiler version string
+    DString vendor = "Digital Mars D";          // Compiler backend name
 
     Param params;
     unsigned errors;       // number of errors reported so far
     unsigned warnings;     // number of warnings reported so far
-    FILE *stdmsg;          // where to send verbose messages
+    FILE *stdmsg = stdout;          // where to send verbose messages
     unsigned gag;          // !=0 means gag reporting of errors & warnings
     unsigned gaggedErrors; // number of errors reported while gagged
     unsigned gaggedWarnings; // number of warnings reported while gagged
@@ -248,8 +250,6 @@ struct Global
      *  may or may not have been printed.
      */
     void increaseErrorCount();
-
-    void _init();
 };
 
 extern Global global;
