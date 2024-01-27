@@ -23,7 +23,6 @@ void checkReserved(Loc loc, const char *ident);
 
 /* DebugSymbol's happen for statements like:
  *      debug = identifier;
- *      debug = integer;
  */
 
 DebugSymbol::DebugSymbol(Loc loc, Identifier *ident)
@@ -32,36 +31,23 @@ DebugSymbol::DebugSymbol(Loc loc, Identifier *ident)
     this->loc = loc;
 }
 
-DebugSymbol::DebugSymbol(Loc loc, unsigned level)
-    : Dsymbol()
-{
-    this->level = level;
-    this->loc = loc;
-}
-
 const char *DebugSymbol::toChars()
 {
     if (ident)
         return ident->toChars();
-    else
-    {
-        OutBuffer buf;
-        buf.printf("%d", level);
-        return buf.extractChars();
-    }
+
+    return "";
 }
 
 Dsymbol *DebugSymbol::syntaxCopy(Dsymbol *s)
 {
     assert(!s);
     DebugSymbol *ds = new DebugSymbol(loc, ident);
-    ds->level = level;
     return ds;
 }
 
 void DebugSymbol::addMember(Scope *, ScopeDsymbol *sds)
 {
-    //printf("DebugSymbol::addMember('%s') %s\n", sds->toChars(), toChars());
     Module *m = sds->isModule();
 
     // Do not add the member to the symbol table,
@@ -92,8 +78,6 @@ void DebugSymbol::addMember(Scope *, ScopeDsymbol *sds)
             error("level declaration must be at module level");
             errors = true;
         }
-        else
-            m->debuglevel = level;
     }
 }
 
@@ -106,7 +90,6 @@ const char *DebugSymbol::kind() const
 
 /* VersionSymbol's happen for statements like:
  *      version = identifier;
- *      version = integer;
  */
 
 VersionSymbol::VersionSymbol(Loc loc, Identifier *ident)
@@ -115,30 +98,19 @@ VersionSymbol::VersionSymbol(Loc loc, Identifier *ident)
     this->loc = loc;
 }
 
-VersionSymbol::VersionSymbol(Loc loc, unsigned level)
-    : Dsymbol()
-{
-    this->level = level;
-    this->loc = loc;
-}
-
 const char *VersionSymbol::toChars()
 {
     if (ident)
         return ident->toChars();
-    else
-    {
-        OutBuffer buf;
-        buf.printf("%d", level);
-        return buf.extractChars();
-    }
+
+    return "";
 }
 
 Dsymbol *VersionSymbol::syntaxCopy(Dsymbol *s)
 {
     assert(!s);
     VersionSymbol *ds = ident ? new VersionSymbol(loc, ident)
-                              : new VersionSymbol(loc, level);
+                              : nullptr;
     return ds;
 }
 
@@ -176,8 +148,6 @@ void VersionSymbol::addMember(Scope *, ScopeDsymbol *sds)
             error("level declaration must be at module level");
             errors = true;
         }
-        else
-            m->versionlevel = level;
     }
 }
 

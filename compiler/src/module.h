@@ -99,11 +99,9 @@ public:
 
     Modules aimports;             // all imported modules
 
-    unsigned debuglevel;        // debug level
     Identifiers *debugids;      // debug identifiers
     Identifiers *debugidsNot;       // forward referenced debug identifiers
 
-    unsigned versionlevel;      // version level
     Identifiers *versionids;    // version identifiers
     Identifiers *versionidsNot;     // forward referenced version identifiers
 

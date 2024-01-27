@@ -72,10 +72,8 @@ Module::Module(const char *filename, Identifier *ident, int doDocComment, int do
     srcfile = NULL;
     docfile = NULL;
 
-    debuglevel = 0;
     debugids = NULL;
     debugidsNot = NULL;
-    versionlevel = 0;
     versionids = NULL;
     versionidsNot = NULL;
 

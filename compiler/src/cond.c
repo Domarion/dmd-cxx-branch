@@ -480,7 +480,6 @@ void printDepsConditional(Scope *sc, DVCondition* condition, const char* depType
 
 int DebugCondition::include(Scope *sc)
 {
-    //printf("DebugCondition::include() level = %d, debuglevel = %d\n", level, global.params.debuglevel);
     if (inc == 0)
     {
         inc = 2;
@@ -500,8 +499,6 @@ int DebugCondition::include(Scope *sc)
                 mod->debugidsNot->push(ident);
             }
         }
-        else if (level <= global.params.debuglevel || level <= mod->debuglevel)
-            inc = 1;
         if (!definedInModule)
             printDepsConditional(sc, this, "depsDebug ");
     }
@@ -654,8 +651,6 @@ VersionCondition::VersionCondition(Module *mod, unsigned level, Identifier *iden
 
 int VersionCondition::include(Scope *sc)
 {
-    //printf("VersionCondition::include() level = %d, versionlevel = %d\n", level, global.params.versionlevel);
-    //if (ident) printf("\tident = '%s'\n", ident->toChars());
     if (inc == 0)
     {
         inc = 2;
@@ -676,8 +671,6 @@ int VersionCondition::include(Scope *sc)
                 mod->versionidsNot->push(ident);
             }
         }
-        else if (level <= global.params.versionlevel || level <= mod->versionlevel)
-            inc = 1;
         if (!definedInModule && (!ident || (!isReserved(ident->toChars()) && ident != Id::_unittest && ident != Id::_assert)))
             printDepsConditional(sc, this, "depsVersion ");
     }

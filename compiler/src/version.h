@@ -15,10 +15,8 @@
 class DebugSymbol : public Dsymbol
 {
 public:
-    unsigned level;
 
     DebugSymbol(Loc loc, Identifier *ident);
-    DebugSymbol(Loc loc, unsigned level);
     Dsymbol *syntaxCopy(Dsymbol *);
 
     const char *toChars();
@@ -31,10 +29,8 @@ public:
 class VersionSymbol : public Dsymbol
 {
 public:
-    unsigned level;
 
     VersionSymbol(Loc loc, Identifier *ident);
-    VersionSymbol(Loc loc, unsigned level);
     Dsymbol *syntaxCopy(Dsymbol *);
 
     const char *toChars();

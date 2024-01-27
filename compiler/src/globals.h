@@ -82,7 +82,6 @@ struct Param
     bool multiobj;      // break one object file into multiple ones
     bool oneobj;        // write one object file instead of multiple ones
     bool trace;         // insert profiling hooks
-    bool tracegc;       // instrument calls to 'new'
     bool verbose;       // verbose compile
     bool vcg_ast;       // write-out codegen-ast
     bool showColumns;   // print character (column) numbers in diagnostics
@@ -158,10 +157,8 @@ struct Param
     bool doJsonGeneration;    // write JSON file
     DString jsonfilename;     // write JSON file to jsonfilename
 
-    unsigned debuglevel;   // debug level
     Array<const char *> *debugids;     // debug identifiers
 
-    unsigned versionlevel; // version level
     Array<const char *> *versionids;   // version identifiers
 
     DString defaultlibname;     // default library for non-debug builds

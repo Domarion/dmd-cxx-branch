@@ -31,7 +31,6 @@
 
 #include        "arraytypes.h"
 
-const char * toWinPath(const char *src);
 int executecmd(const char *cmd, const char *args);
 int executearg0(const char *cmd, const char *args);
 

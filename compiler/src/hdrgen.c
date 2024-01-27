@@ -1126,8 +1126,6 @@ public:
         buf->writestring("debug = ");
         if (s->ident)
             buf->writestring(s->ident->toChars());
-        else
-            buf->printf("%u", s->level);
         buf->writestring(";");
         buf->writenl();
     }
@@ -1137,8 +1135,6 @@ public:
         buf->writestring("version = ");
         if (s->ident)
             buf->writestring(s->ident->toChars());
-        else
-            buf->printf("%u", s->level);
         buf->writestring(";");
         buf->writenl();
     }

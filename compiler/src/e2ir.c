@@ -5644,57 +5644,58 @@ elem *buildArrayBoundsError(IRState *irs, const Loc& loc)
  *      eloc = to get file/line from
  */
 
-void toTraceGC(IRState *irs, elem *e, Loc *loc)
+// TODO: Get rid of GC calls
+void toTraceGC(IRState */*irs*/, elem */*e*/, Loc */*loc*/)
 {
-    static const int map[][2] =
-    {
-        { RTLSYM_NEWCLASS, RTLSYM_TRACENEWCLASS },
-        { RTLSYM_NEWITEMT, RTLSYM_TRACENEWITEMT },
-        { RTLSYM_NEWITEMIT, RTLSYM_TRACENEWITEMIT },
-        { RTLSYM_NEWARRAYT, RTLSYM_TRACENEWARRAYT },
-        { RTLSYM_NEWARRAYIT, RTLSYM_TRACENEWARRAYIT },
-        { RTLSYM_NEWARRAYMTX, RTLSYM_TRACENEWARRAYMTX },
-        { RTLSYM_NEWARRAYMITX, RTLSYM_TRACENEWARRAYMITX },
+//    static const int map[][2] =
+//    {
+//        { RTLSYM_NEWCLASS, RTLSYM_TRACENEWCLASS },
+//        { RTLSYM_NEWITEMT, RTLSYM_TRACENEWITEMT },
+//        { RTLSYM_NEWITEMIT, RTLSYM_TRACENEWITEMIT },
+//        { RTLSYM_NEWARRAYT, RTLSYM_TRACENEWARRAYT },
+//        { RTLSYM_NEWARRAYIT, RTLSYM_TRACENEWARRAYIT },
+//        { RTLSYM_NEWARRAYMTX, RTLSYM_TRACENEWARRAYMTX },
+//        { RTLSYM_NEWARRAYMITX, RTLSYM_TRACENEWARRAYMITX },
 
-        { RTLSYM_DELCLASS, RTLSYM_TRACEDELCLASS },
-        { RTLSYM_CALLFINALIZER, RTLSYM_TRACECALLFINALIZER },
-        { RTLSYM_CALLINTERFACEFINALIZER, RTLSYM_TRACECALLINTERFACEFINALIZER },
-        { RTLSYM_DELINTERFACE, RTLSYM_TRACEDELINTERFACE },
-        { RTLSYM_DELARRAYT, RTLSYM_TRACEDELARRAYT },
-        { RTLSYM_DELMEMORY, RTLSYM_TRACEDELMEMORY },
-        { RTLSYM_DELSTRUCT, RTLSYM_TRACEDELSTRUCT },
+//        { RTLSYM_DELCLASS, RTLSYM_TRACEDELCLASS },
+//        { RTLSYM_CALLFINALIZER, RTLSYM_TRACECALLFINALIZER },
+//        { RTLSYM_CALLINTERFACEFINALIZER, RTLSYM_TRACECALLINTERFACEFINALIZER },
+//        { RTLSYM_DELINTERFACE, RTLSYM_TRACEDELINTERFACE },
+//        { RTLSYM_DELARRAYT, RTLSYM_TRACEDELARRAYT },
+//        { RTLSYM_DELMEMORY, RTLSYM_TRACEDELMEMORY },
+//        { RTLSYM_DELSTRUCT, RTLSYM_TRACEDELSTRUCT },
 
-        { RTLSYM_ARRAYLITERALTX, RTLSYM_TRACEARRAYLITERALTX },
-        { RTLSYM_ASSOCARRAYLITERALTX, RTLSYM_TRACEASSOCARRAYLITERALTX },
+//        { RTLSYM_ARRAYLITERALTX, RTLSYM_TRACEARRAYLITERALTX },
+//        { RTLSYM_ASSOCARRAYLITERALTX, RTLSYM_TRACEASSOCARRAYLITERALTX },
 
-        { RTLSYM_ARRAYCATT, RTLSYM_TRACEARRAYCATT },
-        { RTLSYM_ARRAYCATNTX, RTLSYM_TRACEARRAYCATNTX },
+//        { RTLSYM_ARRAYCATT, RTLSYM_TRACEARRAYCATT },
+//        { RTLSYM_ARRAYCATNTX, RTLSYM_TRACEARRAYCATNTX },
 
-        { RTLSYM_ARRAYAPPENDCD, RTLSYM_TRACEARRAYAPPENDCD },
-        { RTLSYM_ARRAYAPPENDWD, RTLSYM_TRACEARRAYAPPENDWD },
-        { RTLSYM_ARRAYAPPENDT, RTLSYM_TRACEARRAYAPPENDT },
-        { RTLSYM_ARRAYAPPENDCTX, RTLSYM_TRACEARRAYAPPENDCTX },
+//        { RTLSYM_ARRAYAPPENDCD, RTLSYM_TRACEARRAYAPPENDCD },
+//        { RTLSYM_ARRAYAPPENDWD, RTLSYM_TRACEARRAYAPPENDWD },
+//        { RTLSYM_ARRAYAPPENDT, RTLSYM_TRACEARRAYAPPENDT },
+//        { RTLSYM_ARRAYAPPENDCTX, RTLSYM_TRACEARRAYAPPENDCTX },
 
-        { RTLSYM_ARRAYSETLENGTHT, RTLSYM_TRACEARRAYSETLENGTHT },
-        { RTLSYM_ARRAYSETLENGTHIT, RTLSYM_TRACEARRAYSETLENGTHIT },
+//        { RTLSYM_ARRAYSETLENGTHT, RTLSYM_TRACEARRAYSETLENGTHT },
+//        { RTLSYM_ARRAYSETLENGTHIT, RTLSYM_TRACEARRAYSETLENGTHIT },
 
-        { RTLSYM_ALLOCMEMORY, RTLSYM_TRACEALLOCMEMORY },
-    };
+//        { RTLSYM_ALLOCMEMORY, RTLSYM_TRACEALLOCMEMORY },
+//    };
 
-    if (global.params.tracegc && loc->filename)
-    {
-        assert(e->Eoper == OPcall);
-        elem *e1 = e->E1;
-        assert(e1->Eoper == OPvar);
-        for (size_t i = 0; 1; ++i)
-        {
-            assert(i < sizeof(map)/sizeof(map[0]));
-            if (e1->EV.sp.Vsym == getRtlsym(map[i)[0]])
-            {
-                e1->EV.sp.Vsym = getRtlsym(map[i)[1]];
-                break;
-            }
-        }
-        e->E2 = el_param(e->E2, filelinefunction(irs, loc));
-    }
+//    if (global.params.tracegc && loc->filename)
+//    {
+//        assert(e->Eoper == OPcall);
+//        elem *e1 = e->E1;
+//        assert(e1->Eoper == OPvar);
+//        for (size_t i = 0; 1; ++i)
+//        {
+//            assert(i < sizeof(map)/sizeof(map[0]));
+//            if (e1->EV.sp.Vsym == getRtlsym(map[i)[0]])
+//            {
+//                e1->EV.sp.Vsym = getRtlsym(map[i)[1]];
+//                break;
+//            }
+//        }
+//        e->E2 = el_param(e->E2, filelinefunction(irs, loc));
+//    }
 }

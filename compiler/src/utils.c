@@ -16,31 +16,6 @@
 #include "root/rmem.h"
 
 /**
- * Normalize path by turning forward slashes into backslashes
- *
- * Params:
- *   src = Source path, using unix-style ('/') path separators
- *
- * Returns:
- *   A newly-allocated string with '/' turned into backslashes
- */
-const char * toWinPath(const char *src)
-{
-    if (src == NULL)
-        return NULL;
-
-    char *result = mem.xstrdup(src);
-    char *p = result;
-    while (*p != '\0')
-    {
-        if (*p == '/')
-            *p = '\\';
-        p++;
-    }
-    return result;
-}
-
-/**
  * Reads a file, terminate the program on error
  *
  * Params:

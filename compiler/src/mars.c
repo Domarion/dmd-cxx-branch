@@ -65,9 +65,6 @@ void parseConfFile(StringTable *environment, const char *path, size_t len, unsig
 
 void genObjFile(Module *m, bool multiobj);
 
-// utils.c
-const char * toWinPath(const char *src);
-
 extern void backend_init();
 extern void backend_term();
 
@@ -107,7 +104,6 @@ Usage:\n\
   -dw            show use of deprecated features as warnings (default)\n\
   -de            show use of deprecated features as errors (halt compilation)\n\
   -debug         compile in debug code\n\
-  -debug=level   compile in debug code <= level\n\
   -debug=ident   compile in debug code identified by ident\n\
   -debuglib=name    set symbolic debug library to name\n\
   -defaultlib=name  set default library to name\n\
@@ -131,7 +127,6 @@ Usage:\n\
   -m32           generate 32 bit code\n\
   -m64           generate 64 bit code\n\
   -main          add default main() (e.g. for unittesting)\n\
-  -man           open web browser on manual page\n\
   -map           generate linker .map file\n\
   -noboundscheck no array bounds checking (deprecated, use -boundscheck=off)\n\
   -O             optimize\n\
@@ -140,7 +135,6 @@ Usage:\n\
   -offilename    name output file to filename\n\
   -op            preserve source path for output files\n\
   -profile       profile runtime performance of generated code\n\
-  -profile=gc    profile runtime allocations\n\
   -property      enforce property syntax\n\
   -release       compile release version\n\
   -run srcfile args...   run resulting program, passing args\n\
@@ -154,7 +148,6 @@ Usage:\n\
   -vgc           list all gc allocations including hidden ones\n\
   -vtls          list all variables going into thread local storage\n\
   --version      print compiler version and exit\n\
-  -version=level compile in version code >= level\n\
   -version=ident compile in version code identified by ident\n\
   -w             warnings as errors (compilation will halt)\n\
   -wi            warnings as messages (compilation will continue)\n\
@@ -165,6 +158,43 @@ Usage:\n\
 
 extern signed char tyalignsize[];
 
+void setParamToDefaults()
+{
+    global.params.color = isConsoleColorSupported();
+    global.params.link = true;
+    global.params.useAssert = CHECKENABLEdefault;
+    global.params.useInvariants = CHECKENABLEdefault;
+    global.params.useIn = CHECKENABLEdefault;
+    global.params.useOut = CHECKENABLEdefault;
+    global.params.useArrayBounds = CHECKENABLEdefault;   // set correct value later
+    global.params.useSwitchError = CHECKENABLEdefault;
+    global.params.boundscheck = CHECKENABLEdefault;
+    global.params.checkAction = CHECKACTION_D;
+    global.params.useModuleInfo = true;
+    global.params.useTypeInfo = true;
+    global.params.useExceptions = true;
+    global.params.useInline = false;
+    global.params.obj = true;
+    global.params.useDeprecated = DIAGNOSTICinform;
+    global.params.warnings = DIAGNOSTICoff;
+    global.params.cplusplus = CppStdRevisionCpp98;
+    global.params.errorLimit = 20;
+    global.params.isLinux = true;
+    global.params.is64bit = (sizeof(size_t) == 8); // // Default to -m32 for 32 bit dmd, -m64 for 64 bit dmd
+    global.params.defaultlibname = "libphobos2.a";
+}
+
+void addDefaultVersions()
+{
+    VersionCondition::addPredefinedGlobalIdent("DigitalMars");
+    VersionCondition::addPredefinedGlobalIdent("Posix");
+    VersionCondition::addPredefinedGlobalIdent("linux");
+    VersionCondition::addPredefinedGlobalIdent("ELFv1");
+    VersionCondition::addPredefinedGlobalIdent("LittleEndian");
+    VersionCondition::addPredefinedGlobalIdent("D_Version2");
+    VersionCondition::addPredefinedGlobalIdent("all");
+}
+
 int tryMain(size_t argc, const char *argv[])
 {
     Strings files;
@@ -172,11 +202,6 @@ int tryMain(size_t argc, const char *argv[])
     size_t argcstart = argc;
     bool setdebuglib = false;
     global._init();
-
-#ifdef DEBUG
-    printf("DMD %s DEBUG\n", global.version.ptr);
-#endif
-
     unittests();
 
     // Check for malformed input
@@ -200,49 +225,12 @@ int tryMain(size_t argc, const char *argv[])
     if (response_expand(&arguments))   // expand response files
         error(Loc(), "can't open response file");
 
-    //for (size_t i = 0; i < arguments.length; ++i) printf("arguments[%d] = '%s'\n", i, arguments[i]);
-
     files.reserve(arguments.length - 1);
 
-    // Set default values
+    setParamToDefaults();
     global.params.argv0 = arguments[0];
-    global.params.color = isConsoleColorSupported();
-    global.params.link = true;
-    global.params.useAssert = CHECKENABLEdefault;
-    global.params.useInvariants = CHECKENABLEdefault;
-    global.params.useIn = CHECKENABLEdefault;
-    global.params.useOut = CHECKENABLEdefault;
-    global.params.useArrayBounds = CHECKENABLEdefault;   // set correct value later
-    global.params.useSwitchError = CHECKENABLEdefault;
-    global.params.boundscheck = CHECKENABLEdefault;
-    global.params.checkAction = CHECKACTION_D;
-    global.params.useModuleInfo = true;
-    global.params.useTypeInfo = true;
-    global.params.useExceptions = true;
-    global.params.useInline = false;
-    global.params.obj = true;
-    global.params.useDeprecated = DIAGNOSTICinform;
-    global.params.warnings = DIAGNOSTICoff;
-    global.params.cplusplus = CppStdRevisionCpp98;
-    global.params.errorLimit = 20;
 
-    // Default to -m32 for 32 bit dmd, -m64 for 64 bit dmd
-    global.params.is64bit = (sizeof(size_t) == 8);
-
-    global.params.defaultlibname = "libphobos2.a";
-
-    // Predefine version identifiers
-    VersionCondition::addPredefinedGlobalIdent("DigitalMars");
-
-    VersionCondition::addPredefinedGlobalIdent("Posix");
-    VersionCondition::addPredefinedGlobalIdent("linux");
-    VersionCondition::addPredefinedGlobalIdent("ELFv1");
-    global.params.isLinux = true;
-
-
-    VersionCondition::addPredefinedGlobalIdent("LittleEndian");
-    VersionCondition::addPredefinedGlobalIdent("D_Version2");
-    VersionCondition::addPredefinedGlobalIdent("all");
+    addDefaultVersions();
 
     global.inifilename = parse_conf_arg(&arguments);
     if (global.inifilename.ptr)
@@ -354,10 +342,6 @@ int tryMain(size_t argc, const char *argv[])
             }
             else if (strcmp(p + 1, "shared") == 0)
                 global.params.dll = true;
-            else if (strcmp(p + 1, "dylib") == 0)
-            {
-                goto Lerror;
-            }
             else if (strcmp(p + 1, "fPIC") == 0)
             {
                 global.params.pic = 1;
@@ -390,15 +374,7 @@ int tryMain(size_t argc, const char *argv[])
             {
                 // Parse:
                 //      -profile
-                //      -profile=gc
-                if (p[8] == '=')
-                {
-                    if (strcmp(p + 9, "gc") == 0)
-                        global.params.tracegc = true;
-                    else
-                        goto Lerror;
-                }
-                else if (p[8])
+                if (p[8])
                     goto Lerror;
                 else
                     global.params.trace = true;
@@ -702,8 +678,6 @@ Language changes listed by -transition=id:\n\
                 }
                 else if (p[6])
                     goto Lerror;
-                else
-                    global.params.debuglevel = 1;
             }
             else if (memcmp(p + 1, "version", 7) == 0)
             {
@@ -829,7 +803,7 @@ Language changes listed by -transition=id:\n\
         }
     }
 
-    if(global.params.is64bit != is64bit)
+    if (global.params.is64bit != is64bit)
         error(Loc(), "the architecture must not be changed in the %s section of %s",
               envsection, global.inifilename.ptr);
 
@@ -840,8 +814,10 @@ Language changes listed by -transition=id:\n\
     {
         fatal();
     }
+
     if (files.length == 0)
-    {   usage();
+    {
+        usage();
         return EXIT_FAILURE;
     }
 
@@ -1029,13 +1005,11 @@ Language changes listed by -transition=id:\n\
     Expression::_init();
 
     if (global.params.verbose)
-    {   fprintf(global.stdmsg, "binary    %s\n", global.params.argv0.ptr);
+    {
+        fprintf(global.stdmsg, "binary    %s\n", global.params.argv0.ptr);
         fprintf(global.stdmsg, "version   %s\n", global.version.ptr);
-        fprintf(global.stdmsg, "config    %s\n", global.inifilename.length ? global.inifilename.ptr
-                                                                    : "(none)");
+        fprintf(global.stdmsg, "config    %s\n", global.inifilename.length ? global.inifilename.ptr : "(none)");
     }
-
-    //printf("%d source files\n",files.length);
 
     // Build import search path
     if (global.params.imppath)
@@ -1111,7 +1085,6 @@ Language changes listed by -transition=id:\n\
                 libmodules.push(files[i]);
                 continue;
             }
-
 
             if (strcmp(ext, global.ddoc_ext.ptr) == 0)
             {
@@ -1377,7 +1350,6 @@ Language changes listed by -transition=id:\n\
     }
 
     // Generate output files
-
     if (global.params.doJsonGeneration)
     {
         OutBuffer buf;
@@ -1516,11 +1488,7 @@ Language changes listed by -transition=id:\n\
 
 int main(int argc, const char *argv[])
 {
-    int status = -1;
-
-    status = tryMain(argc, argv);
-
-    return status;
+    return tryMain(argc, argv);
 }
 
 
@@ -1582,8 +1550,6 @@ void getenv_setargv(const char *envvalue, Strings *args)
                             if (instring)
                                 goto Laddc;
                             *p = 0;
-                            //if (wildcard)
-                                //wildcardexpand();     // not implemented
                             break;
 
                         case '\\':
@@ -1593,8 +1559,6 @@ void getenv_setargv(const char *envvalue, Strings *args)
 
                         case 0:
                             *p = 0;
-                            //if (wildcard)
-                                //wildcardexpand();     // not implemented
                             return;
 
                         default:
