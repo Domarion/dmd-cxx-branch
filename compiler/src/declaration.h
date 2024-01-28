@@ -115,7 +115,7 @@ struct Match
     FuncDeclaration *anyf;      // pick a func, any func, to use for error recovery
 };
 
-void functionResolve(Match *m, Dsymbol *fd, Loc loc, Scope *sc, Objects *tiargs, Type *tthis, Expressions *fargs, const char **pMessage = NULL);
+void functionResolve(Match *m, Dsymbol *fd, Loc loc, Scope *sc, Objects *tiargs, Type *tthis, Expressions *fargs, const char **pMessage = nullptr);
 int overloadApply(Dsymbol *fstart, void *param, int (*fp)(void *, Dsymbol *));
 void aliasSemantic(AliasDeclaration *ds, Scope *sc);
 
@@ -129,7 +129,7 @@ public:
     Type *type;
     Type *originalType;         // before semantic analysis
     StorageClass storage_class;
-    Prot protection;
+    Visibility protection;
     LINK linkage;
     int inuse;                  // used to detect cycles
     DString mangleOverride;     // overridden symbol with pragma(mangle, "...")
@@ -168,7 +168,7 @@ public:
 
     bool isFuture() { return (storage_class & STCfuture) != 0; }
 
-    Prot prot();
+    Visibility prot();
 
     Declaration *isDeclaration() { return this; }
     void accept(Visitor *v) { v->visit(this); }
@@ -182,7 +182,7 @@ public:
     Objects *objects;
     bool isexp;                 // true: expression tuple
 
-    TypeTuple *tupletype;       // !=NULL if this is a type tuple
+    TypeTuple *tupletype;       // !=nullptr if this is a type tuple
 
     TupleDeclaration(Loc loc, Identifier *ident, Objects *objects);
     Dsymbol *syntaxCopy(Dsymbol *);
@@ -202,7 +202,7 @@ class AliasDeclaration : public Declaration
 public:
     Dsymbol *aliassym;
     Dsymbol *overnext;          // next in overload list
-    Dsymbol *_import;           // !=NULL if unresolved internal alias for selective import
+    Dsymbol *_import;           // !=nullptr if unresolved internal alias for selective import
 
     AliasDeclaration(Loc loc, Identifier *ident, Type *type);
     AliasDeclaration(Loc loc, Identifier *ident, Dsymbol *s);
@@ -264,11 +264,11 @@ public:
     VarDeclaration *lastVar;    // Linked list of variables for goto-skips-init detection
     unsigned endlinnum;         // line number of end of scope that this var lives in
 
-    // When interpreting, these point to the value (NULL if value not determinable)
+    // When interpreting, these point to the value (nullptr if value not determinable)
     // The index of this variable on the CTFE stack, -1 if not allocated
     int ctfeAdrOnStack;
-    Expression *edtor;          // if !=NULL, does the destruction of the variable
-    IntRange *range;            // if !NULL, the variable is known to be within the range
+    Expression *edtor;          // if !=nullptr, does the destruction of the variable
+    IntRange *range;            // if !nullptr, the variable is known to be within the range
 
     VarDeclaration(Loc loc, Type *t, Identifier *id, Initializer *init);
     static VarDeclaration *create(Loc loc, Type *t, Identifier *id, Initializer *init);
@@ -596,7 +596,7 @@ public:
     ForeachStatement *fes;              // if foreach body, this is the foreach
     BaseClass* interfaceVirtual;        // if virtual, but only appears in interface vtbl[]
     bool introducing;                   // true if 'introducing' function
-    // if !=NULL, then this is the type
+    // if !=nullptr, then this is the type
     // of the 'introducing' function
     // this one is overriding
     Type *tintro;
@@ -745,7 +745,7 @@ public:
     bool deferToObj;
 
     FuncLiteralDeclaration(Loc loc, Loc endloc, Type *type, TOK tok,
-        ForeachStatement *fes, Identifier *id = NULL);
+        ForeachStatement *fes, Identifier *id = nullptr);
     Dsymbol *syntaxCopy(Dsymbol *);
     bool isNested();
     AggregateDeclaration *isThis();
@@ -864,7 +864,7 @@ public:
 class InvariantDeclaration : public FuncDeclaration
 {
 public:
-    InvariantDeclaration(Loc loc, Loc endloc, StorageClass stc, Identifier *id = NULL);
+    InvariantDeclaration(Loc loc, Loc endloc, StorageClass stc, Identifier *id = nullptr);
     Dsymbol *syntaxCopy(Dsymbol *);
     bool isVirtual();
     bool addPreInvariant();

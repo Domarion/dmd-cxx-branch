@@ -108,7 +108,7 @@ static NameId namesA[]={
         {"auml",             0x000E4},  // LATIN SMALL LETTER A WITH DIAERESIS
         {"awconint",         0x02233},  // ANTICLOCKWISE CONTOUR INTEGRAL
         {"awint",            0x02A11},  // ANTICLOCKWISE INTEGRATION
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesB[]={
@@ -284,7 +284,7 @@ static NameId namesB[]={
 //      "b.Xi",             0x1D6B5},  // MATHEMATICAL BOLD CAPITAL XI
 //      "b.xi",             0x1D6CF},  // MATHEMATICAL BOLD SMALL XI
 //      "b.zeta",           0x1D6C7},  // MATHEMATICAL BOLD SMALL ZETA
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesC[]={
@@ -416,7 +416,7 @@ static NameId namesC[]={
         {"cwconint",         0x02232},  // CLOCKWISE CONTOUR INTEGRAL
         {"cwint",            0x02231},  // CLOCKWISE INTEGRAL
         {"cylcty",           0x0232D},  // CYLINDRICITY
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesD[]={
@@ -540,7 +540,7 @@ static NameId namesD[]={
         {"DZcy",             0x0040F},  // CYRILLIC CAPITAL LETTER DZHE
         {"dzcy",             0x0045F},  // CYRILLIC SMALL LETTER DZHE
         {"dzigrarr",         0x027FF},  // LONG RIGHTWARDS SQUIGGLE ARROW
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesE[]={
@@ -639,7 +639,7 @@ static NameId namesE[]={
         {"expectation",      0x02130},  // SCRIPT CAPITAL E
         {"exponentiale",     0x02147},  // DOUBLE-STRUCK ITALIC SMALL E
         {"ExponentialE",     0x02147},  // DOUBLE-STRUCK ITALIC SMALL E
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesF[]={
@@ -687,7 +687,7 @@ static NameId namesF[]={
         {"frown",            0x02322},  // FROWN
         {"Fscr",             0x02131},  // SCRIPT CAPITAL F
         {"fscr",             0x1D4BB},  // MATHEMATICAL SCRIPT SMALL F
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesG[]={
@@ -773,7 +773,7 @@ static NameId namesG[]={
         {"gtrsim",           0x02273},  // GREATER-THAN OR EQUIVALENT TO
 //      "gvertneqq",        0x02269;0x0FE00},  // GREATER-THAN BUT NOT EQUAL TO - with vertical stroke
 //      "gvnE",             0x02269;0x0FE00},  // GREATER-THAN BUT NOT EQUAL TO - with vertical stroke
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesH[]={
@@ -817,7 +817,7 @@ static NameId namesH[]={
         {"HumpEqual",        0x0224F},  // DIFFERENCE BETWEEN
         {"hybull",           0x02043},  // HYPHEN BULLET
         {"hyphen",           0x02010},  // HYPHEN
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesI[]={
@@ -903,7 +903,7 @@ static NameId namesI[]={
         {"iukcy",            0x00456},  // CYRILLIC SMALL LETTER BYELORUSSIAN-UKRAINIAN I
         {"Iuml",             0x000CF},  // LATIN CAPITAL LETTER I WITH DIAERESIS
         {"iuml",             0x000EF},  // LATIN SMALL LETTER I WITH DIAERESIS
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesJ[]={
@@ -922,7 +922,7 @@ static NameId namesJ[]={
         {"jsercy",           0x00458},  // CYRILLIC SMALL LETTER JE
         {"Jukcy",            0x00404},  // CYRILLIC CAPITAL LETTER UKRAINIAN IE
         {"jukcy",            0x00454},  // CYRILLIC SMALL LETTER UKRAINIAN IE
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesK[]={
@@ -948,7 +948,7 @@ static NameId namesK[]={
         {"kopf",             0x1D55C},  // MATHEMATICAL DOUBLE-STRUCK SMALL K
         {"Kscr",             0x1D4A6},  // MATHEMATICAL SCRIPT CAPITAL K
         {"kscr",             0x1D4C0},  // MATHEMATICAL SCRIPT SMALL K
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesL[]={
@@ -1165,7 +1165,7 @@ static NameId namesL[]={
         {"luruhar",          0x02966},  // LEFTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB UP
 //      "lvertneqq",        0x02268;0x0FE00},  // LESS-THAN BUT NOT EQUAL TO - with vertical stroke
 //      "lvnE",             0x02268;0x0FE00},  // LESS-THAN BUT NOT EQUAL TO - with vertical stroke
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesM[]={
@@ -1217,7 +1217,7 @@ static NameId namesM[]={
         {"mu",               0x003BC},  // GREEK SMALL LETTER MU
         {"multimap",         0x022B8},  // MULTIMAP
         {"mumap",            0x022B8},  // MULTIMAP
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesN[]={
@@ -1459,7 +1459,7 @@ static NameId namesN[]={
         {"nwArr",            0x021D6},  // NORTH WEST DOUBLE ARROW
         {"nwarrow",          0x02196},  // NORTH WEST ARROW
         {"nwnear",           0x02927},  // NORTH WEST ARROW AND NORTH EAST ARROW
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesO[]={
@@ -1547,7 +1547,7 @@ static NameId namesO[]={
         {"OverBrace",        0x023DE},  // TOP CURLY BRACKET
         {"OverBracket",      0x023B4},  // TOP SQUARE BRACKET
         {"OverParenthesis",  0x023DC},  // TOP PARENTHESIS
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesP[]={
@@ -1642,7 +1642,7 @@ static NameId namesP[]={
         {"Psi",              0x003A8},  // GREEK CAPITAL LETTER PSI
         {"psi",              0x003C8},  // GREEK SMALL LETTER PSI
         {"puncsp",           0x02008},  // PUNCTUATION SPACE
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesQ[]={
@@ -1660,7 +1660,7 @@ static NameId namesQ[]={
         {"questeq",          0x0225F},  // QUESTIONED EQUAL TO
         {"quot",             0x00022},  // QUOTATION MARK
         {"QUOT",             0x00022},  // QUOTATION MARK
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesR[]={
@@ -1812,7 +1812,7 @@ static NameId namesR[]={
         {"RuleDelayed",      0x029F4},  // RULE-DELAYED
         {"ruluhar",          0x02968},  // RIGHTWARDS HARPOON WITH BARB UP ABOVE LEFTWARDS HARPOON WITH BARB UP
         {"rx",               0x0211E},  // PRESCRIPTION TAKE
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesS[]={
@@ -2011,7 +2011,7 @@ static NameId namesS[]={
         {"swarrow",          0x02199},  // SOUTH WEST ARROW
         {"swnwar",           0x0292A},  // SOUTH WEST ARROW AND NORTH WEST ARROW
         {"szlig",            0x000DF},  // LATIN SMALL LETTER SHARP S
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesT[]={
@@ -2097,7 +2097,7 @@ static NameId namesT[]={
         {"twixt",            0x0226C},  // BETWEEN
         {"twoheadleftarrow", 0x0219E},  // LEFTWARDS TWO HEADED ARROW
         {"twoheadrightarrow", 0x021A0},  // RIGHTWARDS TWO HEADED ARROW
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesU[]={
@@ -2191,7 +2191,7 @@ static NameId namesU[]={
         {"Uuml",             0x000DC},  // LATIN CAPITAL LETTER U WITH DIAERESIS
         {"uuml",             0x000FC},  // LATIN SMALL LETTER U WITH DIAERESIS
         {"uwangle",          0x029A7},  // OBLIQUE ANGLE OPENING DOWN
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesV[]={
@@ -2254,7 +2254,7 @@ static NameId namesV[]={
 //      "vsupnE",           0x02ACC;0x0FE00},  // SUPERSET OF ABOVE NOT EQUAL TO - variant with stroke through bottom members
         {"Vvdash",           0x022AA},  // TRIPLE VERTICAL BAR RIGHT TURNSTILE
         {"vzigzag",          0x0299A},  // VERTICAL ZIGZAG LINE
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesW[]={
@@ -2274,7 +2274,7 @@ static NameId namesW[]={
         {"wreath",           0x02240},  // WREATH PRODUCT
         {"Wscr",             0x1D4B2},  // MATHEMATICAL SCRIPT CAPITAL W
         {"wscr",             0x1D4CC},  // MATHEMATICAL SCRIPT SMALL W
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesX[]={
@@ -2308,7 +2308,7 @@ static NameId namesX[]={
         {"xutri",            0x025B3},  // WHITE UP-POINTING TRIANGLE
         {"xvee",             0x022C1},  // N-ARY LOGICAL OR
         {"xwedge",           0x022C0},  // N-ARY LOGICAL AND
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesY[]={
@@ -2333,7 +2333,7 @@ static NameId namesY[]={
         {"yucy",             0x0044E},  // CYRILLIC SMALL LETTER YU
         {"yuml",             0x000FF},  // LATIN SMALL LETTER Y WITH DIAERESIS
         {"Yuml",             0x00178},  // LATIN CAPITAL LETTER Y WITH DIAERESIS
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 static NameId namesZ[]={
@@ -2362,14 +2362,14 @@ static NameId namesZ[]={
         {"zscr",             0x1D4CF},  // MATHEMATICAL SCRIPT SMALL Z
         {"zwj",              0x0200D},  // ZERO WIDTH JOINER
         {"zwnj",             0x0200C},  // ZERO WIDTH NON-JOINER
-        {NULL,               0}
+        {nullptr,               0}
 };
 
 // @todo@ order namesTable and names? by frequency
 static NameId* namesTable[] = {
         namesA, namesB, namesC, namesD, namesE, namesF, namesG, namesH, namesI,
         namesJ, namesK, namesL, namesM, namesN, namesO, namesP, namesQ, namesR,
-        namesS, namesT, namesU, namesV, namesW, namesX, namesY, namesZ, NULL
+        namesS, namesT, namesU, namesV, namesW, namesX, namesY, namesZ, nullptr
 };
 
 int HtmlNamedEntity(const utf8_t *p, size_t length)

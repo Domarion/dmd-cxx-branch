@@ -76,7 +76,7 @@ Library *LibElf_factory()
 
 LibElf::LibElf()
 {
-    libfile = NULL;
+    libfile = nullptr;
     tab._init(14000);
 }
 
@@ -133,7 +133,7 @@ void LibElf::write()
 
 void LibElf::addLibrary(void *buf, size_t buflen)
 {
-    addObject(NULL, buf, buflen);
+    addObject(nullptr, buf, buflen);
 }
 
 
@@ -207,7 +207,7 @@ void LibElf::addSymbol(ObjModule *om, char *name, int pickAny)
 #if LOG
     printf("LibElf::addSymbol(%s, %s, %d)\n", om->name, name, pickAny);
 #endif
-    StringValue *s = tab.insert(name, strlen(name), NULL);
+    StringValue *s = tab.insert(name, strlen(name), nullptr);
     if (!s)
     {   // already in table
         if (!pickAny)
@@ -267,7 +267,7 @@ void LibElf::scanObjModule(ObjModule *om)
 /***************************************
  * Add object module or library to the library.
  * Examine the buffer to see which it is.
- * If the buffer is NULL, use module_name as the file name
+ * If the buffer is nullptr, use module_name as the file name
  * and load the file.
  */
 
@@ -309,9 +309,9 @@ void LibElf::addObject(const char *module_name, void *buf, size_t buflen)
         printf("archive, buf = %p, buflen = %d\n", buf, buflen);
 #endif
         unsigned offset = 8;
-        char *symtab = NULL;
+        char *symtab = nullptr;
         unsigned symtab_size = 0;
-        char *filenametab = NULL;
+        char *filenametab = nullptr;
         unsigned filenametab_size = 0;
         unsigned mstart = objmodules.length;
         while (offset < buflen)
@@ -322,7 +322,7 @@ void LibElf::addObject(const char *module_name, void *buf, size_t buflen)
             }
             Header *header = (Header *)((unsigned char *)buf + offset);
             offset += sizeof(Header);
-            char *endptr = NULL;
+            char *endptr = nullptr;
             unsigned long size = strtoul(header->file_size, &endptr, 10);
             if (endptr >= &header->file_size[10] || *endptr != ' ')
             {   reason = __LINE__;
@@ -586,7 +586,7 @@ void LibElf::WriteLibToBuffer(OutBuffer *libbuf)
 
     ObjModule om;
     om.name_offset = -1;
-    om.base = NULL;
+    om.base = nullptr;
     om.length = hoffset - (8 + sizeof(Header));
     om.offset = 8;
     om.name = (char*)"";

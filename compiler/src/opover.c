@@ -119,7 +119,7 @@ static Identifier *opId(Expression *e)
 
 /***********************************
  * Get Identifier for reverse operator overload,
- * NULL if not supported for this operator.
+ * nullptr if not supported for this operator.
  */
 
 static Identifier *opId_r(Expression *e)
@@ -128,7 +128,7 @@ static Identifier *opId_r(Expression *e)
     {
     public:
         Identifier *id;
-        void visit(Expression *) { id = NULL; }
+        void visit(Expression *) { id = nullptr; }
         void visit(InExp *)      { id = Id::opIn_r; }
         void visit(AddExp *)     { id = Id::add_r; }
         void visit(MinExp *)     { id = Id::sub_r; }
@@ -151,7 +151,7 @@ static Identifier *opId_r(Expression *e)
 
 /************************************
  * If type is a class or struct, return the symbol for it,
- * else NULL
+ * else nullptr
  */
 AggregateDeclaration *isAggregate(Type *t)
 {
@@ -164,7 +164,7 @@ AggregateDeclaration *isAggregate(Type *t)
     {
         return ((TypeStruct *)t)->sym;
     }
-    return NULL;
+    return nullptr;
 }
 
 /*******************************************
@@ -202,7 +202,7 @@ Objects *opToArg(Scope *sc, TOK op)
  * Operator overload.
  * Check for operator overload, if so, replace
  * with function call.
- * Return NULL if not an operator overload.
+ * Return nullptr if not an operator overload.
  */
 
 Expression *op_overload(Expression *e, Scope *sc)
@@ -216,7 +216,7 @@ Expression *op_overload(Expression *e, Scope *sc)
         OpOverload(Scope *sc)
             : sc(sc)
         {
-            result = NULL;
+            result = nullptr;
         }
 
         void visit(Expression *)
@@ -238,7 +238,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                 const bool maybeSlice =
                     (ae->arguments->length == 0 ||
                      (ae->arguments->length == 1 && (*ae->arguments)[0]->op == TOKinterval));
-                IntervalExp *ie = NULL;
+                IntervalExp *ie = nullptr;
                 if (maybeSlice && ae->arguments->length)
                 {
                     assert((*ae->arguments)[0]->op == TOKinterval);
@@ -252,9 +252,9 @@ Expression *op_overload(Expression *e, Scope *sc)
                         result = ae->e1;
                         return;
                     }
-                    Expression *e0 = NULL;
+                    Expression *e0 = nullptr;
                     Expression *ae1save = ae->e1;
-                    ae->lengthVar = NULL;
+                    ae->lengthVar = nullptr;
 
                     Type *t1b = ae->e1->type->toBasetype();
                     AggregateDeclaration *ad = isAggregate(t1b);
@@ -327,7 +327,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     break;
                 }
                 ae->e1 = ae1old;    // recovery
-                ae->lengthVar = NULL;
+                ae->lengthVar = nullptr;
             }
 
             e->e1 = expressionSemantic(e->e1, sc);
@@ -341,7 +341,7 @@ Expression *op_overload(Expression *e, Scope *sc)
             AggregateDeclaration *ad = isAggregate(e->e1->type);
             if (ad)
             {
-                Dsymbol *fd = NULL;
+                Dsymbol *fd = nullptr;
 
                 /* Rewrite as:
                  *      e1.opUnary!(op)()
@@ -384,7 +384,7 @@ Expression *op_overload(Expression *e, Scope *sc)
             const bool maybeSlice =
                 (ae->arguments->length == 0 ||
                  (ae->arguments->length == 1 && (*ae->arguments)[0]->op == TOKinterval));
-            IntervalExp *ie = NULL;
+            IntervalExp *ie = nullptr;
             if (maybeSlice && ae->arguments->length)
             {
                 assert((*ae->arguments)[0]->op == TOKinterval);
@@ -398,9 +398,9 @@ Expression *op_overload(Expression *e, Scope *sc)
                     result = ae->e1;
                     return;
                 }
-                Expression *e0 = NULL;
+                Expression *e0 = nullptr;
                 Expression *ae1save = ae->e1;
-                ae->lengthVar = NULL;
+                ae->lengthVar = nullptr;
 
                 Type *t1b = ae->e1->type->toBasetype();
                 AggregateDeclaration *ad = isAggregate(t1b);
@@ -506,7 +506,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                 break;
             }
             ae->e1 = ae1old;    // recovery
-            ae->lengthVar = NULL;
+            ae->lengthVar = nullptr;
         }
 
         /***********************************************
@@ -519,7 +519,7 @@ Expression *op_overload(Expression *e, Scope *sc)
             AggregateDeclaration *ad = isAggregate(e->e1->type);
             if (ad)
             {
-                Dsymbol *fd = NULL;
+                Dsymbol *fd = nullptr;
                 /* Rewrite as:
                  *      e1.opCast!(T)()
                  */
@@ -573,10 +573,10 @@ Expression *op_overload(Expression *e, Scope *sc)
                 }
             }
 
-            Dsymbol *s = NULL;
-            Dsymbol *s_r = NULL;
+            Dsymbol *s = nullptr;
+            Dsymbol *s_r = nullptr;
 
-            Objects *tiargs = NULL;
+            Objects *tiargs = nullptr;
             if (e->op == TOKplusplus || e->op == TOKminusminus)
             {
                 // Bug4099 fix
@@ -608,7 +608,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                         return;
                     }
                     if (s_r && s_r == s)    // Bugzilla 12778
-                        s_r = NULL;
+                        s_r = nullptr;
                 }
 
                 // Set tiargs, the template argument list, which will be the operator string
@@ -683,7 +683,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     // as unary, but it's implemented as a binary.
                     // Rewrite (e1 ++ e2) as e1.postinc()
                     // Rewrite (e1 -- e2) as e1.postdec()
-                    result = build_overload(e->loc, sc, e->e1, NULL, m.lastf ? m.lastf : s);
+                    result = build_overload(e->loc, sc, e->e1, nullptr, m.lastf ? m.lastf : s);
                 }
                 else if ((lastf && m.lastf == lastf) || (!s_r && m.last <= MATCHnomatch))
                 {
@@ -1004,7 +1004,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                 const bool maybeSlice =
                     (ae->arguments->length == 0 ||
                      (ae->arguments->length == 1 && (*ae->arguments)[0]->op == TOKinterval));
-                IntervalExp *ie = NULL;
+                IntervalExp *ie = nullptr;
                 if (maybeSlice && ae->arguments->length)
                 {
                     assert((*ae->arguments)[0]->op == TOKinterval);
@@ -1018,9 +1018,9 @@ Expression *op_overload(Expression *e, Scope *sc)
                         result = ae->e1;
                         return;
                     }
-                    Expression *e0 = NULL;
+                    Expression *e0 = nullptr;
                     Expression *ae1save = ae->e1;
-                    ae->lengthVar = NULL;
+                    ae->lengthVar = nullptr;
 
                     Type *t1b = ae->e1->type->toBasetype();
                     AggregateDeclaration *ad = isAggregate(t1b);
@@ -1105,7 +1105,7 @@ Expression *op_overload(Expression *e, Scope *sc)
                     break;
                 }
                 ae->e1 = ae1old;    // recovery
-                ae->lengthVar = NULL;
+                ae->lengthVar = nullptr;
             }
 
             result = binSemanticProp(e, sc);
@@ -1125,9 +1125,9 @@ Expression *op_overload(Expression *e, Scope *sc)
 
             AggregateDeclaration *ad1 = isAggregate(e->e1->type);
 
-            Dsymbol *s = NULL;
+            Dsymbol *s = nullptr;
 
-            Objects *tiargs = NULL;
+            Objects *tiargs = nullptr;
             if (!s)
             {
                 /* Try the new D2 scheme, opOpAssign
@@ -1251,8 +1251,8 @@ Expression *compare_overload(BinExp *e, Scope *sc, Identifier *id)
     AggregateDeclaration *ad1 = isAggregate(e->e1->type);
     AggregateDeclaration *ad2 = isAggregate(e->e2->type);
 
-    Dsymbol *s = NULL;
-    Dsymbol *s_r = NULL;
+    Dsymbol *s = nullptr;
+    Dsymbol *s_r = nullptr;
 
     if (ad1)
     {
@@ -1262,10 +1262,10 @@ Expression *compare_overload(BinExp *e, Scope *sc, Identifier *id)
     {
         s_r = search_function(ad2, id);
         if (s == s_r)
-            s_r = NULL;
+            s_r = nullptr;
     }
 
-    Objects *tiargs = NULL;
+    Objects *tiargs = nullptr;
 
     if (s || s_r)
     {
@@ -1375,7 +1375,7 @@ Expression *compare_overload(BinExp *e, Scope *sc, Identifier *id)
          *      (e1.aliasthis op e2)
          */
         if (e->att1 && e->e1->type == e->att1)
-            return NULL;
+            return nullptr;
         //printf("att cmp_bin e1 = %s\n", e->e1->type->toChars());
         Expression *e1 = new DotIdExp(e->loc, e->e1, ad1->aliasthis->ident);
         BinExp *be = (BinExp *)e->copy();
@@ -1392,7 +1392,7 @@ Expression *compare_overload(BinExp *e, Scope *sc, Identifier *id)
          *      (e1 op e2.aliasthis)
          */
         if (e->att2 && e->e2->type == e->att2)
-            return NULL;
+            return nullptr;
         //printf("att cmp_bin e2 = %s\n", e->e2->type->toChars());
         Expression *e2 = new DotIdExp(e->loc, e->e2, ad2->aliasthis->ident);
         BinExp *be = (BinExp *)e->copy();
@@ -1402,7 +1402,7 @@ Expression *compare_overload(BinExp *e, Scope *sc, Identifier *id)
         return trySemantic(be, sc);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /***********************************
@@ -1449,7 +1449,7 @@ Dsymbol *search_function(ScopeDsymbol *ad, Identifier *funcid)
         if (td)
             return td;
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -1460,7 +1460,7 @@ bool inferAggregate(ForeachStatement *fes, Scope *sc, Dsymbol *&sapply)
     Identifier *idfront = (fes->op == TOKforeach) ? Id::Ffront : Id::Fback;
     int sliced = 0;
     Type *tab;
-    Type *att = NULL;
+    Type *att = nullptr;
     Expression *aggr = fes->aggr;
     AggregateDeclaration *ad;
 
@@ -1592,7 +1592,7 @@ bool inferApplyArgTypes(ForeachStatement *fes, Scope *sc, Dsymbol *&sapply)
         {
             sapply = inferApplyArgTypesX(ethis, fd, fes->parameters);
         }
-        return sapply != NULL;
+        return sapply != nullptr;
     }
 
     /* Return if no parameters need types.
@@ -1671,7 +1671,7 @@ bool inferApplyArgTypes(ForeachStatement *fes, Scope *sc, Dsymbol *&sapply)
                      */
                     Identifier *id = (fes->op == TOKforeach) ? Id::Ffront : Id::Fback;
                     Dsymbol *s = ad->search(Loc(), id);
-                    FuncDeclaration *fd = s ? s->isFuncDeclaration() : NULL;
+                    FuncDeclaration *fd = s ? s->isFuncDeclaration() : nullptr;
                     if (fd)
                     {
                         // Resolve inout qualifier of front type
@@ -1738,7 +1738,7 @@ static Dsymbol *inferApplyArgTypesX(Expression *ethis, FuncDeclaration *fstart, 
         if (m > p->match)
         {
             p->fd_best = f;
-            p->fd_ambig = NULL;
+            p->fd_ambig = nullptr;
             p->match = m;
         }
         else if (m == p->match)
@@ -1750,8 +1750,8 @@ static Dsymbol *inferApplyArgTypesX(Expression *ethis, FuncDeclaration *fstart, 
     p.parameters = parameters;
     p.mod = ethis->type->mod;
     p.match = MATCHnomatch;
-    p.fd_best = NULL;
-    p.fd_ambig = NULL;
+    p.fd_best = nullptr;
+    p.fd_ambig = nullptr;
     overloadApply(fstart, &p, &ParamOpOver::fp);
     if (p.fd_best)
     {
@@ -1761,7 +1761,7 @@ static Dsymbol *inferApplyArgTypesX(Expression *ethis, FuncDeclaration *fstart, 
                     ethis->toChars(), fstart->ident->toChars(),
                     p.fd_best ->loc.toChars(), p.fd_best ->type->toChars(),
                     p.fd_ambig->loc.toChars(), p.fd_ambig->type->toChars());
-            p.fd_best = NULL;
+            p.fd_best = nullptr;
         }
     }
     return p.fd_best;

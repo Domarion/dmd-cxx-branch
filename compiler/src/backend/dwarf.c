@@ -67,7 +67,7 @@ static char __file__[] = __FILE__;      // for tassert.h
 int dwarf_getsegment(const char *name, int align)
 {
 #if ELFOBJ
-    return ElfObj::getsegment(name, NULL, SHT_PROGBITS, 0, align * 4);
+    return ElfObj::getsegment(name, nullptr, SHT_PROGBITS, 0, align * 4);
 #else
     assert(0);
     return 0;
@@ -77,7 +77,7 @@ int dwarf_getsegment(const char *name, int align)
 int dwarf_getsegment_alloc(const char *name, int align)
 {
 #if ELFOBJ
-    return ElfObj::getsegment(name, NULL, SHT_PROGBITS, SHF_ALLOC, align * 4);
+    return ElfObj::getsegment(name, nullptr, SHT_PROGBITS, SHF_ALLOC, align * 4);
 #else
     assert(0);
     return 0;
@@ -900,7 +900,7 @@ void dwarf_initfile(const char *filename)
 
     if (infoFileName_table)
     {   delete infoFileName_table;
-        infoFileName_table = NULL;
+        infoFileName_table = nullptr;
     }
 
     lineseg = dwarf_getsegment(debug_line, 0);
@@ -922,7 +922,7 @@ void dwarf_initfile(const char *filename)
     // Free only if starting another file. Waste of time otherwise.
     if (abbrev_table)
     {   delete abbrev_table;
-        abbrev_table = NULL;
+        abbrev_table = nullptr;
     }
 
     static unsigned char abbrevHeader[] =
@@ -1116,7 +1116,7 @@ void dwarf_termfile()
 
     // file_names
     unsigned last_filenumber = 0;
-    const char* last_filename = NULL;
+    const char* last_filename = nullptr;
     for (unsigned seg = 1; seg <= seg_count; seg++)
     {
         for (unsigned i = 0; i < SegData[seg]->SDlinnum_count; i++)
@@ -1279,11 +1279,11 @@ void dwarf_termfile()
     // Free only if starting another file. Waste of time otherwise.
     if (type_table)
     {   delete type_table;
-        type_table = NULL;
+        type_table = nullptr;
     }
     if (functype_table)
     {   delete functype_table;
-        functype_table = NULL;
+        functype_table = nullptr;
     }
     if (functypebuf)
         functypebuf->setsize(0);

@@ -27,7 +27,7 @@ struct Outbuffer
 
     Outbuffer();
 
-    Outbuffer(size_t incx) : buf(NULL), pend(NULL), p(NULL), len(0), inc(incx), origbuf(NULL) { }
+    Outbuffer(size_t incx) : buf(nullptr), pend(nullptr), p(nullptr), len(0), inc(incx), origbuf(nullptr) { }
 
     Outbuffer(unsigned char *bufx, size_t bufxlen, unsigned incx) :
         buf(bufx), pend(bufx + bufxlen), p(bufx), len(bufxlen), inc(incx), origbuf(bufx) { }

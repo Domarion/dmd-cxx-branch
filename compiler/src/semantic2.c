@@ -44,8 +44,8 @@ public:
         //printf("StaticAssert::semantic2() %s\n", toChars());
         ScopeDsymbol *sds = new ScopeDsymbol();
         sc = sc->push(sds);
-        sc->tinst = NULL;
-        sc->minst = NULL;
+        sc->tinst = nullptr;
+        sc->minst = nullptr;
 
         bool errors = false;
         bool result = evalStaticCondition(sc, sa->exp, sa->exp, errors);
@@ -304,7 +304,7 @@ public:
         //printf("Import::semantic2('%s')\n", toChars());
         if (i->mod)
         {
-            semantic2(i->mod, NULL);
+            semantic2(i->mod, nullptr);
             if (i->mod->needmoduleinfo)
             {
                 //printf("module5 %s because of %s\n", sc->_module->toChars(), i->mod->toChars());
@@ -378,7 +378,7 @@ public:
     {
         if (uad->decl && uad->atts && uad->atts->length && uad->_scope)
         {
-            uad->_scope = NULL;
+            uad->_scope = nullptr;
             udaExpressionEval(sc, uad->atts);
         }
         visit((AttribDeclaration *)uad);

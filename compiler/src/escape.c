@@ -205,7 +205,7 @@ bool checkAssignEscape(Scope *sc, Expression *e, bool gag)
     if (!er.byref.length && !er.byvalue.length && !er.byfunc.length && !er.byexp.length)
         return false;
 
-    VarDeclaration *va = NULL;
+    VarDeclaration *va = nullptr;
     while (e1->op == TOKdotvar)
         e1 = ((DotVarExp *)e1)->e1;
 
@@ -933,8 +933,8 @@ static void escapeByValue(Expression *e, EscapeByResults *er)
              * passed as 'return scope'.
              */
             Type *t1 = e->e1->type->toBasetype();
-            TypeFunction *tf = NULL;
-            TypeDelegate *dg = NULL;
+            TypeFunction *tf = nullptr;
+            TypeDelegate *dg = nullptr;
             if (t1->ty == Tdelegate)
             {
                 dg = (TypeDelegate *)t1;
@@ -971,8 +971,8 @@ static void escapeByValue(Expression *e, EscapeByResults *er)
             {
                 DotVarExp *dve = (DotVarExp *)e->e1;
                 FuncDeclaration *fd = dve->var->isFuncDeclaration();
-                AggregateDeclaration *ad = NULL;
-                if (global.params.vsafe && tf->isreturn && fd && (ad = fd->isThis()) != NULL)
+                AggregateDeclaration *ad = nullptr;
+                if (global.params.vsafe && tf->isreturn && fd && (ad = fd->isThis()) != nullptr)
                 {
                     if (ad->isClassDeclaration() || tf->isscope)       // this is 'return scope'
                         dve->e1->accept(this);

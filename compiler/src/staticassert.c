@@ -34,7 +34,7 @@ StaticAssert::StaticAssert(Loc loc, Expression *exp, Expression *msg)
 Dsymbol *StaticAssert::syntaxCopy(Dsymbol *s)
 {
     assert(!s);
-    return new StaticAssert(loc, exp->syntaxCopy(), msg ? msg->syntaxCopy() : NULL);
+    return new StaticAssert(loc, exp->syntaxCopy(), msg ? msg->syntaxCopy() : nullptr);
 }
 
 void StaticAssert::addMember(Scope *, ScopeDsymbol *)
@@ -45,7 +45,7 @@ void StaticAssert::addMember(Scope *, ScopeDsymbol *)
 bool StaticAssert::oneMember(Dsymbol **ps, Identifier *)
 {
     //printf("StaticAssert::oneMember())\n");
-    *ps = NULL;
+    *ps = nullptr;
     return true;
 }
 

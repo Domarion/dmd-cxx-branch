@@ -325,7 +325,7 @@ STATIC void cpp_string(char *s,size_t len)
         else
         {
             CHAR('?');
-            if ((p = (char *)strchr(special_char,c)) != NULL)
+            if ((p = (char *)strchr(special_char,c)) != nullptr)
                 c = '0' + (p - special_char);
             else
             {

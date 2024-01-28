@@ -43,11 +43,11 @@ public:
 
     const char *toChars();
 
-    virtual ErrorInitializer   *isErrorInitializer() { return NULL; }
-    virtual VoidInitializer    *isVoidInitializer() { return NULL; }
-    virtual StructInitializer  *isStructInitializer()  { return NULL; }
-    virtual ArrayInitializer   *isArrayInitializer()  { return NULL; }
-    virtual ExpInitializer     *isExpInitializer()  { return NULL; }
+    virtual ErrorInitializer   *isErrorInitializer() { return nullptr; }
+    virtual VoidInitializer    *isVoidInitializer() { return nullptr; }
+    virtual StructInitializer  *isStructInitializer()  { return nullptr; }
+    virtual ArrayInitializer   *isArrayInitializer()  { return nullptr; }
+    virtual ExpInitializer     *isExpInitializer()  { return nullptr; }
     void accept(Visitor *v) { v->visit(this); }
 };
 
@@ -119,4 +119,4 @@ public:
     void accept(Visitor *v) { v->visit(this); }
 };
 
-Expression *initializerToExpression(Initializer *init, Type *t = NULL);
+Expression *initializerToExpression(Initializer *init, Type *t = nullptr);

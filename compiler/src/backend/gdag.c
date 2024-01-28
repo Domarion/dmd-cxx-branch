@@ -85,7 +85,7 @@ void builddags()
                 /* expressions.                                         */
                 if ((i != 0 &&
                      (list_block(b->Bpred) != dfo[i - 1] ||
-                      list_next(b->Bpred) != NULL))
+                      list_next(b->Bpred) != nullptr))
                     || b->BC == BCasm
                     || b->BC == BC_finally
                     || b->BC == BC_lpad
@@ -156,7 +156,7 @@ STATIC void aewalk(elem **pn,vec_t ae)
                 {   elem *e = go.expnod[i];
 
                     // Attempt to replace n with e
-                    if (e == NULL)              // if elem no longer exists
+                    if (e == nullptr)              // if elem no longer exists
                         vec_clearbit(i,ae);     // it's not available
                     else if (n != e &&
                         el_match(n,e) &&
@@ -463,8 +463,8 @@ L1:     e = *pe;
                 e->Eoper = (op == OPmsw) ? OPmod : OPdiv;
                 e->E1 = e1->E1;
                 e->E2 = e1->E2;
-                e1->E1 = NULL;
-                e1->E2 = NULL;
+                e1->E1 = nullptr;
+                e1->E2 = nullptr;
                 el_free(e1);
 
                 removecses(&(e->E1));
@@ -553,7 +553,7 @@ void boolopt()
                 /* expressions.                                         */
                 if ((i != 0 &&
                      (list_block(b->Bpred) != dfo[i - 1] ||
-                      list_next(b->Bpred) != NULL))
+                      list_next(b->Bpred) != nullptr))
                     || b->BC == BCasm
                     || b->BC == BC_finally
                     || b->BC == BC_lpad
@@ -813,16 +813,16 @@ STATIC void abefree(elem *e,vec_t ae)
     //printf("abefree [%d %p]: ", e->Eexp, e); WReqn(e); dbg_printf("\n");
     assert(e->Eexp);
     vec_clearbit(e->Eexp,ae);
-    go.expnod[e->Eexp] = NULL;
+    go.expnod[e->Eexp] = nullptr;
     if (EOP(e))
     {   if (EBIN(e))
         {   abefree(e->E2,ae);
             el_free(e->E2);
-            e->E2 = NULL;
+            e->E2 = nullptr;
         }
         abefree(e->E1,ae);
         el_free(e->E1);
-        e->E1 = NULL;
+        e->E1 = nullptr;
     }
 }
 

@@ -76,7 +76,7 @@ Statement *inlineAsStatement(Statement *s, InlineDoState *ids)
         InlineAsStatement(InlineDoState *ids)
             : ids(ids)
         {
-            result = NULL;
+            result = nullptr;
         }
 
         void visit(Statement *)
@@ -89,7 +89,7 @@ Statement *inlineAsStatement(Statement *s, InlineDoState *ids)
         #if LOG
             if (s->exp) printf("ExpStatement::inlineAsStatement() '%s'\n", s->exp->toChars());
         #endif
-            result = new ExpStatement(s->loc, s->exp ? doInline(s->exp, ids) : NULL);
+            result = new ExpStatement(s->loc, s->exp ? doInline(s->exp, ids) : nullptr);
         }
 
         void visit(CompoundStatement *s)
@@ -107,7 +107,7 @@ Statement *inlineAsStatement(Statement *s, InlineDoState *ids)
                         break;
                 }
                 else
-                    as->push(NULL);
+                    as->push(nullptr);
             }
             result = new CompoundStatement(s->loc, as);
         }
@@ -127,7 +127,7 @@ Statement *inlineAsStatement(Statement *s, InlineDoState *ids)
                         break;
                 }
                 else
-                    as->push(NULL);
+                    as->push(nullptr);
             }
             result = new UnrolledLoopStatement(s->loc, as);
         }
@@ -142,11 +142,11 @@ Statement *inlineAsStatement(Statement *s, InlineDoState *ids)
         {
             assert(!s->prm);
 
-            Expression *condition = s->condition ? doInline(s->condition, ids) : NULL;
-            Statement *ifbody = s->ifbody ? inlineAsStatement(s->ifbody, ids) : NULL;
+            Expression *condition = s->condition ? doInline(s->condition, ids) : nullptr;
+            Statement *ifbody = s->ifbody ? inlineAsStatement(s->ifbody, ids) : nullptr;
             bool bodyReturn = ids->foundReturn;
             ids->foundReturn = false;
-            Statement *elsebody = s->elsebody ? inlineAsStatement(s->elsebody, ids) : NULL;
+            Statement *elsebody = s->elsebody ? inlineAsStatement(s->elsebody, ids) : nullptr;
             ids->foundReturn = ids->foundReturn && bodyReturn;
 
             result = new IfStatement(s->loc, s->prm, condition, ifbody, elsebody, s->endloc);
@@ -162,16 +162,16 @@ Statement *inlineAsStatement(Statement *s, InlineDoState *ids)
 
         void visit(ImportStatement *)
         {
-            result = NULL;
+            result = nullptr;
         }
 
         void visit(ForStatement *s)
         {
             //printf("ForStatement::inlineAsStatement()\n");
-            Statement *init = s->_init ? inlineAsStatement(s->_init, ids) : NULL;
-            Expression *condition = s->condition ? doInline(s->condition, ids) : NULL;
-            Expression *increment = s->increment ? doInline(s->increment, ids) : NULL;
-            Statement *body = s->_body ? inlineAsStatement(s->_body, ids) : NULL;
+            Statement *init = s->_init ? inlineAsStatement(s->_init, ids) : nullptr;
+            Expression *condition = s->condition ? doInline(s->condition, ids) : nullptr;
+            Expression *increment = s->increment ? doInline(s->increment, ids) : nullptr;
+            Statement *body = s->_body ? inlineAsStatement(s->_body, ids) : nullptr;
             result = new ForStatement(s->loc, init, condition, increment, body, s->endloc);
         }
 
@@ -200,7 +200,7 @@ Expression *doInline(Statement *s, InlineDoState *ids)
         InlineStatement(InlineDoState *ids)
             : ids(ids)
         {
-            result = NULL;
+            result = nullptr;
         }
 
         void visit(Statement *s)
@@ -215,7 +215,7 @@ Expression *doInline(Statement *s, InlineDoState *ids)
         #if LOG
             if (s->exp) printf("ExpStatement::doInline() '%s'\n", s->exp->toChars());
         #endif
-            result = s->exp ? doInline(s->exp, ids) : NULL;
+            result = s->exp ? doInline(s->exp, ids) : nullptr;
         }
 
         void visit(CompoundStatement *s)
@@ -254,7 +254,7 @@ Expression *doInline(Statement *s, InlineDoState *ids)
 
         void visit(ScopeStatement *s)
         {
-            result = s->statement ? doInline(s->statement, ids) : NULL;
+            result = s->statement ? doInline(s->statement, ids) : nullptr;
         }
 
         void visit(IfStatement *s)
@@ -262,10 +262,10 @@ Expression *doInline(Statement *s, InlineDoState *ids)
             assert(!s->prm);
             Expression *econd = doInline(s->condition, ids);
             assert(econd);
-            Expression *e1 = s->ifbody ? doInline(s->ifbody, ids) : NULL;
+            Expression *e1 = s->ifbody ? doInline(s->ifbody, ids) : nullptr;
             bool bodyReturn = ids->foundReturn;
             ids->foundReturn = false;
-            Expression *e2 = s->elsebody ? doInline(s->elsebody, ids) : NULL;
+            Expression *e2 = s->elsebody ? doInline(s->elsebody, ids) : nullptr;
             if (e1 && e2)
             {
                 result = new CondExp(econd->loc, econd, e1, e2);
@@ -298,7 +298,7 @@ Expression *doInline(Statement *s, InlineDoState *ids)
         {
             //printf("ReturnStatement::doInline() '%s'\n", s->exp ? s->exp->toChars() : "");
             ids->foundReturn = true;
-            result = s->exp ? doInline(s->exp, ids) : NULL;
+            result = s->exp ? doInline(s->exp, ids) : nullptr;
         }
 
         void visit(ImportStatement *)
@@ -324,7 +324,7 @@ Expression *doInline(Expression *e, InlineDoState *ids)
         InlineExpression(InlineDoState *ids)
             : ids(ids)
         {
-            result = NULL;
+            result = nullptr;
         }
 
         /******************************
@@ -333,7 +333,7 @@ Expression *doInline(Expression *e, InlineDoState *ids)
         Expressions *arrayExpressiondoInline(Expressions *a)
         {
             if (!a)
-                return NULL;
+                return nullptr;
 
             Expressions *newa = new Expressions();
             newa->setDim(a->length);
@@ -500,8 +500,8 @@ Expression *doInline(Expression *e, InlineDoState *ids)
                     void *pvto = new VarDeclaration(vd->loc, vd->type, vd->ident, vd->_init);
                     VarDeclaration *vto = (VarDeclaration *)memcpy(pvto, (void*)vd, sizeof(VarDeclaration));
                     vto->parent = ids->parent;
-                    vto->csym = NULL;
-                    vto->isym = NULL;
+                    vto->csym = nullptr;
+                    vto->isym = nullptr;
 
                     ids->from.push(vd);
                     ids->to.push(vto);
@@ -555,7 +555,7 @@ Expression *doInline(Expression *e, InlineDoState *ids)
             ne->arguments = arrayExpressiondoInline(e->arguments);
             result = ne;
 
-            semanticTypeInfo(NULL, e->type);
+            semanticTypeInfo(nullptr, e->type);
         }
 
         void visit(DeleteExp *e)
@@ -571,7 +571,7 @@ Expression *doInline(Expression *e, InlineDoState *ids)
                     TypeStruct *ts = (TypeStruct *)tv;
                     StructDeclaration *sd = ts->sym;
                     if (sd->dtor)
-                        semanticTypeInfo(NULL, ts);
+                        semanticTypeInfo(nullptr, ts);
                 }
             }
         }
@@ -620,7 +620,7 @@ Expression *doInline(Expression *e, InlineDoState *ids)
             {
                 ArrayLengthExp *ale = (ArrayLengthExp *)e->e1;
                 Type *tn = ale->e1->type->toBasetype()->nextOf();
-                semanticTypeInfo(NULL, tn);
+                semanticTypeInfo(nullptr, tn);
             }
         }
 
@@ -635,11 +635,11 @@ Expression *doInline(Expression *e, InlineDoState *ids)
                 while (t->toBasetype()->nextOf())
                     t = t->nextOf()->toBasetype();
                 if (t->ty == Tstruct)
-                    semanticTypeInfo(NULL, t);
+                    semanticTypeInfo(nullptr, t);
             }
             else if (t1->ty == Taarray)
             {
-                semanticTypeInfo(NULL, t1);
+                semanticTypeInfo(nullptr, t1);
             }
         }
 
@@ -657,8 +657,8 @@ Expression *doInline(Expression *e, InlineDoState *ids)
                 void *pvto = new VarDeclaration(vd->loc, vd->type, vd->ident, vd->_init);
                 VarDeclaration *vto = (VarDeclaration *)memcpy(pvto, (void*)vd, sizeof(VarDeclaration));
                 vto->parent = ids->parent;
-                vto->csym = NULL;
-                vto->isym = NULL;
+                vto->csym = nullptr;
+                vto->isym = nullptr;
 
                 ids->from.push(vd);
                 ids->to.push(vto);
@@ -690,8 +690,8 @@ Expression *doInline(Expression *e, InlineDoState *ids)
                 void *pvto = new VarDeclaration(vd->loc, vd->type, vd->ident, vd->_init);
                 VarDeclaration *vto = (VarDeclaration *)memcpy(pvto, (void*)vd, sizeof(VarDeclaration));
                 vto->parent = ids->parent;
-                vto->csym = NULL;
-                vto->isym = NULL;
+                vto->csym = nullptr;
+                vto->isym = nullptr;
 
                 ids->from.push(vd);
                 ids->to.push(vto);
@@ -730,7 +730,7 @@ Expression *doInline(Expression *e, InlineDoState *ids)
             ce->elements = arrayExpressiondoInline(e->elements);
             result = ce;
 
-            semanticTypeInfo(NULL, e->type);
+            semanticTypeInfo(nullptr, e->type);
         }
 
         void visit(AssocArrayLiteralExp *e)
@@ -741,7 +741,7 @@ Expression *doInline(Expression *e, InlineDoState *ids)
             ce->values = arrayExpressiondoInline(e->values);
             result = ce;
 
-            semanticTypeInfo(NULL, e->type);
+            semanticTypeInfo(nullptr, e->type);
         }
 
         void visit(StructLiteralExp *e)
@@ -755,7 +755,7 @@ Expression *doInline(Expression *e, InlineDoState *ids)
 
             e->inlinecopy = ce;
             ce->elements = arrayExpressiondoInline(e->elements);
-            e->inlinecopy = NULL;
+            e->inlinecopy = nullptr;
             result = ce;
         }
 
@@ -802,9 +802,9 @@ public:
 
     InlineScanVisitor()
     {
-        this->parent = NULL;
-        this->sresult = NULL;
-        this->eresult = NULL;
+        this->parent = nullptr;
+        this->sresult = nullptr;
+        this->eresult = nullptr;
         this->again = false;
     }
 
@@ -819,12 +819,12 @@ public:
          */
         if ((*exp)->op == TOKcall)
         {
-            visitCallExp((CallExp *)(*exp), NULL, true);
+            visitCallExp((CallExp *)(*exp), nullptr, true);
             if (eresult)
                 *exp = eresult;
             Statement *s = sresult;
-            sresult = NULL;
-            eresult = NULL;
+            sresult = nullptr;
+            eresult = nullptr;
             return s;
         }
 
@@ -838,10 +838,10 @@ public:
             Statement *s1 = inlineScanExpAsStatement(&e->e1);
             Statement *s2 = inlineScanExpAsStatement(&e->e2);
             if (!s1 && !s2)
-                return NULL;
+                return nullptr;
             Statement *ifbody = !s1 ? new ExpStatement(e->e1->loc, e->e1) : s1;
             Statement *elsebody = !s2 ? new ExpStatement(e->e2->loc, e->e2) : s2;
-            return new IfStatement((*exp)->loc, NULL, e->econd, ifbody, elsebody, (*exp)->loc);
+            return new IfStatement((*exp)->loc, nullptr, e->econd, ifbody, elsebody, (*exp)->loc);
         }
         if ((*exp)->op == TOKcomma)
         {
@@ -849,7 +849,7 @@ public:
             Statement *s1 = inlineScanExpAsStatement(&e->e1);
             Statement *s2 = inlineScanExpAsStatement(&e->e2);
             if (!s1 && !s2)
-                return NULL;
+                return nullptr;
             Statements *a = new Statements();
             a->push(!s1 ? new ExpStatement(e->e1->loc, e->e1) : s1);
             a->push(!s2 ? new ExpStatement(e->e2->loc, e->e2) : s2);
@@ -858,7 +858,7 @@ public:
 
         // inline as an expression
         inlineScan(exp);
-        return NULL;
+        return nullptr;
     }
 
     void visit(ExpStatement *s)
@@ -1008,12 +1008,12 @@ public:
     void inlineScan(Statement **s)
     {
         if (!*s) return;
-        assert(sresult == NULL);
+        assert(sresult == nullptr);
         (*s)->accept(this);
         if (sresult)
         {
             *s = sresult;
-            sresult = NULL;
+            sresult = nullptr;
         }
     }
 
@@ -1128,7 +1128,7 @@ public:
     void visit(CallExp *e)
     {
         //printf("CallExp::inlineScan() %s\n", e->toChars())
-        visitCallExp(e, NULL, false);
+        visitCallExp(e, nullptr, false);
     }
 
     /**************************************
@@ -1148,14 +1148,14 @@ public:
         arrayInlineScan(e->arguments);
 
         //printf("visitCallExp() %s\n", e->toChars());
-        FuncDeclaration *fd = NULL;
+        FuncDeclaration *fd = nullptr;
         if (e->e1->op == TOKvar)
         {
             VarExp *ve = (VarExp *)e->e1;
             fd = ve->var->isFuncDeclaration();
             if (fd && fd != parent && canInline(fd, 0, 0, asStatements))
             {
-                expandInline(e->loc, fd, parent, eret, NULL, e->arguments, asStatements, &eresult, &sresult, &again);
+                expandInline(e->loc, fd, parent, eret, nullptr, e->arguments, asStatements, &eresult, &sresult, &again);
             }
         }
         else if (e->e1->op == TOKdotvar)
@@ -1252,12 +1252,12 @@ public:
     void inlineScan(Expression **e)
     {
         if (!*e) return;
-        assert(eresult == NULL);
+        assert(eresult == nullptr);
         (*e)->accept(this);
         if (eresult)
         {
             *e = eresult;
-            eresult = NULL;
+            eresult = nullptr;
         }
     }
 
@@ -1300,7 +1300,7 @@ public:
 
     void visit(AttribDeclaration *d)
     {
-        Dsymbols *decls = d->include(NULL);
+        Dsymbols *decls = d->include(nullptr);
 
         if (decls)
         {
@@ -1593,21 +1593,21 @@ static void expandInline(Loc callLoc, FuncDeclaration *fd, FuncDeclaration *pare
         parent->inlinedNestedCallees->push(fd);
     }
 
-    VarDeclaration *vret = NULL;    // will be set the function call result
+    VarDeclaration *vret = nullptr;    // will be set the function call result
     if (eret)
     {
         if (eret->op == TOKvar)
         {
             vret = ((VarExp *)eret)->var->isVarDeclaration();
             assert(!(vret->storage_class & (STCout | STCref)));
-            eret = NULL;
+            eret = nullptr;
         }
         else
         {
             /* Inlining:
              *   this.field = foo();   // inside constructor
              */
-            ExpInitializer *ei = new ExpInitializer(callLoc, NULL);
+            ExpInitializer *ei = new ExpInitializer(callLoc, nullptr);
             Identifier *tmp = Identifier::generateId("__retvar");
             vret = new VarDeclaration(fd->loc, eret->type, tmp, ei);
             vret->storage_class |= STCtemp | STCref;
@@ -1633,7 +1633,7 @@ static void expandInline(Loc callLoc, FuncDeclaration *fd, FuncDeclaration *pare
         if (!asStatements && fd->nrvo_var)
         {
             Identifier *tmp = Identifier::generateId("__retvar");
-            vret = new VarDeclaration(fd->loc, fd->nrvo_var->type, tmp, NULL);
+            vret = new VarDeclaration(fd->loc, fd->nrvo_var->type, tmp, nullptr);
             assert(!tf->isref);
             vret->storage_class = STCtemp | STCrvalue;
             vret->linkage = tf->linkage;
@@ -1649,10 +1649,10 @@ static void expandInline(Loc callLoc, FuncDeclaration *fd, FuncDeclaration *pare
     }
 
     // Set up vthis
-    VarDeclaration *vthis = NULL;
+    VarDeclaration *vthis = nullptr;
     if (ethis)
     {
-        Expression *e0 = NULL;
+        Expression *e0 = nullptr;
         ethis = Expression::extractLast(ethis, &e0);
         if (ethis->op == TOKvar)
         {
@@ -1690,7 +1690,7 @@ static void expandInline(Loc callLoc, FuncDeclaration *fd, FuncDeclaration *pare
     }
 
     // Set up parameters
-    Expression *eparams = NULL;
+    Expression *eparams = nullptr;
     if (arguments && arguments->length)
     {
         assert(fd->parameters->length == arguments->length);
@@ -1810,7 +1810,7 @@ static void expandInline(Loc callLoc, FuncDeclaration *fd, FuncDeclaration *pare
 
         // Bugzilla 11322:
         if (tf->isref)
-            e = e->toLvalue(NULL, NULL);
+            e = e->toLvalue(nullptr, nullptr);
 
         /* There's a problem if what the function returns is used subsequently as an
          * lvalue, as in a struct return that is then used as a 'this'.

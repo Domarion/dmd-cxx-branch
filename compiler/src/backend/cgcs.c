@@ -31,7 +31,7 @@ typedef struct HCS
                 unsigned Hhash;
         } hcs;
 
-static hcs *hcstab = NULL;              /* array of hcs's               */
+static hcs *hcstab = nullptr;              /* array of hcs's               */
 static unsigned hcsmax = 0;             /* max index into hcstab[]      */
 
 struct HCSArray
@@ -134,7 +134,7 @@ void comsubs()
 void cgcs_term()
 {
     vec_free(csvec);
-    csvec = NULL;
+    csvec = nullptr;
 #ifdef DEBUG
     debugw && dbg_printf("freeing hcstab\n");
 #endif
@@ -143,7 +143,7 @@ void cgcs_term()
 #else
     MEM_PARF_FREE(hcstab);
 #endif
-    hcstab = NULL;
+    hcstab = nullptr;
     hcsmax = 0;
 }
 
@@ -406,7 +406,7 @@ STATIC void ecom(elem **pe)
             dbg_printf("i: %2d Hhash: %6d Helem: %p\n",
                 i,hcstab[i].Hhash,hcstab[i].Helem);
 #endif
-        if (hash == hcstab[i].Hhash && (ehash = hcstab[i].Helem) != NULL)
+        if (hash == hcstab[i].Hhash && (ehash = hcstab[i].Helem) != nullptr)
         {
             /* if elems are the same and we still have room for more    */
             if (el_match(e,ehash) && ehash->Ecount < 0xFF)
@@ -515,7 +515,7 @@ STATIC void touchlvalue(elem *e)
     for (int i = hcsarray.top; --i >= 0;)
     {   if (hcstab[i].Helem &&
             hcstab[i].Helem->EV.sp.Vsym == e->EV.sp.Vsym)
-                hcstab[i].Helem = NULL;
+                hcstab[i].Helem = nullptr;
     }
 
     if (!(e->Eoper == OPvar || e->Eoper == OPrelconst))
@@ -621,7 +621,7 @@ STATIC void touchfunc(int flag)
                 if (flag == 0)          /* function calls destroy vptrfptr's, */
                     break;              /* not indirect assignments     */
             L1:
-                pe->Helem = NULL;
+                pe->Helem = nullptr;
                 break;
         }
     }
@@ -641,7 +641,7 @@ STATIC void touchstar()
   for (i = hcsarray.touchstari; i < hcsarray.top; i++)
   {     e = hcstab[i].Helem;
         if (e && (e->Eoper == OPind || e->Eoper == OPbt) )
-                hcstab[i].Helem = NULL;
+                hcstab[i].Helem = nullptr;
   }
   hcsarray.touchstari = hcsarray.top;
 }
@@ -654,7 +654,7 @@ STATIC void touchall()
 {
     for (unsigned i = 0; i < hcsarray.top; i++)
     {
-        hcstab[i].Helem = NULL;
+        hcstab[i].Helem = nullptr;
     }
     hcsarray.touchstari = hcsarray.top;
     hcsarray.touchfunci[0] = hcsarray.top;
@@ -676,6 +676,6 @@ STATIC void touchaccess(elem *ev)
         /* Invalidate any previous handle pointer accesses that */
         /* are not accesses of ev.                              */
         if (e && (e->Eoper == OPvp_fp || e->Eoper == OPcvp_fp) && e->E1 != ev)
-            hcstab[i].Helem = NULL;
+            hcstab[i].Helem = nullptr;
   }
 }

@@ -27,7 +27,7 @@
 #include "target.h"
 #include "template.h"
 
-Scope *Scope::freelist = NULL;
+Scope *Scope::freelist = nullptr;
 
 void allocFieldinit(Scope *sc, size_t dim)
 {
@@ -39,7 +39,7 @@ void freeFieldinit(Scope *sc)
 {
     if (sc->fieldinit)
         mem.xfree(sc->fieldinit);
-    sc->fieldinit = NULL;
+    sc->fieldinit = nullptr;
     sc->fieldinit_dim = 0;
 }
 
@@ -63,42 +63,42 @@ Scope::Scope()
     // Create root scope
 
     //printf("Scope::Scope() %p\n", this);
-    this->_module = NULL;
-    this->scopesym = NULL;
-    this->enclosing = NULL;
-    this->parent = NULL;
-    this->sw = NULL;
-    this->tf = NULL;
-    this->os = NULL;
-    this->tinst = NULL;
-    this->minst = NULL;
-    this->sbreak = NULL;
-    this->scontinue = NULL;
-    this->fes = NULL;
-    this->callsc = NULL;
-    this->aligndecl = NULL;
-    this->func = NULL;
-    this->slabel = NULL;
+    this->_module = nullptr;
+    this->scopesym = nullptr;
+    this->enclosing = nullptr;
+    this->parent = nullptr;
+    this->sw = nullptr;
+    this->tf = nullptr;
+    this->os = nullptr;
+    this->tinst = nullptr;
+    this->minst = nullptr;
+    this->sbreak = nullptr;
+    this->scontinue = nullptr;
+    this->fes = nullptr;
+    this->callsc = nullptr;
+    this->aligndecl = nullptr;
+    this->func = nullptr;
+    this->slabel = nullptr;
     this->linkage = LINKd;
     this->cppmangle = CPPMANGLEdefault;
     this->inlining = PINLINEdefault;
-    this->protection = Prot(Prot::public_);
+    this->protection = Visibility(Visibility::public_);
     this->explicitProtection = 0;
     this->stc = 0;
-    this->depdecl = NULL;
+    this->depdecl = nullptr;
     this->inunion = 0;
     this->nofree = 0;
     this->noctor = 0;
     this->intypeof = 0;
-    this->lastVar = NULL;
+    this->lastVar = nullptr;
     this->callSuper = 0;
-    this->fieldinit = NULL;
+    this->fieldinit = nullptr;
     this->fieldinit_dim = 0;
     this->flags = 0;
-    this->lastdc = NULL;
-    this->anchorCounts = NULL;
-    this->prevAnchor = NULL;
-    this->userAttribDecl = NULL;
+    this->lastdc = nullptr;
+    this->anchorCounts = nullptr;
+    this->prevAnchor = nullptr;
+    this->userAttribDecl = nullptr;
 }
 
 Scope *Scope::copy()
@@ -108,7 +108,7 @@ Scope *Scope::copy()
 
     /* Bugzilla 11777: The copied scope should not inherit fieldinit.
      */
-    sc->fieldinit = NULL;
+    sc->fieldinit = nullptr;
 
     return sc;
 }
@@ -118,14 +118,14 @@ Scope *Scope::createGlobal(Module *_module)
     Scope *sc = Scope::alloc();
     *sc = Scope();  // memset
 
-    sc->aligndecl = NULL;
+    sc->aligndecl = nullptr;
     sc->linkage = LINKd;
     sc->inlining = PINLINEdefault;
-    sc->protection = Prot(Prot::public_);
+    sc->protection = Visibility(Visibility::public_);
 
     sc->_module = _module;
 
-    sc->tinst = NULL;
+    sc->tinst = nullptr;
     sc->minst = _module;
 
     sc->scopesym = new ScopeDsymbol();
@@ -135,8 +135,8 @@ Scope *Scope::createGlobal(Module *_module)
     Dsymbol *m = _module;
     while (m->parent)
         m = m->parent;
-    m->addMember(NULL, sc->scopesym);
-    m->parent = NULL;                   // got changed by addMember()
+    m->addMember(nullptr, sc->scopesym);
+    m->parent = nullptr;                   // got changed by addMember()
 
     // Create the module scope underneath the global scope
     sc = sc->push(_module);
@@ -150,15 +150,15 @@ Scope *Scope::push()
 
     //printf("Scope::push(this = %p) new = %p\n", this, s);
     assert(!(flags & SCOPEfree));
-    s->scopesym = NULL;
+    s->scopesym = nullptr;
     s->enclosing = this;
-    s->slabel = NULL;
+    s->slabel = nullptr;
     s->nofree = 0;
     s->fieldinit = saveFieldInit();
     s->flags = (flags & (SCOPEcontract | SCOPEdebug | SCOPEctfe | SCOPEcompile | SCOPEconstraint |
                          SCOPEnoaccesscheck | SCOPEignoresymbolvisibility |
                          SCOPEprintf | SCOPEscanf));
-    s->lastdc = NULL;
+    s->lastdc = nullptr;
 
     assert(this != s);
     return s;
@@ -282,7 +282,7 @@ void Scope::mergeCallSuper(Loc loc, unsigned cs)
 
 unsigned *Scope::saveFieldInit()
 {
-    unsigned *fi = NULL;
+    unsigned *fi = nullptr;
     if (fieldinit)  // copy
     {
         size_t dim = fieldinit_dim;
@@ -398,7 +398,7 @@ static Dsymbol *searchScopes(Scope *scope, Loc loc, Identifier *ident, Dsymbol *
         {
             if (!(flags & (SearchImportsOnly | IgnoreErrors)) &&
                 ident == Id::length && sc->scopesym->isArrayScopeSymbol() &&
-                sc->enclosing && sc->enclosing->search(loc, ident, NULL, flags))
+                sc->enclosing && sc->enclosing->search(loc, ident, nullptr, flags))
             {
                 warning(s->loc, "array `length` hides other `length` name in outer scope");
             }
@@ -410,7 +410,7 @@ static Dsymbol *searchScopes(Scope *scope, Loc loc, Identifier *ident, Dsymbol *
         if (sc->scopesym->isModule() && !(sc->enclosing && !sc->enclosing->enclosing))
             break;
     }
-    return NULL;
+    return nullptr;
 }
 
 /************************************
@@ -449,7 +449,7 @@ Dsymbol *Scope::search(Loc loc, Identifier *ident, Dsymbol **pscopesym, int flag
                 return s;
             }
         }
-        return NULL;
+        return nullptr;
     }
 
     if (this->flags & SCOPEignoresymbolvisibility)
@@ -481,7 +481,7 @@ Dsymbol *Scope::insert(Dsymbol *s)
                 wthis->lastVar = lastVar;
             lastVar = wthis;
         }
-        return NULL;
+        return nullptr;
     }
     for (Scope *sc = this; sc; sc = sc->enclosing)
     {
@@ -495,7 +495,7 @@ Dsymbol *Scope::insert(Dsymbol *s)
         }
     }
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 /********************************************
@@ -513,7 +513,7 @@ ClassDeclaration *Scope::getClassScope()
         if (cd)
             return cd;
     }
-    return NULL;
+    return nullptr;
 }
 
 /********************************************
@@ -534,7 +534,7 @@ AggregateDeclaration *Scope::getStructClassScope()
         if (ad)
             return ad;
     }
-    return NULL;
+    return nullptr;
 }
 
 /*******************************************
@@ -583,14 +583,14 @@ static void *scope_search_fp(void *arg, const char *seed, int* cost)
      */
     size_t len = strlen(seed);
     if (!len)
-        return NULL;
+        return nullptr;
     Identifier *id = Identifier::lookup(seed, len);
     if (!id)
-        return NULL;
+        return nullptr;
 
     Scope *sc = (Scope *)arg;
     Module::clearCache();
-    Dsymbol *scopesym = NULL;
+    Dsymbol *scopesym = nullptr;
     Dsymbol *s = sc->search(Loc(), id, &scopesym, IgnoreErrors);
     if (s)
     {
@@ -600,8 +600,8 @@ static void *scope_search_fp(void *arg, const char *seed, int* cost)
         if (scopesym != s->parent)
         {
             (*cost)++; // got to the symbol through an import
-            if (s->prot().kind == Prot::private_)
-                return NULL;
+            if (s->prot().kind == Visibility::private_)
+                return nullptr;
         }
     }
     return (void*)s;
@@ -610,9 +610,9 @@ static void *scope_search_fp(void *arg, const char *seed, int* cost)
 Dsymbol *Scope::search_correct(Identifier *ident)
 {
     if (global.gag)
-        return NULL;            // don't do it for speculative compiles; too time consuming
+        return nullptr;            // don't do it for speculative compiles; too time consuming
 
-    Dsymbol *scopesym = NULL;
+    Dsymbol *scopesym = nullptr;
     // search for exact name first
     if (Dsymbol *s = search(Loc(), ident, &scopesym, IgnoreErrors))
         return s;
@@ -641,6 +641,6 @@ const char *Scope::search_correct_C(Identifier *ident)
     else if (ident == Id::C_wchar_t)
         tok = target.c.twchar_t->ty == Twchar ? TOKwchar : TOKdchar;
     else
-        return NULL;
+        return nullptr;
     return Token::toChars(tok);
 }

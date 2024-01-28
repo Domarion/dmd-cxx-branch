@@ -30,7 +30,7 @@ Expression *resolveAliasThis(Scope *sc, Expression *e, bool gag)
         unsigned olderrors = gag ? global.startGagging() : 0;
 
         Loc loc = e->loc;
-        Type *tthis = (e->op == TOKtype ? e->type : NULL);
+        Type *tthis = (e->op == TOKtype ? e->type : nullptr);
         e = new DotIdExp(loc, e, ad->aliasthis->ident);
         e = expressionSemantic(e, sc);
         if (tthis && ad->aliasthis->needThis())
@@ -69,14 +69,14 @@ Expression *resolveAliasThis(Scope *sc, Expression *e, bool gag)
         e = resolveProperties(sc, e);
 
         if (gag && global.endGagging(olderrors))
-            e = NULL;
+            e = nullptr;
     }
 
     return e;
 }
 
 AliasThis::AliasThis(Loc loc, Identifier *ident)
-    : Dsymbol(NULL)             // it's anonymous (no identifier)
+    : Dsymbol(nullptr)             // it's anonymous (no identifier)
 {
     this->loc = loc;
     this->ident = ident;

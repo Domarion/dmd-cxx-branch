@@ -259,7 +259,7 @@ void OutBuffer::vprintf(const char *format, va_list args)
     int count;
 
     if (doindent)
-        write(NULL, 0); // perform indent
+        write(nullptr, 0); // perform indent
     int psize = 128;
     for (;;)
     {

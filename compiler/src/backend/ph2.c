@@ -31,7 +31,7 @@ struct Heap
     unsigned nleft;     // number of bytes left
 };
 
-Heap *heap=NULL;
+Heap *heap=nullptr;
 
 void ph_init()
 {
@@ -136,7 +136,7 @@ void *ph_realloc(void *p,size_t nbytes)
         return ph_malloc(nbytes);
     if (!nbytes)
     {   ph_free(p);
-        return NULL;
+        return nullptr;
     }
     void *newp = ph_malloc(nbytes);
     if (newp)

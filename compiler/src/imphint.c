@@ -27,19 +27,19 @@ const char *importHint(const char *s)
     {   "core.stdc.stdio",
         "std.stdio",
         "std.math",
-        NULL
+        nullptr
     };
     static const char *names[] =
     {
-        "printf", NULL,
-        "writeln", NULL,
-        "sin", "cos", "sqrt", "fabs", NULL,
+        "printf", nullptr,
+        "writeln", nullptr,
+        "sin", "cos", "sqrt", "fabs", nullptr,
     };
     int m = 0;
     for (int n = 0; modules[m]; n++)
     {
         const char *p = names[n];
-        if (p == NULL)
+        if (p == nullptr)
         {
             m++;
             continue;
@@ -48,5 +48,5 @@ const char *importHint(const char *s)
         if (strcmp(s, p) == 0)
             return modules[m];
     }
-    return NULL;        // didn't find it
+    return nullptr;        // didn't find it
 }

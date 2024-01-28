@@ -373,7 +373,7 @@ struct Token_lookahead
 
     void init()
     {
-        toks = NULL;
+        toks = nullptr;
         pend = &toks;
         inited = 1;
     }

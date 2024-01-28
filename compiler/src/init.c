@@ -34,7 +34,7 @@ Initializer::Initializer(Loc loc)
 
 Initializers *Initializer::arraySyntaxCopy(Initializers *ai)
 {
-    Initializers *a = NULL;
+    Initializers *a = nullptr;
     if (ai)
     {
         a = new Initializers();
@@ -70,7 +70,7 @@ Initializer *ErrorInitializer::syntaxCopy()
 VoidInitializer::VoidInitializer(Loc loc)
     : Initializer(loc)
 {
-    type = NULL;
+    type = nullptr;
 }
 
 Initializer *VoidInitializer::syntaxCopy()
@@ -112,7 +112,7 @@ ArrayInitializer::ArrayInitializer(Loc loc)
     : Initializer(loc)
 {
     dim = 0;
-    type = NULL;
+    type = nullptr;
     sem = false;
 }
 
@@ -125,7 +125,7 @@ Initializer *ArrayInitializer::syntaxCopy()
     ai->value.setDim(value.length);
     for (size_t i = 0; i < ai->value.length; i++)
     {
-        ai->index[i] = index[i] ? index[i]->syntaxCopy() : NULL;
+        ai->index[i] = index[i] ? index[i]->syntaxCopy() : nullptr;
         ai->value[i] = value[i]->syntaxCopy();
     }
     return ai;
@@ -136,7 +136,7 @@ void ArrayInitializer::addInit(Expression *index, Initializer *value)
     this->index.push(index);
     this->value.push(value);
     dim = 0;
-    type = NULL;
+    type = nullptr;
 }
 
 bool ArrayInitializer::isAssociativeArray()

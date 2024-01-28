@@ -328,7 +328,7 @@ code *cdorth(elem *e,regm_t *pretregs)
                         retregs = mask[reg1]; // only want the LSW
                     else
                         retregs = regm;
-                    c1 = NULL;
+                    c1 = nullptr;
                     freenode(e11);
                 }
                 else
@@ -370,7 +370,7 @@ code *cdorth(elem *e,regm_t *pretregs)
                 ss = ss2;                               // use *2 for scale
             }
             else
-                c = NULL;
+                c = nullptr;
             c = cat4(c1,c2,c3,c);
 
             cs.Iop = 0x8D;                      // LEA reg,c[reg1*ss][reg2]
@@ -503,7 +503,7 @@ code *cdorth(elem *e,regm_t *pretregs)
         else if (e2oper == OPvar &&
                  e1->Eoper == OPvar &&
                  e->Eoper != OPmin &&
-                 isregvar(e1,&regm,NULL) &&
+                 isregvar(e1,&regm,nullptr) &&
                  regm != retregs &&
                  tysize[ty1] == tysize[ty2])
         {
@@ -733,7 +733,7 @@ code *cdorth(elem *e,regm_t *pretregs)
     L7: ;
   }
   if (test)
-        cg = NULL;                      /* didn't destroy any           */
+        cg = nullptr;                      /* didn't destroy any           */
   else
         cg = getregs(retregs);          /* we will trash these regs     */
 L5:
@@ -976,7 +976,7 @@ code *cdmul(elem *e,regm_t *pretregs)
             if (mgt)
                 gen2(cg,0x03,grex | modregrmx(3,DX,reg));           // ADD EDX,R1
             code *ct = getregs(mAX);                                // EAX no longer contains 'm'
-            assert(ct == NULL);
+            assert(ct == nullptr);
             genmovreg(cg, AX, reg);                                 // MOV EAX,R1
             genc2(cg,0xC1,grex | modregrm(3,7,AX),sz * 8 - 1);      // SAR EAX,31
             if (shpost)
@@ -1007,7 +1007,7 @@ code *cdmul(elem *e,regm_t *pretregs)
                         cg = movregconst(cg,AX,d,(sz == 8) ? 0x40 : 0); // MOV EAX,d
                         cg = gen2(cg,0x0FAF,grex | modregrmx(3,AX,DX)); // IMUL EAX,EDX
                         code *ct = getregs(mAX);                        // EAX no longer contains 'd'
-                        assert(ct == NULL);
+                        assert(ct == nullptr);
                     }
                     gen2(cg,0x2B,grex | modregxrm(3,reg,AX));           // SUB R1,EAX
                     resreg = regm;
@@ -1073,7 +1073,7 @@ code *cdmul(elem *e,regm_t *pretregs)
                 regm = allregs & ~(mAX | mDX);
                 cl = codelem(e1,&regm,FALSE);       // eval left leaf
                 reg = findreg(regm);
-                cg = NULL;
+                cg = nullptr;
                 cg = cat(cg,getregs(mAX | mDX));
                 cg = genmovreg(cg,AX,reg);                            // MOV EAX,reg
                 cg = movregconst(cg, DX, m, (sz == 8) ? 0x40 : 0);    // MOV EDX,m
@@ -1107,7 +1107,7 @@ code *cdmul(elem *e,regm_t *pretregs)
                     regm = allregs & ~(mAX|mDX);
                 cl = codelem(e1,&regm,FALSE);       // eval left leaf
                 reg = findreg(regm);
-                cg = NULL;
+                cg = nullptr;
 
                 if (reg != AX)
                 {   cg = cat(cg, getregs(mAX));
@@ -1944,7 +1944,7 @@ code *cdcond(elem *e,regm_t *pretregs)
         assert(stackpushsave == stackpush);
 
         freenode(e2);
-        c = cat6(cc,c,c2,cnop1,fixresult(e,retregs,pretregs),NULL);
+        c = cat6(cc,c,c2,cnop1,fixresult(e,retregs,pretregs),nullptr);
         goto Lret;
   }
 
@@ -2101,7 +2101,7 @@ code *cdloglog(elem *e,regm_t *pretregs)
         assert(sz <= 4);                                        // result better be int
         retregs = *pretregs & allregs;
         cnop1 = cat(cnop1,allocreg(&retregs,&reg,TYint));       // allocate reg for result
-        cg = genjmp(NULL,JMP,FLcode,(block *) cnop2);           // JMP cnop2
+        cg = genjmp(nullptr,JMP,FLcode,(block *) cnop2);           // JMP cnop2
         cnop1 = movregconst(cnop1,reg,e->Eoper == OPoror,0);    // reg = 1
         regcon.immed.mval &= ~mask[reg];                        // mark reg as unavail
         *pretregs = retregs;
@@ -2273,7 +2273,7 @@ code *cdshift(elem *e,regm_t *pretregs)
                         cs.Iflags = 0;
                         if (I64 && sz == 8)
                             cs.Irex |= REX_W;
-                        cg = gen(NULL,&cs);             // LEA resreg,[reg * ss]
+                        cg = gen(nullptr,&cs);             // LEA resreg,[reg * ss]
                         freenode(e1);
                         freenode(e2);
                         break;
@@ -2444,7 +2444,7 @@ code *cdshift(elem *e,regm_t *pretregs)
             unsigned rex = I64 ? (REX_W << 16) : 0;
             if (e2isconst)
             {
-                cr = NULL;
+                cr = nullptr;
                 cg = getregs(retregs);
                 if (shiftcnt & (REGSIZE * 8))
                 {
@@ -2452,7 +2452,7 @@ code *cdshift(elem *e,regm_t *pretregs)
                     {   //      SHR hreg,shiftcnt
                         //      MOV lreg,hreg
                         //      XOR hreg,hreg
-                        c = genc2(NULL,0xC1,rex | modregrm(3,s1,hreg),shiftcnt - (REGSIZE * 8));
+                        c = genc2(nullptr,0xC1,rex | modregrm(3,s1,hreg),shiftcnt - (REGSIZE * 8));
                         c = genmovreg(c,lreg,hreg);
                         c = movregconst(c,hreg,0,0);
                     }
@@ -2460,7 +2460,7 @@ code *cdshift(elem *e,regm_t *pretregs)
                     {   //      MOV     lreg,hreg
                         //      SAR     hreg,31
                         //      SHRD    lreg,hreg,shiftcnt
-                        c = genmovreg(NULL,lreg,hreg);
+                        c = genmovreg(nullptr,lreg,hreg);
                         c = genc2(c,0xC1,rex | modregrm(3,s1,hreg),(REGSIZE * 8) - 1);
                         c = genc2(c,0x0FAC,rex | modregrm(3,hreg,lreg),shiftcnt - (REGSIZE * 8));
                     }
@@ -2468,7 +2468,7 @@ code *cdshift(elem *e,regm_t *pretregs)
                     {   //      SHL lreg,shiftcnt
                         //      MOV hreg,lreg
                         //      XOR lreg,lreg
-                        c = genc2(NULL,0xC1,rex | modregrm(3,s1,lreg),shiftcnt - (REGSIZE * 8));
+                        c = genc2(nullptr,0xC1,rex | modregrm(3,s1,lreg),shiftcnt - (REGSIZE * 8));
                         c = genmovreg(c,hreg,lreg);
                         c = movregconst(c,lreg,0,0);
                     }
@@ -2478,13 +2478,13 @@ code *cdshift(elem *e,regm_t *pretregs)
                     if (oper == OPshr || oper == OPashr)
                     {   //      SHRD    lreg,hreg,shiftcnt
                         //      SHR/SAR hreg,shiftcnt
-                        c = genc2(NULL,0x0FAC,rex | modregrm(3,hreg,lreg),shiftcnt);
+                        c = genc2(nullptr,0x0FAC,rex | modregrm(3,hreg,lreg),shiftcnt);
                         c = genc2(c,0xC1,rex | modregrm(3,s1,hreg),shiftcnt);
                     }
                     else
                     {   //      SHLD hreg,lreg,shiftcnt
                         //      SHL  lreg,shiftcnt
-                        c = genc2(NULL,0x0FA4,rex | modregrm(3,lreg,hreg),shiftcnt);
+                        c = genc2(nullptr,0x0FA4,rex | modregrm(3,lreg,hreg),shiftcnt);
                         c = genc2(c,0xC1,rex | modregrm(3,s1,lreg),shiftcnt);
                     }
                 }
@@ -2501,7 +2501,7 @@ code *cdshift(elem *e,regm_t *pretregs)
                         SHL     lreg,CL
                      */
 
-                    c = gen2(NULL,0x0FA5,modregrm(3,lreg,hreg));
+                    c = gen2(nullptr,0x0FA5,modregrm(3,lreg,hreg));
                     gen2(c,0xD3,modregrm(3,4,lreg));
                 }
                 else
@@ -2515,7 +2515,7 @@ code *cdshift(elem *e,regm_t *pretregs)
                         SHRD    lreg,hreg,CL
                         SHR             hreg,CL
                      */
-                    c = gen2(NULL,0x0FAD,modregrm(3,hreg,lreg));
+                    c = gen2(nullptr,0x0FAD,modregrm(3,hreg,lreg));
                     gen2(c,0xD3,modregrm(3,s1,hreg));
                 }
             }
@@ -2525,7 +2525,7 @@ code *cdshift(elem *e,regm_t *pretregs)
                 cr = scodelem(e2,&rretregs,retregs,FALSE); // get rvalue in CX
                 cg = getregs(retregs | mCX);            // modify these regs
                                                         // TEST CL,0x20
-                c = genc2(NULL,0xF6,modregrm(3,0,CX),REGSIZE * 8);
+                c = genc2(nullptr,0xF6,modregrm(3,0,CX),REGSIZE * 8);
                 if (oper == OPshl)
                 {
                     /*  TEST    CL,20H
@@ -2540,9 +2540,9 @@ code *cdshift(elem *e,regm_t *pretregs)
                     L2: NOP
                      */
 
-                    cl1 = NULL;
+                    cl1 = nullptr;
                     if (REGSIZE == 2)
-                        cl1 = genc2(NULL,0x80,modregrm(3,4,CX),REGSIZE * 8 - 1);
+                        cl1 = genc2(nullptr,0x80,modregrm(3,4,CX),REGSIZE * 8 - 1);
                     cl1 = gen2(cl1,0xD3,modregrm(3,4,lreg));
                     genmovreg(cl1,hreg,lreg);
                     genregs(cl1,0x31,lreg,lreg);
@@ -2566,9 +2566,9 @@ code *cdshift(elem *e,regm_t *pretregs)
                         L2: NOP
                          */
 
-                        cl1 = NULL;
+                        cl1 = nullptr;
                         if (REGSIZE == 2)
-                            cl1 = genc2(NULL,0x80,modregrm(3,4,CX),REGSIZE * 8 - 1);
+                            cl1 = genc2(nullptr,0x80,modregrm(3,4,CX),REGSIZE * 8 - 1);
                         cl1 = genmovreg(cl1,lreg,hreg);
                         genc2(cl1,0xC1,modregrm(3,s1,hreg),31);
                         gen2(cl1,0x0FAD,modregrm(3,hreg,lreg));
@@ -2587,9 +2587,9 @@ code *cdshift(elem *e,regm_t *pretregs)
                         L2: NOP
                          */
 
-                        cl1 = NULL;
+                        cl1 = nullptr;
                         if (REGSIZE == 2)
-                            cl1 = genc2(NULL,0x80,modregrm(3,4,CX),REGSIZE * 8 - 1);
+                            cl1 = genc2(nullptr,0x80,modregrm(3,4,CX),REGSIZE * 8 - 1);
                         cl1 = gen2(cl1,0xD3,modregrm(3,5,hreg));
                         genmovreg(cl1,lreg,hreg);
                         genregs(cl1,0x31,hreg,hreg);
@@ -2598,7 +2598,7 @@ code *cdshift(elem *e,regm_t *pretregs)
                     gen2(c,0x0FAD,modregrm(3,hreg,lreg));
                     gen2(c,0xD3,modregrm(3,s1,hreg));
                 }
-                cl2 = gennop(NULL);
+                cl2 = gennop(nullptr);
                 genjmp(c,JMPS,FLcode,(block *)cl2);
                 c = cat3(c,cl1,cl2);
             }
@@ -2872,7 +2872,7 @@ code *cdind(elem *e,regm_t *pretregs)
   return c;
 }
 
-#define cod2_setES(ty) NULL
+#define cod2_setES(ty) nullptr
 
 /********************************
  * Generate code for intrinsic strlen().
@@ -3075,7 +3075,7 @@ code *cdmemcmp(elem *e,regm_t *pretregs)
     c2 = cod2_setES(ty2);
 
     /* Load DS with right value */
-    c3 = NULL;
+    c3 = nullptr;
     switch (tybasic(ty1))
     {
         case TYnptr:
@@ -3289,7 +3289,7 @@ code *cdmemcpy(elem *e,regm_t *pretregs)
     c2 = cod2_setES(ty1);
 
     /* Load DS with right value */
-    c3 = NULL;
+    c3 = nullptr;
     switch (tybasic(ty2))
     {
         case TYnptr:
@@ -3377,7 +3377,7 @@ code *cdmemcpy(elem *e,regm_t *pretregs)
  */
 
 code *cdmemset(elem *e,regm_t *pretregs)
-{   code *c1,*c2,*c3 = NULL,*c4;
+{   code *c1,*c2,*c3 = nullptr,*c4;
     regm_t retregs1;
     regm_t retregs2;
     regm_t retregs3;
@@ -3506,7 +3506,7 @@ fixres:
     retregs3 = mAX;
     if (e2->E2->Eoper == OPconst)
     {
-        c1 = regwithvalue(c1, mAX, value, NULL, I64?64:0);
+        c1 = regwithvalue(c1, mAX, value, nullptr, I64?64:0);
         freenode(e2->E2);
     }
     else
@@ -3526,7 +3526,7 @@ fixres:
     // Make sure ES contains proper segment value
     c2 = cod2_setES(ty1);
 
-    c3 = NULL;
+    c3 = nullptr;
     if (*pretregs)                              // if need return value
     {   c3 = getregs(mBX);
         c3 = genmovreg(c3,BX,DI);
@@ -3864,7 +3864,7 @@ code *getoffset(elem *e,unsigned reg)
                 css.IFL1 = fl;
                 css.IEVsym1 = e->EV.sp.Vsym;
                 css.IEVoffset1 = e->EV.sp.Voffset;
-                c = gen(NULL, &css);
+                c = gen(nullptr, &css);
             }
             else
             {
@@ -3893,7 +3893,7 @@ code *getoffset(elem *e,unsigned reg)
          * note different fixup
          */
         int stack = 0;
-        c = NULL;
+        c = nullptr;
         if (reg == STACK)
         {   regm_t retregs = ALLREGS;
 
@@ -3968,7 +3968,7 @@ code *getoffset(elem *e,unsigned reg)
         if (reg == STACK)
         {   stackchanged = 1;
             cs.Iop = 0x68;              /* PUSH immed16                 */
-            c = genadjesp(NULL,REGSIZE);
+            c = genadjesp(nullptr,REGSIZE);
         }
         else
         {   cs.Iop = 0xB8 + (reg & 7);  // MOV reg,immed16
@@ -3987,7 +3987,7 @@ code *getoffset(elem *e,unsigned reg)
                     cs.IEVoffset1 = cs.IEVoffset2;
                 }
             }
-            c = NULL;
+            c = nullptr;
         }
         cs.Iflags = CFoff;              /* want offset only             */
         cs.IFL2 = fl;
@@ -4271,7 +4271,7 @@ code *cdpost(elem *e,regm_t *pretregs)
         cs.Iop = 0x85 ^ byte;
         code_newreg(&cs, reg);
         cs.Iflags |= CFpsw;
-        c2 = gen(NULL,&cs);             // TEST reg,reg
+        c2 = gen(nullptr,&cs);             // TEST reg,reg
 
         // If lvalue is a register variable, we must mark it as modified
         c3 = modEA(&cs);
@@ -4280,7 +4280,7 @@ code *cdpost(elem *e,regm_t *pretregs)
         if (op == OPpostdec)
             n = -n;
         rm = reg;
-        code *c4 = genc1(NULL,0x8D,(rex << 16) | buildModregrm(2,reg,rm),FLconst,n); // LEA reg,n[reg]
+        code *c4 = genc1(nullptr,0x8D,(rex << 16) | buildModregrm(2,reg,rm),FLconst,n); // LEA reg,n[reg]
         return cat4(c1,c2,c3,c4);
   }
   else if (sz <= REGSIZE || tyfv(tyml))
@@ -4558,7 +4558,7 @@ code *cddctor(elem *e,regm_t *pretregs)
     cs.IFL1 = FLctor;
     cs.IEV1.Vtor = e;
     code *c = gen(CNIL,&cs);
-    c = cat(c, NULL);      // the actual index will be patched in later
+    c = cat(c, nullptr);      // the actual index will be patched in later
                                         // by except_fillInEHTable()
     return c;
 }
@@ -4610,7 +4610,7 @@ code *cdddtor(elem *e,regm_t *pretregs)
         cs.IEV1.Vtor = e;
         code *cd = gen(CNIL,&cs);
 
-        cd = cat(cd, NULL);    // the actual index will be patched in later
+        cd = cat(cd, nullptr);    // the actual index will be patched in later
                                             // by except_fillInEHTable()
 
         // Mark all registers as destroyed
@@ -4642,7 +4642,7 @@ code *cdddtor(elem *e,regm_t *pretregs)
 
         genjmp(cd,JMP,FLcode,(block *)cnop);
 
-        return cat4(cd, c, cnop, NULL);
+        return cat4(cd, c, cnop, nullptr);
     }
 }
 
@@ -4653,23 +4653,23 @@ code *cdddtor(elem *e,regm_t *pretregs)
 
 code *cdctor(elem */*e*/,regm_t */*pretregs*/)
 {
-    return NULL;
+    return nullptr;
 }
 
 code *cddtor(elem */*e*/,regm_t */*pretregs*/)
 {
-    return NULL;
+    return nullptr;
 }
 
 code *cdmark(elem *e,regm_t *pretregs)
 {
-    return NULL;
+    return nullptr;
 }
 
 code *cdsetjmp(elem */*e*/,regm_t */*pretregs*/)
 {
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 /*****************************************
@@ -4687,5 +4687,5 @@ code *cdvoid(elem *e,regm_t *pretregs)
 code *cdhalt(elem *e,regm_t *pretregs)
 {
     assert(*pretregs == 0);
-    return gen1(NULL, 0xF4);            // HLT
+    return gen1(nullptr, 0xF4);            // HLT
 }

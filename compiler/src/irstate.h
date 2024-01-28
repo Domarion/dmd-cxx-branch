@@ -49,15 +49,15 @@ struct IRState
     {
         prev = irs;
         statement = s;
-        symbol = NULL;
-        breakBlock = NULL;
-        contBlock = NULL;
-        switchBlock = NULL;
-        defaultBlock = NULL;
-        finallyBlock = NULL;
-        ident = NULL;
-        ehidden = NULL;
-        startaddress = NULL;
+        symbol = nullptr;
+        breakBlock = nullptr;
+        contBlock = nullptr;
+        switchBlock = nullptr;
+        defaultBlock = nullptr;
+        finallyBlock = nullptr;
+        ident = nullptr;
+        ehidden = nullptr;
+        startaddress = nullptr;
         if (irs)
         {
             m = irs->m;
@@ -71,30 +71,30 @@ struct IRState
         }
         else
         {
-            m = NULL;
-            shidden = NULL;
-            sclosure = NULL;
-            sthis = NULL;
-            blx = NULL;
-            deferToObj = NULL;
-            varsInScope = NULL;
-            labels = NULL;
+            m = nullptr;
+            shidden = nullptr;
+            sclosure = nullptr;
+            sthis = nullptr;
+            blx = nullptr;
+            deferToObj = nullptr;
+            varsInScope = nullptr;
+            labels = nullptr;
         }
     }
 
     IRState(IRState *irs, Dsymbol *s)
     {
         prev = irs;
-        statement = NULL;
+        statement = nullptr;
         symbol = s;
-        breakBlock = NULL;
-        contBlock = NULL;
-        switchBlock = NULL;
-        defaultBlock = NULL;
-        finallyBlock = NULL;
-        ident = NULL;
-        ehidden = NULL;
-        startaddress = NULL;
+        breakBlock = nullptr;
+        contBlock = nullptr;
+        switchBlock = nullptr;
+        defaultBlock = nullptr;
+        finallyBlock = nullptr;
+        ident = nullptr;
+        ehidden = nullptr;
+        startaddress = nullptr;
         if (irs)
         {
             m = irs->m;
@@ -108,38 +108,38 @@ struct IRState
         }
         else
         {
-            m = NULL;
-            shidden = NULL;
-            sclosure = NULL;
-            sthis = NULL;
-            blx = NULL;
-            deferToObj = NULL;
-            varsInScope = NULL;
-            labels = NULL;
+            m = nullptr;
+            shidden = nullptr;
+            sclosure = nullptr;
+            sthis = nullptr;
+            blx = nullptr;
+            deferToObj = nullptr;
+            varsInScope = nullptr;
+            labels = nullptr;
         }
     }
 
     IRState(Module *m, Dsymbol *s)
     {
-        prev = NULL;
-        statement = NULL;
+        prev = nullptr;
+        statement = nullptr;
         this->m = m;
         symbol = s;
-        breakBlock = NULL;
-        contBlock = NULL;
-        switchBlock = NULL;
-        defaultBlock = NULL;
-        finallyBlock = NULL;
-        ident = NULL;
-        ehidden = NULL;
-        shidden = NULL;
-        sclosure = NULL;
-        sthis = NULL;
-        blx = NULL;
-        deferToObj = NULL;
-        startaddress = NULL;
-        varsInScope = NULL;
-        labels = NULL;
+        breakBlock = nullptr;
+        contBlock = nullptr;
+        switchBlock = nullptr;
+        defaultBlock = nullptr;
+        finallyBlock = nullptr;
+        ident = nullptr;
+        ehidden = nullptr;
+        shidden = nullptr;
+        sclosure = nullptr;
+        sthis = nullptr;
+        blx = nullptr;
+        deferToObj = nullptr;
+        startaddress = nullptr;
+        varsInScope = nullptr;
+        labels = nullptr;
     }
 
     Label **lookupLabel(Statement *s);

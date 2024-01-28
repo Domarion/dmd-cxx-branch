@@ -44,13 +44,13 @@ EnumDeclaration::EnumDeclaration(Loc loc, Identifier *id, Type *memtype)
     this->loc = loc;
     type = new TypeEnum(this);
     this->memtype = memtype;
-    maxval = NULL;
-    minval = NULL;
-    defaultval = NULL;
-    sinit = NULL;
+    maxval = nullptr;
+    minval = nullptr;
+    defaultval = nullptr;
+    sinit = nullptr;
     isdeprecated = false;
-    protection = Prot(Prot::undefined);
-    parent = NULL;
+    protection = Visibility(Visibility::undefined);
+    parent = nullptr;
     added = false;
     inuse = 0;
 }
@@ -59,7 +59,7 @@ Dsymbol *EnumDeclaration::syntaxCopy(Dsymbol *s)
 {
     assert(!s);
     EnumDeclaration *ed = new EnumDeclaration(loc, ident,
-        memtype ? memtype->syntaxCopy() : NULL);
+        memtype ? memtype->syntaxCopy() : nullptr);
     return ScopeDsymbol::syntaxCopy(ed);
 }
 
@@ -312,7 +312,7 @@ bool EnumDeclaration::isDeprecated()
     return isdeprecated;
 }
 
-Prot EnumDeclaration::prot()
+Visibility EnumDeclaration::prot()
 {
     return protection;
 }
@@ -333,18 +333,18 @@ Dsymbol *EnumDeclaration::search(const Loc &loc, Identifier *ident, int flags)
 /********************************* EnumMember ****************************/
 
 EnumMember::EnumMember(Loc loc, Identifier *id, Expression *value, Type *origType)
-    : VarDeclaration(loc, NULL, id ? id : Id::empty, new ExpInitializer(loc, value))
+    : VarDeclaration(loc, nullptr, id ? id : Id::empty, new ExpInitializer(loc, value))
 {
-    this->ed = NULL;
+    this->ed = nullptr;
     this->origValue = value;
     this->origType = origType;
 }
 
 EnumMember::EnumMember(Loc loc, Identifier *id, Expression *value, Type *memType,
         StorageClass stc, UserAttributeDeclaration *uad, DeprecatedDeclaration *dd)
-    : VarDeclaration(loc, NULL, id ? id : Id::empty, new ExpInitializer(loc, value))
+    : VarDeclaration(loc, nullptr, id ? id : Id::empty, new ExpInitializer(loc, value))
 {
-    this->ed = NULL;
+    this->ed = nullptr;
     this->origValue = value;
     this->origType = memType;
     this->storage_class = stc;
@@ -361,8 +361,8 @@ Dsymbol *EnumMember::syntaxCopy(Dsymbol *s)
 {
     assert(!s);
     return new EnumMember(loc, ident,
-        value() ? value()->syntaxCopy() : NULL,
-        origType ? origType->syntaxCopy() : NULL);
+        value() ? value()->syntaxCopy() : nullptr,
+        origType ? origType->syntaxCopy() : nullptr);
 }
 
 const char *EnumMember::kind() const

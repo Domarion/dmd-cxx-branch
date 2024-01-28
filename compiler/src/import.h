@@ -28,7 +28,7 @@ public:
     Identifier *id;             // module Identifier
     Identifier *aliasId;
     int isstatic;               // !=0 if static import
-    Prot protection;
+    Visibility protection;
 
     // Pairs of alias=name to bind into current namespace
     Identifiers names;
@@ -43,7 +43,7 @@ public:
         int isstatic);
     void addAlias(Identifier *name, Identifier *alias);
     const char *kind() const;
-    Prot prot();
+    Visibility prot();
     Dsymbol *syntaxCopy(Dsymbol *s);    // copy only syntax trees
     void load(Scope *sc);
     void importAll(Scope *sc);

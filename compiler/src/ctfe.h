@@ -138,7 +138,7 @@ Expression *paintTypeOntoLiteral(UnionExp *pue, Type *type, Expression *lit);
 UnionExp paintTypeOntoLiteralCopy(Type *type, Expression *lit);
 
 /// Convert from a CTFE-internal slice, into a normal Expression
-Expression *resolveSlice(Expression *e, UnionExp *pue = NULL);
+Expression *resolveSlice(Expression *e, UnionExp *pue = nullptr);
 
 /// Determine the array length, without interpreting the expression.
 uinteger_t resolveArrayLength(Expression *e);
@@ -219,7 +219,7 @@ bool isAssocArray(Type *t);
 TypeAArray *toBuiltinAAType(Type *t);
 
 /*  Given an AA literal 'ae', and a key 'e2':
- *  Return ae[e2] if present, or NULL if not found.
+ *  Return ae[e2] if present, or nullptr if not found.
  *  Return TOKcantexp on error.
  */
 Expression *findKeyInAA(Loc loc, AssocArrayLiteralExp *ae, Expression *e2);

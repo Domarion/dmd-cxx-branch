@@ -305,7 +305,7 @@ void toObjFile(Dsymbol *ds, bool multiobj)
 
             // Put out the TypeInfo
             if (gentypeinfo)
-                genTypeInfo(cd->loc, cd->type, NULL);
+                genTypeInfo(cd->loc, cd->type, nullptr);
             //toObjFile(cd->type->vtinfo, multiobj);
 
             //////////////////////////////////////////////
@@ -711,7 +711,7 @@ void toObjFile(Dsymbol *ds, bool multiobj)
             // Put out the TypeInfo
             if (global.params.useTypeInfo && Type::dtypeinfo)
             {
-                genTypeInfo(id->loc, id->type, NULL);
+                genTypeInfo(id->loc, id->type, nullptr);
                 id->type->vtinfo->accept(this);
             }
 
@@ -887,7 +887,7 @@ void toObjFile(Dsymbol *ds, bool multiobj)
                     toDebug(sd);
 
                 if (global.params.useTypeInfo && Type::dtypeinfo)
-                    genTypeInfo(sd->loc, sd->type, NULL);
+                    genTypeInfo(sd->loc, sd->type, nullptr);
 
                 // Generate static initializer
                 toInitializer(sd);
@@ -1038,7 +1038,7 @@ void toObjFile(Dsymbol *ds, bool multiobj)
                 toDebug(ed);
 
             if (global.params.useTypeInfo && Type::dtypeinfo)
-                genTypeInfo(ed->loc, ed->type, NULL);
+                genTypeInfo(ed->loc, ed->type, nullptr);
 
             TypeEnum *tc = (TypeEnum *)ed->type;
             if (!tc->sym->members || ed->type->isZeroInit())
@@ -1100,7 +1100,7 @@ void toObjFile(Dsymbol *ds, bool multiobj)
 
         void visit(AttribDeclaration *ad)
         {
-            Dsymbols *d = ad->include(NULL);
+            Dsymbols *d = ad->include(nullptr);
 
             if (d)
             {
@@ -1310,7 +1310,7 @@ unsigned baseVtblOffset(ClassDeclaration *cd, BaseClass *bc)
         for (size_t k = 0; k < cd2->vtblInterfaces->length; k++)
         {
             BaseClass *bs = (*cd2->vtblInterfaces)[k];
-            if (bs->fillVtbl(cd, NULL, 0))
+            if (bs->fillVtbl(cd, nullptr, 0))
             {
                 if (bc == bs)
                 {

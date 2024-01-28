@@ -493,7 +493,7 @@ static Expression *getNextPrintfArg(const Loc &loc, Expressions &args, size_t &n
             deprecation(loc, "more format specifiers than %d arguments", (int)n);
         else
             skip = true;
-        return NULL;
+        return nullptr;
     }
     return args[n++];
 }
@@ -619,19 +619,19 @@ bool checkPrintfFormat(const Loc &loc, const char *format, Expressions &args, bo
             case Format_u:      // unsigned int
             case Format_d:      // int
                 if (t->ty != Tint32 && t->ty != Tuns32)
-                    errorPrintfFormat(NULL, slice, e, fmt == Format_u ? "uint" : "int", t);
+                    errorPrintfFormat(nullptr, slice, e, fmt == Format_u ? "uint" : "int", t);
                 break;
 
             case Format_hhu:    // unsigned char
             case Format_hhd:    // signed char
                 if (t->ty != Tint32 && t->ty != Tuns32 && t->ty != Tint8 && t->ty != Tuns8)
-                    errorPrintfFormat(NULL, slice, e, fmt == Format_hhu ? "ubyte" : "byte", t);
+                    errorPrintfFormat(nullptr, slice, e, fmt == Format_hhu ? "ubyte" : "byte", t);
                 break;
 
             case Format_hu:     // unsigned short int
             case Format_hd:     // short int
                 if (t->ty != Tint32 && t->ty != Tuns32 && t->ty != Tint16 && t->ty != Tuns16)
-                    errorPrintfFormat(NULL, slice, e, fmt == Format_hu ? "ushort" : "short", t);
+                    errorPrintfFormat(nullptr, slice, e, fmt == Format_hu ? "ushort" : "short", t);
                 break;
 
             case Format_lu:     // unsigned long int
@@ -639,16 +639,16 @@ bool checkPrintfFormat(const Loc &loc, const char *format, Expressions &args, bo
                 if (!(t->isintegral() && t->size() == c_longsize))
                 {
                     if (fmt == Format_lu)
-                        errorPrintfFormat(NULL, slice, e, (c_longsize == 4 ? "uint" : "ulong"), t);
+                        errorPrintfFormat(nullptr, slice, e, (c_longsize == 4 ? "uint" : "ulong"), t);
                     else
-                        errorPrintfFormat(NULL, slice, e, (c_longsize == 4 ? "int" : "long"), t);
+                        errorPrintfFormat(nullptr, slice, e, (c_longsize == 4 ? "int" : "long"), t);
                 }
                 break;
 
             case Format_llu:    // unsigned long long int
             case Format_lld:    // long long int
                 if (t->ty != Tint64 && t->ty != Tuns64)
-                    errorPrintfFormat(NULL, slice, e, fmt == Format_llu ? "ulong" : "long", t);
+                    errorPrintfFormat(nullptr, slice, e, fmt == Format_llu ? "ulong" : "long", t);
                 break;
 
             case Format_ju:     // uintmax_t
@@ -656,98 +656,98 @@ bool checkPrintfFormat(const Loc &loc, const char *format, Expressions &args, bo
                 if (t->ty != Tint64 && t->ty != Tuns64)
                 {
                     if (fmt == Format_ju)
-                        errorPrintfFormat(NULL, slice, e, "core.stdc.stdint.uintmax_t", t);
+                        errorPrintfFormat(nullptr, slice, e, "core.stdc.stdint.uintmax_t", t);
                     else
-                        errorPrintfFormat(NULL, slice, e, "core.stdc.stdint.intmax_t", t);
+                        errorPrintfFormat(nullptr, slice, e, "core.stdc.stdint.intmax_t", t);
                 }
                 break;
 
             case Format_zd:     // size_t
                 if (!(t->isintegral() && t->size() == ptrsize))
-                    errorPrintfFormat(NULL, slice, e, "size_t", t);
+                    errorPrintfFormat(nullptr, slice, e, "size_t", t);
                 break;
 
             case Format_td:     // ptrdiff_t
                 if (!(t->isintegral() && t->size() == ptrsize))
-                    errorPrintfFormat(NULL, slice, e, "ptrdiff_t", t);
+                    errorPrintfFormat(nullptr, slice, e, "ptrdiff_t", t);
                 break;
 
             case Format_GNU_a:  // Format_GNU_a is only for scanf
             case Format_lg:
             case Format_g:      // double
                 if (t->ty != Tfloat64 && t->ty != Timaginary64)
-                    errorPrintfFormat(NULL, slice, e, "double", t);
+                    errorPrintfFormat(nullptr, slice, e, "double", t);
                 break;
 
             case Format_Lg:     // long double
                 if (t->ty != Tfloat80 && t->ty != Timaginary80)
-                    errorPrintfFormat(NULL, slice, e, "real", t);
+                    errorPrintfFormat(nullptr, slice, e, "real", t);
                 break;
 
             case Format_p:      // pointer
                 if (t->ty != Tpointer && t->ty != Tnull && t->ty != Tclass && t->ty != Tdelegate && t->ty != Taarray)
-                    errorPrintfFormat(NULL, slice, e, "void*", t);
+                    errorPrintfFormat(nullptr, slice, e, "void*", t);
                 break;
 
             case Format_n:      // pointer to int
                 if (!(t->ty == Tpointer && tnext->ty == Tint32))
-                    errorPrintfFormat(NULL, slice, e, "int*", t);
+                    errorPrintfFormat(nullptr, slice, e, "int*", t);
                 break;
 
             case Format_ln:     // pointer to long int
                 if (!(t->ty == Tpointer && tnext->isintegral() && !tnext->isunsigned() && tnext->size() == c_longsize))
-                    errorPrintfFormat(NULL, slice, e, (c_longsize == 4 ? "int*" : "long*"), t);
+                    errorPrintfFormat(nullptr, slice, e, (c_longsize == 4 ? "int*" : "long*"), t);
                 break;
 
             case Format_lln:    // pointer to long long int
                 if (!(t->ty == Tpointer && tnext->ty == Tint64))
-                    errorPrintfFormat(NULL, slice, e, "long*", t);
+                    errorPrintfFormat(nullptr, slice, e, "long*", t);
                 break;
 
             case Format_hn:     // pointer to short
                 if (!(t->ty == Tpointer && tnext->ty == Tint16))
-                    errorPrintfFormat(NULL, slice, e, "short*", t);
+                    errorPrintfFormat(nullptr, slice, e, "short*", t);
                 break;
 
             case Format_hhn:    // pointer to signed char
                 if (!(t->ty == Tpointer && tnext->ty == Tint16))
-                    errorPrintfFormat(NULL, slice, e, "byte*", t);
+                    errorPrintfFormat(nullptr, slice, e, "byte*", t);
                 break;
 
             case Format_jn:     // pointer to intmax_t
                 if (!(t->ty == Tpointer && tnext->ty == Tint64))
-                    errorPrintfFormat(NULL, slice, e, "core.stdc.stdint.intmax_t*", t);
+                    errorPrintfFormat(nullptr, slice, e, "core.stdc.stdint.intmax_t*", t);
                 break;
 
             case Format_zn:     // pointer to size_t
                 if (!(t->ty == Tpointer && tnext->isintegral() && tnext->isunsigned() && tnext->size() == ptrsize))
-                    errorPrintfFormat(NULL, slice, e, "size_t*", t);
+                    errorPrintfFormat(nullptr, slice, e, "size_t*", t);
                 break;
 
             case Format_tn:     // pointer to ptrdiff_t
                 if (!(t->ty == Tpointer && tnext->isintegral() && !tnext->isunsigned() && tnext->size() == ptrsize))
-                    errorPrintfFormat(NULL, slice, e, "ptrdiff_t*", t);
+                    errorPrintfFormat(nullptr, slice, e, "ptrdiff_t*", t);
                 break;
 
             case Format_c:      // char
                 if (t->ty != Tint32 && t->ty != Tuns32)
-                    errorPrintfFormat(NULL, slice, e, "char", t);
+                    errorPrintfFormat(nullptr, slice, e, "char", t);
                 break;
 
             case Format_lc:     // wint_t
                 if (t->ty != Tint32 && t->ty != Tuns32)
-                    errorPrintfFormat(NULL, slice, e, "wchar_t", t);
+                    errorPrintfFormat(nullptr, slice, e, "wchar_t", t);
                 break;
 
             case Format_s:      // pointer to char string
                 if (!(t->ty == Tpointer && (tnext->ty == Tchar || tnext->ty == Tint8 || tnext->ty == Tuns8)))
-                    errorPrintfFormat(NULL, slice, e, "char*", t);
+                    errorPrintfFormat(nullptr, slice, e, "char*", t);
                 break;
 
             case Format_ls:     // pointer to wchar_t string
             {
                 if (!(t->ty == Tpointer && tnext == target.c.twchar_t))
-                    errorPrintfFormat(NULL, slice, e, "wchar_t*", t);
+                    errorPrintfFormat(nullptr, slice, e, "wchar_t*", t);
                 break;
             }
             case Format_error:
@@ -773,7 +773,7 @@ static Expression *getNextScanfArg(const Loc &loc, Expressions &args, size_t &n,
     {
         if (!asterisk)
             deprecation(loc, "more format specifiers than %d arguments", (int)n);
-        return NULL;
+        return nullptr;
     }
     return args[n++];
 }
@@ -862,94 +862,94 @@ bool checkScanfFormat(const Loc &loc, const char *format, Expressions &args, boo
             case Format_n:
             case Format_d:      // pointer to int
                 if (!(t->ty == Tpointer && tnext->ty == Tint32))
-                    errorScanfFormat(NULL, slice, e, "int*", t);
+                    errorScanfFormat(nullptr, slice, e, "int*", t);
                 break;
 
             case Format_hhn:
             case Format_hhd:    // pointer to signed char
                 if (!(t->ty == Tpointer && tnext->ty == Tint16))
-                    errorScanfFormat(NULL, slice, e, "byte*", t);
+                    errorScanfFormat(nullptr, slice, e, "byte*", t);
                 break;
 
             case Format_hn:
             case Format_hd:     // pointer to short
                 if (!(t->ty == Tpointer && tnext->ty == Tint16))
-                    errorScanfFormat(NULL, slice, e, "short*", t);
+                    errorScanfFormat(nullptr, slice, e, "short*", t);
                 break;
 
             case Format_ln:
             case Format_ld:     // pointer to long int
                 if (!(t->ty == Tpointer && tnext->isintegral() && tnext->size() == c_longsize))
-                    errorScanfFormat(NULL, slice, e, (c_longsize == 4 ? "int*" : "long*"), t);
+                    errorScanfFormat(nullptr, slice, e, (c_longsize == 4 ? "int*" : "long*"), t);
                 break;
 
             case Format_lln:
             case Format_lld:    // pointer to long long int
                 if (!(t->ty == Tpointer && tnext->ty == Tint64))
-                    errorScanfFormat(NULL, slice, e, "long*", t);
+                    errorScanfFormat(nullptr, slice, e, "long*", t);
                 break;
 
             case Format_jn:
             case Format_jd:     // pointer to intmax_t
                 if (!(t->ty == Tpointer && tnext->ty == Tint64))
-                    errorScanfFormat(NULL, slice, e, "core.stdc.stdint.intmax_t*", t);
+                    errorScanfFormat(nullptr, slice, e, "core.stdc.stdint.intmax_t*", t);
                 break;
 
             case Format_zn:
             case Format_zd:     // pointer to size_t
                 if (!(t->ty == Tpointer && tnext->isintegral() && tnext->isunsigned() && tnext->size() == ptrsize))
-                    errorScanfFormat(NULL, slice, e, "size_t*", t);
+                    errorScanfFormat(nullptr, slice, e, "size_t*", t);
                 break;
 
             case Format_tn:
             case Format_td:     // pointer to ptrdiff_t
                 if (!(t->ty == Tpointer && tnext->isintegral() && !tnext->isunsigned() && tnext->size() == ptrsize))
-                    errorScanfFormat(NULL, slice, e, "ptrdiff_t*", t);
+                    errorScanfFormat(nullptr, slice, e, "ptrdiff_t*", t);
                 break;
 
             case Format_u:      // pointer to unsigned int
                 if (!(t->ty == Tpointer && tnext->ty == Tuns32))
-                    errorScanfFormat(NULL, slice, e, "uint*", t);
+                    errorScanfFormat(nullptr, slice, e, "uint*", t);
                 break;
 
             case Format_hhu:    // pointer to unsigned char
                 if (!(t->ty == Tpointer && tnext->ty == Tuns8))
-                    errorScanfFormat(NULL, slice, e, "ubyte*", t);
+                    errorScanfFormat(nullptr, slice, e, "ubyte*", t);
                 break;
 
             case Format_hu:     // pointer to unsigned short int
                 if (!(t->ty == Tpointer && tnext->ty == Tuns16))
-                    errorScanfFormat(NULL, slice, e, "ushort*", t);
+                    errorScanfFormat(nullptr, slice, e, "ushort*", t);
                 break;
 
             case Format_lu:     // pointer to unsigned long int
                 if (!(t->ty == Tpointer && tnext->isintegral() && tnext->isunsigned() && tnext->size() == c_longsize))
-                    errorScanfFormat(NULL, slice, e, (c_longsize == 4 ? "uint*" : "ulong*"), t);
+                    errorScanfFormat(nullptr, slice, e, (c_longsize == 4 ? "uint*" : "ulong*"), t);
                 break;
 
             case Format_llu:    // pointer to unsigned long long int
                 if (!(t->ty == Tpointer && tnext->ty == Tuns64))
-                    errorScanfFormat(NULL, slice, e, "ulong*", t);
+                    errorScanfFormat(nullptr, slice, e, "ulong*", t);
                 break;
 
             case Format_ju:     // pointer to uintmax_t
                 if (!(t->ty == Tpointer && tnext->ty == Tuns64))
-                    errorScanfFormat(NULL, slice, e, "ulong*", t);
+                    errorScanfFormat(nullptr, slice, e, "ulong*", t);
                 break;
 
             case Format_g:      // pointer to float
                 if (!(t->ty == Tpointer && tnext->ty == Tfloat32))
-                    errorScanfFormat(NULL, slice, e, "float*", t);
+                    errorScanfFormat(nullptr, slice, e, "float*", t);
                 break;
 
             case Format_lg:     // pointer to double
                 if (!(t->ty == Tpointer && tnext->ty == Tfloat64))
-                    errorScanfFormat(NULL, slice, e, "double*", t);
+                    errorScanfFormat(nullptr, slice, e, "double*", t);
                 break;
 
             case Format_Lg:     // pointer to long double
                 if (!(t->ty == Tpointer && tnext->ty == Tfloat80))
-                    errorScanfFormat(NULL, slice, e, "real*", t);
+                    errorScanfFormat(nullptr, slice, e, "real*", t);
                 break;
 
             case Format_GNU_a:
@@ -957,19 +957,19 @@ bool checkScanfFormat(const Loc &loc, const char *format, Expressions &args, boo
             case Format_c:
             case Format_s:      // pointer to char string
                 if (!(t->ty == Tpointer && (tnext->ty == Tchar || tnext->ty == Tint8 || tnext->ty == Tuns8)))
-                    errorScanfFormat(NULL, slice, e, "char*", t);
+                    errorScanfFormat(nullptr, slice, e, "char*", t);
                 break;
 
             case Format_lc:
             case Format_ls:     // pointer to wchar_t string
             {
                 if (!(t->ty == Tpointer && tnext == target.c.twchar_t))
-                    errorScanfFormat(NULL, slice, e, "wchar_t*", t);
+                    errorScanfFormat(nullptr, slice, e, "wchar_t*", t);
                 break;
             }
             case Format_p:      // double pointer
                 if (!(t->ty == Tpointer && tnext->ty == Tpointer))
-                    errorScanfFormat(NULL, slice, e, "void**", t);
+                    errorScanfFormat(nullptr, slice, e, "void**", t);
                 break;
 
             case Format_error:

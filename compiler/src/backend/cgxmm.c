@@ -134,7 +134,7 @@ code *orthxmm(elem *e, regm_t *pretregs)
     if (OTrel(e->Eoper))
     {
         retregs = mPSW;
-        cg = NULL;
+        cg = nullptr;
         code *cc = gen2(CNIL,op,modregxrmx(3,rreg-XMM0,reg-XMM0));
         return cat4(c,cr,cg,cc);
     }
@@ -429,7 +429,7 @@ code *xmmopass(elem *e,regm_t *pretregs)
         {   regvar = TRUE;
             retregs = varregm;
             reg = varreg;                       // evaluate directly in target register
-            cl = NULL;
+            cl = nullptr;
             cg = getregs(retregs);              // destroy these regs
         }
     }
@@ -820,7 +820,7 @@ code *cdvector(elem *e, regm_t *pretregs)
 
     elem *eop = params[0];
     elem *op1 = params[1];
-    elem *op2 = NULL;
+    elem *op2 = nullptr;
     tym_t ty2 = 0;
     if (n >= 3)
     {   op2 = params[2];

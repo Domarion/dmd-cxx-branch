@@ -96,11 +96,11 @@ static Label *getLabel(IRState *irs, Blockx *blx, Statement *s)
 {
     Label **slot = irs->lookupLabel(s);
 
-    if (slot == NULL)
+    if (slot == nullptr)
     {
         Label *label = new Label();
         label->lblock = blx ? block_calloc(blx) : block_calloc();
-        label->fwdrefs = NULL;
+        label->fwdrefs = nullptr;
         irs->insertLabel(s, label);
         return label;
     }
@@ -116,9 +116,9 @@ block *labelToBlock(IRState *irs, Loc loc, Blockx *blx, LabelDsymbol *label, int
     if (!label->statement)
     {
         error(loc, "undefined label %s", label->toChars());
-        return NULL;
+        return nullptr;
     }
-    Label *l = getLabel(irs, NULL, label->statement);
+    Label *l = getLabel(irs, nullptr, label->statement);
     if (flag)
     {
         // Keep track of the forward reference to this block, so we can check it later
@@ -185,7 +185,7 @@ public:
         e = toElemDtor(s->condition, &mystate);
         block_appendexp(blx->curblock, e);
         block *bcond = blx->curblock;
-        block_next(blx, BCiftrue, NULL);
+        block_next(blx, BCiftrue, nullptr);
 
         bcond->appendSucc(blx->curblock);
         if (s->ifbody)
@@ -194,7 +194,7 @@ public:
 
         if (s->elsebody)
         {
-            block_next(blx, BCgoto, NULL);
+            block_next(blx, BCgoto, nullptr);
             bcond->appendSucc(blx->curblock);
             Statement_toIR(s->elsebody, &mystate);
             blx->curblock->appendSucc(bexit);
@@ -246,7 +246,7 @@ public:
         mystate.contBlock = block_calloc(blx);
 
         block *bpre = blx->curblock;
-        block_next(blx, BCgoto, NULL);
+        block_next(blx, BCgoto, nullptr);
         bpre->appendSucc(blx->curblock);
 
         mystate.contBlock->appendSucc(blx->curblock);
@@ -278,7 +278,7 @@ public:
         if (s->_init)
             Statement_toIR(s->_init, &mystate);
         block *bpre = blx->curblock;
-        block_next(blx,BCgoto,NULL);
+        block_next(blx,BCgoto,nullptr);
         block *bcond = blx->curblock;
         bpre->appendSucc(bcond);
         mystate.contBlock->appendSucc(bcond);
@@ -286,14 +286,14 @@ public:
         {
             incUsage(irs, s->condition->loc);
             block_appendexp(bcond, toElemDtor(s->condition, &mystate));
-            block_next(blx,BCiftrue,NULL);
+            block_next(blx,BCiftrue,nullptr);
             bcond->appendSucc(blx->curblock);
             bcond->appendSucc(mystate.breakBlock);
         }
         else
         {   /* No conditional, it's a straight goto
              */
-            block_next(blx,BCgoto,NULL);
+            block_next(blx,BCgoto,nullptr);
             bcond->appendSucc(blx->curblock);
         }
 
@@ -360,7 +360,7 @@ public:
          */
         b->appendSucc(bbreak);
         block_setLoc(b, s->loc);
-        block_next(blx, BCgoto, NULL);
+        block_next(blx, BCgoto, nullptr);
     }
 
     /************************************
@@ -388,7 +388,7 @@ public:
          */
         b->appendSucc(bcont);
         block_setLoc(b, s->loc);
-        block_next(blx, BCgoto, NULL);
+        block_next(blx, BCgoto, nullptr);
     }
 
 
@@ -421,7 +421,7 @@ public:
             }
         }
 
-        block_next(blx,BCgoto,NULL);
+        block_next(blx,BCgoto,nullptr);
     }
 
     void visit(LabelStatement *s)
@@ -511,7 +511,7 @@ public:
                 block *b = blx->curblock;
                 block_appendexp(b, e);
                 Label *clabel = getLabel(irs, blx, cs);
-                block_next(blx, BCiftrue, NULL);
+                block_next(blx, BCiftrue, nullptr);
                 b->appendSucc(clabel->lblock);
                 b->appendSucc(blx->curblock);
             }
@@ -519,7 +519,7 @@ public:
             /* The final 'else' clause goes to the default
              */
             block *b = blx->curblock;
-            block_next(blx, BCgoto, NULL);
+            block_next(blx, BCgoto, nullptr);
             b->appendSucc(mystate.defaultBlock);
 
             Statement_toIR(s->_body, &mystate);
@@ -592,7 +592,7 @@ public:
         else
             string = 0;
         block_appendexp(mystate.switchBlock, econd);
-        block_next(blx,BCswitch,NULL);
+        block_next(blx,BCswitch,nullptr);
 
         // Corresponding free is in block_free
         targ_llong *pu = (targ_llong *) ::malloc(sizeof(*pu) * (numcases + 1));
@@ -687,7 +687,7 @@ public:
 
         b->appendSucc(bdest);
         incUsage(irs, s->loc);
-        block_next(blx,BCgoto,NULL);
+        block_next(blx,BCgoto,nullptr);
     }
 
     void visit(GotoCaseStatement *s)
@@ -718,7 +718,7 @@ public:
 
         b->appendSucc(bdest);
         incUsage(irs, s->loc);
-        block_next(blx,BCgoto,NULL);
+        block_next(blx,BCgoto,nullptr);
     }
 
     void visit(SwitchErrorStatement *s)
@@ -811,13 +811,13 @@ public:
 
         block *finallyBlock;
         if (config.ehmethod != EH_DWARF &&
-            (finallyBlock = irs->getFinallyBlock()) != NULL)
+            (finallyBlock = irs->getFinallyBlock()) != nullptr)
         {
             assert(finallyBlock->BC == BC_finally);
             blx->curblock->appendSucc(finallyBlock);
         }
 
-        block_next(blx, bc, NULL);
+        block_next(blx, bc, nullptr);
     }
 
     /**************************************
@@ -844,7 +844,7 @@ public:
             for (size_t i = 0 ; i < dim ; i++)
             {
                 Statement *s2 = (*s->statements)[i];
-                if (s2 != NULL)
+                if (s2 != nullptr)
                 {
                     Statement_toIR(s2, irs);
                 }
@@ -864,7 +864,7 @@ public:
         mystate.breakBlock = block_calloc(blx);
 
         block *bpre = blx->curblock;
-        block_next(blx, BCgoto, NULL);
+        block_next(blx, BCgoto, nullptr);
 
         block *bdo = blx->curblock;
         bpre->appendSucc(bdo);
@@ -875,7 +875,7 @@ public:
         for (size_t i = 0 ; i < dim ; i++)
         {
             Statement *s2 = (*s->statements)[i];
-            if (s2 != NULL)
+            if (s2 != nullptr)
             {
                 mystate.contBlock = block_calloc(blx);
 
@@ -981,7 +981,7 @@ public:
 
         IRState mystate(irs, s);
 
-        block *tryblock = block_goto(blx,BCgoto,NULL);
+        block *tryblock = block_goto(blx,BCgoto,nullptr);
 
         int previndex = blx->scope_index;
         tryblock->Blast_index = previndex;
@@ -995,7 +995,7 @@ public:
 
         blx->tryblock = tryblock;
         block *breakblock = block_calloc(blx);
-        block_goto(blx,BC_try,NULL);
+        block_goto(blx,BC_try,nullptr);
         if (s->_body)
         {
             Statement_toIR(s->_body, &mystate);
@@ -1012,7 +1012,7 @@ public:
         block *breakblock2 = block_calloc(blx);
 
         blx->curblock->appendSucc(breakblock2);
-        block_next(blx,BCgoto,NULL);
+        block_next(blx,BCgoto,nullptr);
 
         assert(s->catches);
         if (config.ehmethod == EH_DWARF)
@@ -1054,7 +1054,7 @@ public:
 
             block *bcatch = blx->curblock;
             tryblock->appendSucc(bcatch);
-            block_goto(blx, BCjcatch, NULL);
+            block_goto(blx, BCjcatch, nullptr);
 
             block *defaultblock = block_calloc(blx);
 
@@ -1067,7 +1067,7 @@ public:
             assert(bswitch->BS.Bswitch);
             bswitch->BS.Bswitch[0] = numcases;
             bswitch->appendSucc(defaultblock);
-            block_next(blx, BCswitch, NULL);
+            block_next(blx, BCswitch, nullptr);
 
             for (size_t i = 0; i < numcases; ++i)
             {
@@ -1130,7 +1130,7 @@ public:
                 block *bcase = blx->curblock;
                 bswitch->appendSucc(bcase);
 
-                if (cs->handler != NULL)
+                if (cs->handler != nullptr)
                 {
                     IRState catchState(irs, s);
 
@@ -1154,7 +1154,7 @@ public:
                          * Note that this is worst case code because it always sets up an exception handler.
                          * At some point should try to do better.
                          */
-                        FuncDeclaration *fdend = FuncDeclaration::genCfunc(NULL, Type::tvoid, "__cxa_end_catch");
+                        FuncDeclaration *fdend = FuncDeclaration::genCfunc(nullptr, Type::tvoid, "__cxa_end_catch");
                         Expression *ec = VarExp::create(Loc(), fdend);
                         Expression *e = CallExp::create(Loc(), ec);
                         e->type = Type::tvoid;
@@ -1172,10 +1172,10 @@ public:
                     defaultblock->Belem = el_calloc();
                     defaultblock->Belem->Ety = TYvoid;
                     defaultblock->Belem->Eoper = OPhalt;
-                    block_next(blx, BCexit, NULL);
+                    block_next(blx, BCexit, nullptr);
                 }
                 else
-                    block_next(blx, BCgoto, NULL);
+                    block_next(blx, BCgoto, nullptr);
             }
 
             /* Make a copy of the switch case table, which will later become the Action Table.
@@ -1198,8 +1198,8 @@ public:
                 if (cs->type)
                     bcatch->Bcatchtype = toSymbol(cs->type->toBasetype());
                 tryblock->appendSucc(bcatch);
-                block_goto(blx, BCjcatch, NULL);
-                if (cs->handler != NULL)
+                block_goto(blx, BCjcatch, nullptr);
+                if (cs->handler != nullptr)
                 {
                     IRState catchState(irs, s);
 
@@ -1218,7 +1218,7 @@ public:
                     Statement_toIR(cs->handler, &catchState);
                 }
                 blx->curblock->appendSucc(breakblock2);
-                block_next(blx, BCgoto, NULL);
+                block_next(blx, BCgoto, nullptr);
             }
         }
 
@@ -1245,7 +1245,7 @@ public:
          *      [0] start of try block code
          *      [1] BC_finally
          */
-        block *tryblock = block_goto(blx, BCgoto, NULL);
+        block *tryblock = block_goto(blx, BCgoto, nullptr);
 
         int previndex = blx->scope_index;
         tryblock->Blast_index = previndex;
@@ -1256,7 +1256,7 @@ public:
         setScopeIndex(blx,tryblock,tryblock->Bscope_index);
 
         blx->tryblock = tryblock;
-        block_goto(blx,BC_try,NULL);
+        block_goto(blx,BC_try,nullptr);
 
         IRState bodyirs(irs, s);
 
@@ -1293,8 +1293,8 @@ public:
             blx->curblock->appendSucc(breakblock);
             block_next(blx,BCgoto,finallyblock);
 
-            block *landingPad = block_goto(blx,BC_finally,NULL);
-            block_goto(blx,BC_lpad,NULL);               // lpad is [0]
+            block *landingPad = block_goto(blx,BC_finally,nullptr);
+            block_goto(blx,BC_lpad,nullptr);               // lpad is [0]
             finallyblock->appendSucc(blx->curblock);    // start of finalybody is [1]
             finallyblock->appendSucc(breakblock);       // breakblock is [2]
 
@@ -1348,7 +1348,7 @@ public:
              *  [0] landing pad, same as start of finally code
              *  [1] block that comes after BC_ret
              */
-            block_goto(blx,BC_finally,NULL);
+            block_goto(blx,BC_finally,nullptr);
 
             IRState finallyState(irs, s);
 
@@ -1357,7 +1357,7 @@ public:
                 Statement_toIR(s->finalbody, &finallyState);
             block_goto(blx, BCgoto, retblock);
 
-            block_next(blx,BC_ret,NULL);
+            block_next(blx,BC_ret,nullptr);
 
             /* Append the last successor to finallyblock, which is the first block past the BC_ret block.
              */
@@ -1422,7 +1422,7 @@ public:
 
         //printf("InlineAsmStatement::toIR(asmcode = %x)\n", asmcode);
         bpre = blx->curblock;
-        block_next(blx,BCgoto,NULL);
+        block_next(blx,BCgoto,nullptr);
         basm = blx->curblock;
         bpre->appendSucc(basm);
         basm->Bcode = s->asmcode;
@@ -1483,7 +1483,7 @@ public:
         basm->bIasmrefparam = s->refparam;             // are parameters reference?
         basm->usIasmregs = s->regs;                    // registers modified
 
-        block_next(blx,BCasm, NULL);
+        block_next(blx,BCasm, nullptr);
         basm->prependSucc(blx->curblock);
 
         if (s->naked)
@@ -1522,9 +1522,9 @@ void insertFinallyBlockCalls(block *startblock)
         return;
 
     int flagvalue = 0;          // 0 is forunwind_resume
-    block *bcret = NULL;
+    block *bcret = nullptr;
 
-    block *bcretexp = NULL;
+    block *bcretexp = nullptr;
     Symbol *stmp;
 
     block **pb;

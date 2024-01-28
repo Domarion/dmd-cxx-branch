@@ -51,7 +51,7 @@ struct TYPE
     union
     {
         targ_size_t Tdim;       // TYarray: # of elements in array
-        struct elem *Tel;       // TFvla: gives dimension (NULL if '*')
+        struct elem *Tel;       // TFvla: gives dimension (nullptr if '*')
         struct PARAM *Tparamtypes; // TYfunc, TYtemplate: types of function parameters
         struct Classsym *Ttag;  // TYstruct,TYmemptr: tag symbol
                                 // TYenum,TYvtshape: tag symbol

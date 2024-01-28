@@ -520,7 +520,7 @@ void cgen_linnum(code **pc,Srcpos srcpos)
 
 void cgen_prelinnum(code **pc,Srcpos srcpos)
 {
-    *pc = cat(genlinnum(NULL,srcpos),*pc);
+    *pc = cat(genlinnum(nullptr,srcpos),*pc);
 }
 
 /********************************
@@ -718,7 +718,7 @@ struct Flarray
                 }
                 flarray_dim += 1;
                 flarray[i].s = s;
-                flarray[i].fl = NULL;
+                flarray[i].fl = nullptr;
                 pv = &flarray[i].fl;
                 break;
             }
@@ -734,7 +734,7 @@ struct Flarray
     static fixlist **search(symbol *s)
     {
         //printf("search %s\n", s->Sident);
-        fixlist **lp = NULL;
+        fixlist **lp = nullptr;
         for (size_t i = 0; i < flarray_dim; i++)
         {
             if (flarray[i].s == s)
@@ -757,7 +757,7 @@ struct Flarray
                 if (i + 1 == flarray_dim)
                     --flarray_dim;
                 else
-                    flarray[i].s = NULL;
+                    flarray[i].s = nullptr;
                 break;
             }
         }
@@ -770,7 +770,7 @@ struct Flarray
         {
             fixlist::nodel++;
             if (flarray[i].s)
-                (*dg)(NULL, &flarray[i].s, &flarray[i].fl);
+                (*dg)(nullptr, &flarray[i].s, &flarray[i].fl);
             fixlist::nodel--;
         }
     }
@@ -786,7 +786,7 @@ struct Flarray
 
     static fixlist **search(symbol *s)
     {
-        return (fixlist **)(start ? start->in(&s) : NULL);
+        return (fixlist **)(start ? start->in(&s) : nullptr);
     }
 
     static void del(symbol *s)
@@ -799,12 +799,12 @@ struct Flarray
         if (start)
         {
             fixlist::nodel++;
-            start->apply(NULL, dg);
+            start->apply(nullptr, dg);
             fixlist::nodel--;
 #if TERMCODE
             delete start;
 #endif
-            start = NULL;
+            start = nullptr;
         }
     }
 #endif
@@ -815,7 +815,7 @@ Flarray *Flarray::flarray;
 size_t Flarray::flarray_dim;
 size_t Flarray::flarray_max;
 #else
-AArray *Flarray::start = NULL;
+AArray *Flarray::start = nullptr;
 #endif
 
 /****************************
@@ -863,7 +863,7 @@ void searchfixlist(symbol *s)
         fixlist **lp = Flarray::search(s);
         if (lp)
         {   fixlist *p;
-            while ((p = *lp) != NULL)
+            while ((p = *lp) != nullptr)
             {
                 //dbg_printf("Found reference at x%lx\n",p->Loffset);
 
@@ -936,7 +936,7 @@ STATIC int outfixlist_dg(void *parameter, void *pkey, void *pvalue)
                 objmod->external(s);
                 if (s->Sflags & SFLweak)
                 {
-                    objmod->wkext(s, NULL);
+                    objmod->wkext(s, nullptr);
                 }
             }
             objmod->reftoident(ln->Lseg,ln->Loffset,s,ln->Lval,ln->Lflags);

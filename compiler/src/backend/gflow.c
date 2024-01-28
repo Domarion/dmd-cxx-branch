@@ -31,7 +31,7 @@ static char __file__[] = __FILE__;      /* for tassert.h                */
 
 static int flowxx;              /* one of the above values              */
 
-static vec_t ambigsym = NULL;
+static vec_t ambigsym = nullptr;
 
 STATIC void rdgenkill(void);
 STATIC void numdefelems(elem *n);
@@ -122,7 +122,7 @@ STATIC void rdgenkill()
 
         util_free(go.defnod);              /* free existing junk           */
 
-        go.defnod = NULL;
+        go.defnod = nullptr;
 
         /* Compute number of definition elems. */
         go.deftop = 0;
@@ -456,7 +456,7 @@ STATIC void aecpgenkill()
 
         util_free(go.expnod);              /* dump any existing one        */
 
-        go.expnod = NULL;
+        go.expnod = nullptr;
 
         /* Compute number of expressions */
         go.exptop = 1;                     /* start at 1                   */
@@ -477,7 +477,7 @@ STATIC void aecpgenkill()
         go.expnod = (elem **) util_calloc(sizeof(elem *),go.exptop);
         util_free(go.expblk);
         go.expblk = (flowxx == VBE)
-                ? (block **) util_calloc(sizeof(block *),go.exptop) : NULL;
+                ? (block **) util_calloc(sizeof(block *),go.exptop) : nullptr;
 
         exptopsave = go.exptop;
         go.exptop = 1;
@@ -704,8 +704,8 @@ STATIC void defstarkill()
             go.vptrkill = vec_calloc(go.exptop);      /* and create new ones  */
         }
         else /* CP */
-        {   go.starkill = NULL;
-            go.vptrkill = NULL;
+        {   go.starkill = nullptr;
+            go.vptrkill = nullptr;
         }
 
         if (flowxx == CP)
@@ -1139,7 +1139,7 @@ void flowlv()
                         /* Bout = union of Bins of all successors to B. */
                         if (bl)
                         {       vec_copy(b->Boutlv,list_block(bl)->Binlv);
-                                while ((bl = list_next(bl)) != NULL)
+                                while ((bl = list_next(bl)) != nullptr)
                                 {   vec_orass(b->Boutlv,list_block(bl)->Binlv);
                                 }
                         }
@@ -1173,7 +1173,7 @@ STATIC void lvgenkill()
         /* Compute ambigsym, a vector of all variables that could be    */
         /* referenced by a *e or a call.                                */
 
-        assert(ambigsym == NULL);
+        assert(ambigsym == nullptr);
         ambigsym = vec_calloc(globsym.top);
         for (i = 0; i < globsym.top; i++)
                 if (!(globsym.tab[i]->Sflags & SFLunambig))
@@ -1197,7 +1197,7 @@ STATIC void lvgenkill()
         }
 
         vec_free(ambigsym);             /* dump any existing one        */
-        ambigsym = NULL;
+        ambigsym = nullptr;
 }
 
 /*****************************

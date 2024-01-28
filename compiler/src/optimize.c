@@ -30,11 +30,11 @@ Expression *expandVar(int result, VarDeclaration *v)
 {
     //printf("expandVar(result = %d, v = %p, %s)\n", result, v, v ? v->toChars() : "null");
 
-    Expression *e = NULL;
+    Expression *e = nullptr;
     if (!v)
         return e;
     if (!v->originalType && v->semanticRun < PASSsemanticdone) // semantic() not yet run
-        dsymbolSemantic(v, NULL);
+        dsymbolSemantic(v, nullptr);
 
     if (v->isConst() || v->isImmutable() || v->storage_class & STCmanifest)
     {
@@ -94,8 +94,8 @@ Expression *expandVar(int result, VarDeclaration *v)
                     else if (ei->implicitConvTo(v->type) >= MATCHconst)
                     {
                         // const var initialized with non-const expression
-                        ei = ei->implicitCastTo(NULL, v->type);
-                        ei = expressionSemantic(ei, NULL);
+                        ei = ei->implicitCastTo(nullptr, v->type);
+                        ei = expressionSemantic(ei, nullptr);
                     }
                     else
                         goto L1;
@@ -123,7 +123,7 @@ Expression *expandVar(int result, VarDeclaration *v)
             }
             if (e->type != v->type)
             {
-                e = e->castTo(NULL, v->type);
+                e = e->castTo(nullptr, v->type);
             }
             v->inuse++;
             e = e->optimize(result);
@@ -577,7 +577,7 @@ Expression *Expression_optimize(Expression *e, int result, bool keepLvalue)
                     if (e->type->nextOf()->ty == Tvoid)
                         return;
 
-                    ret = e->e1->castTo(NULL, e->type);
+                    ret = e->e1->castTo(nullptr, e->type);
                     //printf(" returning1 %s\n", ret->toChars());
                     return;
                 }
@@ -597,7 +597,7 @@ Expression *Expression_optimize(Expression *e, int result, bool keepLvalue)
              */
             if (op1 != TOKarrayliteral && e->e1->op == TOKarrayliteral)
             {
-                ret = e->e1->castTo(NULL, e->to);
+                ret = e->e1->castTo(nullptr, e->to);
                 return;
             }
             if (e->e1->op == TOKnull &&
@@ -618,7 +618,7 @@ Expression *Expression_optimize(Expression *e, int result, bool keepLvalue)
                 // https://issues.dlang.org/show_bug.cgi?id=16980
                 cdfrom->size(e->loc);
                 assert(cdfrom->sizeok == SIZEOKdone);
-                assert(cdto->sizeok == SIZEOKdone || !cdto->isBaseOf(cdfrom, NULL));
+                assert(cdto->sizeok == SIZEOKdone || !cdto->isBaseOf(cdfrom, nullptr));
                 int offset;
                 if (cdto->isBaseOf(cdfrom, &offset) && offset == 0)
                 {
@@ -905,7 +905,7 @@ Expression *Expression_optimize(Expression *e, int result, bool keepLvalue)
                     mul++;
                 Expression *shift = new MulExp(e->loc, e->e2, new IntegerExp(e->loc, mul, e->e2->type));
                 shift->type = e->e2->type;
-                shift = shift->castTo(NULL, Type::tshiftcnt);
+                shift = shift->castTo(nullptr, Type::tshiftcnt);
                 ret = new ShlExp(e->loc, new IntegerExp(e->loc, 1, e->e1->type), shift);
                 ret->type = e->type;
                 return;
@@ -1063,7 +1063,7 @@ Expression *Expression_optimize(Expression *e, int result, bool keepLvalue)
                     // Convert slice of string literal into dynamic array
                     Type *t = e->e1->type->toBasetype();
                     if (Type *tn = t->nextOf())
-                        ret = e->e1->castTo(NULL, tn->arrayOf());
+                        ret = e->e1->castTo(nullptr, tn->arrayOf());
                 }
             }
             else
@@ -1087,8 +1087,8 @@ Expression *Expression_optimize(Expression *e, int result, bool keepLvalue)
             if (ret->op == TOKstring)
             {
                 e->e1 = ret;
-                e->lwr = NULL;
-                e->upr = NULL;
+                e->lwr = nullptr;
+                e->upr = nullptr;
                 ret = e;
             }
             //printf("-SliceExp::optimize() %s\n", ret->toChars());
@@ -1209,7 +1209,7 @@ Expression *Expression_optimize(Expression *e, int result, bool keepLvalue)
     };
 
     OptimizeVisitor v(result, keepLvalue);
-    Expression *ex = NULL;
+    Expression *ex = nullptr;
     v.ret = e;
 
     // Optimize the expression until it can no longer be simplified.

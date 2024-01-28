@@ -34,15 +34,11 @@ class TypeBasic;
 class Parameter;
 
 // Back end
-#ifdef IN_GCC
-typedef union tree_node type;
-#else
 typedef struct TYPE type;
-#endif
 
 Type *typeSemantic(Type *type, const Loc &loc, Scope *sc);
 void semanticTypeInfo(Scope *sc, Type *t);
-MATCH deduceType(RootObject *o, Scope *sc, Type *tparam, TemplateParameters *parameters, Objects *dedtypes, unsigned *wm = NULL, size_t inferStart = 0);
+MATCH deduceType(RootObject *o, Scope *sc, Type *tparam, TemplateParameters *parameters, Objects *dedtypes, unsigned *wm = nullptr, size_t inferStart = 0);
 StorageClass ModToStc(unsigned mod);
 
 enum ENUMTY
@@ -146,7 +142,7 @@ public:
 
     /* These are cached values that are lazily evaluated by constOf(), immutableOf(), etc.
      * They should not be referenced by anybody but mtype.c.
-     * They can be NULL if not lazily evaluated yet.
+     * They can be nullptr if not lazily evaluated yet.
      * Note that there is no "shared immutable", because that is just immutable
      * Naked == no MOD bits
      */
@@ -241,7 +237,7 @@ public:
     bool equivalent(Type *t);
     // kludge for template.isType()
     int dyncast() const { return DYNCAST_TYPE; }
-    int covariant(Type *t, StorageClass *pstc = NULL);
+    int covariant(Type *t, StorageClass *pstc = nullptr);
     const char *toChars();
     char *toPrettyChars(bool QualifyTypes = false);
     static void _init();
@@ -636,7 +632,7 @@ public:
 
     static Parameters *arraySyntaxCopy(Parameters *parameters);
     static size_t dim(Parameters *parameters);
-    static Parameter *getNth(Parameters *parameters, size_t nth, size_t *pn = NULL);
+    static Parameter *getNth(Parameters *parameters, size_t nth, size_t *pn = nullptr);
     const char *toChars();
     bool isCovariant(bool returnByRef, const Parameter *p) const;
     static bool isCovariantScope(bool returnByRef, StorageClass from, StorageClass to);
@@ -647,7 +643,7 @@ struct ParameterList
     Parameters *parameters;
     VarArg varargs;
 
-    ParameterList(Parameters *parameters = NULL, VarArg varargs = VARARGnone);
+    ParameterList(Parameters *parameters = nullptr, VarArg varargs = VARARGnone);
 
     size_t length();
     Parameter *operator[](size_t i) { return Parameter::getNth(parameters, i); }
@@ -691,7 +687,7 @@ public:
     int attributesApply(void *param, int (*fp)(void *, const char *), TRUSTformat trustFormat = TRUSTformatDefault);
 
     Type *substWildTo(unsigned mod);
-    MATCH callMatch(Type *tthis, Expressions *toargs, int flag = 0, const char **pMessage = NULL);
+    MATCH callMatch(Type *tthis, Expressions *toargs, int flag = 0, const char **pMessage = nullptr);
     bool checkRetType(Loc loc);
 
     Expression *defaultInit(Loc loc) /*const*/;

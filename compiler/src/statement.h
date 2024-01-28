@@ -100,20 +100,20 @@ public:
     virtual Statement *last();
 
     // Avoid dynamic_cast
-    virtual ErrorStatement *isErrorStatement() { return NULL; }
-    virtual ScopeStatement *isScopeStatement() { return NULL; }
-    virtual ExpStatement *isExpStatement() { return NULL; }
-    virtual CompoundStatement *isCompoundStatement() { return NULL; }
-    virtual ReturnStatement *isReturnStatement() { return NULL; }
-    virtual IfStatement *isIfStatement() { return NULL; }
-    virtual CaseStatement *isCaseStatement() { return NULL; }
-    virtual DefaultStatement *isDefaultStatement() { return NULL; }
-    virtual LabelStatement *isLabelStatement() { return NULL; }
-    virtual GotoDefaultStatement *isGotoDefaultStatement() { return NULL; }
-    virtual GotoCaseStatement *isGotoCaseStatement() { return NULL; }
-    virtual BreakStatement *isBreakStatement() { return NULL; }
-    virtual DtorExpStatement *isDtorExpStatement() { return NULL; }
-    virtual ForwardingStatement *isForwardingStatement() { return NULL; }
+    virtual ErrorStatement *isErrorStatement() { return nullptr; }
+    virtual ScopeStatement *isScopeStatement() { return nullptr; }
+    virtual ExpStatement *isExpStatement() { return nullptr; }
+    virtual CompoundStatement *isCompoundStatement() { return nullptr; }
+    virtual ReturnStatement *isReturnStatement() { return nullptr; }
+    virtual IfStatement *isIfStatement() { return nullptr; }
+    virtual CaseStatement *isCaseStatement() { return nullptr; }
+    virtual DefaultStatement *isDefaultStatement() { return nullptr; }
+    virtual LabelStatement *isLabelStatement() { return nullptr; }
+    virtual GotoDefaultStatement *isGotoDefaultStatement() { return nullptr; }
+    virtual GotoCaseStatement *isGotoCaseStatement() { return nullptr; }
+    virtual BreakStatement *isBreakStatement() { return nullptr; }
+    virtual DtorExpStatement *isDtorExpStatement() { return nullptr; }
+    virtual ForwardingStatement *isForwardingStatement() { return nullptr; }
     void accept(Visitor *v) { v->visit(this); }
 };
 
@@ -505,7 +505,7 @@ public:
 class GotoCaseStatement : public Statement
 {
 public:
-    Expression *exp;            // NULL, or which case to goto
+    Expression *exp;            // nullptr, or which case to goto
     CaseStatement *cs;          // case statement it resolves to
 
     GotoCaseStatement(Loc loc, Expression *exp);

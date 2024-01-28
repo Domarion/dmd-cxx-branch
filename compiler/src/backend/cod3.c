@@ -701,7 +701,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             }
             c = cat(c,logexp(e,jcond,FLblock,(code *) bs1));
             nextb = bs2;
-            bl->Bcode = NULL;
+            bl->Bcode = nullptr;
         L2:
             if (configv.addlinenumbers && bl->Bsrcpos.Slinnum &&
                 !(funcsym_p->ty() & mTYnaked))
@@ -737,7 +737,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
                 bl->Btry != nextb->Btry &&
                 nextb->BC != BC_finally)
             {
-                bl->Bcode = NULL;
+                bl->Bcode = nullptr;
                 retregs = 0;
                 c = gencodelem(c,e,&retregs,TRUE);
                 int toindex = nextb->Btry ? nextb->Btry->Bscope_index : -1;
@@ -759,7 +759,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
 
                     //printf("B%d: fromindex = %d, toindex = %d\n", bl->Bdfoidx, fromindex, toindex);
                     bt = bl;
-                    while ((bt = bt->Btry) != NULL && bt->Bscope_index != toindex)
+                    while ((bt = bt->Btry) != nullptr && bt->Bscope_index != toindex)
                     {   block *bf;
 
                         //printf("\tbt->Bscope_index = %d, bt->Blast_index = %d\n", bt->Bscope_index, bt->Blast_index);
@@ -787,8 +787,8 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             c = gencodelem(c,e,&retregs,TRUE);
             if (anyspill)
             {   // Add in the epilog code
-                code *cstore = NULL;
-                code *cload = NULL;
+                code *cstore = nullptr;
+                code *cload = nullptr;
 
                 for (int i = 0; i < anyspill; i++)
                 {   symbol *s = globsym.tab[i];
@@ -804,7 +804,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             }
 
         L3:
-            bl->Bcode = NULL;
+            bl->Bcode = nullptr;
             nextb = bl->nthSucc(0);
             goto L2;
 
@@ -820,7 +820,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
                 assert(!cy);
 
                 retregs = 0;
-                bl->Bcode = gencodelem(NULL,bl->Belem,&retregs,TRUE);
+                bl->Bcode = gencodelem(nullptr,bl->Belem,&retregs,TRUE);
 
                 // JMP bl->nthSucc(1)
                 nextb = bl->nthSucc(1);
@@ -926,7 +926,7 @@ void outblkexitcode(block *bl, code*& c, int& anyspill, const char* sflsave, sym
             else
             {
                 block *bt = bl;
-                while ((bt = bt->Btry) != NULL)
+                while ((bt = bt->Btry) != nullptr)
                 {
                     block *bf = bt->nthSucc(1);
                     // Only look at try-finally blocks
@@ -1032,7 +1032,7 @@ code *cmpval(targ_llong val, unsigned sz, unsigned reg, unsigned reg2, unsigned 
 code *ifthen(CaseVal *casevals, size_t ncases,
         unsigned sz, unsigned reg, unsigned reg2, unsigned sreg, block *bdefault, bool last)
 {
-    code *c = NULL;
+    code *c = nullptr;
 
     if (ncases >= 4 && config.flags4 & CFG4speed)
     {
@@ -1086,7 +1086,7 @@ code *ifthen(CaseVal *casevals, size_t ncases,
 void doswitch(block *b)
 {
     code *c;
-    code *ce = NULL;
+    code *ce = nullptr;
 
     targ_ulong msw;
     bool csseg = false;
@@ -1194,7 +1194,7 @@ void doswitch(block *b)
 
         free(casevals);
 
-        ce = NULL;
+        ce = nullptr;
         goto L2;
     }
 
@@ -1277,7 +1277,7 @@ void doswitch(block *b)
                 gen2sib(ce,LEA,(REX_W << 16) | modregxrm(0,r1,4),modregxrmx(0,r1,r2));    // LEA R1,[R1][R2]
                 gen2(ce,0xFF,modregrmx(3,4,r1));                                          // JMP R1
 
-                pinholeopt(ce, NULL);
+                pinholeopt(ce, nullptr);
 
                 b->Btablesize = (int) (vmax - vmin + 1) * 4;
             }
@@ -1395,7 +1395,7 @@ void doswitch(block *b)
             code *cgot;
 
             ce = cat(ce, getregs(mDX));
-            cx = genc2(NULL,CALL,0,0);  //     CALL L1
+            cx = genc2(nullptr,CALL,0,0);  //     CALL L1
             gen1(cx, 0x58 + DI);        // L1: POP EDI
 
                                         //     ADD EDI,_GLOBAL_OFFSET_TABLE_+3
@@ -1408,14 +1408,14 @@ void doswitch(block *b)
 
             genmovreg(cgot, DX, DI);    // MOV EDX, EDI
                                         // ADD EDI,offset of switch table
-            esw = gencs(CNIL,0x81,modregrm(3,0,DI),FLswitch,NULL);
+            esw = gencs(CNIL,0x81,modregrm(3,0,DI),FLswitch,nullptr);
             esw->IEV2.Vswitch = b;
             esw = cat3(cx, cgot, esw);
         }
         else
         {
                                         // MOV DI,offset of switch table
-            esw = gencs(CNIL,0xC7,modregrm(3,0,DI),FLswitch,NULL);
+            esw = gencs(CNIL,0xC7,modregrm(3,0,DI),FLswitch,nullptr);
             esw->IEV2.Vswitch = b;
         }
         ce = cat(ce,esw);
@@ -1529,7 +1529,7 @@ void outjmptab(block *b)
     objmod->lidata(jmpseg,*poffset,alignbytes);
     assert(*poffset == b->Btableoffset);        // should match precomputed value
 
-    symbol *gotsym = NULL;
+    symbol *gotsym = nullptr;
     targ_size_t def = b->nthSucc(0)->Boffset;  // default address
     for (targ_llong u = vmin; ; u++)
     {   targ_size_t targ = def;                     // default
@@ -2094,7 +2094,7 @@ code *load_localgot()
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /*****************************
@@ -2162,7 +2162,7 @@ code *gensavereg(unsigned& reg, targ_uns slot)
     {   reg = 0;            // the real reg number
         op = 0x8C;          // segment reg mov
     }
-    code *c = genc1(NULL,op,modregxrm(2, reg, BPRM),FLcs,slot);
+    code *c = genc1(nullptr,op,modregxrm(2, reg, BPRM),FLcs,slot);
     if (I64)
         code_orrex(c, REX_W);
 
@@ -2550,7 +2550,7 @@ code* prolog_ifunc(tym_t* tyf)
                                     0x54,0x55,0x56,0x57,
                                     0x1E,0x06,0 };
 
-    code* c = NULL;
+    code* c = nullptr;
     unsigned char *p = (config.target_cpu >= TARGET_80286) ? ops2 : ops0;
     do
         c = gen1(c,*p);
@@ -2567,7 +2567,7 @@ code* prolog_ifunc(tym_t* tyf)
 
 code* prolog_ifunc2(tym_t tyf, tym_t tym, bool pushds)
 {
-    code* c = NULL;
+    code* c = nullptr;
 
     /* Determine if we need to reload DS        */
     if (tyf & mTYloadds)
@@ -2603,7 +2603,7 @@ code* prolog_ifunc2(tym_t tyf, tym_t tym, bool pushds)
 
 code* prolog_frame(unsigned farfunc, unsigned* xlocalsize, bool* enter, int* cfa_offset)
 {
-    code* c = NULL;
+    code* c = nullptr;
     *cfa_offset = 0;
 
     if (config.target_cpu < TARGET_80286 ||
@@ -2647,7 +2647,7 @@ code* prolog_frame(unsigned farfunc, unsigned* xlocalsize, bool* enter, int* cfa
 code* prolog_frameadj(tym_t tyf, unsigned xlocalsize, bool enter, bool* pushalloc)
 {
     unsigned pushallocreg = (tyf == TYmfunc) ? CX : AX;
-    code* c = NULL;
+    code* c = nullptr;
     {
         if (enter)
         {   // ENTER xlocalsize,0
@@ -2671,7 +2671,7 @@ code* prolog_frameadj(tym_t tyf, unsigned xlocalsize, bool enter, bool* pushallo
 code* prolog_frameadj2(tym_t tyf, unsigned xlocalsize, bool* pushalloc)
 {
     unsigned pushallocreg = (tyf == TYmfunc) ? CX : AX;
-    code* c = NULL;
+    code* c = nullptr;
     if (xlocalsize == REGSIZE)
     {   c = gen1(c,0x50 + pushallocreg);    // PUSH AX
         *pushalloc = true;
@@ -2691,7 +2691,7 @@ code* prolog_setupalloca()
 {
     // Set up magic parameter for alloca()
     // MOV -REGSIZE[BP],localsize - BPoff
-    code* c = genc(NULL,0xC7,modregrm(2,0,BPRM),
+    code* c = genc(nullptr,0xC7,modregrm(2,0,BPRM),
             FLconst,Alloca.offset + BPoff,
             FLconst,localsize - BPoff);
     if (I64)
@@ -2758,7 +2758,7 @@ code* prolog_saveregs(code *c, regm_t topush, int cfa_offset)
                 if (config.fulltypes == CVDWARF_C || config.fulltypes == CVDWARF_D ||
                     config.ehmethod == EH_DWARF)
                 {   // Emit debug_frame data giving location of saved register
-                    pinholeopt(c, NULL);
+                    pinholeopt(c, nullptr);
                     dwarf_CFA_set_loc(calcblksize(c));  // address after save
                     dwarf_CFA_offset(reg, gpoffset - cfa_offset);
                 }
@@ -2790,7 +2790,7 @@ code* prolog_saveregs(code *c, regm_t topush, int cfa_offset)
                     config.ehmethod == EH_DWARF)
                 {   // Emit debug_frame data giving location of saved register
                     // relative to 0[EBP]
-                    pinholeopt(c, NULL);
+                    pinholeopt(c, nullptr);
                     dwarf_CFA_set_loc(calcblksize(c));  // address after PUSH reg
                     dwarf_CFA_offset(reg, -EBPtoESP - REGSIZE - cfa_offset);
                 }
@@ -2935,7 +2935,7 @@ code* prolog_genvarargs(symbol* sv, regm_t* namedargs)
     targ_size_t voff = Auto.size + BPoff + sv->Soffset;  // EBP offset of start of sv
     const int vregnum = 6;
     const unsigned vsize = vregnum * 8 + 8 * 16;
-    code *c = NULL;
+    code *c = nullptr;
 
     static unsigned char regs[vregnum] = { DI,SI,DX,CX,R8,R9 };
 
@@ -3015,7 +3015,7 @@ code* prolog_genvarargs(symbol* sv, regm_t* namedargs)
     // MOV 6*8+8*16+4+4+8[RAX],RAX  // set __va_argsave.reg_args
     genc1(c,0x89,(REX_W << 16) | modregrm(2,AX,AX),FLconst,6*8+8*16+4+4+8);
 
-    pinholeopt(c, NULL);
+    pinholeopt(c, nullptr);
     useregs(mAX|mR11);
 
     return c;
@@ -3052,7 +3052,7 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
 #endif
 
     unsigned pushallocreg = (tyf == TYmfunc) ? CX : AX;
-    code* c = NULL;
+    code* c = nullptr;
 
     /* Copy SCfastpar and SCshadowreg (parameters passed in registers) that were not assigned
      * registers into their stack locations.
@@ -3066,7 +3066,7 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
         {   // Argument is passed in a register
 
             type *t = s->Stype;
-            type *t2 = NULL;
+            type *t2 = nullptr;
             if (tybasic(t->Tty) == TYstruct)
             {   type *targ1 = t->Ttag->Sstruct->Sarg1type;
                 t2 = t->Ttag->Sstruct->Sarg2type;
@@ -3160,7 +3160,7 @@ code* prolog_loadparams(tym_t tyf, bool pushalloc, regm_t* namedargs)
         {   // Argument is passed in a register
 
             type *t = s->Stype;
-            type *t2 = NULL;
+            type *t2 = nullptr;
             if (tybasic(t->Tty) == TYstruct)
             {   type *targ1 = t->Ttag->Sstruct->Sarg1type;
                 t2 = t->Ttag->Sstruct->Sarg2type;
@@ -3467,7 +3467,7 @@ Lopt:
         }
     }
 
-    pinholeopt(c, NULL);
+    pinholeopt(c, nullptr);
     retsize += calcblksize(c);          // compute size of function epilog
     b->Bcode = cat(ce,c);
 }
@@ -3642,7 +3642,7 @@ void cod3_thunk(symbol *sthunk,symbol *sfunc,unsigned p,tym_t thisty,
     }
 
     thunkoffset = Coffset;
-    pinholeopt(c,NULL);
+    pinholeopt(c,nullptr);
     codout(c);
     code_free(c);
 
@@ -3755,7 +3755,7 @@ int branch(block *bl,int flag)
                         disp = 0;
                         for (cr = bl->Bcode; cr != cn; cr = code_next(cr))
                         {
-                            assert(cr != NULL); // must have found it
+                            assert(cr != nullptr); // must have found it
                             if (cr == ct)
                                 s = 1;
                             if (s)
@@ -3800,7 +3800,7 @@ int branch(block *bl,int flag)
             if (disp == 0)                      // bra to next instruction
             {   bytesaved += csize;
                 c->Iop = NOP;                   // del branch instruction
-                c->IEV2.Vcode = NULL;
+                c->IEV2.Vcode = nullptr;
                 c = cn;
                 if (!c)
                     break;
@@ -3831,7 +3831,7 @@ int branch(block *bl,int flag)
                     {
                         cn->Iop = 0x0F00 | ((c->Iop & 0x0F) ^ 0x81);
                         c->Iop = NOP;
-                        c->IEV2.Vcode = NULL;
+                        c->IEV2.Vcode = nullptr;
                         bytesaved++;
 
                         // If nobody else points to ct, we can remove the CFtarg
@@ -4287,7 +4287,7 @@ targ_size_t cod3_bpoffset(symbol *s)
  *      short versions for AX EA
  *      short versions for reg EA
  * Input:
- *      b -> block for code (or NULL)
+ *      b -> block for code (or nullptr)
  */
 
 void pinholeopt(code *c,block *b)
@@ -4305,7 +4305,7 @@ void pinholeopt(code *c,block *b)
         useopsize = ((config.flags4 & CFG4space && b->BC != BCasm));
   }
   else
-  {     bn = NULL;
+  {     bn = nullptr;
         usespace = (config.flags4 & CFG4space);
         useopsize = (config.flags4 & CFG4space);
   }

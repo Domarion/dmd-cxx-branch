@@ -110,7 +110,7 @@ struct Scope
     CPPMANGLE cppmangle;        // C++ mangle type
     PINLINE inlining;            // inlining strategy for functions
 
-    Prot protection;            // protection for class members
+    Visibility protection;            // protection for class members
     int explicitProtection;     // set if in an explicit protection attribute
 
     StorageClass stc;           // storage class

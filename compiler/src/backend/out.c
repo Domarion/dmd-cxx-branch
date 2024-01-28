@@ -51,7 +51,7 @@ void outdata(symbol *s)
     s->Sflags |= SFLlivexit;
 
     dt_t *dtstart = s->Sdt;
-    s->Sdt = NULL;                      // it will be free'd
+    s->Sdt = nullptr;                      // it will be free'd
     datasize = 0;
     ty = s->ty();
     for (dt_t *dt = dtstart; dt; dt = dt->DTnext)
@@ -597,7 +597,7 @@ void writefunc(symbol *sfunc)
 {
     cstate.CSpsymtab = &globsym;
     writefunc2(sfunc);
-    cstate.CSpsymtab = NULL;
+    cstate.CSpsymtab = nullptr;
 }
 
 STATIC void writefunc2(symbol *sfunc)
@@ -636,7 +636,7 @@ STATIC void writefunc2(symbol *sfunc)
     memcpy(&globsym.tab[0],&f->Flocsym.tab[0],nsymbols * sizeof(symbol *));
     globsym.top = nsymbols;
 
-    assert(startblock == NULL);
+    assert(startblock == nullptr);
     if (f->Fflags & Finline)            // if keep function around
     {   // Generate copy of function
         block *bf;
@@ -657,12 +657,12 @@ STATIC void writefunc2(symbol *sfunc)
     }
     else
     {   startblock = sfunc->Sfunc->Fstartblock;
-        sfunc->Sfunc->Fstartblock = NULL;
+        sfunc->Sfunc->Fstartblock = nullptr;
     }
     assert(startblock);
 
     /* Do any in-line expansion of function calls inside sfunc  */
-    assert(funcsym_p == NULL);
+    assert(funcsym_p == nullptr);
     funcsym_p = sfunc;
     tyf = tybasic(sfunc->ty());
 
@@ -835,12 +835,12 @@ STATIC void writefunc2(symbol *sfunc)
     }
 
 Ldone:
-    funcsym_p = NULL;
+    funcsym_p = nullptr;
     globsym.top = 0;
 
     //dbg_printf("done with writefunc()\n");
     util_free(dfo);
-    dfo = NULL;
+    dfo = nullptr;
 }
 
 /*************************

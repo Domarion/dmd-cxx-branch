@@ -465,7 +465,7 @@ static void asm_chktok(TOK toknum, const char *msg)
         asm_token();                    // scan past token
     else
     {
-        /* When we run out of tokens, asmtok is NULL.
+        /* When we run out of tokens, asmtok is nullptr.
          * But when this happens when a ';' was hit.
          */
         asmerr(msg, asmtok ? asmtok->toChars() : ";");
@@ -481,7 +481,7 @@ static PTRNTAB asm_classify(OP *pop, OPND *popnd1, OPND *popnd2,
 {
     unsigned usNumops;
     unsigned usActual;
-    PTRNTAB ptbRet = { NULL };
+    PTRNTAB ptbRet = { nullptr };
     opflag_t opflags1 = 0 ;
     opflag_t opflags2 = 0;
     opflag_t opflags3 = 0;
@@ -1030,7 +1030,7 @@ static opflag_t asm_determine_operand_flags(OPND *popnd)
         printf("popnd->base = %s\n, popnd->pregDisp1 = %p\n", popnd->base ? popnd->base->regstr : "NONE", popnd->pregDisp1);
 #endif
     ps = popnd->s;
-    Declaration *ds = ps ? ps->isDeclaration() : NULL;
+    Declaration *ds = ps ? ps->isDeclaration() : nullptr;
     if (ds && ds->storage_class & STClazy)
         sz = _anysize;
     else
@@ -1162,12 +1162,12 @@ static code *asm_emit(Loc loc,
 //  unsigned us;
     unsigned char *puc;
     unsigned usDefaultseg;
-    code *pc = NULL;
-    OPND *popndTmp = NULL;
+    code *pc = nullptr;
+    OPND *popndTmp = nullptr;
     ASM_OPERAND_TYPE    aoptyTmp;
     unsigned  uSizemaskTmp = 0;
     REG     *pregSegment;
-    code    *pcPrefix = NULL;
+    code    *pcPrefix = nullptr;
     //ASM_OPERAND_TYPE    aopty1 = _reg , aopty2 = 0, aopty3 = 0;
     ASM_MODIFIERS       amod1 = _normal, amod2 = _normal;
     unsigned            uSizemaskTable1 =0, uSizemaskTable2 =0,
@@ -1292,9 +1292,9 @@ static code *asm_emit(Loc loc,
                     pc->Iflags |= CFopsize;
                 }
             }
-            if (((pregSegment = (popndTmp = popnd1)->segreg) != NULL) ||
-                    ((popndTmp = popnd2) != NULL &&
-                    (pregSegment = popndTmp->segreg) != NULL)
+            if (((pregSegment = (popndTmp = popnd1)->segreg) != nullptr) ||
+                    ((popndTmp = popnd2) != nullptr &&
+                    (pregSegment = popndTmp->segreg) != nullptr)
               )
             {
                 if ((popndTmp->pregDisp1 &&
@@ -1396,7 +1396,7 @@ static code *asm_emit(Loc loc,
 #endif
                 pc,
                 ptb.pptb1->usFlags,
-                popnd2, NULL);
+                popnd2, nullptr);
 
             if (usNumops == 3)
             {
@@ -1634,7 +1634,7 @@ L3: ;
 #endif
                     pc,
                     ptb.pptb1->usFlags,
-                    popnd1, NULL);
+                    popnd1, nullptr);
             }
             popndTmp = popnd1;
             aoptyTmp = aoptyTable1;
@@ -1643,7 +1643,7 @@ L1:
             if (aoptyTmp == _imm)
             {
                 Declaration *d = popndTmp->s ? popndTmp->s->isDeclaration()
-                                             : NULL;
+                                             : nullptr;
                 if (popndTmp->bSeg)
                 {
                     if (!(d && d->isDataseg()))
@@ -1658,7 +1658,7 @@ L1:
                         if (popndTmp->s == asmstate.psLocalsize)
                         {
                             pc->IFL2 = FLlocalsize;
-                            pc->IEVdsym2 = NULL;
+                            pc->IEVdsym2 = nullptr;
                             pc->Iflags |= CFoff;
                             pc->IEVoffset2 = popndTmp->disp;
                         }
@@ -1953,7 +1953,7 @@ code *asm_genloc(Loc loc, code *c)
         srcpos.Slinnum = loc.linnum;
         srcpos.Scharnum = loc.charnum;
         srcpos.Sfilename = (char *)loc.filename;
-        pcLin = genlinnum(NULL, srcpos);
+        pcLin = genlinnum(nullptr, srcpos);
         c = cat(pcLin, c);
     }
     return c;
@@ -2135,10 +2135,10 @@ ILLEGAL_ADDRESS_ERROR:
         o1->disp = o2->disp;
 
     /* combine the OPND's base field */
-    if (o1->base != NULL && o2->base != NULL)
+    if (o1->base != nullptr && o2->base != nullptr)
     {
 #ifdef DEBUG
-            psz = "o1->base != NULL && o2->base != NULL";
+            psz = "o1->base != nullptr && o2->base != nullptr";
 #endif
             goto ILLEGAL_ADDRESS_ERROR;
     }
@@ -2408,7 +2408,7 @@ static void asm_make_modrm_byte(
             else if (s == asmstate.psLocalsize)
             {
                 pc->IFL1 = FLlocalsize;
-                pc->IEVdsym1 = NULL;
+                pc->IEVdsym1 = nullptr;
                 pc->Iflags |= CFoff;
                 pc->IEVoffset1 = popnd->disp;
             }
@@ -2785,13 +2785,13 @@ static regm_t asm_modify_regs(PTRNTAB ptb, OPND *popnd1, OPND *popnd2)
         break;
     case _mod2:
         if (popnd2)
-            usRet |= asm_modify_regs(ptb, popnd2, NULL);
+            usRet |= asm_modify_regs(ptb, popnd2, nullptr);
         break;
     case _modax:
         usRet |= mAX;
         break;
     case _modnot1:
-        popnd1 = NULL;
+        popnd1 = nullptr;
         break;
     case _modaxdx:
         usRet |= (mAX | mDX);
@@ -2816,7 +2816,7 @@ static regm_t asm_modify_regs(PTRNTAB ptb, OPND *popnd1, OPND *popnd2)
         break;
     case _modsinot1:
         usRet |= mSI;
-        popnd1 = NULL;
+        popnd1 = nullptr;
         break;
     case _modcxr11:
         usRet |= (mCX | mR11);
@@ -3235,7 +3235,7 @@ static REG *asm_reg_lookup(const char *s)
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -3319,7 +3319,7 @@ static unsigned asm_type_size(Type * ptype)
 
 static code *asm_da_parse(OP *pop)
 {
-    code *clst = NULL;
+    code *clst = nullptr;
 
     while (1)
     {
@@ -3384,7 +3384,7 @@ static code *asm_db_parse(OP *pop)
     {
         size_t len;
         unsigned char *q;
-        unsigned char *qstart = NULL;
+        unsigned char *qstart = nullptr;
 
         if (usBytes+usSize > usMaxbytes)
         {
@@ -3489,7 +3489,7 @@ static code *asm_db_parse(OP *pop)
                 if (qstart)
                 {
                     mem_free(qstart);
-                    qstart = NULL;
+                    qstart = nullptr;
                 }
                 break;
 
@@ -4143,8 +4143,8 @@ TYPE_REF:
 
 static OPND *asm_primary_exp()
 {
-    OPND *o1 = NULL;
-    OPND *o2 = NULL;
+    OPND *o1 = nullptr;
+    OPND *o2 = nullptr;
     Dsymbol *s;
     Dsymbol *scopesym;
 
@@ -4162,7 +4162,7 @@ static OPND *asm_primary_exp()
         case TOKidentifier:
             o1 = new OPND();
             regp = asm_reg_lookup(asmtok->ident->toChars());
-            if (regp != NULL)
+            if (regp != nullptr)
             {
                 asm_token();
                 // see if it is segment override (like SS:)
@@ -4174,7 +4174,7 @@ static OPND *asm_primary_exp()
                     asm_token();
                     o2 = asm_cond_exp();
                     if (o2->s && o2->s->isLabel())
-                        o2->segreg = NULL; // The segment register was specified explicitly.
+                        o2->segreg = nullptr; // The segment register was specified explicitly.
                     o1 = asm_merge_opnds(o1, o2);
                 }
                 else if (asm_TKlbra_seen)
@@ -4187,7 +4187,7 @@ static OPND *asm_primary_exp()
                 }
                 else
                 {
-                    if (o1->base == NULL)
+                    if (o1->base == nullptr)
                         o1->base = regp;
                     else
                         asmerr("bad operand");
@@ -4218,7 +4218,7 @@ static OPND *asm_primary_exp()
             }
             else
             {
-                s = NULL;
+                s = nullptr;
                 if (asmstate.sc->func->labtab)
                     s = asmstate.sc->func->labtab->lookup(asmtok->ident);
                 if (!s)
@@ -4371,8 +4371,8 @@ void iasm_term()
 {
     if (asmstate.bInit)
     {
-        asmstate.psDollar = NULL;
-        asmstate.psLocalsize = NULL;
+        asmstate.psDollar = nullptr;
+        asmstate.psLocalsize = nullptr;
         asmstate.bInit = false;
     }
 }
@@ -4400,7 +4400,7 @@ Statement* inlineAsmSemantic(InlineAsmStatement *s, Scope *sc)
     //printf("InlineAsmStatement::semantic()\n");
 
     OP *o;
-    OPND *o1 = NULL,*o2 = NULL, *o3 = NULL, *o4 = NULL;
+    OPND *o1 = nullptr,*o2 = nullptr, *o3 = nullptr, *o4 = nullptr;
     PTRNTAB ptb;
     unsigned usNumops;
     FuncDeclaration *fd = sc->parent->isFuncDeclaration();
@@ -4408,7 +4408,7 @@ Statement* inlineAsmSemantic(InlineAsmStatement *s, Scope *sc)
     assert(fd);
 
     if (!s->tokens)
-        return NULL;
+        return nullptr;
 
     asmstate.ucItype = 0;
     asmstate.bReturnax = false;
@@ -4548,7 +4548,7 @@ AFTER_EMIT:
     delete o1;
     delete o2;
     delete o3;
-    o1 = o2 = o3 = NULL;
+    o1 = o2 = o3 = nullptr;
 
     if (tok_value != TOKeof)
     {

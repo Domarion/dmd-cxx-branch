@@ -27,7 +27,7 @@
 #include "utf.h"
 
 typedef int (*ForeachDg)(void *ctx, size_t paramidx, Parameter *param);
-int Parameter_foreach(Parameters *parameters, ForeachDg dg, void *ctx, size_t *pn = NULL);
+int Parameter_foreach(Parameters *parameters, ForeachDg dg, void *ctx, size_t *pn = nullptr);
 
 static const char *mangleChar[TMAX];
 
@@ -142,8 +142,8 @@ public:
 
     Mangler(OutBuffer *buf)
     {
-        this->types = NULL;
-        this->idents = NULL;
+        this->types = nullptr;
+        this->idents = nullptr;
         this->buf = buf;
     }
 
@@ -366,7 +366,7 @@ public:
         paramsToDecoBuffer(t->parameterList.parameters);
         //if (buf->slice().ptr[buf->length() - 1] == '@') halt();
         buf->writeByte('Z' - t->parameterList.varargs);   // mark end of arg list
-        if (tret != NULL)
+        if (tret != nullptr)
             visitWithMask(tret, 0);
 
         t->inuse--;
@@ -476,7 +476,7 @@ public:
         {
             TypeFunction *tf = (TypeFunction *)fd->type;
             TypeFunction *tfo = (TypeFunction *)fd->originalType;
-            mangleFuncType(tf, tfo, 0, NULL);
+            mangleFuncType(tf, tfo, 0, nullptr);
         }
         else if (fd->type)
         {
@@ -524,7 +524,7 @@ public:
                     assert(0);
             }
         }
-        return NULL;
+        return nullptr;
     }
 
     void visit(Declaration *d)
@@ -607,7 +607,7 @@ public:
         }
         if (TemplateDeclaration *td = od->aliassym->isTemplateDeclaration())
         {
-            if (!od->hasOverloads || td->overnext == NULL)
+            if (!od->hasOverloads || td->overnext == nullptr)
             {
                 mangleSymbol(td);
                 return;
@@ -672,7 +672,7 @@ public:
                 strncmp(cd->ident->toChars(), "TypeInfo_", 9) == 0)
             {
                 // Don't mangle parent
-                ad->parent = NULL;
+                ad->parent = nullptr;
             }
         }
 
@@ -730,13 +730,13 @@ public:
                 if (ea->op == TOKvar)
                 {
                     sa = ((VarExp *)ea)->var;
-                    ea = NULL;
+                    ea = nullptr;
                     goto Lsa;
                 }
                 if (ea->op == TOKthis)
                 {
                     sa = ((ThisExp *)ea)->var;
-                    ea = NULL;
+                    ea = nullptr;
                     goto Lsa;
                 }
                 if (ea->op == TOKfunction)
@@ -745,7 +745,7 @@ public:
                         sa = ((FuncExp *)ea)->td;
                     else
                         sa = ((FuncExp *)ea)->fd;
-                    ea = NULL;
+                    ea = nullptr;
                     goto Lsa;
                 }
                 buf->writeByte('V');
@@ -1102,7 +1102,7 @@ void mangleToBuffer(TemplateInstance *ti, OutBuffer *buf)
 Type *decoToType(const char *deco)
 {
     if (!deco)
-        return NULL;
+        return nullptr;
 
     //printf("decoToType(): %s\n", deco)
     if (StringValue *sv = Type::stringtable.lookup(deco, strlen(deco)))
@@ -1114,5 +1114,5 @@ Type *decoToType(const char *deco)
             return t;
         }
     }
-    return NULL;
+    return nullptr;
 }

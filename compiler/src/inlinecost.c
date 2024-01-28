@@ -59,7 +59,7 @@ public:
         hasthis = 0;
         hdrscan = 0;
         allowAlloca = false;
-        fd = NULL;
+        fd = nullptr;
         cost = 0;
     }
 
@@ -400,7 +400,7 @@ public:
  */
 int inlineCostExpression(Expression *e)
 {
-    InlineCostVisitor icv = InlineCostVisitor(false, true, true, NULL);
+    InlineCostVisitor icv = InlineCostVisitor(false, true, true, nullptr);
     icv.expressionInlineCost(e);
     return icv.cost;
 }

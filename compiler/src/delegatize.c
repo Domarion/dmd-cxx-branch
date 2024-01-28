@@ -42,7 +42,7 @@ Expression *toDelegate(Expression *e, Type* t, Scope *sc)
     if (t->hasWild())
         tf->mod = MODwild;
     FuncLiteralDeclaration *fld =
-        new FuncLiteralDeclaration(loc, loc, tf, TOKdelegate, NULL);
+        new FuncLiteralDeclaration(loc, loc, tf, TOKdelegate, nullptr);
 
     sc = sc->push();
     sc->parent = fld;           // set current function to be the delegate

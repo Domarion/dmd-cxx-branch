@@ -34,7 +34,7 @@ bool checkReturnEscapeRef(Scope *sc, Expression *e, bool gag);
 bool checkThrowEscape(Scope *sc, Expression *e, bool gag);
 LabelStatement *checkLabeledLoop(Scope *sc, Statement *statement);
 Identifier *fixupLabelName(Scope *sc, Identifier *ident);
-FuncDeclaration *isFuncAddress(Expression *e, bool *hasOverloads = NULL);
+FuncDeclaration *isFuncAddress(Expression *e, bool *hasOverloads = nullptr);
 VarDeclaration *copyToTemp(StorageClass stc, const char *name, Expression *e);
 Expression *checkAssignmentAsCondition(Expression *e);
 TypeIdentifier *getThrowable();
@@ -49,7 +49,7 @@ public:
 
     StatementSemanticVisitor(Scope *sc)
     {
-        this->result = NULL;
+        this->result = nullptr;
         this->sc = sc;
     }
 
@@ -228,7 +228,7 @@ public:
                 }
                 else
                 {
-                    /* Remove NULL statements from the list.
+                    /* Remove nullptr statements from the list.
                     */
                     cs->statements->remove(i);
                     continue;
@@ -278,7 +278,7 @@ public:
         scd->sbreak = uls;
         scd->scontinue = uls;
 
-        Statement *serror = NULL;
+        Statement *serror = nullptr;
         for (size_t i = 0; i < uls->statements->length; i++)
         {
             Statement *s = (*uls->statements)[i];
@@ -363,7 +363,7 @@ public:
     {
         /* Rewrite as a for(;condition;) loop
          */
-        Statement *s = new ForStatement(ws->loc, NULL, ws->condition, NULL, ws->_body, ws->endloc);
+        Statement *s = new ForStatement(ws->loc, nullptr, ws->condition, nullptr, ws->_body, ws->endloc);
         s = statementSemantic(s, sc);
         result = s;
     }
@@ -423,7 +423,7 @@ public:
              */
             Statements *ainit = new Statements();
             ainit->push(fs->_init);
-            fs->_init = NULL;
+            fs->_init = nullptr;
             ainit->push(fs);
             Statement *s = new CompoundStatement(fs->loc, ainit);
             s = new ScopeStatement(fs->loc, s, fs->endloc);
@@ -437,7 +437,7 @@ public:
             result = s;
             return;
         }
-        assert(fs->_init == NULL);
+        assert(fs->_init == nullptr);
 
         ScopeDsymbol *sym = new ScopeDsymbol();
         sym->parent = sc->scopesym;
@@ -519,7 +519,7 @@ public:
         if (e)
         {
             Type *tb = e->type->toBasetype();
-            Dsymbol *ds = NULL;
+            Dsymbol *ds = nullptr;
             if (!(storageClass & STCmanifest))
             {
                 if ((isStatic || tb->ty == Tfunction || tb->ty == Tsarray || storageClass & STCalias) && e->op == TOKvar)
@@ -619,15 +619,15 @@ public:
         Statements *statements, Dsymbols *declarations, Dsymbols *dbody)
     {
         Loc loc = fs->loc;
-        Expression *e = NULL;
-        Type *t = NULL;
+        Expression *e = nullptr;
+        Type *t = nullptr;
         if (te)
             e = (*te->exps)[k];
         else
             t = Parameter::getNth(tuple->arguments, k)->type;
         Parameter *p = (*fs->parameters)[0];
-        Statements *stmts = (isDecl) ? NULL : new Statements();
-        Dsymbols *decls = (isDecl) ? new Dsymbols() : NULL;
+        Statements *stmts = (isDecl) ? nullptr : new Statements();
+        Dsymbols *decls = (isDecl) ? new Dsymbols() : nullptr;
 
         size_t dim = fs->parameters->length;
         if (!needExpansion && dim == 2)
@@ -691,7 +691,7 @@ public:
             assert(e && !t);
             Identifier *ident = Identifier::generateId("__value");
             declareVariable(fs, paramtype, te, needExpansion, isStatic, stmts, decls,
-                            0, e->type, ident, e, NULL);
+                            0, e->type, ident, e, nullptr);
             Identifier *field = Identifier::idPool("tuple");
             Expression *access = new DotIdExp(loc, e, field);
             access = expressionSemantic(access, sc);
@@ -705,11 +705,11 @@ public:
                 init_ = expressionSemantic(init_, sc);
                 assert(init_->type);
                 declareVariable(fs, paramtype, te, needExpansion, isStatic, stmts, decls,
-                                p->storageClass, init_->type, cp->ident, init_, NULL);
+                                p->storageClass, init_->type, cp->ident, init_, nullptr);
             }
         }
-        Statement *fwdstmt = NULL;
-        Dsymbol *fwddecl = NULL;
+        Statement *fwdstmt = nullptr;
+        Dsymbol *fwddecl = nullptr;
         if (!isDecl)
         {
             if (fs->_body)
@@ -787,7 +787,7 @@ public:
         TypeTuple *tuple = (TypeTuple *)tab;
         //printf("aggr: op = %d, %s\n", fs->aggr->op, fs->aggr->toChars());
         size_t n;
-        TupleExp *te = NULL;
+        TupleExp *te = nullptr;
         if (fs->aggr->op == TOKtuple)       // expression tuple
         {
             te = (TupleExp *)fs->aggr;
@@ -814,8 +814,8 @@ public:
     {
         assert(sc);
         Dsymbols *declarations = new Dsymbols();
-        if (!makeTupleForeach(fs, needExpansion, true, true, NULL, declarations, dbody))
-            return NULL;
+        if (!makeTupleForeach(fs, needExpansion, true, true, nullptr, declarations, dbody))
+            return nullptr;
 
         return declarations;
     }
@@ -825,7 +825,7 @@ public:
         Loc loc = fs->loc;
         assert(sc);
         Statements *statements = new Statements();
-        if (!makeTupleForeach(fs, needExpansion, true, false, statements, NULL, NULL))
+        if (!makeTupleForeach(fs, needExpansion, true, false, statements, nullptr, nullptr))
             return setError();
 
         result = new CompoundStatement(loc, statements);
@@ -838,17 +838,17 @@ public:
         Statement *s = fs;
         Loc loc = fs->loc;
         size_t dim = fs->parameters->length;
-        TypeAArray *taa = NULL;
-        Dsymbol *sapply = NULL;
+        TypeAArray *taa = nullptr;
+        Dsymbol *sapply = nullptr;
 
-        Type *tn = NULL;
-        Type *tnv = NULL;
+        Type *tn = nullptr;
+        Type *tnv = nullptr;
 
         fs->func = sc->func;
         if (fs->func->fes)
             fs->func = fs->func->fes->func;
 
-        VarDeclaration *vinit = NULL;
+        VarDeclaration *vinit = nullptr;
         fs->aggr = expressionSemantic(fs->aggr, sc);
         fs->aggr = resolveProperties(sc, fs->aggr);
         fs->aggr = fs->aggr->optimize(WANTvalue);
@@ -877,7 +877,7 @@ public:
             return setError();
         }
 
-        Dsymbol* sapplyOld = sapply;  // 'sapply' will be NULL if and after 'inferApplyArgTypes' errors
+        Dsymbol* sapplyOld = sapply;  // 'sapply' will be nullptr if and after 'inferApplyArgTypes' errors
 
         /* Check for inference errors
         */
@@ -928,7 +928,7 @@ public:
         if (tab->ty == Ttuple)      // don't generate new scope for tuple loops
         {
             Statements *statements = new Statements();
-            if (!makeTupleForeach(fs, false, false, false, statements, NULL, NULL))
+            if (!makeTupleForeach(fs, false, false, false, statements, nullptr, nullptr))
                 return setError();
 
             result = new UnrolledLoopStatement(loc, statements);
@@ -1055,7 +1055,7 @@ public:
 
                         if (dim == 2 && i == 0)
                         {
-                            var = new VarDeclaration(loc, p->type->mutableOf(), Identifier::generateId("__key"), NULL);
+                            var = new VarDeclaration(loc, p->type->mutableOf(), Identifier::generateId("__key"), nullptr);
                             var->storage_class |= STCtemp | STCforeach;
                             if (var->storage_class & (STCref | STCout))
                                 var->storage_class |= STCnodtor;
@@ -1086,7 +1086,7 @@ public:
                         }
                         else
                         {
-                            var = new VarDeclaration(loc, p->type, p->ident, NULL);
+                            var = new VarDeclaration(loc, p->type, p->ident, nullptr);
                             var->storage_class |= STCforeach;
                             var->storage_class |= p->storageClass & (STCin | STCout | STCref | STC_TYPECTOR);
                             if (var->storage_class & (STCref | STCout))
@@ -1119,7 +1119,7 @@ public:
                      *   { T value = tmp[k]; body }
                      */
                     Identifier *id = Identifier::generateId("__r");
-                    ExpInitializer *ie = new ExpInitializer(loc, new SliceExp(loc, fs->aggr, NULL, NULL));
+                    ExpInitializer *ie = new ExpInitializer(loc, new SliceExp(loc, fs->aggr, nullptr, nullptr));
                     VarDeclaration *tmp;
                     if (fs->aggr->op == TOKarrayliteral &&
                         !((*fs->parameters)[dim - 1]->storageClass & STCref))
@@ -1147,7 +1147,7 @@ public:
                     if (!fs->key)
                     {
                         Identifier *idkey = Identifier::generateId("__key");
-                        fs->key = new VarDeclaration(loc, Type::tsize_t, idkey, NULL);
+                        fs->key = new VarDeclaration(loc, Type::tsize_t, idkey, nullptr);
                         fs->key->storage_class |= STCtemp;
                     }
                     else if (fs->key->type->ty != Type::tsize_t->ty)
@@ -1178,7 +1178,7 @@ public:
                         cond = new CmpExp(TOKlt, loc, new VarExp(loc, fs->key), tmp_length);
                     }
 
-                    Expression *increment = NULL;
+                    Expression *increment = nullptr;
                     if (fs->op == TOKforeach)
                     {
                         // key += 1
@@ -1196,7 +1196,7 @@ public:
                         Parameter *p = (*fs->parameters)[0];
                         if ((p->storageClass & STCref) && p->type->equals(fs->key->type))
                         {
-                            fs->key->range = NULL;
+                            fs->key->range = nullptr;
                             AliasDeclaration *v = new AliasDeclaration(loc, p->ident, fs->key);
                             fs->_body = new CompoundStatement(loc, new ExpStatement(loc, v), fs->_body);
                         }
@@ -1324,7 +1324,7 @@ public:
                         dsymbolSemantic(vd, sc);
                         makeargs = new ExpStatement(loc, vd);
 
-                        Type *tfront = NULL;
+                        Type *tfront = nullptr;
                         if (FuncDeclaration *fd = sfront->isFuncDeclaration())
                         {
                             if (!fd->functionSemantic())
@@ -1334,7 +1334,7 @@ public:
                         else if (TemplateDeclaration *td = sfront->isTemplateDeclaration())
                         {
                             Expressions a;
-                            if (FuncDeclaration *f = resolveFuncCall(loc, sc, td, NULL, tab, &a, 1))
+                            if (FuncDeclaration *f = resolveFuncCall(loc, sc, td, nullptr, tab, &a, 1))
                                 tfront = f->type;
                         }
                         else if (Declaration *d = sfront->isDeclaration())
@@ -1417,7 +1417,7 @@ public:
                         return;
                     }
 
-                    TypeFunction *tfld = NULL;
+                    TypeFunction *tfld = nullptr;
                     if (sapply)
                     {
                         FuncDeclaration *fdapply = sapply->isFuncDeclaration();
@@ -1492,7 +1492,7 @@ public:
                             s = new ExpStatement(Loc(), v);
                             fs->_body = new CompoundStatement(loc, s, fs->_body);
                         }
-                        params->push(new Parameter(stc, p->type, id, NULL, NULL));
+                        params->push(new Parameter(stc, p->type, id, nullptr, nullptr));
                     }
                     // Bugzilla 13840: Throwable nested function inside nothrow function is acceptable.
                     StorageClass stc = mergeFuncAttrs(STCsafe | STCpure | STCnogc, fs->func);
@@ -1518,7 +1518,7 @@ public:
                         }
                     }
 
-                    Expression *e = NULL;
+                    Expression *e = nullptr;
                     Expression *ec;
                     if (vinit)
                     {
@@ -1561,22 +1561,22 @@ public:
                          *      _aaApply2(aggr, keysize, flde)
                          */
                         static const char *name[2] = { "_aaApply", "_aaApply2" };
-                        static FuncDeclaration *fdapply[2] = { NULL, NULL };
-                        static TypeDelegate *fldeTy[2] = { NULL, NULL };
+                        static FuncDeclaration *fdapply[2] = { nullptr, nullptr };
+                        static TypeDelegate *fldeTy[2] = { nullptr, nullptr };
 
                         unsigned char i = (dim == 2 ? 1 : 0);
                         if (!fdapply[i])
                         {
                             params = new Parameters();
-                            params->push(new Parameter(0, Type::tvoid->pointerTo(), NULL, NULL, NULL));
-                            params->push(new Parameter(STCin, Type::tsize_t, NULL, NULL, NULL));
+                            params->push(new Parameter(0, Type::tvoid->pointerTo(), nullptr, nullptr, nullptr));
+                            params->push(new Parameter(STCin, Type::tsize_t, nullptr, nullptr, nullptr));
                             Parameters* dgparams = new Parameters;
-                            dgparams->push(new Parameter(0, Type::tvoidptr, NULL, NULL, NULL));
+                            dgparams->push(new Parameter(0, Type::tvoidptr, nullptr, nullptr, nullptr));
                             if (dim == 2)
-                                dgparams->push(new Parameter(0, Type::tvoidptr, NULL, NULL, NULL));
+                                dgparams->push(new Parameter(0, Type::tvoidptr, nullptr, nullptr, nullptr));
                             fldeTy[i] = new TypeDelegate(new TypeFunction(ParameterList(dgparams),
                                                                           Type::tint32, LINKd));
-                            params->push(new Parameter(0, fldeTy[i], NULL, NULL, NULL));
+                            params->push(new Parameter(0, fldeTy[i], nullptr, nullptr, nullptr));
                             fdapply[i] = FuncDeclaration::genCfunc(params, Type::tint32, name[i]);
                         }
 
@@ -1635,14 +1635,14 @@ public:
                         FuncDeclaration *fdapply;
                         TypeDelegate *dgty;
                         params = new Parameters();
-                        params->push(new Parameter(STCin, tn->arrayOf(), NULL, NULL, NULL));
+                        params->push(new Parameter(STCin, tn->arrayOf(), nullptr, nullptr, nullptr));
                         Parameters* dgparams = new Parameters;
-                        dgparams->push(new Parameter(0, Type::tvoidptr, NULL, NULL, NULL));
+                        dgparams->push(new Parameter(0, Type::tvoidptr, nullptr, nullptr, nullptr));
                         if (dim == 2)
-                            dgparams->push(new Parameter(0, Type::tvoidptr, NULL, NULL, NULL));
+                            dgparams->push(new Parameter(0, Type::tvoidptr, nullptr, nullptr, nullptr));
                         dgty = new TypeDelegate(new TypeFunction(ParameterList(dgparams),
                                                                  Type::tint32, LINKd));
-                        params->push(new Parameter(0, dgty, NULL, NULL, NULL));
+                        params->push(new Parameter(0, dgty, nullptr, nullptr, nullptr));
                         fdapply = FuncDeclaration::genCfunc(params, Type::tint32, fdname);
 
                         if (tab->ty == Tsarray)
@@ -1715,7 +1715,7 @@ public:
                         Statements *a = new Statements();
 
                         // default: break; takes care of cases 0 and 1
-                        s = new BreakStatement(Loc(), NULL);
+                        s = new BreakStatement(Loc(), nullptr);
                         s = new DefaultStatement(Loc(), s);
                         a->push(s);
 
@@ -1892,7 +1892,7 @@ public:
             }
         }
 
-        Expression *increment = NULL;
+        Expression *increment = nullptr;
         if (fs->op == TOKforeach)
         {
             // key += 1
@@ -1902,7 +1902,7 @@ public:
 
         if ((fs->prm->storageClass & STCref) && fs->prm->type->equals(fs->key->type))
         {
-            fs->key->range = NULL;
+            fs->key->range = nullptr;
             AliasDeclaration *v = new AliasDeclaration(loc, fs->prm->ident, fs->key);
             fs->_body = new CompoundStatement(loc, new ExpStatement(loc, v), fs->_body);
         }
@@ -1941,7 +1941,7 @@ public:
         unsigned cs0 = sc->callSuper;
         unsigned cs1;
         unsigned *fi0 = sc->saveFieldInit();
-        unsigned *fi1 = NULL;
+        unsigned *fi1 = nullptr;
 
         // check in syntax level
         ifs->condition = checkAssignmentAsCondition(ifs->condition);
@@ -2004,7 +2004,7 @@ public:
         sc->callSuper = cs0;
         sc->fieldinit = fi0;
         if (ifs->elsebody)
-            ifs->elsebody = semanticScope(ifs->elsebody, sc, NULL, NULL);
+            ifs->elsebody = semanticScope(ifs->elsebody, sc, nullptr, nullptr);
         sc->mergeCallSuper(ifs->loc, cs1);
         sc->mergeFieldInit(ifs->loc, fi1);
 
@@ -2197,8 +2197,8 @@ public:
         ss->condition = expressionSemantic(ss->condition, sc);
         ss->condition = resolveProperties(sc, ss->condition);
 
-        Type *att = NULL;
-        TypeEnum *te = NULL;
+        Type *att = nullptr;
+        TypeEnum *te = nullptr;
         while (ss->condition->op != TOKerror)
         {
             // preserve enum type for final switches
@@ -2298,10 +2298,10 @@ public:
         {
             Type *t = ss->condition->type;
             Dsymbol *ds;
-            EnumDeclaration *ed = NULL;
-            if (t && ((ds = t->toDsymbol(sc)) != NULL))
+            EnumDeclaration *ed = nullptr;
+            if (t && ((ds = t->toDsymbol(sc)) != nullptr))
                 ed = ds->isEnumDeclaration();  // typedef'ed enum
-            if (!ed && te && ((ds = te->toDsymbol(sc)) != NULL))
+            if (!ed && te && ((ds = te->toDsymbol(sc)) != nullptr))
                 ed = ds->isEnumDeclaration();
             if (ed)
             {
@@ -2362,7 +2362,7 @@ public:
             sc->sw->sdefault = new DefaultStatement(ss->loc, s);
             a->push(ss->_body);
             if (blockExit(ss->_body, sc->func, false) & BEfallthru)
-                a->push(new BreakStatement(Loc(), NULL));
+                a->push(new BreakStatement(Loc(), nullptr));
             a->push(sc->sw->sdefault);
             cs = new CompoundStatement(ss->loc, a);
             ss->_body = cs;
@@ -2437,7 +2437,7 @@ public:
                             continue;
                         assert(scx->sw == sw);
 
-                        if (!scx->search(cs->exp->loc, v->ident, NULL))
+                        if (!scx->search(cs->exp->loc, v->ident, nullptr))
                         {
                             cs->error("case variable `%s` declared at %s cannot be declared in switch body",
                                 v->toChars(), v->loc.toChars());
@@ -2516,7 +2516,7 @@ public:
     void visit(CaseRangeStatement *crs)
     {
         SwitchStatement *sw = sc->sw;
-        if (sw == NULL)
+        if (sw == nullptr)
         {
             crs->error("case range not in switch statement");
             return setError();
@@ -2589,7 +2589,7 @@ public:
         {
             Statement *s = crs->statement;
             if (i != lval)                          // if not last case
-                s = new ExpStatement(crs->loc, (Expression *)NULL);
+                s = new ExpStatement(crs->loc, (Expression *)nullptr);
             Expression *e = new IntegerExp(crs->loc, i, crs->first->type);
             Statement *cs = new CaseStatement(crs->loc, e, s);
             statements->push(cs);
@@ -2711,10 +2711,10 @@ public:
         }
 
         Type *tret = tf->next;
-        Type *tbret = tret ? tret->toBasetype() : NULL;
+        Type *tbret = tret ? tret->toBasetype() : nullptr;
 
         bool inferRef = (tf->isref && (fd->storage_class & STCauto));
-        Expression *e0 = NULL;
+        Expression *e0 = nullptr;
 
         bool errors = false;
         if (sc->flags & SCOPEcontract)
@@ -2800,7 +2800,7 @@ public:
                  *      exp; return;
                  */
                 e0 = Expression::combine(e0, rs->exp);
-                rs->exp = NULL;
+                rs->exp = nullptr;
             }
             if (e0)
                 e0 = checkGC(sc, e0);
@@ -2952,7 +2952,7 @@ public:
             }
             else
             {
-                fd->buildResultVar(NULL, rs->exp->type);
+                fd->buildResultVar(nullptr, rs->exp->type);
                 bool r = fd->vresult->checkNestedReference(sc, Loc());
                 assert(!r);  // vresult should be always accessible
 
@@ -3270,7 +3270,7 @@ public:
         const unsigned FLAGcpp = 1;
         const unsigned FLAGd = 2;
 
-        tcs->_body = semanticScope(tcs->_body, sc, NULL, NULL);
+        tcs->_body = semanticScope(tcs->_body, sc, nullptr, nullptr);
         assert(tcs->_body);
 
         /* Even if body is empty, still do semantic analysis on catches
@@ -3345,7 +3345,7 @@ public:
 
         if (tcs->catches->length == 0)
         {
-            result = tcs->_body->hasCode() ? tcs->_body : NULL;
+            result = tcs->_body->hasCode() ? tcs->_body : nullptr;
             return;
         }
 
@@ -3358,8 +3358,8 @@ public:
         tfs->_body = statementSemantic(tfs->_body, sc);
         sc = sc->push();
         sc->tf = tfs;
-        sc->sbreak = NULL;
-        sc->scontinue = NULL;       // no break or continue out of finally block
+        sc->sbreak = nullptr;
+        sc->scontinue = nullptr;       // no break or continue out of finally block
         tfs->finalbody = semanticNoScope(tfs->finalbody, sc);
         sc->pop();
 
@@ -3411,13 +3411,13 @@ public:
         }
 
         sc = sc->push();
-        sc->tf = NULL;
+        sc->tf = nullptr;
         sc->os = oss;
         if (oss->tok != TOKon_scope_failure)
         {
             // Jump out from scope(failure) block is allowed.
-            sc->sbreak = NULL;
-            sc->scontinue = NULL;
+            sc->sbreak = nullptr;
+            sc->scontinue = nullptr;
         }
         oss->statement = semanticNoScope(oss->statement, sc);
         sc->pop();
@@ -3458,7 +3458,7 @@ public:
         checkThrowEscape(sc, ts->exp, false);
 
         ClassDeclaration *cd = ts->exp->type->toBasetype()->isClassHandle();
-        if (!cd || ((cd != ClassDeclaration::throwable) && !ClassDeclaration::throwable->isBaseOf(cd, NULL)))
+        if (!cd || ((cd != ClassDeclaration::throwable) && !ClassDeclaration::throwable->isBaseOf(cd, nullptr)))
         {
             ts->error("can only throw class objects derived from Throwable, not type %s", ts->exp->type->toChars());
             return setError();
@@ -3567,7 +3567,7 @@ public:
         for (size_t i = 0; i < cas->statements->length; i++)
         {
             Statement *s = (*cas->statements)[i];
-            (*cas->statements)[i] = s ? statementSemantic(s, sc) : NULL;
+            (*cas->statements)[i] = s ? statementSemantic(s, sc) : nullptr;
         }
 
         assert(sc->func);
@@ -3608,7 +3608,7 @@ public:
             // https://issues.dlang.org/show_bug.cgi?id=19942
             // If the module that's being imported doesn't exist, don't add it to the symbol table
             // for the current scope.
-            if (s->mod != NULL)
+            if (s->mod != nullptr)
             {
                 Module::addDeferredSemantic2(s);     // Bugzilla 14666
                 sc->insert(s);
@@ -3688,13 +3688,13 @@ void catchSemantic(Catch *c, Scope *sc)
                 c->errors = true;
             }
         }
-        else if (cd != ClassDeclaration::throwable && !ClassDeclaration::throwable->isBaseOf(cd, NULL))
+        else if (cd != ClassDeclaration::throwable && !ClassDeclaration::throwable->isBaseOf(cd, nullptr))
         {
             error(c->loc, "can only catch class objects derived from Throwable, not `%s`", c->type->toChars());
             c->errors = true;
         }
         else if (sc->func && !sc->intypeof && !c->internalCatch &&
-                 cd != ClassDeclaration::exception && !ClassDeclaration::exception->isBaseOf(cd, NULL) &&
+                 cd != ClassDeclaration::exception && !ClassDeclaration::exception->isBaseOf(cd, nullptr) &&
                  sc->func->setUnsafe())
         {
             error(c->loc, "can only catch class objects derived from Exception in @safe code, not `%s`", c->type->toChars());
@@ -3703,7 +3703,7 @@ void catchSemantic(Catch *c, Scope *sc)
 
         if (c->ident)
         {
-            c->var = new VarDeclaration(c->loc, c->type, c->ident, NULL);
+            c->var = new VarDeclaration(c->loc, c->type, c->ident, nullptr);
             dsymbolSemantic(c->var, sc);
             sc->insert(c->var);
         }

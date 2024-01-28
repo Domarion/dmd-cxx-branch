@@ -60,7 +60,7 @@ LabelStatement *checkLabeledLoop(Scope *sc, Statement *statement)
     {
         return sc->slabel;
     }
-    return NULL;
+    return nullptr;
 }
 
 /***********************************************************
@@ -105,7 +105,7 @@ Statement::Statement(Loc loc)
 Statement *Statement::syntaxCopy()
 {
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 /*************************************
@@ -113,14 +113,14 @@ Statement *Statement::syntaxCopy()
  */
 Statements *Statement::arraySyntaxCopy(Statements *a)
 {
-    Statements *b = NULL;
+    Statements *b = nullptr;
     if (a)
     {
         b = a->copy();
         for (size_t i = 0; i < a->length; i++)
         {
             Statement *s = (*a)[i];
-            (*b)[i] = s ? s->syntaxCopy() : NULL;
+            (*b)[i] = s ? s->syntaxCopy() : nullptr;
         }
     }
     return b;
@@ -229,7 +229,7 @@ bool Statement::hasCode()
 
         void visit(ExpStatement *s)
         {
-            if (s->exp != NULL)
+            if (s->exp != nullptr)
             {
                 stop = s->exp->hasCode();
             }
@@ -265,21 +265,21 @@ Statement *Statement::scopeCode(Scope *, Statement **sentry, Statement **sexcept
 {
     //printf("Statement::scopeCode()\n");
     //print();
-    *sentry = NULL;
-    *sexception = NULL;
-    *sfinally = NULL;
+    *sentry = nullptr;
+    *sexception = nullptr;
+    *sfinally = nullptr;
     return this;
 }
 
 /*********************************
  * Flatten out the scope by presenting the statement
  * as an array of statements.
- * Returns NULL if no flattening necessary.
+ * Returns nullptr if no flattening necessary.
  */
 
 Statements *Statement::flatten(Scope *)
 {
-    return NULL;
+    return nullptr;
 }
 
 
@@ -325,7 +325,7 @@ ExpStatement *ExpStatement::create(Loc loc, Expression *exp)
 
 Statement *ExpStatement::syntaxCopy()
 {
-    return new ExpStatement(loc, exp ? exp->syntaxCopy() : NULL);
+    return new ExpStatement(loc, exp ? exp->syntaxCopy() : nullptr);
 }
 
 Statement *ExpStatement::scopeCode(Scope *, Statement **sentry, Statement **sexception, Statement **sfinally)
@@ -333,9 +333,9 @@ Statement *ExpStatement::scopeCode(Scope *, Statement **sentry, Statement **sexc
     //printf("ExpStatement::scopeCode()\n");
     //print();
 
-    *sentry = NULL;
-    *sexception = NULL;
-    *sfinally = NULL;
+    *sentry = nullptr;
+    *sexception = nullptr;
+    *sfinally = nullptr;
 
     if (exp)
     {
@@ -369,13 +369,13 @@ Statement *toStatement(Dsymbol *s)
 
         ToStmt()
         {
-            this->result = NULL;
+            this->result = nullptr;
         }
 
         Statement *visitMembers(Loc loc, Dsymbols *a)
         {
             if (!a)
-                return NULL;
+                return nullptr;
 
             Statements *statements = new Statements();
             for (size_t i = 0; i < a->length; i++)
@@ -437,23 +437,23 @@ Statement *toStatement(Dsymbol *s)
 
         void visit(ConditionalDeclaration *d)
         {
-            result = visitMembers(d->loc, d->include(NULL));
+            result = visitMembers(d->loc, d->include(nullptr));
         }
 
         void visit(StaticForeachDeclaration *d)
         {
             assert(d->sfe && !!d->sfe->aggrfe ^ !!d->sfe->rangefe);
-            result = visitMembers(d->loc, d->include(NULL));
+            result = visitMembers(d->loc, d->include(nullptr));
         }
 
         void visit(CompileDeclaration *d)
         {
-            result = visitMembers(d->loc, d->include(NULL));
+            result = visitMembers(d->loc, d->include(nullptr));
         }
     };
 
     if (!s)
-        return NULL;
+        return nullptr;
 
     ToStmt v;
     s->accept(&v);
@@ -485,7 +485,7 @@ Statements *ExpStatement::flatten(Scope *sc)
             return a;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /******************************** DtorExpStatement ***************************/
@@ -498,7 +498,7 @@ DtorExpStatement::DtorExpStatement(Loc loc, Expression *exp, VarDeclaration *v)
 
 Statement *DtorExpStatement::syntaxCopy()
 {
-    return new DtorExpStatement(loc, exp ? exp->syntaxCopy() : NULL, var);
+    return new DtorExpStatement(loc, exp ? exp->syntaxCopy() : nullptr, var);
 }
 
 /******************************** CompileStatement ***************************/
@@ -599,7 +599,7 @@ Statements *CompoundStatement::flatten(Scope *)
 
 ReturnStatement *CompoundStatement::isReturnStatement()
 {
-    ReturnStatement *rs = NULL;
+    ReturnStatement *rs = nullptr;
 
     for (size_t i = 0; i < statements->length; i++)
     {
@@ -616,7 +616,7 @@ ReturnStatement *CompoundStatement::isReturnStatement()
 
 Statement *CompoundStatement::last()
 {
-    Statement *s = NULL;
+    Statement *s = nullptr;
 
     for (size_t i = statements->length; i; --i)
     {   s = (*statements)[i - 1];
@@ -645,7 +645,7 @@ Statement *CompoundDeclarationStatement::syntaxCopy()
     for (size_t i = 0; i < statements->length; i++)
     {
         Statement *s = (*statements)[i];
-        (*a)[i] = s ? s->syntaxCopy() : NULL;
+        (*a)[i] = s ? s->syntaxCopy() : nullptr;
     }
     return new CompoundDeclarationStatement(loc, a);
 }
@@ -665,7 +665,7 @@ Statement *UnrolledLoopStatement::syntaxCopy()
     for (size_t i = 0; i < statements->length; i++)
     {
         Statement *s = (*statements)[i];
-        (*a)[i] = s ? s->syntaxCopy() : NULL;
+        (*a)[i] = s ? s->syntaxCopy() : nullptr;
     }
     return new UnrolledLoopStatement(loc, a);
 }
@@ -691,14 +691,14 @@ ScopeStatement::ScopeStatement(Loc loc, Statement *s, Loc endloc)
 
 Statement *ScopeStatement::syntaxCopy()
 {
-    return new ScopeStatement(loc, statement ? statement->syntaxCopy() : NULL, endloc);
+    return new ScopeStatement(loc, statement ? statement->syntaxCopy() : nullptr, endloc);
 }
 
 ReturnStatement *ScopeStatement::isReturnStatement()
 {
     if (statement)
         return statement->isReturnStatement();
-    return NULL;
+    return nullptr;
 }
 
 bool ScopeStatement::hasBreak()
@@ -732,7 +732,7 @@ ForwardingStatement::ForwardingStatement(Loc loc, ForwardingScopeDsymbol *sym, S
 ForwardingStatement::ForwardingStatement(Loc loc, Statement *s)
     : Statement(loc)
 {
-    this->sym = new ForwardingScopeDsymbol(NULL);
+    this->sym = new ForwardingScopeDsymbol(nullptr);
     this->sym->symtab = new DsymbolTable();
     assert(s);
     this->statement = s;
@@ -759,7 +759,7 @@ Statements *ForwardingStatement::flatten(Scope *sc)
 {
     if (!statement)
     {
-        return NULL;
+        return nullptr;
     }
     sc = sc->push(sym);
     Statements *a = statement->flatten(sc);
@@ -773,7 +773,7 @@ Statements *ForwardingStatement::flatten(Scope *sc)
     for (size_t i = 0; i < a->length; i++)
     {
         Statement *s = (*a)[i];
-        (*b)[i] = s ? new ForwardingStatement(s->loc, sym, s) : NULL;
+        (*b)[i] = s ? new ForwardingStatement(s->loc, sym, s) : nullptr;
     }
     return b;
 }
@@ -792,7 +792,7 @@ Statement *WhileStatement::syntaxCopy()
 {
     return new WhileStatement(loc,
         condition->syntaxCopy(),
-        _body ? _body->syntaxCopy() : NULL,
+        _body ? _body->syntaxCopy() : nullptr,
         endloc);
 }
 
@@ -819,7 +819,7 @@ DoStatement::DoStatement(Loc loc, Statement *b, Expression *c, Loc endloc)
 Statement *DoStatement::syntaxCopy()
 {
     return new DoStatement(loc,
-        _body ? _body->syntaxCopy() : NULL,
+        _body ? _body->syntaxCopy() : nullptr,
         condition->syntaxCopy(),
         endloc);
 }
@@ -844,15 +844,15 @@ ForStatement::ForStatement(Loc loc, Statement *init, Expression *condition, Expr
     this->increment = increment;
     this->_body = body;
     this->endloc = endloc;
-    this->relatedLabeled = NULL;
+    this->relatedLabeled = nullptr;
 }
 
 Statement *ForStatement::syntaxCopy()
 {
     return new ForStatement(loc,
-        _init ? _init->syntaxCopy() : NULL,
-        condition ? condition->syntaxCopy() : NULL,
-        increment ? increment->syntaxCopy() : NULL,
+        _init ? _init->syntaxCopy() : nullptr,
+        condition ? condition->syntaxCopy() : nullptr,
+        increment ? increment->syntaxCopy() : nullptr,
         _body->syntaxCopy(),
         endloc);
 }
@@ -887,13 +887,13 @@ ForeachStatement::ForeachStatement(Loc loc, TOK op, Parameters *parameters,
     this->_body = body;
     this->endloc = endloc;
 
-    this->key = NULL;
-    this->value = NULL;
+    this->key = nullptr;
+    this->value = nullptr;
 
-    this->func = NULL;
+    this->func = nullptr;
 
-    this->cases = NULL;
-    this->gotos = NULL;
+    this->cases = nullptr;
+    this->gotos = nullptr;
 }
 
 Statement *ForeachStatement::syntaxCopy()
@@ -901,7 +901,7 @@ Statement *ForeachStatement::syntaxCopy()
     return new ForeachStatement(loc, op,
         Parameter::arraySyntaxCopy(parameters),
         aggr->syntaxCopy(),
-        _body ? _body->syntaxCopy() : NULL,
+        _body ? _body->syntaxCopy() : nullptr,
         endloc);
 }
 
@@ -946,7 +946,7 @@ ForeachRangeStatement::ForeachRangeStatement(Loc loc, TOK op, Parameter *prm,
     this->_body = body;
     this->endloc = endloc;
 
-    this->key = NULL;
+    this->key = nullptr;
 }
 
 Statement *ForeachRangeStatement::syntaxCopy()
@@ -955,7 +955,7 @@ Statement *ForeachRangeStatement::syntaxCopy()
         prm->syntaxCopy(),
         lwr->syntaxCopy(),
         upr->syntaxCopy(),
-        _body ? _body->syntaxCopy() : NULL,
+        _body ? _body->syntaxCopy() : nullptr,
         endloc);
 }
 
@@ -979,16 +979,16 @@ IfStatement::IfStatement(Loc loc, Parameter *prm, Expression *condition, Stateme
     this->ifbody = ifbody;
     this->elsebody = elsebody;
     this->endloc = endloc;
-    this->match = NULL;
+    this->match = nullptr;
 }
 
 Statement *IfStatement::syntaxCopy()
 {
     return new IfStatement(loc,
-        prm ? prm->syntaxCopy() : NULL,
+        prm ? prm->syntaxCopy() : nullptr,
         condition->syntaxCopy(),
-        ifbody ? ifbody->syntaxCopy() : NULL,
-        elsebody ? elsebody->syntaxCopy() : NULL,
+        ifbody ? ifbody->syntaxCopy() : nullptr,
+        elsebody ? elsebody->syntaxCopy() : nullptr,
         endloc);
 }
 
@@ -1007,7 +1007,7 @@ Statement *ConditionalStatement::syntaxCopy()
     return new ConditionalStatement(loc,
         condition->syntaxCopy(),
         ifbody->syntaxCopy(),
-        elsebody ? elsebody->syntaxCopy() : NULL);
+        elsebody ? elsebody->syntaxCopy() : nullptr);
 }
 
 Statements *ConditionalStatement::flatten(Scope *sc)
@@ -1091,7 +1091,7 @@ Statement *PragmaStatement::syntaxCopy()
 {
     return new PragmaStatement(loc, ident,
         Expression::arraySyntaxCopy(args),
-        _body ? _body->syntaxCopy() : NULL);
+        _body ? _body->syntaxCopy() : nullptr);
 }
 
 /******************************** StaticAssertStatement ***************************/
@@ -1104,7 +1104,7 @@ StaticAssertStatement::StaticAssertStatement(StaticAssert *sa)
 
 Statement *StaticAssertStatement::syntaxCopy()
 {
-    return new StaticAssertStatement((StaticAssert *)sa->syntaxCopy(NULL));
+    return new StaticAssertStatement((StaticAssert *)sa->syntaxCopy(nullptr));
 }
 
 /******************************** SwitchStatement ***************************/
@@ -1115,12 +1115,12 @@ SwitchStatement::SwitchStatement(Loc loc, Expression *c, Statement *b, bool isFi
     this->condition = c;
     this->_body = b;
     this->isFinal = isFinal;
-    sdefault = NULL;
-    tf = NULL;
-    cases = NULL;
+    sdefault = nullptr;
+    tf = nullptr;
+    cases = nullptr;
     hasNoDefault = 0;
     hasVars = 0;
-    lastVar = NULL;
+    lastVar = nullptr;
 }
 
 Statement *SwitchStatement::syntaxCopy()
@@ -1190,7 +1190,7 @@ CaseStatement::CaseStatement(Loc loc, Expression *exp, Statement *s)
     this->exp = exp;
     this->statement = s;
     index = 0;
-    lastVar = NULL;
+    lastVar = nullptr;
 }
 
 Statement *CaseStatement::syntaxCopy()
@@ -1234,7 +1234,7 @@ DefaultStatement::DefaultStatement(Loc loc, Statement *s)
     : Statement(loc)
 {
     this->statement = s;
-    this->lastVar = NULL;
+    this->lastVar = nullptr;
 }
 
 Statement *DefaultStatement::syntaxCopy()
@@ -1247,7 +1247,7 @@ Statement *DefaultStatement::syntaxCopy()
 GotoDefaultStatement::GotoDefaultStatement(Loc loc)
     : Statement(loc)
 {
-    sw = NULL;
+    sw = nullptr;
 }
 
 Statement *GotoDefaultStatement::syntaxCopy()
@@ -1260,13 +1260,13 @@ Statement *GotoDefaultStatement::syntaxCopy()
 GotoCaseStatement::GotoCaseStatement(Loc loc, Expression *exp)
     : Statement(loc)
 {
-    cs = NULL;
+    cs = nullptr;
     this->exp = exp;
 }
 
 Statement *GotoCaseStatement::syntaxCopy()
 {
-    return new GotoCaseStatement(loc, exp ? exp->syntaxCopy() : NULL);
+    return new GotoCaseStatement(loc, exp ? exp->syntaxCopy() : nullptr);
 }
 
 /******************************** SwitchErrorStatement ***************************/
@@ -1287,7 +1287,7 @@ ReturnStatement::ReturnStatement(Loc loc, Expression *exp)
 
 Statement *ReturnStatement::syntaxCopy()
 {
-    return new ReturnStatement(loc, exp ? exp->syntaxCopy() : NULL);
+    return new ReturnStatement(loc, exp ? exp->syntaxCopy() : nullptr);
 }
 
 /******************************** BreakStatement ***************************/
@@ -1324,14 +1324,14 @@ WithStatement::WithStatement(Loc loc, Expression *exp, Statement *body, Loc endl
     this->exp = exp;
     this->_body = body;
     this->endloc = endloc;
-    wthis = NULL;
+    wthis = nullptr;
 }
 
 Statement *WithStatement::syntaxCopy()
 {
     return new WithStatement(loc,
         exp->syntaxCopy(),
-        _body ? _body->syntaxCopy() : NULL, endloc);
+        _body ? _body->syntaxCopy() : nullptr, endloc);
 }
 
 /******************************** TryCatchStatement ***************************/
@@ -1369,7 +1369,7 @@ Catch::Catch(Loc loc, Type *t, Identifier *id, Statement *handler)
     this->type = t;
     this->ident = id;
     this->handler = handler;
-    var = NULL;
+    var = nullptr;
     errors = false;
     internalCatch = false;
 }
@@ -1379,7 +1379,7 @@ Catch *Catch::syntaxCopy()
     Catch *c = new Catch(loc,
         type ? type->syntaxCopy() : getThrowable(),
         ident,
-        (handler ? handler->syntaxCopy() : NULL));
+        (handler ? handler->syntaxCopy() : nullptr));
     c->internalCatch = internalCatch;
     return c;
 }
@@ -1432,9 +1432,9 @@ Statement *ScopeGuardStatement::scopeCode(Scope *sc, Statement **sentry, Stateme
 {
     //printf("ScopeGuardStatement::scopeCode()\n");
     //print();
-    *sentry = NULL;
-    *sexception = NULL;
-    *sfinally = NULL;
+    *sentry = nullptr;
+    *sexception = nullptr;
+    *sfinally = nullptr;
 
     Statement *s = new PeelStatement(statement);
 
@@ -1465,7 +1465,7 @@ Statement *ScopeGuardStatement::scopeCode(Scope *sc, Statement **sentry, Stateme
 
             e = new VarExp(Loc(), v);
             e = new NotExp(Loc(), e);
-            *sfinally = new IfStatement(Loc(), NULL, e, s, NULL, Loc());
+            *sfinally = new IfStatement(Loc(), nullptr, e, s, nullptr, Loc());
 
             break;
         }
@@ -1473,7 +1473,7 @@ Statement *ScopeGuardStatement::scopeCode(Scope *sc, Statement **sentry, Stateme
         default:
             assert(0);
     }
-    return NULL;
+    return nullptr;
 }
 
 /******************************** ThrowStatement ***************************/
@@ -1503,12 +1503,12 @@ DebugStatement::DebugStatement(Loc loc, Statement *statement)
 Statement *DebugStatement::syntaxCopy()
 {
     return new DebugStatement(loc,
-        statement ? statement->syntaxCopy() : NULL);
+        statement ? statement->syntaxCopy() : nullptr);
 }
 
 Statements *DebugStatement::flatten(Scope *sc)
 {
-    Statements *a = statement ? statement->flatten(sc) : NULL;
+    Statements *a = statement ? statement->flatten(sc) : nullptr;
     if (a)
     {
         for (size_t i = 0; i < a->length; i++)
@@ -1528,10 +1528,10 @@ GotoStatement::GotoStatement(Loc loc, Identifier *ident)
     : Statement(loc)
 {
     this->ident = ident;
-    this->label = NULL;
-    this->tf = NULL;
-    this->os = NULL;
-    this->lastVar = NULL;
+    this->label = nullptr;
+    this->tf = nullptr;
+    this->os = nullptr;
+    this->lastVar = nullptr;
 }
 
 Statement *GotoStatement::syntaxCopy()
@@ -1601,16 +1601,16 @@ LabelStatement::LabelStatement(Loc loc, Identifier *ident, Statement *statement)
 {
     this->ident = ident;
     this->statement = statement;
-    this->tf = NULL;
-    this->os = NULL;
-    this->lastVar = NULL;
-    this->gotoTarget = NULL;
+    this->tf = nullptr;
+    this->os = nullptr;
+    this->lastVar = nullptr;
+    this->gotoTarget = nullptr;
     this->breaks = false;
 }
 
 Statement *LabelStatement::syntaxCopy()
 {
-    return new LabelStatement(loc, ident, statement ? statement->syntaxCopy() : NULL);
+    return new LabelStatement(loc, ident, statement ? statement->syntaxCopy() : nullptr);
 }
 
 Statement *LabelStatement::scopeCode(Scope *sc, Statement **sentry, Statement **sexit, Statement **sfinally)
@@ -1620,16 +1620,16 @@ Statement *LabelStatement::scopeCode(Scope *sc, Statement **sentry, Statement **
         statement = statement->scopeCode(sc, sentry, sexit, sfinally);
     else
     {
-        *sentry = NULL;
-        *sexit = NULL;
-        *sfinally = NULL;
+        *sentry = nullptr;
+        *sexit = nullptr;
+        *sfinally = nullptr;
     }
     return this;
 }
 
 Statements *LabelStatement::flatten(Scope *sc)
 {
-    Statements *a = NULL;
+    Statements *a = nullptr;
 
     if (statement)
     {
@@ -1638,7 +1638,7 @@ Statements *LabelStatement::flatten(Scope *sc)
         {
             if (!a->length)
             {
-                a->push(new ExpStatement(loc, (Expression *)NULL));
+                a->push(new ExpStatement(loc, (Expression *)nullptr));
             }
 
             // reuse 'this' LabelStatement
@@ -1655,7 +1655,7 @@ Statements *LabelStatement::flatten(Scope *sc)
 LabelDsymbol::LabelDsymbol(Identifier *ident)
         : Dsymbol(ident)
 {
-    statement = NULL;
+    statement = nullptr;
 }
 
 LabelDsymbol *LabelDsymbol::create(Identifier *ident)
@@ -1688,7 +1688,7 @@ Statement *AsmStatement::syntaxCopy()
 InlineAsmStatement::InlineAsmStatement(Loc loc, Token *tokens)
     : AsmStatement(loc, tokens)
 {
-    asmcode = NULL;
+    asmcode = nullptr;
     asmalign = 0;
     refparam = false;
     naked = false;
@@ -1707,14 +1707,14 @@ GccAsmStatement::GccAsmStatement(Loc loc, Token *tokens)
         : AsmStatement(loc, tokens)
 {
     this->stc = STCundefined;
-    this->insn = NULL;
-    this->args = NULL;
+    this->insn = nullptr;
+    this->args = nullptr;
     this->outputargs = 0;
-    this->names = NULL;
-    this->constraints = NULL;
-    this->clobbers = NULL;
-    this->labels = NULL;
-    this->gotos = NULL;
+    this->names = nullptr;
+    this->constraints = nullptr;
+    this->clobbers = nullptr;
+    this->labels = nullptr;
+    this->gotos = nullptr;
 }
 
 Statement *GccAsmStatement::syntaxCopy()
@@ -1737,14 +1737,14 @@ CompoundAsmStatement *CompoundAsmStatement::syntaxCopy()
     for (size_t i = 0; i < statements->length; i++)
     {
         Statement *s = (*statements)[i];
-        (*a)[i] = s ? s->syntaxCopy() : NULL;
+        (*a)[i] = s ? s->syntaxCopy() : nullptr;
     }
     return new CompoundAsmStatement(loc, a, stc);
 }
 
 Statements *CompoundAsmStatement::flatten(Scope *)
 {
-    return NULL;
+    return nullptr;
 }
 
 /************************ ImportStatement ***************************************/
@@ -1762,7 +1762,7 @@ Statement *ImportStatement::syntaxCopy()
     for (size_t i = 0; i < imports->length; i++)
     {
         Dsymbol *s = (*imports)[i];
-        (*m)[i] = s->syntaxCopy(NULL);
+        (*m)[i] = s->syntaxCopy(nullptr);
     }
     return new ImportStatement(loc, m);
 }

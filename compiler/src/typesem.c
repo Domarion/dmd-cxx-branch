@@ -37,13 +37,13 @@ public:
 
     TypeToExpressionVisitor(Type *itype)
     {
-        this->result = NULL;
+        this->result = nullptr;
         this->itype = itype;
     }
 
     void visit(Type *)
     {
-        result = NULL;
+        result = nullptr;
     }
 
     void visit(TypeSArray *t)
@@ -66,7 +66,7 @@ public:
                 return;
             }
         }
-        result = NULL;
+        result = nullptr;
     }
 
     void visit(TypeIdentifier *t)
@@ -87,12 +87,12 @@ public:
 
 /* We've mistakenly parsed this as a type.
  * Redo it as an Expression.
- * NULL if cannot.
+ * nullptr if cannot.
  */
 Expression *typeToExpression(Type *t)
 {
     if (t->mod)
-        return NULL;
+        return nullptr;
     TypeToExpressionVisitor v = TypeToExpressionVisitor(t);
     t->accept(&v);
     return v.result;
@@ -201,7 +201,7 @@ RootObject *compileTypeMixin(TypeMixin *tm, Loc loc, Scope *sc)
 {
     OutBuffer buf;
     if (expressionsToString(buf, sc, tm->exps))
-        return NULL;
+        return nullptr;
 
     const unsigned errors = global.errors;
     const size_t len = buf.length();
@@ -214,12 +214,12 @@ RootObject *compileTypeMixin(TypeMixin *tm, Loc loc, Scope *sc)
     if (errors != global.errors)
     {
         assert(global.errors != errors); // should have caught all these cases
-        return NULL;
+        return nullptr;
     }
     if (p.token.value != TOKeof)
     {
         ::error(loc, "incomplete mixin type `%s`", str);
-        return NULL;
+        return nullptr;
     }
 
     Type *t = isType(o);
@@ -251,7 +251,7 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
         {
             this->loc = loc;
             this->sc = sc;
-            this->result = NULL;
+            this->result = nullptr;
         }
 
     private:
@@ -545,7 +545,7 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
                  */
                 StructDeclaration *sd = ((TypeStruct *)tbase)->sym;
                 if (sd->semanticRun < PASSsemanticdone)
-                    dsymbolSemantic(sd, NULL);
+                    dsymbolSemantic(sd, nullptr);
 
                 // duplicate a part of StructDeclaration::semanticTypeInfoMembers
                 //printf("AA = %s, key: xeq = %p, xerreq = %p xhash = %p\n", mtype->toChars(), sd->xeq, sd->xerreq, sd->xhash);
@@ -562,7 +562,7 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
                 const char *s = (mtype->index->toBasetype()->ty != Tstruct) ? "bottom of " : "";
                 if (!sd->xeq)
                 {
-                    // If sd->xhash != NULL:
+                    // If sd->xhash != nullptr:
                     //   sd or its fields have user-defined toHash.
                     //   AA assumes that its result is consistent with bitwise equality.
                     // else:
@@ -612,7 +612,7 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
             {
                 ClassDeclaration *cd = ((TypeClass *)tbase)->sym;
                 if (cd->semanticRun < PASSsemanticdone)
-                    dsymbolSemantic(cd, NULL);
+                    dsymbolSemantic(cd, nullptr);
 
                 if (!ClassDeclaration::object)
                 {
@@ -620,9 +620,9 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
                     fatal();
                 }
 
-                static FuncDeclaration *feq   = NULL;
-                static FuncDeclaration *fcmp  = NULL;
-                static FuncDeclaration *fhash = NULL;
+                static FuncDeclaration *feq   = nullptr;
+                static FuncDeclaration *fcmp  = nullptr;
+                static FuncDeclaration *fhash = nullptr;
                 if (!feq)   feq   = search_function(ClassDeclaration::object, Id::eq)->isFuncDeclaration();
                 if (!fcmp)  fcmp  = search_function(ClassDeclaration::object, Id::cmp)->isFuncDeclaration();
                 if (!fhash) fhash = search_function(ClassDeclaration::object, Id::tohash)->isFuncDeclaration();
@@ -682,7 +682,7 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
             }
             if (n != mtype->next)
             {
-                mtype->deco = NULL;
+                mtype->deco = nullptr;
             }
             mtype->next = n;
             if (mtype->next->ty != Tfunction)
@@ -704,7 +704,7 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
             //printf("TypeReference::semantic()\n");
             Type *n = typeSemantic(mtype->next, loc, sc);
             if (n != mtype->next)
-                mtype->deco = NULL;
+                mtype->deco = nullptr;
             mtype->next = n;
             mtype->transitive();
             result = mtype->merge();
@@ -808,8 +808,8 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
                  */
                 Scope *argsc = sc->push();
                 argsc->stc = 0;                 // don't inherit storage class
-                argsc->protection = Prot(Prot::public_);
-                argsc->func = NULL;
+                argsc->protection = Visibility(Visibility::public_);
+                argsc->func = nullptr;
 
                 size_t dim = tf->parameterList.length();
                 for (size_t i = 0; i < dim; i++)
@@ -1288,7 +1288,7 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
             Type *t;
             Dsymbol *s;
             mtype->resolve(loc, sc, &e, &t, &s);
-            if (s && (t = s->getType()) != NULL)
+            if (s && (t = s->getType()) != nullptr)
                 t = t->addMod(mtype->mod);
             if (!t)
             {
@@ -1306,7 +1306,7 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
             Type *t;
             Dsymbol *s;
             mtype->resolve(loc, sc, &e, &t, &s);
-            if (s && (t = s->getType()) != NULL)
+            if (s && (t = s->getType()) != nullptr)
                 t = t->addMod(mtype->mod);
             if (!t)
             {
@@ -1440,9 +1440,9 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
         {
             //printf("TypeMixin::semantic() %s\n", mtype->toChars());
 
-            Expression *e = NULL;
-            Type *t = NULL;
-            Dsymbol *s = NULL;
+            Expression *e = nullptr;
+            Type *t = nullptr;
+            Dsymbol *s = nullptr;
             mtype->resolve(loc, sc, &e, &t, &s);
 
             if (t && t->ty != Terror)

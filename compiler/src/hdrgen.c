@@ -87,7 +87,7 @@ public:
     EnumDeclaration *inEnumDecl;
 
     PrettyPrintVisitor(OutBuffer *buf, HdrGenState *hgs)
-        : buf(buf), hgs(hgs), declstring(false), inEnumDecl(NULL)
+        : buf(buf), hgs(hgs), declstring(false), inEnumDecl(nullptr)
     {
     }
 
@@ -144,7 +144,7 @@ public:
         for (size_t i = 0; i < s->statements->length; i++)
         {
             Statement *sx = (*s->statements)[i];
-            ExpStatement *ds = sx ? sx->isExpStatement() : NULL;
+            ExpStatement *ds = sx ? sx->isExpStatement() : nullptr;
             if (ds && ds->exp->op == TOKdeclaration)
             {
                 Dsymbol *d = ((DeclarationExp *)ds->exp)->declaration;
@@ -706,7 +706,7 @@ public:
     {
         if (t->ty == Tfunction)
         {
-            visitFuncIdentWithPrefix((TypeFunction *)t, ident, NULL);
+            visitFuncIdentWithPrefix((TypeFunction *)t, ident, nullptr);
             return;
         }
 
@@ -845,7 +845,7 @@ public:
     void visit(TypeFunction *t)
     {
         //printf("TypeFunction::toCBuffer2() t = %p, ref = %d\n", t, t->isref);
-        visitFuncIdentWithPostfix(t, NULL);
+        visitFuncIdentWithPostfix(t, nullptr);
     }
 
     // callback for TypeFunction::attributesApply
@@ -892,7 +892,7 @@ public:
 
         if (t->next)
         {
-            typeToBuffer(t->next, NULL);
+            typeToBuffer(t->next, nullptr);
             if (ident)
                 buf->writeByte(' ');
         }
@@ -950,7 +950,7 @@ public:
         }
         else if (t->next)
         {
-            typeToBuffer(t->next, NULL);
+            typeToBuffer(t->next, nullptr);
             if (ident)
                 buf->writeByte(' ');
         }
@@ -1049,7 +1049,7 @@ public:
     {
         // Bugzilla 13776: Don't use ti->toAlias() to avoid forward reference error
         // while printing messages.
-        TemplateInstance *ti = t->sym->parent ? t->sym->parent->isTemplateInstance() : NULL;
+        TemplateInstance *ti = t->sym->parent ? t->sym->parent->isTemplateInstance() : nullptr;
         if (ti && ti->aliasdecl == t->sym)
             buf->writestring(hgs->fullQual ? ti->toPrettyChars() : ti->toChars());
         else
@@ -1584,7 +1584,7 @@ public:
     {
         buf->writestring("mixin ");
 
-        typeToBuffer(tm->tqual, NULL);
+        typeToBuffer(tm->tqual, nullptr);
         tiargsToBuffer(tm);
 
         if (tm->ident && memcmp(tm->ident->toChars(), "__mixin", 7) != 0)
@@ -1668,7 +1668,7 @@ public:
         if (Type *t = isType(oarg))
         {
             //printf("\tt: %s ty = %d\n", t->toChars(), t->ty);
-            typeToBuffer(t, NULL);
+            typeToBuffer(t, nullptr);
         }
         else if (Expression *e = isExpression(oarg))
         {
@@ -1698,7 +1698,7 @@ public:
         }
         else if (!oarg)
         {
-            buf->writestring("NULL");
+            buf->writestring("nullptr");
         }
         else
         {
@@ -1719,7 +1719,7 @@ public:
         if (d->memtype)
         {
             buf->writestring(": ");
-            typeToBuffer(d->memtype, NULL);
+            typeToBuffer(d->memtype, nullptr);
         }
         if (!d->members)
         {
@@ -1830,7 +1830,7 @@ public:
             if (i)
                 buf->writestring(", ");
             BaseClass *b = (*d->baseclasses)[i];
-            typeToBuffer(b->type, NULL);
+            typeToBuffer(b->type, nullptr);
         }
     }
 
@@ -1860,7 +1860,7 @@ public:
             buf->writestring(" = ");
             if (stcToBuffer(buf, d->storage_class))
                 buf->writeByte(' ');
-            typeToBuffer(d->type, NULL);
+            typeToBuffer(d->type, nullptr);
             declstring = false;
         }
         buf->writeByte(';');
@@ -2042,7 +2042,7 @@ public:
         TypeFunction *tf = (TypeFunction *)f->type;
         // Don't print tf->mod, tf->trust, and tf->linkage
         if (!f->inferRetType && tf->next)
-            typeToBuffer(tf->next, NULL);
+            typeToBuffer(tf->next, nullptr);
         parametersToBuffer(tf->parameterList.parameters, tf->parameterList.varargs);
 
         CompoundStatement *cs = f->fbody->isCompoundStatement();
@@ -2052,8 +2052,8 @@ public:
             s1 = (*cs->statements)[cs->statements->length - 1];
         }
         else
-            s1 = !cs ? f->fbody : NULL;
-        ReturnStatement *rs = s1 ? s1->isReturnStatement() : NULL;
+            s1 = !cs ? f->fbody : nullptr;
+        ReturnStatement *rs = s1 ? s1->isReturnStatement() : nullptr;
         if (rs && rs->exp)
         {
             buf->writestring(" => ");
@@ -2217,7 +2217,7 @@ public:
     /**************************************************
      * Write out argument list to buf.
      */
-    void argsToBuffer(Expressions *expressions, Expression *basis = NULL)
+    void argsToBuffer(Expressions *expressions, Expression *basis = nullptr)
     {
         if (!expressions || !expressions->length)
             return;
@@ -2599,7 +2599,7 @@ public:
 
     void visit(TypeExp *e)
     {
-        typeToBuffer(e->type, NULL);
+        typeToBuffer(e->type, nullptr);
     }
 
     void visit(ScopeExp *e)
@@ -2608,7 +2608,7 @@ public:
         {
             e->sds->accept(this);
         }
-        else if (hgs != NULL && hgs->ddoc)
+        else if (hgs != nullptr && hgs->ddoc)
         {
             // fixes bug 6491
             Module *m = e->sds->isModule();
@@ -2644,7 +2644,7 @@ public:
             argsToBuffer(e->newargs);
             buf->writeByte(')');
         }
-        typeToBuffer(e->newtype, NULL);
+        typeToBuffer(e->newtype, nullptr);
         if (e->arguments && e->arguments->length)
         {
             buf->writeByte('(');
@@ -2786,7 +2786,7 @@ public:
                 buf->writestring(" : ");
             else
                 buf->writestring(" == ");
-            typeToBuffer(e->tspec, NULL);
+            typeToBuffer(e->tspec, nullptr);
         }
         if (e->parameters && e->parameters->length)
         {
@@ -2917,7 +2917,7 @@ public:
     {
         buf->writestring("cast(");
         if (e->to)
-            typeToBuffer(e->to, NULL);
+            typeToBuffer(e->to, nullptr);
         else
         {
             MODtoBuffer(buf, e->mod);
@@ -2929,7 +2929,7 @@ public:
     void visit(VectorExp *e)
     {
         buf->writestring("cast(");
-        typeToBuffer(e->to, NULL);
+        typeToBuffer(e->to, nullptr);
         buf->writeByte(')');
         expToBuffer(e->e1, precedence[e->op]);
     }
@@ -3054,12 +3054,12 @@ public:
         if (tp->specType)
         {
             buf->writestring(" : ");
-            typeToBuffer(tp->specType, NULL);
+            typeToBuffer(tp->specType, nullptr);
         }
         if (tp->defaultType)
         {
             buf->writestring(" = ");
-            typeToBuffer(tp->defaultType, NULL);
+            typeToBuffer(tp->defaultType, nullptr);
         }
     }
 
@@ -3324,28 +3324,28 @@ const char *stcToChars(StorageClass& stc)
 
     static SCstring table[] =
     {
-        { STCauto,         TOKauto,     NULL },
-        { STCscope,        TOKscope,    NULL },
-        { STCstatic,       TOKstatic,   NULL },
-        { STCextern,       TOKextern,   NULL },
-        { STCconst,        TOKconst,    NULL },
-        { STCfinal,        TOKfinal,    NULL },
-        { STCabstract,     TOKabstract, NULL },
-        { STCdeprecated,   TOKdeprecated, NULL },
-        { STCoverride,     TOKoverride, NULL },
-        { STClazy,         TOKlazy,     NULL },
-        { STCalias,        TOKalias,    NULL },
-        { STCout,          TOKout,      NULL },
-        { STCin,           TOKin,       NULL },
-        { STCmanifest,     TOKenum,     NULL },
-        { STCimmutable,    TOKimmutable, NULL },
-        { STCshared,       TOKshared,   NULL },
-        { STCnothrow,      TOKnothrow,  NULL },
-        { STCwild,         TOKinout,     NULL },
-        { STCpure,         TOKpure,     NULL },
-        { STCref,          TOKref,      NULL },
-        { STCtls,          TOKreserved, NULL },
-        { STCgshared,      TOKgshared,  NULL },
+        { STCauto,         TOKauto,     nullptr },
+        { STCscope,        TOKscope,    nullptr },
+        { STCstatic,       TOKstatic,   nullptr },
+        { STCextern,       TOKextern,   nullptr },
+        { STCconst,        TOKconst,    nullptr },
+        { STCfinal,        TOKfinal,    nullptr },
+        { STCabstract,     TOKabstract, nullptr },
+        { STCdeprecated,   TOKdeprecated, nullptr },
+        { STCoverride,     TOKoverride, nullptr },
+        { STClazy,         TOKlazy,     nullptr },
+        { STCalias,        TOKalias,    nullptr },
+        { STCout,          TOKout,      nullptr },
+        { STCin,           TOKin,       nullptr },
+        { STCmanifest,     TOKenum,     nullptr },
+        { STCimmutable,    TOKimmutable, nullptr },
+        { STCshared,       TOKshared,   nullptr },
+        { STCnothrow,      TOKnothrow,  nullptr },
+        { STCwild,         TOKinout,     nullptr },
+        { STCpure,         TOKpure,     nullptr },
+        { STCref,          TOKref,      nullptr },
+        { STCtls,          TOKreserved, nullptr },
+        { STCgshared,      TOKgshared,  nullptr },
         { STCnogc,         TOKat,       "@nogc" },
         { STCproperty,     TOKat,       "@property" },
         { STCsafe,         TOKat,       "@safe" },
@@ -3354,7 +3354,7 @@ const char *stcToChars(StorageClass& stc)
         { STCdisable,      TOKat,       "@disable" },
         { STCfuture,       TOKat,       "@__future" },
         { STClocal,        TOKat,       "__local" },
-        { 0,               TOKreserved, NULL }
+        { 0,               TOKreserved, nullptr }
     };
 
     for (int i = 0; table[i].stc; i++)
@@ -3375,7 +3375,7 @@ const char *stcToChars(StorageClass& stc)
         }
     }
     //printf("stc = %llx\n", stc);
-    return NULL;
+    return nullptr;
 }
 
 void trustToBuffer(OutBuffer *buf, TRUST trust)
@@ -3389,13 +3389,13 @@ const char *trustToChars(TRUST trust)
 {
     switch (trust)
     {
-        case TRUSTdefault:  return NULL;
+        case TRUSTdefault:  return nullptr;
         case TRUSTsystem:   return "@system";
         case TRUSTtrusted:  return "@trusted";
         case TRUSTsafe:     return "@safe";
         default:            assert(0);
     }
-    return NULL;    // never reached
+    return nullptr;    // never reached
 }
 
 void linkageToBuffer(OutBuffer *buf, LINK linkage)
@@ -3413,23 +3413,23 @@ const char *linkageToChars(LINK linkage)
 {
     switch (linkage)
     {
-        case LINKdefault:   return NULL;
+        case LINKdefault:   return nullptr;
         case LINKd:         return "D";
         case LINKc:         return "C";
         case LINKcpp:       return "C++";
         case LINKsystem:    return "System";
         default:            assert(0);
     }
-    return NULL;    // never reached
+    return nullptr;    // never reached
 }
 
-void protectionToBuffer(OutBuffer *buf, Prot prot)
+void protectionToBuffer(OutBuffer *buf, Visibility prot)
 {
     const char *p = protectionToChars(prot.kind);
     if (p)
         buf->writestring(p);
 
-    if (prot.kind == Prot::package_ && prot.pkg)
+    if (prot.kind == Visibility::package_ && prot.pkg)
     {
         buf->writeByte('(');
         buf->writestring(prot.pkg->toPrettyChars(true));
@@ -3437,20 +3437,20 @@ void protectionToBuffer(OutBuffer *buf, Prot prot)
     }
 }
 
-const char *protectionToChars(Prot::Kind kind)
+const char *protectionToChars(Visibility::Kind kind)
 {
     switch (kind)
     {
-        case Prot::undefined: return NULL;
-        case Prot::none:      return "none";
-        case Prot::private_:   return "private";
-        case Prot::package_:   return "package";
-        case Prot::protected_: return "protected";
-        case Prot::public_:    return "public";
-        case Prot::export_:    return "export";
+        case Visibility::undefined: return nullptr;
+        case Visibility::none:      return "none";
+        case Visibility::private_:   return "private";
+        case Visibility::package_:   return "package";
+        case Visibility::protected_: return "protected";
+        case Visibility::public_:    return "public";
+        case Visibility::export_:    return "export";
         default:            assert(0);
     }
-    return NULL;    // never reached
+    return nullptr;    // never reached
 }
 
 // Print the full function signature with correct ident, attributes and template args
@@ -3491,7 +3491,7 @@ void argExpTypesToCBuffer(OutBuffer *buf, Expressions *arguments)
         Expression *arg = (*arguments)[i];
         if (i)
             buf->writestring(", ");
-        v.typeToBuffer(arg->type, NULL);
+        v.typeToBuffer(arg->type, nullptr);
     }
 }
 

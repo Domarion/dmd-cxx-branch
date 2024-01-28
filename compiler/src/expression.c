@@ -61,7 +61,7 @@ FuncDeclaration *hasThis(Scope *sc)
     Dsymbol *p = sc->parent;
     while (p && p->isTemplateMixin())
         p = p->parent;
-    FuncDeclaration *fdthis = p ? p->isFuncDeclaration() : NULL;
+    FuncDeclaration *fdthis = p ? p->isFuncDeclaration() : nullptr;
     //printf("fdthis = %p, '%s'\n", fdthis, fdthis ? fdthis->toChars() : "");
 
     // Go upwards until we find the enclosing member function
@@ -98,7 +98,7 @@ FuncDeclaration *hasThis(Scope *sc)
     return fd;
 
 Lno:
-    return NULL;                // don't have 'this' available
+    return nullptr;                // don't have 'this' available
 }
 
 bool isNeedThisScope(Scope *sc, Declaration *d)
@@ -203,11 +203,11 @@ void expandTuples(Expressions *exps)
 TupleDeclaration *isAliasThisTuple(Expression *e)
 {
     if (!e->type)
-        return NULL;
+        return nullptr;
 
     Type *t = e->type->toBasetype();
 Lagain:
-    if (Dsymbol *s = t->toDsymbol(NULL))
+    if (Dsymbol *s = t->toDsymbol(nullptr))
     {
         AggregateDeclaration *ad = s->isAggregateDeclaration();
         if (ad)
@@ -226,7 +226,7 @@ Lagain:
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 int expandAliasThisTuples(Expressions *exps, size_t starti)
@@ -278,7 +278,7 @@ TemplateDeclaration *getFuncTemplateDecl(Dsymbol *s)
             return (TemplateDeclaration *)ti->tempdecl;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /************************************************
@@ -393,7 +393,7 @@ Expression::Expression(Loc loc, TOK op, int size)
     this->op = op;
     this->size = (unsigned char)size;
     this->parens = 0;
-    type = NULL;
+    type = nullptr;
 }
 
 void Expression::_init()
@@ -477,7 +477,7 @@ void Expression::deprecation(const char *format, ...) const
 }
 
 /**********************************
- * Combine e1 and e2 by CommaExp if both are not NULL.
+ * Combine e1 and e2 by CommaExp if both are not nullptr.
  */
 Expression *Expression::combine(Expression *e1, Expression *e2)
 {
@@ -498,13 +498,13 @@ Expression *Expression::combine(Expression *e1, Expression *e2)
  * If 'e' is a tree of commas, returns the leftmost expression
  * by stripping off it from the tree. The remained part of the tree
  * is returned via *pe0.
- * Otherwise 'e' is directly returned and *pe0 is set to NULL.
+ * Otherwise 'e' is directly returned and *pe0 is set to nullptr.
  */
 Expression *Expression::extractLast(Expression *e, Expression **pe0)
 {
     if (e->op != TOKcomma)
     {
-        *pe0 = NULL;
+        *pe0 = nullptr;
         return e;
     }
 
@@ -564,12 +564,12 @@ complex_t Expression::toComplex()
 
 StringExp *Expression::toStringExp()
 {
-    return NULL;
+    return nullptr;
 }
 
 TupleExp *Expression::toTupleExp()
 {
-    return NULL;
+    return nullptr;
 }
 
 /***************************************
@@ -1088,7 +1088,7 @@ bool Expression::checkRightThis(Scope *sc)
 
 /*******************************
  * Check whether the expression allows RMW operations, error with rmw operator diagnostic if not.
- * ex is the RHS expression, or NULL if ++/-- is used (for diagnostics)
+ * ex is the RHS expression, or nullptr if ++/-- is used (for diagnostics)
  * Returns true if error occurs.
  */
 bool Expression::checkReadModifyWrite(TOK rmwOp, Expression *ex)
@@ -1134,7 +1134,7 @@ Expression *Expression::toBoolean(Scope *sc)
     Expression *e = this;
     Type *t = type;
     Type *tb = type->toBasetype();
-    Type *att = NULL;
+    Type *att = nullptr;
 Lagain:
     // Structs can be converted to bool using opCast(bool)()
     if (tb->ty == Tstruct)
@@ -1211,519 +1211,519 @@ bool Expression::isBool(bool)
 
 IntegerExp *Expression::isIntegerExp()
 {
-    return op == TOKint64 ? (IntegerExp *)this : NULL;
+    return op == TOKint64 ? (IntegerExp *)this : nullptr;
 }
 
 ErrorExp *Expression::isErrorExp()
 {
-    return op == TOKerror ? (ErrorExp *)this : NULL;
+    return op == TOKerror ? (ErrorExp *)this : nullptr;
 }
 
 VoidInitExp *Expression::isVoidInitExp()
 {
-    return op == TOKvoid ? (VoidInitExp *)this : NULL;
+    return op == TOKvoid ? (VoidInitExp *)this : nullptr;
 }
 
 RealExp *Expression::isRealExp()
 {
-    return op == TOKfloat64 ? (RealExp *)this : NULL;
+    return op == TOKfloat64 ? (RealExp *)this : nullptr;
 }
 
 ComplexExp *Expression::isComplexExp()
 {
-    return op == TOKcomplex80 ? (ComplexExp *)this : NULL;
+    return op == TOKcomplex80 ? (ComplexExp *)this : nullptr;
 }
 
 IdentifierExp *Expression::isIdentifierExp()
 {
-    return op == TOKidentifier ? (IdentifierExp *)this : NULL;
+    return op == TOKidentifier ? (IdentifierExp *)this : nullptr;
 }
 
 DollarExp *Expression::isDollarExp()
 {
-    return op == TOKdollar ? (DollarExp *)this : NULL;
+    return op == TOKdollar ? (DollarExp *)this : nullptr;
 }
 
 DsymbolExp *Expression::isDsymbolExp()
 {
-    return op == TOKdsymbol ? (DsymbolExp *)this : NULL;
+    return op == TOKdsymbol ? (DsymbolExp *)this : nullptr;
 }
 
 ThisExp *Expression::isThisExp()
 {
-    return op == TOKthis ? (ThisExp *)this : NULL;
+    return op == TOKthis ? (ThisExp *)this : nullptr;
 }
 
 SuperExp *Expression::isSuperExp()
 {
-    return op == TOKsuper ? (SuperExp *)this : NULL;
+    return op == TOKsuper ? (SuperExp *)this : nullptr;
 }
 
 NullExp *Expression::isNullExp()
 {
-    return op == TOKnull ? (NullExp *)this : NULL;
+    return op == TOKnull ? (NullExp *)this : nullptr;
 }
 
 StringExp *Expression::isStringExp()
 {
-    return op == TOKstring ? (StringExp *)this : NULL;
+    return op == TOKstring ? (StringExp *)this : nullptr;
 }
 
 TupleExp *Expression::isTupleExp()
 {
-    return op == TOKtuple ? (TupleExp *)this : NULL;
+    return op == TOKtuple ? (TupleExp *)this : nullptr;
 }
 
 ArrayLiteralExp *Expression::isArrayLiteralExp()
 {
-    return op == TOKarrayliteral ? (ArrayLiteralExp *)this : NULL;
+    return op == TOKarrayliteral ? (ArrayLiteralExp *)this : nullptr;
 }
 
 AssocArrayLiteralExp *Expression::isAssocArrayLiteralExp()
 {
-    return op == TOKassocarrayliteral ? (AssocArrayLiteralExp *)this : NULL;
+    return op == TOKassocarrayliteral ? (AssocArrayLiteralExp *)this : nullptr;
 }
 
 StructLiteralExp *Expression::isStructLiteralExp()
 {
-    return op == TOKstructliteral ? (StructLiteralExp *)this : NULL;
+    return op == TOKstructliteral ? (StructLiteralExp *)this : nullptr;
 }
 
 TypeExp *Expression::isTypeExp()
 {
-    return op == TOKtype ? (TypeExp *)this : NULL;
+    return op == TOKtype ? (TypeExp *)this : nullptr;
 }
 
 ScopeExp *Expression::isScopeExp()
 {
-    return op == TOKscope ? (ScopeExp *)this : NULL;
+    return op == TOKscope ? (ScopeExp *)this : nullptr;
 }
 
 TemplateExp *Expression::isTemplateExp()
 {
-    return op == TOKtemplate ? (TemplateExp *)this : NULL;
+    return op == TOKtemplate ? (TemplateExp *)this : nullptr;
 }
 
 NewExp *Expression::isNewExp()
 {
-    return op == TOKnew ? (NewExp *)this : NULL;
+    return op == TOKnew ? (NewExp *)this : nullptr;
 }
 
 NewAnonClassExp *Expression::isNewAnonClassExp()
 {
-    return op == TOKnewanonclass ? (NewAnonClassExp *)this : NULL;
+    return op == TOKnewanonclass ? (NewAnonClassExp *)this : nullptr;
 }
 
 SymOffExp *Expression::isSymOffExp()
 {
-    return op == TOKsymoff ? (SymOffExp *)this : NULL;
+    return op == TOKsymoff ? (SymOffExp *)this : nullptr;
 }
 
 VarExp *Expression::isVarExp()
 {
-    return op == TOKvar ? (VarExp *)this : NULL;
+    return op == TOKvar ? (VarExp *)this : nullptr;
 }
 
 OverExp *Expression::isOverExp()
 {
-    return op == TOKoverloadset ? (OverExp *)this : NULL;
+    return op == TOKoverloadset ? (OverExp *)this : nullptr;
 }
 
 FuncExp *Expression::isFuncExp()
 {
-    return op == TOKfunction ? (FuncExp *)this : NULL;
+    return op == TOKfunction ? (FuncExp *)this : nullptr;
 }
 
 DeclarationExp *Expression::isDeclarationExp()
 {
-    return op == TOKdeclaration ? (DeclarationExp *)this : NULL;
+    return op == TOKdeclaration ? (DeclarationExp *)this : nullptr;
 }
 
 TypeidExp *Expression::isTypeidExp()
 {
-    return op == TOKtypeid ? (TypeidExp *)this : NULL;
+    return op == TOKtypeid ? (TypeidExp *)this : nullptr;
 }
 
 TraitsExp *Expression::isTraitsExp()
 {
-    return op == TOKtraits ? (TraitsExp *)this : NULL;
+    return op == TOKtraits ? (TraitsExp *)this : nullptr;
 }
 
 HaltExp *Expression::isHaltExp()
 {
-    return op == TOKhalt ? (HaltExp *)this : NULL;
+    return op == TOKhalt ? (HaltExp *)this : nullptr;
 }
 
 IsExp *Expression::isExp()
 {
-    return op == TOKis ? (IsExp *)this : NULL;
+    return op == TOKis ? (IsExp *)this : nullptr;
 }
 
 CompileExp *Expression::isCompileExp()
 {
-    return op == TOKmixin ? (CompileExp *)this : NULL;
+    return op == TOKmixin ? (CompileExp *)this : nullptr;
 }
 
 ImportExp *Expression::isImportExp()
 {
-    return op == TOKimport ? (ImportExp *)this : NULL;
+    return op == TOKimport ? (ImportExp *)this : nullptr;
 }
 
 AssertExp *Expression::isAssertExp()
 {
-    return op == TOKassert ? (AssertExp *)this : NULL;
+    return op == TOKassert ? (AssertExp *)this : nullptr;
 }
 
 DotIdExp *Expression::isDotIdExp()
 {
-    return op == TOKdotid ? (DotIdExp *)this : NULL;
+    return op == TOKdotid ? (DotIdExp *)this : nullptr;
 }
 
 DotTemplateExp *Expression::isDotTemplateExp()
 {
-    return op == TOKdotti ? (DotTemplateExp *)this : NULL;
+    return op == TOKdotti ? (DotTemplateExp *)this : nullptr;
 }
 
 DotVarExp *Expression::isDotVarExp()
 {
-    return op == TOKdotvar ? (DotVarExp *)this : NULL;
+    return op == TOKdotvar ? (DotVarExp *)this : nullptr;
 }
 
 DotTemplateInstanceExp *Expression::isDotTemplateInstanceExp()
 {
-    return op == TOKdotti ? (DotTemplateInstanceExp *)this : NULL;
+    return op == TOKdotti ? (DotTemplateInstanceExp *)this : nullptr;
 }
 
 DelegateExp *Expression::isDelegateExp()
 {
-    return op == TOKdelegate ? (DelegateExp *)this : NULL;
+    return op == TOKdelegate ? (DelegateExp *)this : nullptr;
 }
 
 DotTypeExp *Expression::isDotTypeExp()
 {
-    return op == TOKdottype ? (DotTypeExp *)this : NULL;
+    return op == TOKdottype ? (DotTypeExp *)this : nullptr;
 }
 
 CallExp *Expression::isCallExp()
 {
-    return op == TOKcall ? (CallExp *)this : NULL;
+    return op == TOKcall ? (CallExp *)this : nullptr;
 }
 
 AddrExp *Expression::isAddrExp()
 {
-    return op == TOKaddress ? (AddrExp *)this : NULL;
+    return op == TOKaddress ? (AddrExp *)this : nullptr;
 }
 
 PtrExp *Expression::isPtrExp()
 {
-    return op == TOKstar ? (PtrExp *)this : NULL;
+    return op == TOKstar ? (PtrExp *)this : nullptr;
 }
 
 NegExp *Expression::isNegExp()
 {
-    return op == TOKneg ? (NegExp *)this : NULL;
+    return op == TOKneg ? (NegExp *)this : nullptr;
 }
 
 UAddExp *Expression::isUAddExp()
 {
-    return op == TOKuadd ? (UAddExp *)this : NULL;
+    return op == TOKuadd ? (UAddExp *)this : nullptr;
 }
 
 ComExp *Expression::isComExp()
 {
-    return op == TOKtilde ? (ComExp *)this : NULL;
+    return op == TOKtilde ? (ComExp *)this : nullptr;
 }
 
 NotExp *Expression::isNotExp()
 {
-    return op == TOKnot ? (NotExp *)this : NULL;
+    return op == TOKnot ? (NotExp *)this : nullptr;
 }
 
 DeleteExp *Expression::isDeleteExp()
 {
-    return op == TOKdelete ? (DeleteExp *)this : NULL;
+    return op == TOKdelete ? (DeleteExp *)this : nullptr;
 }
 
 CastExp *Expression::isCastExp()
 {
-    return op == TOKcast ? (CastExp *)this : NULL;
+    return op == TOKcast ? (CastExp *)this : nullptr;
 }
 
 VectorExp *Expression::isVectorExp()
 {
-    return op == TOKvector ? (VectorExp *)this : NULL;
+    return op == TOKvector ? (VectorExp *)this : nullptr;
 }
 
 VectorArrayExp *Expression::isVectorArrayExp()
 {
-    return op == TOKvectorarray ? (VectorArrayExp *)this : NULL;
+    return op == TOKvectorarray ? (VectorArrayExp *)this : nullptr;
 }
 
 SliceExp *Expression::isSliceExp()
 {
-    return op == TOKslice ? (SliceExp *)this : NULL;
+    return op == TOKslice ? (SliceExp *)this : nullptr;
 }
 
 ArrayLengthExp *Expression::isArrayLengthExp()
 {
-    return op == TOKarraylength ? (ArrayLengthExp *)this : NULL;
+    return op == TOKarraylength ? (ArrayLengthExp *)this : nullptr;
 }
 
 ArrayExp *Expression::isArrayExp()
 {
-    return op == TOKarray ? (ArrayExp *)this : NULL;
+    return op == TOKarray ? (ArrayExp *)this : nullptr;
 }
 
 DotExp *Expression::isDotExp()
 {
-    return op == TOKdot ? (DotExp *)this : NULL;
+    return op == TOKdot ? (DotExp *)this : nullptr;
 }
 
 CommaExp *Expression::isCommaExp()
 {
-    return op == TOKcomma ? (CommaExp *)this : NULL;
+    return op == TOKcomma ? (CommaExp *)this : nullptr;
 }
 
 IntervalExp *Expression::isIntervalExp()
 {
-    return op == TOKinterval ? (IntervalExp *)this : NULL;
+    return op == TOKinterval ? (IntervalExp *)this : nullptr;
 }
 
 DelegatePtrExp *Expression::isDelegatePtrExp()
 {
-    return op == TOKdelegateptr ? (DelegatePtrExp *)this : NULL;
+    return op == TOKdelegateptr ? (DelegatePtrExp *)this : nullptr;
 }
 
 DelegateFuncptrExp *Expression::isDelegateFuncptrExp()
 {
-    return op == TOKdelegatefuncptr ? (DelegateFuncptrExp *)this : NULL;
+    return op == TOKdelegatefuncptr ? (DelegateFuncptrExp *)this : nullptr;
 }
 
 IndexExp *Expression::isIndexExp()
 {
-    return op == TOKindex ? (IndexExp *)this : NULL;
+    return op == TOKindex ? (IndexExp *)this : nullptr;
 }
 
 PostExp *Expression::isPostExp()
 {
-    return (op == TOKplusplus || op == TOKminusminus) ? (PostExp *)this : NULL;
+    return (op == TOKplusplus || op == TOKminusminus) ? (PostExp *)this : nullptr;
 }
 
 PreExp *Expression::isPreExp()
 {
-    return (op == TOKpreplusplus || op == TOKpreminusminus) ? (PreExp *)this : NULL;
+    return (op == TOKpreplusplus || op == TOKpreminusminus) ? (PreExp *)this : nullptr;
 }
 
 AssignExp *Expression::isAssignExp()
 {
-    return op == TOKassign ? (AssignExp *)this : NULL;
+    return op == TOKassign ? (AssignExp *)this : nullptr;
 }
 
 ConstructExp *Expression::isConstructExp()
 {
-    return op == TOKconstruct ? (ConstructExp *)this : NULL;
+    return op == TOKconstruct ? (ConstructExp *)this : nullptr;
 }
 
 BlitExp *Expression::isBlitExp()
 {
-    return op == TOKblit ? (BlitExp *)this : NULL;
+    return op == TOKblit ? (BlitExp *)this : nullptr;
 }
 
 AddAssignExp *Expression::isAddAssignExp()
 {
-    return op == TOKaddass ? (AddAssignExp *)this : NULL;
+    return op == TOKaddass ? (AddAssignExp *)this : nullptr;
 }
 
 MinAssignExp *Expression::isMinAssignExp()
 {
-    return op == TOKminass ? (MinAssignExp *)this : NULL;
+    return op == TOKminass ? (MinAssignExp *)this : nullptr;
 }
 
 MulAssignExp *Expression::isMulAssignExp()
 {
-    return op == TOKmulass ? (MulAssignExp *)this : NULL;
+    return op == TOKmulass ? (MulAssignExp *)this : nullptr;
 }
 
 
 DivAssignExp *Expression::isDivAssignExp()
 {
-    return op == TOKdivass ? (DivAssignExp *)this : NULL;
+    return op == TOKdivass ? (DivAssignExp *)this : nullptr;
 }
 
 ModAssignExp *Expression::isModAssignExp()
 {
-    return op == TOKmodass ? (ModAssignExp *)this : NULL;
+    return op == TOKmodass ? (ModAssignExp *)this : nullptr;
 }
 
 AndAssignExp *Expression::isAndAssignExp()
 {
-    return op == TOKandass ? (AndAssignExp *)this : NULL;
+    return op == TOKandass ? (AndAssignExp *)this : nullptr;
 }
 
 OrAssignExp *Expression::isOrAssignExp()
 {
-    return op == TOKorass ? (OrAssignExp *)this : NULL;
+    return op == TOKorass ? (OrAssignExp *)this : nullptr;
 }
 
 XorAssignExp *Expression::isXorAssignExp()
 {
-    return op == TOKxorass ? (XorAssignExp *)this : NULL;
+    return op == TOKxorass ? (XorAssignExp *)this : nullptr;
 }
 
 PowAssignExp *Expression::isPowAssignExp()
 {
-    return op == TOKpowass ? (PowAssignExp *)this : NULL;
+    return op == TOKpowass ? (PowAssignExp *)this : nullptr;
 }
 
 
 ShlAssignExp *Expression::isShlAssignExp()
 {
-    return op == TOKshlass ? (ShlAssignExp *)this : NULL;
+    return op == TOKshlass ? (ShlAssignExp *)this : nullptr;
 }
 
 ShrAssignExp *Expression::isShrAssignExp()
 {
-    return op == TOKshrass ? (ShrAssignExp *)this : NULL;
+    return op == TOKshrass ? (ShrAssignExp *)this : nullptr;
 }
 
 UshrAssignExp *Expression::isUshrAssignExp()
 {
-    return op == TOKushrass ? (UshrAssignExp *)this : NULL;
+    return op == TOKushrass ? (UshrAssignExp *)this : nullptr;
 }
 
 CatAssignExp *Expression::isCatAssignExp()
 {
-    return op == TOKcatass ? (CatAssignExp *)this : NULL;
+    return op == TOKcatass ? (CatAssignExp *)this : nullptr;
 }
 
 AddExp *Expression::isAddExp()
 {
-    return op == TOKadd ? (AddExp *)this : NULL;
+    return op == TOKadd ? (AddExp *)this : nullptr;
 }
 
 MinExp *Expression::isMinExp()
 {
-    return op == TOKmin ? (MinExp *)this : NULL;
+    return op == TOKmin ? (MinExp *)this : nullptr;
 }
 
 CatExp *Expression::isCatExp()
 {
-    return op == TOKcat ? (CatExp *)this : NULL;
+    return op == TOKcat ? (CatExp *)this : nullptr;
 }
 
 MulExp *Expression::isMulExp()
 {
-    return op == TOKmul ? (MulExp *)this : NULL;
+    return op == TOKmul ? (MulExp *)this : nullptr;
 }
 
 DivExp *Expression::isDivExp()
 {
-    return op == TOKdiv ? (DivExp *)this : NULL;
+    return op == TOKdiv ? (DivExp *)this : nullptr;
 }
 
 ModExp *Expression::isModExp()
 {
-    return op == TOKmod ? (ModExp *)this : NULL;
+    return op == TOKmod ? (ModExp *)this : nullptr;
 }
 
 PowExp *Expression::isPowExp()
 {
-    return op == TOKpow ? (PowExp *)this : NULL;
+    return op == TOKpow ? (PowExp *)this : nullptr;
 }
 
 ShlExp *Expression::isShlExp()
 {
-    return op == TOKshl ? (ShlExp *)this : NULL;
+    return op == TOKshl ? (ShlExp *)this : nullptr;
 }
 
 ShrExp *Expression::isShrExp()
 {
-    return op == TOKshr ? (ShrExp *)this : NULL;
+    return op == TOKshr ? (ShrExp *)this : nullptr;
 }
 
 UshrExp *Expression::isUshrExp()
 {
-    return op == TOKushr ? (UshrExp *)this : NULL;
+    return op == TOKushr ? (UshrExp *)this : nullptr;
 }
 
 AndExp *Expression::isAndExp()
 {
-    return op == TOKand ? (AndExp *)this : NULL;
+    return op == TOKand ? (AndExp *)this : nullptr;
 }
 
 OrExp *Expression::isOrExp()
 {
-    return op == TOKor ? (OrExp *)this : NULL;
+    return op == TOKor ? (OrExp *)this : nullptr;
 }
 
 XorExp *Expression::isXorExp()
 {
-    return op == TOKxor ? (XorExp *)this : NULL;
+    return op == TOKxor ? (XorExp *)this : nullptr;
 }
 
 LogicalExp *Expression::isLogicalExp()
 {
-    return (op == TOKandand || op == TOKoror) ? (LogicalExp *)this : NULL;
+    return (op == TOKandand || op == TOKoror) ? (LogicalExp *)this : nullptr;
 }
 
 InExp *Expression::isInExp()
 {
-    return op == TOKin ? (InExp *)this : NULL;
+    return op == TOKin ? (InExp *)this : nullptr;
 }
 
 RemoveExp *Expression::isRemoveExp()
 {
-    return op == TOKremove ? (RemoveExp *)this : NULL;
+    return op == TOKremove ? (RemoveExp *)this : nullptr;
 }
 
 EqualExp *Expression::isEqualExp()
 {
-    return (op == TOKequal || op == TOKnotequal) ? (EqualExp *)this : NULL;
+    return (op == TOKequal || op == TOKnotequal) ? (EqualExp *)this : nullptr;
 }
 
 IdentityExp *Expression::isIdentityExp()
 {
-    return (op == TOKidentity || op == TOKnotidentity) ? (IdentityExp *)this : NULL;
+    return (op == TOKidentity || op == TOKnotidentity) ? (IdentityExp *)this : nullptr;
 }
 
 CondExp *Expression::isCondExp()
 {
-    return op == TOKquestion ? (CondExp *)this : NULL;
+    return op == TOKquestion ? (CondExp *)this : nullptr;
 }
 
 DefaultInitExp *Expression::isDefaultInitExp()
 {
-    return op == TOKdefault ? (DefaultInitExp *)this : NULL;
+    return op == TOKdefault ? (DefaultInitExp *)this : nullptr;
 }
 
 FileInitExp *Expression::isFileInitExp()
 {
-    return (op == TOKfile || op == TOKfilefullpath) ? (FileInitExp *)this : NULL;
+    return (op == TOKfile || op == TOKfilefullpath) ? (FileInitExp *)this : nullptr;
 }
 
 LineInitExp *Expression::isLineInitExp()
 {
-    return op == TOKline ? (LineInitExp *)this : NULL;
+    return op == TOKline ? (LineInitExp *)this : nullptr;
 }
 
 ModuleInitExp *Expression::isModuleInitExp()
 {
-    return op == TOKmodulestring ? (ModuleInitExp *)this : NULL;
+    return op == TOKmodulestring ? (ModuleInitExp *)this : nullptr;
 }
 
 FuncInitExp *Expression::isFuncInitExp()
 {
-    return op == TOKfuncstring ? (FuncInitExp *)this : NULL;
+    return op == TOKfuncstring ? (FuncInitExp *)this : nullptr;
 }
 
 PrettyFuncInitExp *Expression::isPrettyFuncInitExp()
 {
-    return op == TOKprettyfunc ? (PrettyFuncInitExp *)this : NULL;
+    return op == TOKprettyfunc ? (PrettyFuncInitExp *)this : nullptr;
 }
 
 ClassReferenceExp *Expression::isClassReferenceExp()
 {
-    return op == TOKclassreference ? (ClassReferenceExp *)this : NULL;
+    return op == TOKclassreference ? (ClassReferenceExp *)this : nullptr;
 }
 
 
@@ -1738,7 +1738,7 @@ Expression *Expression::resolveLoc(Loc, Scope *)
 
 Expressions *Expression::arraySyntaxCopy(Expressions *exps)
 {
-    Expressions *a = NULL;
+    Expressions *a = nullptr;
     if (exps)
     {
         a = new Expressions();
@@ -1746,7 +1746,7 @@ Expressions *Expression::arraySyntaxCopy(Expressions *exps)
         for (size_t i = 0; i < a->length; i++)
         {
             Expression *e = (*exps)[i];
-            (*a)[i] = e ? e->syntaxCopy() : NULL;
+            (*a)[i] = e ? e->syntaxCopy() : nullptr;
         }
     }
     return a;
@@ -2258,7 +2258,7 @@ Lagain:
     {
         Dsymbol *p = td->toParent2();
         FuncDeclaration *fdthis = hasThis(sc);
-        AggregateDeclaration *ad = p ? p->isAggregateDeclaration() : NULL;
+        AggregateDeclaration *ad = p ? p->isAggregateDeclaration() : nullptr;
         if (fdthis && ad && isAggregate(fdthis->vthis->type) == ad &&
             (td->_scope->stc & STCstatic) == 0)
         {
@@ -2290,7 +2290,7 @@ ThisExp::ThisExp(Loc loc)
         : Expression(loc, TOKthis, sizeof(ThisExp))
 {
     //printf("ThisExp::ThisExp() loc = %d\n", loc.linnum);
-    var = NULL;
+    var = nullptr;
 }
 
 bool ThisExp::isBool(bool result)
@@ -2358,7 +2358,7 @@ StringExp *NullExp::toStringExp()
         se->type = Type::tstring;
         return se;
     }
-    return NULL;
+    return nullptr;
 }
 
 /******************************** StringExp **************************/
@@ -2527,7 +2527,7 @@ void StringExp::writeTo(void *dest, bool zero, int tyto) const
  */
 char *StringExp::toPtr()
 {
-    return (sz == 1) ? (char*)string : NULL;
+    return (sz == 1) ? (char*)string : nullptr;
 }
 
 StringExp *StringExp::toStringExp()
@@ -2627,7 +2627,7 @@ bool StringExp::isLvalue()
 
 Expression *StringExp::toLvalue(Scope *sc, Expression *e)
 {
-    //printf("StringExp::toLvalue(%s) type = %s\n", toChars(), type ? type->toChars() : NULL);
+    //printf("StringExp::toLvalue(%s) type = %s\n", toChars(), type ? type->toChars() : nullptr);
     return (type && type->toBasetype()->ty == Tsarray)
             ? this : Expression::toLvalue(sc, e);
 }
@@ -2669,7 +2669,7 @@ unsigned StringExp::charAt(uinteger_t i) const
 ArrayLiteralExp::ArrayLiteralExp(Loc loc, Type *type, Expressions *elements)
     : Expression(loc, TOKarrayliteral, sizeof(ArrayLiteralExp))
 {
-    this->basis = NULL;
+    this->basis = nullptr;
     this->type = type;
     this->elements = elements;
     this->ownedByCtfe = OWNEDcode;
@@ -2678,7 +2678,7 @@ ArrayLiteralExp::ArrayLiteralExp(Loc loc, Type *type, Expressions *elements)
 ArrayLiteralExp::ArrayLiteralExp(Loc loc, Type *type, Expression *e)
     : Expression(loc, TOKarrayliteral, sizeof(ArrayLiteralExp))
 {
-    this->basis = NULL;
+    this->basis = nullptr;
     this->type = type;
     elements = new Expressions;
     elements->push(e);
@@ -2696,7 +2696,7 @@ ArrayLiteralExp::ArrayLiteralExp(Loc loc, Type *type, Expression *basis, Express
 
 ArrayLiteralExp *ArrayLiteralExp::create(Loc loc, Expressions *elements)
 {
-    return new ArrayLiteralExp(loc, NULL, elements);
+    return new ArrayLiteralExp(loc, nullptr, elements);
 }
 
 bool ArrayLiteralExp::equals(RootObject *o)
@@ -2734,8 +2734,8 @@ bool ArrayLiteralExp::equals(RootObject *o)
 Expression *ArrayLiteralExp::syntaxCopy()
 {
     return new ArrayLiteralExp(loc,
-        NULL,
-        basis ? basis->syntaxCopy() : NULL,
+        nullptr,
+        basis ? basis->syntaxCopy() : nullptr,
         arraySyntaxCopy(elements));
 }
 
@@ -2815,7 +2815,7 @@ StringExp *ArrayLiteralExp::toStringExp()
             {
                 Expression *ch = getElement(i);
                 if (ch->op != TOKint64)
-                    return NULL;
+                    return nullptr;
                 if (sz == 1)
                     buf.writeByte((unsigned)ch->toInteger());
                 else if (sz == 2)
@@ -2835,7 +2835,7 @@ StringExp *ArrayLiteralExp::toStringExp()
         se->type = type;
         return se;
     }
-    return NULL;
+    return nullptr;
 }
 
 /************************ AssocArrayLiteralExp ************************************/
@@ -2905,11 +2905,11 @@ StructLiteralExp::StructLiteralExp(Loc loc, StructDeclaration *sd, Expressions *
     this->elements = elements;
     this->stype = stype;
     this->useStaticInit = false;
-    this->sym = NULL;
+    this->sym = nullptr;
     this->ownedByCtfe = OWNEDcode;
     this->origin = this;
     this->stageflags = 0;
-    this->inlinecopy = NULL;
+    this->inlinecopy = nullptr;
     //printf("StructLiteralExp::StructLiteralExp(%s)\n", toChars());
 }
 
@@ -2979,21 +2979,21 @@ Expression *StructLiteralExp::addDtorHook(Scope *sc)
 
 /**************************************
  * Gets expression at offset of type.
- * Returns NULL if not found.
+ * Returns nullptr if not found.
  */
 
 Expression *StructLiteralExp::getField(Type *type, unsigned offset)
 {
     //printf("StructLiteralExp::getField(this = %s, type = %s, offset = %u)\n",
     //  /*toChars()*/"", type->toChars(), offset);
-    Expression *e = NULL;
+    Expression *e = nullptr;
     int i = getFieldIndex(type, offset);
 
     if (i != -1)
     {
         //printf("\ti = %d\n", i);
         if (i == (int)sd->fields.length - 1 && sd->isNested())
-            return NULL;
+            return nullptr;
 
         assert(i < (int)elements->length);
         e = (*elements)[i];
@@ -3126,7 +3126,7 @@ ScopeExp::ScopeExp(Loc loc, ScopeDsymbol *sds)
 
 Expression *ScopeExp::syntaxCopy()
 {
-    return new ScopeExp(loc, (ScopeDsymbol *)sds->syntaxCopy(NULL));
+    return new ScopeExp(loc, (ScopeDsymbol *)sds->syntaxCopy(nullptr));
 }
 
 bool ScopeExp::checkType()
@@ -3182,7 +3182,7 @@ bool TemplateExp::checkValue()
 
 bool TemplateExp::isLvalue()
 {
-    return fd != NULL;
+    return fd != nullptr;
 }
 
 Expression *TemplateExp::toLvalue(Scope *sc, Expression *e)
@@ -3206,9 +3206,9 @@ NewExp::NewExp(Loc loc, Expression *thisexp, Expressions *newargs,
     this->newargs = newargs;
     this->newtype = newtype;
     this->arguments = arguments;
-    argprefix = NULL;
-    member = NULL;
-    allocator = NULL;
+    argprefix = nullptr;
+    member = nullptr;
+    allocator = nullptr;
     onstack = 0;
 }
 
@@ -3221,7 +3221,7 @@ NewExp *NewExp::create(Loc loc, Expression *thisexp, Expressions *newargs,
 Expression *NewExp::syntaxCopy()
 {
     return new NewExp(loc,
-        thisexp ? thisexp->syntaxCopy() : NULL,
+        thisexp ? thisexp->syntaxCopy() : nullptr,
         arraySyntaxCopy(newargs),
         newtype->syntaxCopy(), arraySyntaxCopy(arguments));
 }
@@ -3241,9 +3241,9 @@ NewAnonClassExp::NewAnonClassExp(Loc loc, Expression *thisexp,
 Expression *NewAnonClassExp::syntaxCopy()
 {
     return new NewAnonClassExp(loc,
-        thisexp ? thisexp->syntaxCopy() : NULL,
+        thisexp ? thisexp->syntaxCopy() : nullptr,
         arraySyntaxCopy(newargs),
-        (ClassDeclaration *)cd->syntaxCopy(NULL),
+        (ClassDeclaration *)cd->syntaxCopy(nullptr),
         arraySyntaxCopy(arguments));
 }
 
@@ -3346,7 +3346,7 @@ int VarExp::checkModifiable(Scope *sc, int flag)
 {
     //printf("VarExp::checkModifiable %s", toChars());
     assert(type);
-    return var->checkModify(loc, sc, type, NULL, flag);
+    return var->checkModify(loc, sc, type, nullptr, flag);
 }
 
 Expression *VarExp::modifiableLvalue(Scope *sc, Expression *e)
@@ -3396,14 +3396,14 @@ TupleExp::TupleExp(Loc loc, Expressions *exps)
         : Expression(loc, TOKtuple, sizeof(TupleExp))
 {
     //printf("TupleExp(this = %p)\n", this);
-    this->e0 = NULL;
+    this->e0 = nullptr;
     this->exps = exps;
 }
 
 TupleExp::TupleExp(Loc loc, TupleDeclaration *tup)
         : Expression(loc, TOKtuple, sizeof(TupleExp))
 {
-    this->e0 = NULL;
+    this->e0 = nullptr;
     this->exps = new Expressions();
 
     this->exps->reserve(tup->objects->length);
@@ -3461,7 +3461,7 @@ bool TupleExp::equals(RootObject *o)
 
 Expression *TupleExp::syntaxCopy()
 {
-    return new TupleExp(loc, e0 ? e0->syntaxCopy() : NULL, arraySyntaxCopy(exps));
+    return new TupleExp(loc, e0 ? e0->syntaxCopy() : nullptr, arraySyntaxCopy(exps));
 }
 
 TupleExp *TupleExp::toTupleExp()
@@ -3513,7 +3513,7 @@ void FuncExp::genIdent(Scope *sc)
         DsymbolTable *symtab;
         if (FuncDeclaration *func = sc->parent->isFuncDeclaration())
         {
-            if (func->localsymtab == NULL)
+            if (func->localsymtab == nullptr)
             {
                 // Inside template constraint, symtab is not set yet.
                 // Initialize it lazily.
@@ -3545,9 +3545,9 @@ void FuncExp::genIdent(Scope *sc)
 Expression *FuncExp::syntaxCopy()
 {
     if (td)
-        return new FuncExp(loc, td->syntaxCopy(NULL));
+        return new FuncExp(loc, td->syntaxCopy(nullptr));
     else if (fd->semanticRun == PASSinit)
-        return new FuncExp(loc, fd->syntaxCopy(NULL));
+        return new FuncExp(loc, fd->syntaxCopy(nullptr));
     else    // Bugzilla 13481: Prevent multiple semantic analysis of lambda body.
         return new FuncExp(loc, fd);
 }
@@ -3556,9 +3556,9 @@ MATCH FuncExp::matchType(Type *to, Scope *sc, FuncExp **presult, int flag)
 {
     //printf("FuncExp::matchType('%s'), to=%s\n", type ? type->toChars() : "null", to->toChars());
     if (presult)
-        *presult = NULL;
+        *presult = nullptr;
 
-    TypeFunction *tof = NULL;
+    TypeFunction *tof = nullptr;
     if (to->ty == Tdelegate)
     {
         if (tok == TOKfunction)
@@ -3634,7 +3634,7 @@ MATCH FuncExp::matchType(Type *to, Scope *sc, FuncExp **presult, int flag)
         ex = expressionSemantic(ex, td->_scope);
 
         // Reset inference target for the later re-semantic
-        fd->treq = NULL;
+        fd->treq = nullptr;
 
         if (ex->op == TOKerror)
             return MATCHnomatch;
@@ -3754,7 +3754,7 @@ DeclarationExp::DeclarationExp(Loc loc, Dsymbol *declaration)
 
 Expression *DeclarationExp::syntaxCopy()
 {
-    return new DeclarationExp(loc, declaration->syntaxCopy(NULL));
+    return new DeclarationExp(loc, declaration->syntaxCopy(nullptr));
 }
 
 bool DeclarationExp::hasCode()
@@ -3824,7 +3824,7 @@ IsExp::IsExp(Loc loc, Type *targ, Identifier *id, TOK tok,
 Expression *IsExp::syntaxCopy()
 {
     // This section is identical to that in TemplateDeclaration::syntaxCopy()
-    TemplateParameters *p = NULL;
+    TemplateParameters *p = nullptr;
     if (parameters)
     {
         p = new TemplateParameters();
@@ -3836,7 +3836,7 @@ Expression *IsExp::syntaxCopy()
         targ->syntaxCopy(),
         id,
         tok,
-        tspec ? tspec->syntaxCopy() : NULL,
+        tspec ? tspec->syntaxCopy() : nullptr,
         tok2,
         p);
 }
@@ -3849,13 +3849,13 @@ UnaExp::UnaExp(Loc loc, TOK op, int size, Expression *e1)
         : Expression(loc, op, size)
 {
     this->e1 = e1;
-    this->att1 = NULL;
+    this->att1 = nullptr;
 }
 
 Expression *UnaExp::syntaxCopy()
 {
     UnaExp *e = (UnaExp *)copy();
-    e->type = NULL;
+    e->type = nullptr;
     e->e1 = e->e1->syntaxCopy();
     return e;
 }
@@ -3898,14 +3898,14 @@ BinExp::BinExp(Loc loc, TOK op, int size, Expression *e1, Expression *e2)
     this->e1 = e1;
     this->e2 = e2;
 
-    this->att1 = NULL;
-    this->att2 = NULL;
+    this->att1 = nullptr;
+    this->att2 = nullptr;
 }
 
 Expression *BinExp::syntaxCopy()
 {
     BinExp *e = (BinExp *)copy();
-    e->type = NULL;
+    e->type = nullptr;
     e->e1 = e->e1->syntaxCopy();
     e->e2 = e->e2->syntaxCopy();
     return e;
@@ -4173,7 +4173,7 @@ AssertExp::AssertExp(Loc loc, Expression *e, Expression *msg)
 
 Expression *AssertExp::syntaxCopy()
 {
-    return new AssertExp(loc, e1->syntaxCopy(), msg ? msg->syntaxCopy() : NULL);
+    return new AssertExp(loc, e1->syntaxCopy(), msg ? msg->syntaxCopy() : nullptr);
 }
 
 /************************************************************/
@@ -4245,7 +4245,7 @@ int modifyFieldVar(Loc loc, Scope *sc, VarDeclaration *var, Expression *e1)
     Dsymbol *s = sc->func;
     while (1)
     {
-        FuncDeclaration *fd = NULL;
+        FuncDeclaration *fd = nullptr;
         if (s)
             fd = s->isFuncDeclaration();
         if (fd &&
@@ -4399,7 +4399,7 @@ bool DotTemplateInstanceExp::findTempDecl(Scope *sc)
     if (e->op == TOKdot)
         e = ((DotExp *)e)->e2;
 
-    Dsymbol *s = NULL;
+    Dsymbol *s = nullptr;
     switch (e->op)
     {
         case TOKoverloadset:    s = ((OverExp *)e)->vars;       break;
@@ -4427,7 +4427,7 @@ DotTypeExp::DotTypeExp(Loc loc, Expression *e, Dsymbol *s)
         : UnaExp(loc, TOKdottype, sizeof(DotTypeExp), e)
 {
     this->sym = s;
-    this->type = NULL;
+    this->type = nullptr;
 }
 
 /************************************************************/
@@ -4436,15 +4436,15 @@ CallExp::CallExp(Loc loc, Expression *e, Expressions *exps)
         : UnaExp(loc, TOKcall, sizeof(CallExp), e)
 {
     this->arguments = exps;
-    this->f = NULL;
+    this->f = nullptr;
     this->directcall = false;
 }
 
 CallExp::CallExp(Loc loc, Expression *e)
         : UnaExp(loc, TOKcall, sizeof(CallExp), e)
 {
-    this->arguments = NULL;
-    this->f = NULL;
+    this->arguments = nullptr;
+    this->f = nullptr;
     this->directcall = false;
 }
 
@@ -4458,7 +4458,7 @@ CallExp::CallExp(Loc loc, Expression *e, Expression *earg1)
         (*arguments)[0] = earg1;
     }
     this->arguments = arguments;
-    this->f = NULL;
+    this->f = nullptr;
     this->directcall = false;
 }
 
@@ -4471,7 +4471,7 @@ CallExp::CallExp(Loc loc, Expression *e, Expression *earg1, Expression *earg2)
     (*arguments)[1] = earg2;
 
     this->arguments = arguments;
-    this->f = NULL;
+    this->f = nullptr;
     this->directcall = false;
 }
 
@@ -4551,7 +4551,7 @@ Expression *CallExp::addDtorHook(Scope *sc)
     return this;
 }
 
-FuncDeclaration *isFuncAddress(Expression *e, bool *hasOverloads = NULL)
+FuncDeclaration *isFuncAddress(Expression *e, bool *hasOverloads = nullptr)
 {
     if (e->op == TOKaddress)
     {
@@ -4588,7 +4588,7 @@ FuncDeclaration *isFuncAddress(Expression *e, bool *hasOverloads = NULL)
             return dge->func->isFuncDeclaration();
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /************************************************************/
@@ -4633,7 +4633,7 @@ int PtrExp::checkModifiable(Scope *sc, int flag)
 {
     if (e1->op == TOKsymoff)
     {   SymOffExp *se = (SymOffExp *)e1;
-        return se->var->checkModify(loc, sc, type, NULL, flag);
+        return se->var->checkModify(loc, sc, type, nullptr, flag);
     }
     else if (e1->op == TOKaddress)
     {
@@ -4705,7 +4705,7 @@ CastExp::CastExp(Loc loc, Expression *e, Type *t)
 CastExp::CastExp(Loc loc, Expression *e, unsigned char mod)
         : UnaExp(loc, TOKcast, sizeof(CastExp), e)
 {
-    this->to = NULL;
+    this->to = nullptr;
     this->mod = mod;
 }
 
@@ -4759,9 +4759,9 @@ Expression *VectorArrayExp::toLvalue(Scope *sc, Expression *e)
 SliceExp::SliceExp(Loc loc, Expression *e1, IntervalExp *ie)
         : UnaExp(loc, TOKslice, sizeof(SliceExp), e1)
 {
-    this->upr = ie ? ie->upr : NULL;
-    this->lwr = ie ? ie->lwr : NULL;
-    lengthVar = NULL;
+    this->upr = ie ? ie->upr : nullptr;
+    this->lwr = ie ? ie->lwr : nullptr;
+    lengthVar = nullptr;
     upperIsInBounds = false;
     lowerIsLessThanUpper = false;
     arrayop = false;
@@ -4772,7 +4772,7 @@ SliceExp::SliceExp(Loc loc, Expression *e1, Expression *lwr, Expression *upr)
 {
     this->upr = upr;
     this->lwr = lwr;
-    lengthVar = NULL;
+    lengthVar = nullptr;
     upperIsInBounds = false;
     lowerIsLessThanUpper = false;
     arrayop = false;
@@ -4781,8 +4781,8 @@ SliceExp::SliceExp(Loc loc, Expression *e1, Expression *lwr, Expression *upr)
 Expression *SliceExp::syntaxCopy()
 {
     SliceExp *se = new SliceExp(loc, e1->syntaxCopy(),
-        lwr ? lwr->syntaxCopy() : NULL,
-        upr ? upr->syntaxCopy() : NULL);
+        lwr ? lwr->syntaxCopy() : nullptr,
+        upr ? upr->syntaxCopy() : nullptr);
     se->lengthVar = this->lengthVar;    // bug7871
     return se;
 }
@@ -4809,7 +4809,7 @@ bool SliceExp::isLvalue()
 
 Expression *SliceExp::toLvalue(Scope *sc, Expression *e)
 {
-    //printf("SliceExp::toLvalue(%s) type = %s\n", toChars(), type ? type->toChars() : NULL);
+    //printf("SliceExp::toLvalue(%s) type = %s\n", toChars(), type ? type->toChars() : nullptr);
     return (type && type->toBasetype()->ty == Tsarray)
             ? this : Expression::toLvalue(sc, e);
 }
@@ -4914,7 +4914,7 @@ ArrayExp::ArrayExp(Loc loc, Expression *e1, Expression *index)
     arguments = new Expressions();
     if (index)
         arguments->push(index);
-    lengthVar = NULL;
+    lengthVar = nullptr;
     currentDimension = 0;
 }
 
@@ -4922,7 +4922,7 @@ ArrayExp::ArrayExp(Loc loc, Expression *e1, Expressions *args)
         : UnaExp(loc, TOKarray, sizeof(ArrayExp), e1)
 {
     arguments = args;
-    lengthVar = NULL;
+    lengthVar = nullptr;
     currentDimension = 0;
 }
 
@@ -4970,7 +4970,7 @@ bool CommaExp::isLvalue()
 
 Expression *CommaExp::toLvalue(Scope *sc, Expression *)
 {
-    e2 = e2->toLvalue(sc, NULL);
+    e2 = e2->toLvalue(sc, nullptr);
     return this;
 }
 
@@ -5014,7 +5014,7 @@ IndexExp::IndexExp(Loc loc, Expression *e1, Expression *e2)
         : BinExp(loc, TOKindex, sizeof(IndexExp), e1, e2)
 {
     //printf("IndexExp::IndexExp('%s')\n", toChars());
-    lengthVar = NULL;
+    lengthVar = nullptr;
     modifiable = false;     // assume it is an rvalue
     indexIsInBounds = false;
 }
@@ -5444,7 +5444,7 @@ void CondExp::hookDtors(Scope *sc)
         {
             this->sc = sc;
             this->ce = ce;
-            this->vcond = NULL;
+            this->vcond = nullptr;
         }
 
         void visit(Expression *)
@@ -5508,8 +5508,8 @@ Expression *CondExp::toLvalue(Scope *sc, Expression *)
 {
     // convert (econd ? e1 : e2) to *(econd ? &e1 : &e2)
     CondExp *e = (CondExp *)copy();
-    e->e1 = e1->toLvalue(sc, NULL)->addressOf();
-    e->e2 = e2->toLvalue(sc, NULL)->addressOf();
+    e->e1 = e1->toLvalue(sc, nullptr)->addressOf();
+    e->e2 = e2->toLvalue(sc, nullptr)->addressOf();
     e->type = type->pointerTo();
     return new PtrExp(loc, e, type);
 }
@@ -5560,9 +5560,9 @@ Expression *FileInitExp::resolveLoc(Loc loc, Scope *sc)
     //printf("FileInitExp::resolve() %s\n", toChars());
     const char *s;
     if (subop == TOKfilefullpath)
-        s = FileName::toAbsolute(loc.filename != NULL ? loc.filename : sc->_module->srcfile->name->toChars());
+        s = FileName::toAbsolute(loc.filename != nullptr ? loc.filename : sc->_module->srcfile->name->toChars());
     else
-        s = loc.filename != NULL ? loc.filename : sc->_module->ident->toChars();
+        s = loc.filename != nullptr ? loc.filename : sc->_module->ident->toChars();
 
     Expression *e = new StringExp(loc, const_cast<char *>(s));
     e = expressionSemantic(e, sc);
@@ -5680,10 +5680,10 @@ Expression *BinExp::reorderSettingAAElem(Scope *sc)
      *     __aatmp[__aakey3][__aakey2][__aakey1] op= __aaval;  // assignment
      */
 
-    Expression *e0 = NULL;
+    Expression *e0 = nullptr;
     while (1)
     {
-        Expression *de = NULL;
+        Expression *de = nullptr;
         ie->e2 = extractSideEffect(sc, "__aakey", &de, ie->e2);
         e0 = Expression::combine(de, e0);
 
@@ -5697,7 +5697,7 @@ Expression *BinExp::reorderSettingAAElem(Scope *sc)
     }
     assert(ie->e1->type->toBasetype()->ty == Taarray);
 
-    Expression *de = NULL;
+    Expression *de = nullptr;
     ie->e1 = extractSideEffect(sc, "__aatmp", &de, ie->e1);
     e0 = Expression::combine(de, e0);
 

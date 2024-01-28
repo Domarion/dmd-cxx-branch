@@ -79,7 +79,7 @@ STATIC code *genrnd(code *c, short cw);
  * about the save into an array of NDP structs:
  */
 
-NDP *NDP::save = NULL;
+NDP *NDP::save = nullptr;
 int NDP::savemax = 0;           /* # of entries in NDP::save[]          */
 int NDP::savetop = 0;           /* # of entries used in NDP::save[]     */
 
@@ -171,7 +171,7 @@ STATIC int getemptyslot()
 {       int i;
 
         for (i = 0; i < NDP::savemax; i++)
-                if (NDP::save[i].e == NULL)
+                if (NDP::save[i].e == nullptr)
                         goto L1;
         /* Out of room, reallocate NDP::save[]  */
         NDP::save = (NDP *)mem_realloc(NDP::save,
@@ -240,7 +240,7 @@ code *push87(
 
         c = CNIL;
         // if we would lose the top register off of the stack
-        if (_8087elems[7].e != NULL)
+        if (_8087elems[7].e != nullptr)
         {
                 i = getemptyslot();
                 NDP::save[i] = _8087elems[7];
@@ -333,7 +333,7 @@ STATIC code * makesure87(elem *e,unsigned offset,int i,unsigned flag)
                 if (_8087elems[i].e)
                     printf("_8087elems[%d].e = %p, .offset = %d\n",i,_8087elems[i].e,_8087elems[i].offset);
 #endif
-                assert(_8087elems[i].e == NULL);
+                assert(_8087elems[i].e == nullptr);
                 int j;
                 for (j = 0; 1; j++)
                 {
@@ -364,7 +364,7 @@ STATIC code * makesure87(elem *e,unsigned offset,int i,unsigned flag)
                 }
                 NDP::save[j] = ndp_zero;                // back in 8087
         }
-        //_8087elems[i].e = NULL;
+        //_8087elems[i].e = nullptr;
         return c;
 }
 
@@ -402,7 +402,7 @@ code *save87regs(unsigned n)
 {
     unsigned j;
     unsigned k;
-    code *c = NULL;
+    code *c = nullptr;
 
     assert(n <= 7);
     j = 8 - n;
@@ -1079,7 +1079,7 @@ code *orth87(elem *e,regm_t *pretregs)
                     {   c1 = genf2(c1,0xD9,0xE4);           // FTST
                         c1 = cg87_87topsw(c1);
                     }
-                    c2 = genf2(NULL,0xDD,modregrm(3,3,0));      // FPOP
+                    c2 = genf2(nullptr,0xDD,modregrm(3,3,0));      // FPOP
                     pop87();
                 }
                 else if (NOSAHF)
@@ -1203,14 +1203,14 @@ code *orth87(elem *e,regm_t *pretregs)
             retregs = mST01;
             if (eoper == OPadd)
             {
-                c4 = genf2(NULL, 0xDE, 0xC0+2); // FADDP ST(2),ST
+                c4 = genf2(nullptr, 0xDE, 0xC0+2); // FADDP ST(2),ST
                 genf2(c4, 0xDE, 0xC0+2);        // FADDP ST(2),ST
                 pop87();
                 pop87();
             }
             else if (eoper == OPmin)
             {
-                c4 = genf2(NULL, 0xDE, 0xE8+2); // FSUBP ST(2),ST
+                c4 = genf2(nullptr, 0xDE, 0xE8+2); // FSUBP ST(2),ST
                 genf2(c4, 0xDE, 0xE8+2);        // FSUBP ST(2),ST
                 pop87();
                 pop87();
@@ -1229,11 +1229,11 @@ code *orth87(elem *e,regm_t *pretregs)
             retregs = mST01;
             if (eoper == OPadd)
             {
-                c4 = genf2(NULL, 0xDE, 0xC0+2); // FADDP ST(2),ST
+                c4 = genf2(nullptr, 0xDE, 0xC0+2); // FADDP ST(2),ST
             }
             else if (eoper == OPmin)
             {
-                c4 = genf2(NULL, 0xDE, 0xE8+2); // FSUBP ST(2),ST
+                c4 = genf2(nullptr, 0xDE, 0xE8+2); // FSUBP ST(2),ST
                 c4 = genf2(c4, 0xD9, 0xE0);     // FCHS
             }
             else
@@ -1336,8 +1336,8 @@ code *orth87(elem *e,regm_t *pretregs)
             if (elemisone(e2))
             {
                 freenode(e2);
-                c2 = NULL;
-                c3 = NULL;
+                c2 = nullptr;
+                c3 = nullptr;
                 goto Lcd4;
             }
             goto Lcm1;
@@ -1441,12 +1441,12 @@ code *orth87(elem *e,regm_t *pretregs)
             c3 = cat(c3,makesure87(e1, 0, 2, 0));
             c3 = genf2(c3, 0xD9, 0xC8 + 1);             // FXCH ST(1)
 
-            cx = gen2(NULL, 0xD9, 0xF8);                // FPREM
+            cx = gen2(nullptr, 0xD9, 0xF8);                // FPREM
             cx = genjmpifC2(cx, cx);                    // JC2 FM1
             cx = genf2(cx, 0xD9, 0xC8 + 2);             // FXCH ST(2)
             c3 = cat(c3,cx);
 
-            cx = gen2(NULL, 0xD9, 0xF8);                // FPREM
+            cx = gen2(nullptr, 0xD9, 0xF8);                // FPREM
             cx = genjmpifC2(cx, cx);                    // JC2 FM2
             cx = genf2(cx,0xDD,0xD8 + 1);               // FSTP ST(1)
             cx = genf2(cx, 0xD9, 0xC8 + 1);             // FXCH ST(1)
@@ -1528,7 +1528,7 @@ code *orth87(elem *e,regm_t *pretregs)
         if (!reverse)                           // if not reverse modulo
             c2 = genf2(c2,0xD9,0xC8 + 1);       // FXCH ST(1)
 
-        c3 = gen2(NULL, 0xD9, 0xF8);            // FM1: FPREM
+        c3 = gen2(nullptr, 0xD9, 0xF8);            // FM1: FPREM
         c3 = genjmpifC2(c3, c3);                // JC2 FM1
         c3 = genf2(c3,0xDD,0xD8 + 1);           // FSTP ST(1)
 
@@ -1617,8 +1617,8 @@ code *load87(elem *e,unsigned eoffset,regm_t *pretregs,elem *eleft,int op)
 #endif
         assert(!(NOSAHF && op == 3));
         elem_debug(e);
-        ccomma = NULL;
-        cpush = NULL;
+        ccomma = nullptr;
+        cpush = nullptr;
         if (ADDFWAIT())
             cs.Iflags = CFwait;
         else
@@ -1649,7 +1649,7 @@ code *load87(elem *e,unsigned eoffset,regm_t *pretregs,elem *eleft,int op)
                         (i = cse_get(e, 0)) >= 0)
                     {   static unsigned char b2[8] = {0xC0,0xC8,0xD0,0xD8,0xE0,0xE8,0xF0,0xF8};
 
-                        c = genf2(NULL,0xD8,b2[op] + i);        // Fop ST(i)
+                        c = genf2(nullptr,0xD8,b2[op] + i);        // Fop ST(i)
                     }
                     else
                     {
@@ -1772,7 +1772,7 @@ code *load87(elem *e,unsigned eoffset,regm_t *pretregs,elem *eleft,int op)
                 if (ldop)
                 {
                     cpush = push87();
-                    c = genf2(NULL,0xD9,ldop);          // FLDx
+                    c = genf2(nullptr,0xD9,ldop);          // FLDx
                     if (op != -1)
                     {   genf2(c,0xDE,modregrm(3,opr,1));        // FopRP
                         pop87();
@@ -1835,7 +1835,7 @@ code *load87(elem *e,unsigned eoffset,regm_t *pretregs,elem *eleft,int op)
                    We also lose CSE capability  */
                 if (e->Eoper == OPconst)
                 {
-                    c = load87(e, 0, &retregs, NULL, -1);
+                    c = load87(e, 0, &retregs, nullptr, -1);
                 }
                 else
                     c = (*cdxxx[e->Eoper])(e,&retregs);
@@ -2285,7 +2285,7 @@ code *opass87(elem *e,regm_t *pretregs)
                 cs.Irm |= modregrm(0, 5, 0);    // FLD tbyte ptr ...
             c = gen(c,&cs);                     // FLD   e->E1
 
-            c1 = gen2(NULL, 0xD9, 0xF8);        // FPREM
+            c1 = gen2(nullptr, 0xD9, 0xF8);        // FPREM
             c1 = genjmpifC2(c1, c1);            // JC2 FM1
             c1 = genf2(c1,0xDD,0xD8 + 1);       // FSTP ST(1)
             c = cat(c,c1);
@@ -2383,7 +2383,7 @@ code *opmod_complex87(elem *e,regm_t *pretregs)
 
     code *c1;
 
-    c1 = gen2(NULL, 0xD9, 0xF8);                // FPREM
+    c1 = gen2(nullptr, 0xD9, 0xF8);                // FPREM
     c1 = genjmpifC2(c1, c1);                    // JC2 FM1
     c1 = genf2(c1, 0xD9, 0xC8 + 1);             // FXCH ST(1)
     c = cat(c,c1);
@@ -2392,7 +2392,7 @@ code *opmod_complex87(elem *e,regm_t *pretregs)
     cs.IEVoffset1 += sz2;
     gen(c, &cs);                                // FLD E1.im
 
-    c1 = gen2(NULL, 0xD9, 0xF8);                // FPREM
+    c1 = gen2(nullptr, 0xD9, 0xF8);                // FPREM
     c1 = genjmpifC2(c1, c1);                    // JC2 FM2
     c1 = genf2(c1,0xDD,0xD8 + 1);               // FSTP ST(1)
     c = cat(c,c1);
@@ -2540,7 +2540,7 @@ code *opass_complex87(elem *e,regm_t *pretregs)
                 cs.Iop = iop;
                 cs.Irm = rmop;
                 cs.IEVoffset1 += sz2;
-                c = gen(NULL, &cs);             // FSUBR mreal.im
+                c = gen(nullptr, &cs);             // FSUBR mreal.im
                 if (tyimaginary(e->E2->Ety) && (e->Eoper == OPmulass || e->Eoper == OPdivass))
                 {
                     if (e->Eoper == OPmulass)
@@ -2711,7 +2711,7 @@ code *opass_complex87(elem *e,regm_t *pretregs)
         default:
             assert(0);
     }
-    return NULL;
+    return nullptr;
 }
 
 /**************************
@@ -2753,7 +2753,7 @@ code *cdnegass87(elem *e,regm_t *pretregs)
         cs.IEVoffset1 += sz - 1;
     cs.IFL2 = FLconst;
     cs.IEV2.Vuns = 0x80;
-    c = gen(NULL,&cs);                  // XOR 7[EA],0x80
+    c = gen(nullptr,&cs);                  // XOR 7[EA],0x80
     if (tycomplex(tyml))
     {
         cs.IEVoffset1 -= sz / 2;
@@ -2836,7 +2836,7 @@ code *post87(elem *e,regm_t *pretregs)
             cl = gen(cl,&cs);           // FLD e->E1
             retregs = mST0;             // note kludge to only load real part
             cr = codelem(e->E2,&retregs,FALSE); // load rvalue
-            c = genf2(NULL,0xD8,        // FADD/FSUBR ST,ST2
+            c = genf2(nullptr,0xD8,        // FADD/FSUBR ST,ST2
                 (e->Eoper == OPpostinc) ? 0xC0 + 2 : 0xE8 + 2);
             NEWREG(cs.Irm,reg);
             pop87();
@@ -2858,7 +2858,7 @@ code *post87(elem *e,regm_t *pretregs)
         cr = codelem(e->E2,&retregs,FALSE);     /* load rvalue          */
         pop87();
         op = (e->Eoper == OPpostinc) ? modregrm(3,0,1) : modregrm(3,5,1);
-        c = genf2(NULL,0xDE,op);        // FADDP/FSUBRP ST1
+        c = genf2(nullptr,0xDE,op);        // FADDP/FSUBRP ST1
         NEWREG(cs.Irm,reg);
         pop87();
         gen(c,&cs);                     /* FSTP e->E1                   */
@@ -3041,7 +3041,7 @@ code *cdd_u64(elem *e, regm_t *pretregs)
     }
     else
         assert(0);
-    return NULL;
+    return nullptr;
 }
 
 /************************
@@ -3431,7 +3431,7 @@ STATIC code *genrnd(code *c, short cw)
     if (config.flags3 & CFG3pic)
     {   code *c1;
 
-        c1 = genfltreg(NULL, 0xC7, 0, 0);       // MOV floatreg, cw
+        c1 = genfltreg(nullptr, 0xC7, 0, 0);       // MOV floatreg, cw
         c1->IFL2 = FLconst;
         c1->IEV2.Vuns = cw;
 
@@ -3699,8 +3699,8 @@ code *cdconvt87(elem *e, regm_t *pretregs)
 code *cload87(elem *e, regm_t *pretregs)
 {
     tym_t ty = tybasic(e->Ety);
-    code *c = NULL;
-    code *cpush = NULL;
+    code *c = nullptr;
+    code *cpush = nullptr;
     code cs;
     unsigned mf;
     unsigned sz;
@@ -3778,5 +3778,5 @@ code *cload87(elem *e, regm_t *pretregs)
 #endif
             assert(0);
     }
-    return cat4(cpush,c,fixresult_complex87(e, retregs, pretregs), NULL);
+    return cat4(cpush,c,fixresult_complex87(e, retregs, pretregs), nullptr);
 }

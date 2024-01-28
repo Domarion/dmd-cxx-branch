@@ -72,14 +72,14 @@ public:
     TemplateDeclaration *overroot;      // first in overnext list
     FuncDeclaration *funcroot;          // first function in unified overload list
 
-    Dsymbol *onemember;         // if !=NULL then one member of this template
+    Dsymbol *onemember;         // if !=nullptr then one member of this template
 
     bool literal;               // this template declaration is a literal
     bool ismixin;               // template declaration is only to be used as a mixin
     bool isstatic;              // this is static template declaration
     bool isTrivialAliasSeq;     // matches `template AliasSeq(T...) { alias AliasSeq = T; }
     bool isTrivialAlias;        // matches `template Alias(T) { alias Alias = T; }
-    Prot protection;
+    Visibility protection;
     int inuse;                  // for recursive expansion detection
 
     TemplatePrevious *previous;         // threaded list of previous instantiation attempts on stack
@@ -92,7 +92,7 @@ public:
     const char *kind() const;
     const char *toChars();
 
-    Prot prot();
+    Visibility prot();
 
     bool evaluateConstraint(TemplateInstance *ti, Scope *sc, Scope *paramscope, Objects *dedtypes, FuncDeclaration *fd);
 
@@ -115,10 +115,10 @@ public:
 };
 
 /* For type-parameter:
- *  template Foo(ident)             // specType is set to NULL
+ *  template Foo(ident)             // specType is set to nullptr
  *  template Foo(ident : specType)
  * For value-parameter:
- *  template Foo(valType ident)     // specValue is set to NULL
+ *  template Foo(valType ident)     // specValue is set to nullptr
  *  template Foo(valType ident : specValue)
  * For alias-parameter:
  *  template Foo(alias ident)
@@ -174,7 +174,7 @@ class TemplateTypeParameter : public TemplateParameter
 {
     using TemplateParameter::matchArg;
 public:
-    Type *specType;     // type parameter: if !=NULL, this is the type specialization
+    Type *specType;     // type parameter: if !=nullptr, this is the type specialization
     Type *defaultType;
 
     static Type *tdummy;
@@ -302,7 +302,7 @@ public:
 
     Dsymbol *tempdecl;                  // referenced by foo.bar.abc
     Dsymbol *enclosing;                 // if referencing local symbols, this is the context
-    Dsymbol *aliasdecl;                 // !=NULL if instance is an alias for its sole member
+    Dsymbol *aliasdecl;                 // !=nullptr if instance is an alias for its sole member
     TemplateInstance *inst;             // refer to existing instance
     ScopeDsymbol *argsym;               // argument symbol table
     int inuse;                          // for recursive expansion detection

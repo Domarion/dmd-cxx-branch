@@ -33,7 +33,7 @@ public:
      */
     Type *type;                 // the TypeEnum
     Type *memtype;              // type of the members
-    Prot protection;
+    Visibility protection;
 
     Expression *maxval;
     Expression *minval;
@@ -52,7 +52,7 @@ public:
     const char *kind() const;
     Dsymbol *search(const Loc &loc, Identifier *ident, int flags = SearchLocalsOnly);
     bool isDeprecated();                // is Dsymbol deprecated?
-    Prot prot();
+    Visibility prot();
     Expression *getMaxMinValue(Loc loc, Identifier *id);
     bool isSpecial() const;
     Expression *getDefaultValue(Loc loc);

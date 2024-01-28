@@ -20,48 +20,44 @@ char *Mem::xstrdup(const char *s)
 
     if (s)
     {
-#ifdef IN_GCC
-        p = ::xstrdup(s);
-#else
         p = strdup(s);
-#endif
         if (p)
             return p;
         error();
     }
-    return NULL;
+    return nullptr;
 }
 
 void *Mem::xmalloc(size_t size)
-{   void *p;
+{
+    void *p;
 
     if (!size)
-        p = NULL;
+    {
+        p = nullptr;
+    }
     else
     {
-#ifdef IN_GCC
-        p = ::xmalloc(size);
-#else
         p = malloc(size);
-#endif
         if (!p)
+        {
             error();
+        }
     }
     return p;
 }
 
 void *Mem::xcalloc(size_t size, size_t n)
-{   void *p;
+{
+    void *p;
 
     if (!size || !n)
-        p = NULL;
+    {
+        p = nullptr;
+    }
     else
     {
-#ifdef IN_GCC
-        p = ::xcalloc(size, n);
-#else
         p = calloc(size, n);
-#endif
         if (!p)
             error();
     }
@@ -74,27 +70,19 @@ void *Mem::xrealloc(void *p, size_t size)
     {   if (p)
         {
             free(p);
-            p = NULL;
+            p = nullptr;
         }
     }
     else if (!p)
     {
-#ifdef IN_GCC
-        p = ::xmalloc(size);
-#else
         p = malloc(size);
-#endif
         if (!p)
             error();
     }
     else
     {
         void *psave = p;
-#ifdef IN_GCC
-        p = ::xrealloc(psave, size);
-#else
         p = realloc(psave, size);
-#endif
         if (!p)
         {   xfree(psave);
             error();
@@ -113,14 +101,10 @@ void *Mem::xmallocdup(void *o, size_t size)
 {   void *p;
 
     if (!size)
-        p = NULL;
+        p = nullptr;
     else
     {
-#ifdef IN_GCC
-        p = ::xmalloc(size);
-#else
         p = malloc(size);
-#endif
         if (!p)
             error();
         else
@@ -140,10 +124,6 @@ void Mem::error()
 /* Allocate, but never release
  */
 
-// Allocate a little less than 1Mb because the C runtime adds some overhead that
-// causes the actual memory block to be larger than 1Mb otherwise.
-#define CHUNK_SIZE (256 * 4096 - 64)
-
 static size_t heapleft = 0;
 static void *heapp;
 
@@ -162,13 +142,14 @@ extern "C" void *allocmemory(size_t m_size)
         return p;
     }
 
+    // Allocate a little less than 1Mb because the C runtime adds some overhead that
+    // causes the actual memory block to be larger than 1Mb otherwise.
+    #define CHUNK_SIZE (256 * 4096 - 64)
+
     if (m_size > CHUNK_SIZE)
     {
-#ifdef IN_GCC
-        void *p = xmalloc(m_size);
-#else
         void *p = malloc(m_size);
-#endif
+
         if (p)
             return p;
         printf("Error: out of memory\n");
@@ -177,11 +158,9 @@ extern "C" void *allocmemory(size_t m_size)
     }
 
     heapleft = CHUNK_SIZE;
-#ifdef IN_GCC
-    heapp = xmalloc(CHUNK_SIZE);
-#else
+
     heapp = malloc(CHUNK_SIZE);
-#endif
+
     if (!heapp)
     {
         printf("Error: out of memory\n");

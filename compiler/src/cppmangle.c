@@ -39,7 +39,7 @@
 #include "target.h"
 
 typedef int (*ForeachDg)(void *ctx, size_t paramidx, Parameter *param);
-int Parameter_foreach(Parameters *parameters, ForeachDg dg, void *ctx, size_t *pn = NULL);
+int Parameter_foreach(Parameters *parameters, ForeachDg dg, void *ctx, size_t *pn = nullptr);
 
 class CppMangleVisitor : public Visitor
 {
@@ -62,7 +62,7 @@ class CppMangleVisitor : public Visitor
 
     bool substitute(RootObject *p)
     {
-        //printf("substitute %s\n", p ? p->toChars() : NULL);
+        //printf("substitute %s\n", p ? p->toChars() : nullptr);
         int i = find(p);
         if (i >= 0)
         {
@@ -87,7 +87,7 @@ class CppMangleVisitor : public Visitor
      */
     int find(RootObject *p)
     {
-        //printf("find %p %d %s\n", p, p.dyncast(), p ? p.toChars() : NULL);
+        //printf("find %p %d %s\n", p, p.dyncast(), p ? p.toChars() : nullptr);
         for (size_t i = 0; i < components.length; i++)
         {
             if (p == components[i])
@@ -322,12 +322,12 @@ class CppMangleVisitor : public Visitor
      * Params:
      *  s = symbol that may have a qualifier
      * Returns:
-     *  qualifier, NULL if none
+     *  qualifier, nullptr if none
      */
     static Dsymbol *getQualifier(Dsymbol *s)
     {
         Dsymbol *p = s->toParent3();
-        return (p && !p->isModule()) ? p : NULL;
+        return (p && !p->isModule()) ? p : nullptr;
     }
 
     // Detect type char
@@ -355,7 +355,7 @@ class CppMangleVisitor : public Visitor
         Type *t = isType(o);
         if (!t || t->ty != Tstruct)
             return false;
-        Dsymbol *s = ((TypeStruct*)t)->toDsymbol(NULL);
+        Dsymbol *s = ((TypeStruct*)t)->toDsymbol(nullptr);
         if (s->ident != ident)
             return false;
         Dsymbol *p = s->toParent3();
@@ -1062,7 +1062,7 @@ public:
         }
         else
         {
-            Dsymbol *s = t->toDsymbol(NULL);
+            Dsymbol *s = t->toDsymbol(nullptr);
             Dsymbol *p = s->toParent3();
             if (p && p->isTemplateInstance())
             {
@@ -1109,7 +1109,7 @@ public:
         CV_qualifiers(t);
 
         {
-            Dsymbol *s = t->toDsymbol(NULL);
+            Dsymbol *s = t->toDsymbol(nullptr);
             Dsymbol *p = s->toParent3();
             if (p && p->isTemplateInstance())
             {
@@ -1126,7 +1126,7 @@ public:
             cpp_mangle_name(t->sym, t->isConst());
         }
         if (t->isConst())
-            append(NULL);  // C++ would have an extra type here
+            append(nullptr);  // C++ would have an extra type here
         append(t);
     }
 

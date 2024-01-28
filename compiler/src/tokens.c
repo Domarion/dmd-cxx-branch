@@ -19,7 +19,7 @@
 
 /************************* Token **********************************************/
 
-Token *Token::freelist = NULL;
+Token *Token::freelist = nullptr;
 
 const char *Token::tochars[TOKMAX];
 
@@ -29,7 +29,7 @@ Token *Token::alloc()
     {
         Token *t = freelist;
         freelist = t->next;
-        t->next = NULL;
+        t->next = nullptr;
         return t;
     }
 
@@ -328,7 +328,7 @@ static Keyword keywords[] =
     {   "__PRETTY_FUNCTION__", TOKprettyfunc   },
     {   "shared",       TOKshared       },
     {   "immutable",    TOKimmutable    },
-    {   NULL,           TOKreserved     }
+    {   nullptr,           TOKreserved     }
 };
 
 int Token::isKeyword()

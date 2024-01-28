@@ -69,10 +69,10 @@ public:
     Parser(Module *module, const utf8_t *base, size_t length, bool doDocComment);
 
     Dsymbols *parseModule();
-    Dsymbols *parseDeclDefs(int once, Dsymbol **pLastDecl = NULL, PrefixAttributes *pAttrs = NULL);
+    Dsymbols *parseDeclDefs(int once, Dsymbol **pLastDecl = nullptr, PrefixAttributes *pAttrs = nullptr);
     Dsymbols *parseAutoDeclarations(StorageClass storageClass, const utf8_t *comment);
-    Dsymbols *parseBlock(Dsymbol **pLastDecl, PrefixAttributes *pAttrs = NULL);
-    StorageClass appendStorageClass(StorageClass storageClass, StorageClass stc, bool deprec = false);
+    Dsymbols *parseBlock(Dsymbol **pLastDecl, PrefixAttributes *pAttrs = nullptr);
+    StorageClass appendStorageClass(StorageClass storageClass, StorageClass stc);
     StorageClass parseAttribute(Expressions **pexps);
     StorageClass parsePostfix(StorageClass storageClass, Expressions **pudas);
     StorageClass parseTypeCtor();
@@ -101,17 +101,17 @@ public:
     Dsymbol *parseInvariant(PrefixAttributes *pAttrs);
     Dsymbol *parseUnitTest(PrefixAttributes *pAttrs);
     Dsymbol *parseNew(PrefixAttributes *pAttrs);
-    Parameters *parseParameters(VarArg *pvarargs, TemplateParameters **tpl = NULL);
+    Parameters *parseParameters(VarArg *pvarargs, TemplateParameters **tpl = nullptr);
     EnumDeclaration *parseEnum();
     Dsymbol *parseAggregate();
     BaseClasses *parseBaseClasses();
     Dsymbols *parseImport();
-    Type *parseType(Identifier **pident = NULL, TemplateParameters **ptpl = NULL);
+    Type *parseType(Identifier **pident = nullptr, TemplateParameters **ptpl = nullptr);
     Type *parseBasicType(bool dontLookDotIdents = false);
     Type *parseBasicTypeStartingAt(TypeQualified *tid, bool dontLookDotIdents);
     Type *parseBasicType2(Type *t);
     Type *parseDeclarator(Type *t, int *alt, Identifier **pident,
-        TemplateParameters **tpl = NULL, StorageClass storage_class = 0, int *pdisable = NULL, Expressions **pudas = NULL);
+        TemplateParameters **tpl = nullptr, StorageClass storage_class = 0, int *pdisable = nullptr, Expressions **pudas = nullptr);
     void parseStorageClasses(StorageClass &storage_class, LINK &link, bool &setAlignment, Expression *&ealign, Expressions *&udas);
     Dsymbols *parseDeclarations(bool autodecl, PrefixAttributes *pAttrs, const utf8_t *comment);
     Dsymbol *parseFunctionLiteral();
@@ -122,7 +122,7 @@ public:
     Dsymbol *parseForeachStaticDecl(Loc loc, Dsymbol **pLastDecl);
     Statement *parseForeachStatic(Loc loc);
     /** endPtr used for documented unittests */
-    Statement *parseStatement(int flags, const utf8_t** endPtr = NULL, Loc *pEndloc = NULL);
+    Statement *parseStatement(int flags, const utf8_t** endPtr = nullptr, Loc *pEndloc = nullptr);
     Initializer *parseInitializer();
     Expression *parseDefaultInitExp();
     void check(Loc loc, TOK value);

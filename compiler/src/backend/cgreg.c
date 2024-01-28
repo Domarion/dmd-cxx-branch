@@ -121,20 +121,20 @@ void cgreg_term()
             Symbol *s = globsym.tab[i];
             vec_free(s->Srange);
             vec_free(s->Slvreg);
-            s->Srange = NULL;
-            s->Slvreg = NULL;
+            s->Srange = nullptr;
+            s->Slvreg = nullptr;
         }
 
         for (size_t i = 0; i < arraysize(regrange); i++)
         {
             if (regrange[i])
             {   vec_free(regrange[i]);
-                regrange[i] = NULL;
+                regrange[i] = nullptr;
             }
         }
 
         free(weights);
-        weights = NULL;
+        weights = nullptr;
     }
 }
 
@@ -803,7 +803,7 @@ int cgreg_assign(Symbol *retsym)
     // Find symbol t, which is the most 'deserving' symbol that should be
     // placed into a register.
     Reg t;
-    t.sym = NULL;
+    t.sym = nullptr;
     t.benefit = 0;
     for (size_t si = 0; si < globsym.top; si++)
     {   symbol *s = globsym.tab[si];
@@ -842,7 +842,7 @@ int cgreg_assign(Symbol *retsym)
 
         // Select sequence of registers to try to map s onto
         char *pseq;                     // sequence to try for LSW
-        char *pseqmsw = NULL;           // sequence to try for MSW, NULL if none
+        char *pseqmsw = nullptr;           // sequence to try for MSW, nullptr if none
         cgreg_set_priorities(ty, &pseq, &pseqmsw);
 
         u.benefit = 0;

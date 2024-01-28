@@ -74,7 +74,7 @@ code *cdisscaledindex(elem *e,regm_t *pidxregs,regm_t keepmsk)
     regm_t r;
 
     // Load index register with result of e->E1
-    c = NULL;
+    c = nullptr;
     while (e->Eoper == OPcomma)
     {
         r = 0;
@@ -255,12 +255,12 @@ void genEEcode()
     regcon.immed.mval = 0;
     retregs = 0;    //regmask(eecontext.EEelem->Ety);
     assert(EEStack.offset >= REGSIZE);
-    c = cod3_stackadj(NULL, EEStack.offset - REGSIZE);
+    c = cod3_stackadj(nullptr, EEStack.offset - REGSIZE);
     gen1(c,0x50 + SI);                      // PUSH ESI
     genadjesp(c,EEStack.offset);
     c = gencodelem(c,eecontext.EEelem,&retregs, FALSE);
     assignaddrc(c);
-    pinholeopt(c,NULL);
+    pinholeopt(c,nullptr);
     jmpaddr(c);
     eecontext.EEcode = gen1(c,0xCC);        // INT 3
     eecontext.EEin--;
@@ -303,7 +303,7 @@ unsigned gensaverestore2(regm_t regm,code **csave,code **crestore)
             {
                 stackused += REGSIZE;
                 cs1 = gen1(cs1,0x50 + (i & 7));         // PUSH i
-                code *c = gen1(NULL, 0x58 + (i & 7));   // POP  i
+                code *c = gen1(nullptr, 0x58 + (i & 7));   // POP  i
                 if (i & 8)
                 {   code_orrex(cs1, REX_B);
                     code_orrex(c, REX_B);
@@ -320,8 +320,8 @@ unsigned gensaverestore2(regm_t regm,code **csave,code **crestore)
 
 unsigned gensaverestore(regm_t regm,code **csave,code **crestore)
 {
-    *csave = NULL;
-    *crestore = NULL;
+    *csave = nullptr;
+    *crestore = nullptr;
     return gensaverestore2(regm, csave, crestore);
 }
 
@@ -452,7 +452,7 @@ code *logexp(elem *e,int jcond,unsigned fltarg,code *targ)
                 andregcon(&regconsave);
                 freenode(e->E2);
                 freenode(e);
-                c = cat6(cc,c,NULL,ce,cnop2,cnop);
+                c = cat6(cc,c,nullptr,ce,cnop2,cnop);
                 goto Lret;
             }
         }
@@ -620,7 +620,7 @@ L2:
             cs->Iop = NOP;
   }
 
-  return cat4(c,cg,cd,gen(NULL,cs));
+  return cat4(c,cg,cd,gen(nullptr,cs));
 }
 
 /**************************
@@ -2277,7 +2277,7 @@ code *callclib(elem *e,unsigned clib,regm_t *pretregs,regm_t keepmask)
   }
   else
   {
-        code *cgot = NULL;
+        code *cgot = nullptr;
         if (config.exe & (EX_LINUX))
         {
             // Note: not for OSX
@@ -2425,7 +2425,7 @@ int FuncParamRegs::alloc(type *t, tym_t ty, reg_t *preg1, reg_t *preg2)
     *preg1 = NOREG;
     *preg2 = NOREG;
 
-    type *t2 = NULL;
+    type *t2 = nullptr;
     tym_t ty2 = TYMAX;
 
     // If struct just wraps another type
@@ -2544,7 +2544,7 @@ code *cdfunc(elem *e,regm_t *pretregs)
         assert(n == np);
     }
 
-    symbol *sf = NULL;                  // symbol of the function being called
+    symbol *sf = nullptr;                  // symbol of the function being called
     if (e->E1->Eoper == OPvar)
         sf = e->E1->EV.sp.Vsym;
 
@@ -2658,7 +2658,7 @@ code *cdfunc(elem *e,regm_t *pretregs)
 
     int regsaved[XMM7 + 1];
     memset(regsaved, -1, sizeof(regsaved));
-    code *crest = NULL;
+    code *crest = nullptr;
     regm_t saved = 0;
     targ_size_t funcargtossave = cgstate.funcargtos;
     targ_size_t funcargtos = numpara;
@@ -2679,7 +2679,7 @@ code *cdfunc(elem *e,regm_t *pretregs)
              * in the process. If they interfere with keepmsk, we'll have
              * to save/restore them.
              */
-            code *csave = NULL;
+            code *csave = nullptr;
             regm_t overlap = msavereg & keepmsk;
             msavereg |= keepmsk;
             code *cp;
@@ -2705,7 +2705,7 @@ code *cdfunc(elem *e,regm_t *pretregs)
                 }
             }
 
-            c = cat4(c, csave, cp, NULL);
+            c = cat4(c, csave, cp, nullptr);
 
             // Alignment for parameter comes after it got pushed
             unsigned numalign = parameters[i].numalign;
@@ -2745,7 +2745,7 @@ code *cdfunc(elem *e,regm_t *pretregs)
                 }
                 retregs = mask[mreg] | mask[lreg];
 
-                code *csave = NULL;
+                code *csave = nullptr;
                 if (keepmsk & retregs)
                 {
                     regm_t tosave = keepmsk & retregs;
@@ -2839,7 +2839,7 @@ code *cdfunc(elem *e,regm_t *pretregs)
     }
 
     // Restore any register parameters we saved
-    c = cat4(c, getregs(saved), crest, NULL);
+    c = cat4(c, getregs(saved), crest, nullptr);
     keepmsk |= saved;
 
     // Variadic functions store the number of XMM registers used in AL
@@ -2915,7 +2915,7 @@ STATIC code * funccall(elem *e,unsigned numpara,unsigned numalign,
     e1 = e->E1;
     tym1 = tybasic(e1->Ety);
     farfunc = tyfarfunc(tym1) || tym1 == TYifunc;
-    c = NULL;
+    c = nullptr;
     if (e1->Eoper == OPvar)
     {   /* Call function directly       */
         code *c1;
@@ -2925,7 +2925,7 @@ STATIC code * funccall(elem *e,unsigned numpara,unsigned numalign,
         assert(tyfunc(tym1));
         s = e1->EV.sp.Vsym;
         if (s->Sflags & SFLexit)
-            c = NULL;
+            c = nullptr;
         else if (s != tls_get_addr_sym)
             c = save87();               // assume 8087 regs are all trashed
 
@@ -2936,7 +2936,7 @@ STATIC code * funccall(elem *e,unsigned numpara,unsigned numalign,
         if (s->Sflags & SFLexit)
             // Function doesn't return, so don't worry about registers
             // it may use
-            c1 = NULL;
+            c1 = nullptr;
         else if (!tyfunc(s->ty()) || !(config.flags4 & CFG4optimized))
             // so we can replace func at runtime
             c1 = getregs(~fregsaved & (mBP | ALLREGS | mES | XMMREGS));
@@ -3079,7 +3079,7 @@ STATIC code * funccall(elem *e,unsigned numpara,unsigned numalign,
             cgstate.stackclean--;
             freenode(e11);
         }
-        s = NULL;
+        s = nullptr;
   }
   c = cat(c,ce);
   freenode(e1);
@@ -3180,7 +3180,7 @@ static code *movParams(elem *e,unsigned stackalign, unsigned funcargtos)
 {
     //printf("movParams(e = %p, stackalign = %d, funcargtos = %d)\n", e, stackalign, funcargtos);
     //printf("movParams()\n"); elem_print(e);
-    code *cp = NULL;
+    code *cp = nullptr;
     assert(e && e->Eoper != OPparam);
 
     tym_t tym = tybasic(e->Ety);
@@ -3340,7 +3340,7 @@ static code *movParams(elem *e,unsigned stackalign, unsigned funcargtos)
                 default:
                     assert(0);
             }
-            code *c2 = NULL;
+            code *c2 = nullptr;
             if (tycomplex(tym))
             {
                 // FSTP sz/2[ESP]
@@ -3393,7 +3393,7 @@ code *pushParams(elem *e,unsigned stackalign)
 
   //printf("params(e = %p, stackalign = %d)\n", e, stackalign);
   //printf("params()\n"); elem_print(e);
-  cp = NULL;
+  cp = nullptr;
   stackchanged = 1;
   assert(e && e->Eoper != OPparam);
 
@@ -3709,7 +3709,7 @@ code *pushParams(elem *e,unsigned stackalign)
             assert(sz == 12);
             value = ((unsigned short *)&e->EV.Vldouble)[4];
             stackpush += sz;
-            ce = genadjesp(NULL,sz);
+            ce = genadjesp(nullptr,sz);
             for (int i = 2; i >= 0; i--)
             {
                 if (reghasvalue(allregs, value, &reg))
@@ -3733,7 +3733,7 @@ code *pushParams(elem *e,unsigned stackalign)
             break;
 
         stackpush += sz;
-        ce = genadjesp(NULL,sz);
+        ce = genadjesp(nullptr,sz);
         targ_uns *pi = (targ_uns *) &e->EV.Vdouble;
         targ_ushort *ps = (targ_ushort *) pi;
         targ_ullong *pl = (targ_ullong *)pi;
@@ -3842,8 +3842,8 @@ code *pushParams(elem *e,unsigned stackalign)
                     assert(0);
             }
             {
-                c1 = NULL;
-                c2 = NULL;
+                c1 = nullptr;
+                c2 = nullptr;
                 if (tycomplex(tym))
                 {
                     // FSTP sz/2[ESP]
@@ -3943,7 +3943,7 @@ code *loaddata(elem *e,regm_t *pretregs)
   {     objmod->fltused();
         if (config.inline8087)
         {   if (*pretregs & mST0)
-                return load87(e,0,pretregs,NULL,-1);
+                return load87(e,0,pretregs,nullptr,-1);
             else if (tycomplex(tym))
                 return cload87(e, pretregs);
         }
@@ -4040,7 +4040,7 @@ code *loaddata(elem *e,regm_t *pretregs)
             }
         }
         else if (sz == tysize[TYldouble])               // TYldouble
-            return load87(e,0,pretregs,NULL,-1);
+            return load87(e,0,pretregs,nullptr,-1);
         else
         {
             elem_print(e);

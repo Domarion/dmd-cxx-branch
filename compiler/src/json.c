@@ -37,7 +37,7 @@ public:
     const char *filename;
 
     ToJsonVisitor(OutBuffer *buf)
-        : buf(buf), indentLevel(0), filename(NULL)
+        : buf(buf), indentLevel(0), filename(nullptr)
     {
     }
 
@@ -233,7 +233,7 @@ public:
 
     void property(const char *name, const char *s)
     {
-        if (s == NULL) return;
+        if (s == nullptr) return;
 
         propertyStart(name);
         value(s);
@@ -388,7 +388,7 @@ public:
 
     void property(const char *name, Parameters *parameters)
     {
-        if (parameters == NULL || parameters->length == 0)
+        if (parameters == nullptr || parameters->length == 0)
             return;
 
         propertyStart(name);
@@ -432,7 +432,7 @@ public:
             property("kind", s->kind());
         }
 
-        if (s->prot().kind != Prot::public_)   // TODO: How about package(names)?
+        if (s->prot().kind != Visibility::public_)   // TODO: How about package(names)?
             property("protection", protectionToChars(s->prot().kind));
 
         if (EnumMember *em = s->isEnumMember())
@@ -540,7 +540,7 @@ public:
         property("kind", s->kind());
         property("comment", (const char *)s->comment);
         property("line", "char", &s->loc);
-        if (s->prot().kind != Prot::public_)
+        if (s->prot().kind != Visibility::public_)
             property("protection", protectionToChars(s->prot().kind));
         if (s->aliasId)
             property("alias", s->aliasId->toChars());
@@ -590,7 +590,7 @@ public:
 
     void visit(AttribDeclaration *d)
     {
-        Dsymbols *ds = d->include(NULL);
+        Dsymbols *ds = d->include(nullptr);
 
         if (ds)
         {

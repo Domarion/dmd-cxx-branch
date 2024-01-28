@@ -60,7 +60,7 @@ private:
        stack address of that variable, so that we can restore it
        when we leave the stack frame.
        Note that when a function is forward referenced, the interpreter must
-       run semantic3, and that may start CTFE again with a NULL istate. Thus
+       run semantic3, and that may start CTFE again with a nullptr istate. Thus
        the stack might not be empty when CTFE begins.
 
        Ctfe Stack addresses are just 0-based integers, but we save
@@ -80,13 +80,13 @@ private:
 
     size_t framepointer;      // current frame pointer
     size_t maxStackPointer;   // most stack we've ever used
-    Expression *localThis;    // value of 'this', or NULL if none
+    Expression *localThis;    // value of 'this', or nullptr if none
 public:
     CtfeStack();
 
     size_t stackPointer();
 
-    // The current value of 'this', or NULL if none
+    // The current value of 'this', or nullptr if none
     Expression *getThis();
 
     // Largest number of stack positions we've used
@@ -107,10 +107,10 @@ struct InterState
 {
     InterState *caller;         // calling function's InterState
     FuncDeclaration *fd;        // function being interpreted
-    Statement *start;           // if !=NULL, start execution at this statement
+    Statement *start;           // if !=nullptr, start execution at this statement
     /* target of CTFEExp result; also
      * target of labelled CTFEExp or
-     * CTFEExp. (NULL if no label).
+     * CTFEExp. (nullptr if no label).
      */
     Statement *gotoTarget;
 
@@ -192,13 +192,13 @@ void CtfeStack::push(VarDeclaration *v)
         v->ctfeAdrOnStack >= (int)framepointer)
     {
         // Already exists in this frame, reuse it.
-        values[v->ctfeAdrOnStack] = NULL;
+        values[v->ctfeAdrOnStack] = nullptr;
         return;
     }
     savedId.push((void *)(size_t)(v->ctfeAdrOnStack));
     v->ctfeAdrOnStack = (int)values.length;
     vars.push(v);
-    values.push(NULL);
+    values.push(nullptr);
 }
 
 void CtfeStack::pop(VarDeclaration *v)
@@ -283,7 +283,7 @@ static Expression *scrubCacheValue(Expression *e);
  */
 struct CompiledCtfeFunction
 {
-    FuncDeclaration *func; // Function being compiled, NULL if global scope
+    FuncDeclaration *func; // Function being compiled, nullptr if global scope
     int numVars;           // Number of variables declared in this function
     Loc callingloc;
 
@@ -344,7 +344,7 @@ struct CompiledCtfeFunction
                     {
                         RootObject *o = td->objects->tdata()[i];
                         Expression *ex = isExpression(o);
-                        DsymbolExp *s = (ex && ex->op == TOKdsymbol) ? (DsymbolExp *)ex : NULL;
+                        DsymbolExp *s = (ex && ex->op == TOKdsymbol) ? (DsymbolExp *)ex : nullptr;
                         assert(s);
                         VarDeclaration *v2 = s->s->isVarDeclaration();
                         assert(v2);
@@ -672,11 +672,11 @@ Expression *ctfeInterpret(Expression *e)
     // This code is outside a function, but still needs to be compiled
     // (there are compiler-generated temporary variables such as __dollar).
     // However, this will only be run once and can then be discarded.
-    CompiledCtfeFunction ctfeCodeGlobal(NULL);
+    CompiledCtfeFunction ctfeCodeGlobal(nullptr);
     ctfeCodeGlobal.callingloc = e->loc;
     ctfeCodeGlobal.onExpression(e);
 
-    Expression *result = interpret(e, NULL);
+    Expression *result = interpret(e, nullptr);
     if (!CTFEExp::isCantExp(result))
         result = scrubReturnValue(e->loc, result);
     if (CTFEExp::isCantExp(result))
@@ -706,7 +706,7 @@ Expression *ctfeInterpretForPragmaMsg(Expression *e)
     // allowed to contain a TypeExp in this case.
 
     TupleExp *tup = (TupleExp *)e;
-    Expressions *expsx = NULL;
+    Expressions *expsx = nullptr;
     for (size_t i = 0; i < tup->exps->length; ++i)
     {
         Expression *g = (*tup->exps)[i];
@@ -739,9 +739,9 @@ Expression *ctfeInterpretForPragmaMsg(Expression *e)
  * Input:
  *      pue        storage for result
  *      fd         function being called
- *      istate     state for calling function (NULL if none)
+ *      istate     state for calling function (nullptr if none)
  *      arguments  function arguments
- *      thisarg    'this', if a needThis() function, NULL if not.
+ *      thisarg    'this', if a needThis() function, nullptr if not.
  *
  * Return result expression if successful, TOKcantexp if not,
  * or CTFEExp if function returned void.
@@ -917,7 +917,7 @@ static Expression *interpretFunction(UnionExp *pue, FuncDeclaration *fd, InterSt
     if (CtfeStatus::callDepth > CtfeStatus::maxCallDepth)
         CtfeStatus::maxCallDepth = CtfeStatus::callDepth;
 
-    Expression *e = NULL;
+    Expression *e = nullptr;
     while (1)
     {
         if (CtfeStatus::callDepth > CTFE_RECURSION_LIMIT)
@@ -945,7 +945,7 @@ static Expression *interpretFunction(UnionExp *pue, FuncDeclaration *fd, InterSt
         if (CTFEExp::isGotoExp(e))
         {
             istatex.start = istatex.gotoTarget; // set starting statement
-            istatex.gotoTarget = NULL;
+            istatex.gotoTarget = nullptr;
         }
         else
         {
@@ -958,7 +958,7 @@ static Expression *interpretFunction(UnionExp *pue, FuncDeclaration *fd, InterSt
         e = CTFEExp::voidexp;
     if (tf->isref && e->op == TOKvar && ((VarExp *)e)->var == fd->vthis)
         e = thisarg;
-    assert(e != NULL);
+    assert(e != nullptr);
 
     // Leave the function
     --CtfeStatus::callDepth;
@@ -989,7 +989,7 @@ public:
     Interpreter(UnionExp *pue, InterState *istate, CtfeGoal goal)
         : istate(istate), goal(goal), pue(pue)
     {
-        result = NULL;
+        result = nullptr;
     }
 
     // If e is TOKthrowexception or TOKcantexp,
@@ -1026,7 +1026,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         s->error("statement %s cannot be interpreted at compile time", s->toChars());
@@ -1039,7 +1039,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         Expression *e = interpret(pue, s->exp, istate, ctfeNeedNothing);
@@ -1050,7 +1050,7 @@ public:
     void visit(CompoundStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
 
         const size_t dim = s->statements ? s->statements->length : 0;
         for (size_t i = 0; i < dim; i++)
@@ -1065,7 +1065,7 @@ public:
     void visit(UnrolledLoopStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
 
         const size_t dim = s->statements ? s->statements->length : 0;
         for (size_t i = 0; i < dim; i++)
@@ -1073,7 +1073,7 @@ public:
             Statement *sx = (*s->statements)[i];
             Expression *e = interpret(pue, sx, istate);
             if (!e)                 // suceeds to interpret, or goto target
-                continue;           // was not fonnd when istate->start != NULL
+                continue;           // was not fonnd when istate->start != nullptr
             if (exceptionOrCant(e))
                 return;
             if (e->op == TOKbreak)
@@ -1083,8 +1083,8 @@ public:
                     result = e;     // break at a higher level
                     return;
                 }
-                istate->gotoTarget = NULL;
-                result = NULL;
+                istate->gotoTarget = nullptr;
+                result = nullptr;
                 return;
             }
             if (e->op == TOKcontinue)
@@ -1094,7 +1094,7 @@ public:
                     result = e;     // continue at a higher level
                     return;
                 }
-                istate->gotoTarget = NULL;
+                istate->gotoTarget = nullptr;
                 continue;
             }
 
@@ -1107,10 +1107,10 @@ public:
     void visit(IfStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
         if (istate->start)
         {
-            Expression *e = NULL;
+            Expression *e = nullptr;
             e = interpret(s->ifbody, istate);
             if (!e && istate->start)
                 e = interpret(s->elsebody, istate);
@@ -1138,7 +1138,7 @@ public:
     void visit(ScopeStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
 
         result = interpret(pue, s->statement, istate);
     }
@@ -1165,7 +1165,7 @@ public:
                 x = ((AddrExp *)e)->e1;
             VarDeclaration *v;
             while (x->op == TOKvar &&
-                (v = ((VarExp *)x)->var->isVarDeclaration()) != NULL)
+                (v = ((VarExp *)x)->var->isVarDeclaration()) != nullptr)
             {
                 if (v->storage_class & STCref)
                 {
@@ -1224,7 +1224,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         if (!s->exp)
@@ -1273,7 +1273,7 @@ public:
 
     static Statement *findGotoTarget(InterState *istate, Identifier *ident)
     {
-        Statement *target = NULL;
+        Statement *target = nullptr;
         if (ident)
         {
             LabelDsymbol *label = istate->fd->searchLabel(ident);
@@ -1290,7 +1290,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         istate->gotoTarget = findGotoTarget(istate, s->ident);
@@ -1303,7 +1303,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         istate->gotoTarget = findGotoTarget(istate, s->ident);
@@ -1318,7 +1318,7 @@ public:
     void visit(DoStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
 
         while (1)
         {
@@ -1336,7 +1336,7 @@ public:
                     result = e;     // break at a higher level
                     return;
                 }
-                istate->gotoTarget = NULL;
+                istate->gotoTarget = nullptr;
                 break;
             }
             if (e && e->op == TOKcontinue)
@@ -1346,8 +1346,8 @@ public:
                     result = e;     // continue at a higher level
                     return;
                 }
-                istate->gotoTarget = NULL;
-                e = NULL;
+                istate->gotoTarget = nullptr;
+                e = nullptr;
             }
             if (e)
             {
@@ -1368,13 +1368,13 @@ public:
                 break;
             assert(isTrueBool(e));
         }
-        assert(result == NULL);
+        assert(result == nullptr);
     }
 
     void visit(ForStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
 
         UnionExp ueinit;
         Expression *ei = interpret(&ueinit, s->_init, istate);
@@ -1409,7 +1409,7 @@ public:
                     result = e;     // break at a higher level
                     return;
                 }
-                istate->gotoTarget = NULL;
+                istate->gotoTarget = nullptr;
                 break;
             }
             if (e && e->op == TOKcontinue)
@@ -1419,8 +1419,8 @@ public:
                     result = e;     // continue at a higher level
                     return;
                 }
-                istate->gotoTarget = NULL;
-                e = NULL;
+                istate->gotoTarget = nullptr;
+                e = nullptr;
             }
             if (e)
             {
@@ -1433,7 +1433,7 @@ public:
             if (exceptionOrCant(e))
                 return;
         }
-        assert(result == NULL);
+        assert(result == nullptr);
     }
 
     void visit(ForeachStatement *)
@@ -1449,7 +1449,7 @@ public:
     void visit(SwitchStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
         if (istate->start)
         {
             Expression *e = interpret(s->_body, istate);
@@ -1464,8 +1464,8 @@ public:
                     result = e;     // break at a higher level
                     return;
                 }
-                istate->gotoTarget = NULL;
-                e = NULL;
+                istate->gotoTarget = nullptr;
+                e = nullptr;
             }
             result = e;
             return;
@@ -1476,7 +1476,7 @@ public:
         if (exceptionOrCant(econdition))
             return;
 
-        Statement *scase = NULL;
+        Statement *scase = nullptr;
         size_t dim = s->cases ? s->cases->length : 0;
         for (size_t i = 0; i < dim; i++)
         {
@@ -1512,8 +1512,8 @@ public:
                 result = e;     // break at a higher level
                 return;
             }
-            istate->gotoTarget = NULL;
-            e = NULL;
+            istate->gotoTarget = nullptr;
+            e = nullptr;
         }
         result = e;
     }
@@ -1521,7 +1521,7 @@ public:
     void visit(CaseStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
 
         result = interpret(pue, s->statement, istate);
     }
@@ -1529,7 +1529,7 @@ public:
     void visit(DefaultStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
 
         result = interpret(pue, s->statement, istate);
     }
@@ -1540,7 +1540,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         assert(s->label && s->label->statement);
@@ -1554,7 +1554,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         assert(s->cs);
@@ -1568,7 +1568,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         assert(s->sw && s->sw->sdefault);
@@ -1579,7 +1579,7 @@ public:
     void visit(LabelStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
 
         result = interpret(pue, s->statement, istate);
     }
@@ -1587,10 +1587,10 @@ public:
     void visit(TryCatchStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
         if (istate->start)
         {
-            Expression *e = NULL;
+            Expression *e = nullptr;
             e = interpret(pue, s->_body, istate);
             for (size_t i = 0; i < s->catches->length; i++)
             {
@@ -1616,7 +1616,7 @@ public:
             {
                 Catch *ca = (*s->catches)[i];
                 Type *catype = ca->type;
-                if (!catype->equals(extype) && !catype->isBaseOf(extype, NULL))
+                if (!catype->equals(extype) && !catype->isBaseOf(extype, nullptr))
                     continue;
 
                 // Execute the handler
@@ -1636,11 +1636,11 @@ public:
                      */
                     InterState istatex = *istate;
                     istatex.start = istate->gotoTarget; // set starting statement
-                    istatex.gotoTarget = NULL;
+                    istatex.gotoTarget = nullptr;
                     Expression *eh = interpret(ca->handler, &istatex);
                     if (!istatex.start)
                     {
-                        istate->gotoTarget = NULL;
+                        istate->gotoTarget = nullptr;
                         e = eh;
                     }
                 }
@@ -1652,7 +1652,7 @@ public:
 
     static bool isAnErrorException(ClassDeclaration *cd)
     {
-        return cd == ClassDeclaration::errorException || ClassDeclaration::errorException->isBaseOf(cd, NULL);
+        return cd == ClassDeclaration::errorException || ClassDeclaration::errorException->isBaseOf(cd, nullptr);
     }
 
     static ThrownExceptionExp *chainExceptions(ThrownExceptionExp *oldest, ThrownExceptionExp *newest)
@@ -1687,10 +1687,10 @@ public:
     void visit(TryFinallyStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
         if (istate->start)
         {
-            Expression *e = NULL;
+            Expression *e = nullptr;
             e = interpret(pue, s->_body, istate);
             // Jump into/out from finalbody is disabled in semantic analysis.
             // and jump inside will be handled by the ScopeStatement == finalbody.
@@ -1710,7 +1710,7 @@ public:
             // because that will call destructors for objects within the scope, which we should not do.
             InterState istatex = *istate;
             istatex.start = istate->gotoTarget; // set starting statement
-            istatex.gotoTarget = NULL;
+            istatex.gotoTarget = nullptr;
             Expression *bex = interpret(s->_body, &istatex);
             if (istatex.start)
             {
@@ -1749,7 +1749,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         Expression *e = interpret(s->exp, istate);
@@ -1776,10 +1776,10 @@ public:
     void visit(WithStatement *s)
     {
         if (istate->start == s)
-            istate->start = NULL;
+            istate->start = nullptr;
         if (istate->start)
         {
-            result = s->_body ? interpret(s->_body, istate) : NULL;
+            result = s->_body ? interpret(s->_body, istate) : nullptr;
             return;
         }
 
@@ -1811,11 +1811,11 @@ public:
              */
             InterState istatex = *istate;
             istatex.start = istate->gotoTarget; // set starting statement
-            istatex.gotoTarget = NULL;
+            istatex.gotoTarget = nullptr;
             Expression *ex = interpret(s->_body, &istatex);
             if (!istatex.start)
             {
-                istate->gotoTarget = NULL;
+                istate->gotoTarget = nullptr;
                 e = ex;
             }
         }
@@ -1829,7 +1829,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
 
         s->error("asm statements cannot be interpreted at compile time");
@@ -1842,7 +1842,7 @@ public:
         {
             if (istate->start != s)
                 return;
-            istate->start = NULL;
+            istate->start = nullptr;
         }
     }
 
@@ -1941,7 +1941,7 @@ public:
         }
         // Check for taking an address of a shared variable.
         // If the shared variable is an array, the offset might not be zero.
-        Type *fromType = NULL;
+        Type *fromType = nullptr;
         if (e->var->type->ty == Tarray || e->var->type->ty == Tsarray)
         {
             fromType = ((TypeArray *)(e->var->type))->next;
@@ -1999,7 +1999,7 @@ public:
             const dinteger_t sz = pointee->size();
             dinteger_t indx = e->offset / sz;
             assert(sz * indx == e->offset);
-            Expression *aggregate = NULL;
+            Expression *aggregate = nullptr;
             if (val->op == TOKarrayliteral || val->op == TOKstring)
             {
                 aggregate = val;
@@ -2100,7 +2100,7 @@ public:
 
             if (!v->originalType && v->semanticRun < PASSsemanticdone) // semantic() not yet run
             {
-                dsymbolSemantic(v, NULL);
+                dsymbolSemantic(v, nullptr);
                 if (v->type->ty == Terror)
                     return CTFEExp::cantexp;
             }
@@ -2179,7 +2179,7 @@ public:
             }
             else
             {
-                e = hasValue(v) ? getValue(v) : NULL;
+                e = hasValue(v) ? getValue(v) : nullptr;
                 if (!e && !v->isCTFE() && v->isDataseg())
                 {
                     error(loc, "static variable %s cannot be read at compile time", v->toChars());
@@ -2211,10 +2211,10 @@ public:
             e = s->dsym->type->defaultInitLiteral(loc);
             if (e->op == TOKerror)
                 error(loc, "CTFE failed because of previous errors in %s.init", s->toChars());
-            e = expressionSemantic(e, NULL);
+            e = expressionSemantic(e, nullptr);
             if (e->op == TOKerror)
                 e = CTFEExp::cantexp;
-            else // Convert NULL to CTFEExp
+            else // Convert nullptr to CTFEExp
                 e = interpret(e, istate, goal);
         }
         else
@@ -2287,7 +2287,7 @@ public:
         {
             if (TupleDeclaration *td = v->toAlias()->isTupleDeclaration())
             {
-                result = NULL;
+                result = nullptr;
 
                 // Reserve stack space for all tuple members
                 if (!td->objects)
@@ -2296,8 +2296,8 @@ public:
                 {
                     RootObject * o = (*td->objects)[i];
                     Expression *ex = isExpression(o);
-                    DsymbolExp *ds = (ex && ex->op == TOKdsymbol) ? (DsymbolExp *)ex : NULL;
-                    VarDeclaration *v2 = ds ? ds->s->isVarDeclaration() : NULL;
+                    DsymbolExp *ds = (ex && ex->op == TOKdsymbol) ? (DsymbolExp *)ex : nullptr;
+                    VarDeclaration *v2 = ds ? ds->s->isVarDeclaration() : nullptr;
                     assert(v2);
                     if (v2->isDataseg() && !v2->isCTFE())
                         continue;
@@ -2330,7 +2330,7 @@ public:
             if (v->isStatic())
             {
                 // Just ignore static variables which aren't read or written yet
-                result = NULL;
+                result = nullptr;
                 return;
             }
             if (!(v->isDataseg() || v->storage_class & STCmanifest) || v->isCTFE())
@@ -2379,7 +2379,7 @@ public:
                     sparent->isTemplateDeclaration() ||
                     sparent->isAliasDeclaration())
                 {
-                    result = NULL;
+                    result = nullptr;
                     return;         // static (template) struct declaration. Nothing to do.
                 }
             }
@@ -2391,7 +2391,7 @@ public:
         }
 
         // Others should not contain executable code, so are trivial to evaluate
-        result = NULL;
+        result = nullptr;
     }
 
     void visit(TypeidExp *e)
@@ -2665,7 +2665,7 @@ public:
         {
             VarDeclaration *v = e->sd->fields[i];
             Expression *exp = (*expsx)[i];
-            Expression *ex = NULL;
+            Expression *ex = nullptr;
             if (!exp)
             {
                 ex = voidInitLiteral(v->type, v).copy();
@@ -3145,7 +3145,7 @@ public:
     /* Helper functions for BinExp::interpretAssignCommon
      */
 
-    // Returns the variable which is eventually modified, or NULL if an rvalue.
+    // Returns the variable which is eventually modified, or nullptr if an rvalue.
     // thisval is the current value of 'this'.
     static VarDeclaration *findParentVar(Expression *e)
     {
@@ -3162,7 +3162,7 @@ public:
             else if (e->op == TOKslice)
                 e = ((SliceExp *)e)->e1;
             else
-                return NULL;
+                return nullptr;
         }
         VarDeclaration *v = ((VarExp *)e)->var->isVarDeclaration();
         assert(v);
@@ -3243,9 +3243,9 @@ public:
         // ---------------------------------------
         //      Interpret left hand side
         // ---------------------------------------
-        AssocArrayLiteralExp *existingAA = NULL;
-        Expression *lastIndex = NULL;
-        Expression *oldval = NULL;
+        AssocArrayLiteralExp *existingAA = nullptr;
+        Expression *lastIndex = nullptr;
+        Expression *oldval = nullptr;
         if (e1->op == TOKindex && ((IndexExp *)e1)->e1->type->toBasetype()->ty == Taarray)
         {
             // ---------------------------------------
@@ -3368,7 +3368,7 @@ public:
                     return;
             }
             assert(existingAA && lastIndex);
-            e1 = NULL;  // stomp
+            e1 = nullptr;  // stomp
         }
         else if (e1->op == TOKarraylength)
         {
@@ -3510,7 +3510,7 @@ public:
             }
 
             //printf("\t+L%d existingAA = %s, lastIndex = %s, oldval = %s, newval = %s\n",
-            //    __LINE__, existingAA->toChars(), lastIndex->toChars(), oldval ? oldval->toChars() : NULL, newval->toChars());
+            //    __LINE__, existingAA->toChars(), lastIndex->toChars(), oldval ? oldval->toChars() : nullptr, newval->toChars());
             assignAssocArrayElement(e->loc, existingAA, lastIndex, newval);
 
             // Determine the return value
@@ -3609,7 +3609,7 @@ public:
                     Expression *ex = dve->e1;
                     StructLiteralExp *sle = ex->op == TOKstructliteral  ? ((StructLiteralExp  *)ex)
                                           : ex->op == TOKclassreference ? ((ClassReferenceExp *)ex)->value
-                                          : NULL;
+                                          : nullptr;
                     VarDeclaration *v = dve->var->isVarDeclaration();
                     if (!sle || !v)
                     {
@@ -3653,8 +3653,8 @@ public:
 
     Expression *assignToLvalue(BinExp *e, Expression *e1, Expression *newval)
     {
-        VarDeclaration *vd = NULL;
-        Expression **payload = NULL;    // dead-store to prevent spurious warning
+        VarDeclaration *vd = nullptr;
+        Expression **payload = nullptr;    // dead-store to prevent spurious warning
         Expression *oldval;
 
         if (e1->op == TOKvar)
@@ -3671,7 +3671,7 @@ public:
             StructLiteralExp *sle =
                 ex->op == TOKstructliteral  ? ((StructLiteralExp  *)ex):
                 ex->op == TOKclassreference ? ((ClassReferenceExp *)ex)->value
-                : NULL;
+                : nullptr;
             VarDeclaration *v = ((DotVarExp *)e1)->var->isVarDeclaration();
             if (!sle || !v)
             {
@@ -3730,7 +3730,7 @@ public:
                     case 4:     ((utf32_t *)s)[index] = (utf32_t)value; break;
                     default:    assert(0);                              break;
                 }
-                return NULL;
+                return nullptr;
             }
             if (aggregate->op != TOKarrayliteral)
             {
@@ -3826,7 +3826,7 @@ public:
         if (e->op == TOKblit)
             return oldval;
 
-        return NULL;
+        return nullptr;
     }
 
     /*************
@@ -3840,7 +3840,7 @@ public:
      *
      * Returns TOKcantexp on failure. If there are no errors,
      * it returns aggregate[low..upp], except that as an optimisation,
-     * if goal == ctfeNeedNothing, it will return NULL
+     * if goal == ctfeNeedNothing, it will return nullptr
      */
     Expression *interpretAssignToSlice(UnionExp *pue, BinExp *e,
         Expression *e1, Expression *newval, bool isBlockAssignment)
@@ -4014,7 +4014,7 @@ public:
                 }
             }
             if (goal == ctfeNeedNothing)
-                return NULL; // avoid creating an unused literal
+                return nullptr; // avoid creating an unused literal
             SliceExp *retslice = new SliceExp(e->loc, existingSE,
                 new IntegerExp(e->loc, firstIndex, Type::tsize_t),
                 new IntegerExp(e->loc, firstIndex + upperbound - lowerbound, Type::tsize_t));
@@ -4189,7 +4189,7 @@ public:
                         else
                         {
                             Expression *oldelem = (*w)[k];
-                            Expression *tmpelem = needsDtor ? copyLiteral(oldelem).copy() : NULL;
+                            Expression *tmpelem = needsDtor ? copyLiteral(oldelem).copy() : nullptr;
 
                             assignInPlace(oldelem, newval);
 
@@ -4206,7 +4206,7 @@ public:
                             }
                         }
                     }
-                    return NULL;
+                    return nullptr;
                 }
             };
 
@@ -4216,7 +4216,7 @@ public:
                        newval->op != TOKarrayliteral &&
                        newval->op != TOKstring;
             Type *tb = tn->baseElemOf();
-            StructDeclaration *sd = (tb->ty == Tstruct ? ((TypeStruct *)tb)->sym : NULL);
+            StructDeclaration *sd = (tb->ty == Tstruct ? ((TypeStruct *)tb)->sym : nullptr);
 
             RecursiveBlock rb;
             rb.istate = istate;
@@ -4229,7 +4229,7 @@ public:
                 return ex;
 
             if (goal == ctfeNeedNothing)
-                return NULL; // avoid creating an unused literal
+                return nullptr; // avoid creating an unused literal
             SliceExp *retslice = new SliceExp(e->loc, existingAE,
                 new IntegerExp(e->loc, firstIndex, Type::tsize_t),
                 new IntegerExp(e->loc, firstIndex + upperbound - lowerbound, Type::tsize_t));
@@ -4244,7 +4244,7 @@ public:
 
     void visit(AssignExp *e)
     {
-        interpretAssignCommon(e, NULL);
+        interpretAssignCommon(e, nullptr);
     }
 
     void visit(BinAssignExp *e)
@@ -4325,7 +4325,7 @@ public:
         }
     }
 
-    /** If this is a four pointer relation, evaluate it, else return NULL.
+    /** If this is a four pointer relation, evaluate it, else return nullptr.
      *
      *  This is an expression of the form (p1 > q1 && p2 < q2) or (p1 < q1 || p2 > q2)
      *  where p1, p2 are expressions yielding pointers to memory block p,
@@ -4354,15 +4354,15 @@ public:
 
         // Save the pointer expressions and the comparison directions,
         // so we can use them later.
-        Expression *p1 = NULL;
-        Expression *p2 = NULL;
-        Expression *p3 = NULL;
-        Expression *p4 = NULL;
+        Expression *p1 = nullptr;
+        Expression *p2 = nullptr;
+        Expression *p3 = nullptr;
+        Expression *p4 = nullptr;
         int dir1 = isPointerCmpExp(e->e1, &p1, &p2);
         int dir2 = isPointerCmpExp(e->e2, &p3, &p4);
         if (dir1 == 0 || dir2 == 0)
         {
-            result = NULL;
+            result = nullptr;
             return;
         }
 
@@ -4393,7 +4393,7 @@ public:
             if (CTFEExp::isCantExp(p3))
                 return;
             // Note that it is NOT legal for it to throw an exception!
-            Expression *except = NULL;
+            Expression *except = nullptr;
             if (exceptionOrCantInterpret(p3))
                 except = p3;
             else
@@ -4492,7 +4492,7 @@ public:
             if (result->op == TOKvoidexp)
             {
                 assert(e->type->ty == Tvoid);
-                result = NULL;
+                result = nullptr;
                 return;
             }
             if (result->isBool(false))
@@ -4570,8 +4570,8 @@ public:
 
     void visit(CallExp *e)
     {
-        Expression *pthis = NULL;
-        FuncDeclaration *fd = NULL;
+        Expression *pthis = nullptr;
+        FuncDeclaration *fd = nullptr;
 
         Expression *ecall = interpret(e->e1, istate);
         if (exceptionOrCant(ecall))
@@ -4642,7 +4642,7 @@ public:
 
             // Special handling for: &nestedfunc --> DelegateExp(VarExp(nestedfunc), nestedfunc)
             if (pthis->op == TOKvar && ((VarExp *)pthis)->var == fd)
-                pthis = NULL;   // context is not necessary for CTFE
+                pthis = nullptr;   // context is not necessary for CTFE
         }
         else if (ecall->op == TOKfunction)
         {
@@ -4761,7 +4761,7 @@ public:
         InterState istateComma;
         if (!istate && firstComma->e1->op == TOKdeclaration)
         {
-            ctfeStack.startFrame(NULL);
+            ctfeStack.startFrame(nullptr);
             istate = &istateComma;
         }
 
@@ -4874,7 +4874,7 @@ public:
             elements->setDim(e->dim);
             for (size_t i = 0; i < elements->length; i++)
                 (*elements)[i] = copyLiteral(e->e1).copy();
-            TypeSArray *type = NULL;
+            TypeSArray *type = nullptr;
             if (e->type->ty == Tvector)
             {
                 TypeVector *tv = (TypeVector *)e->type;
@@ -5500,7 +5500,7 @@ public:
 
             if (cd->dtor)
             {
-                result = interpretFunction(pue, cd->dtor, istate, NULL, cre);
+                result = interpretFunction(pue, cd->dtor, istate, nullptr, cre);
                 if (exceptionOrCant(result))
                     return;
             }
@@ -5525,7 +5525,7 @@ public:
 
                 if (sd->dtor)
                 {
-                    result = interpretFunction(pue, sd->dtor, istate, NULL, sle);
+                    result = interpretFunction(pue, sd->dtor, istate, nullptr, sle);
                     if (exceptionOrCant(result))
                         return;
                 }
@@ -5552,7 +5552,7 @@ public:
                     for (size_t i = 0; i < ale->elements->length; i++)
                     {
                         Expression *el = (*ale->elements)[i];
-                        result = interpretFunction(pue, sd->dtor, istate, NULL, el);
+                        result = interpretFunction(pue, sd->dtor, istate, nullptr, el);
                         if (exceptionOrCant(result))
                             return;
                     }
@@ -6109,11 +6109,11 @@ public:
 static Expression *interpret(UnionExp *pue, Expression *e, InterState *istate, CtfeGoal goal)
 {
     if (!e)
-        return NULL;
+        return nullptr;
     Interpreter v(pue, istate, goal);
     e->accept(&v);
     Expression *ex = v.result;
-    assert(goal == ctfeNeedNothing || ex != NULL);
+    assert(goal == ctfeNeedNothing || ex != nullptr);
     return ex;
 }
 
@@ -6134,15 +6134,15 @@ Expression *interpret(Expression *e, InterState *istate, CtfeGoal goal)
  *    s = Statement to interpret
  *    istate = context
  * Returns:
- *      NULL    continue to next statement
+ *      nullptr    continue to next statement
  *      TOKcantexp      cannot interpret statement at compile time
- *      !NULL   expression from return statement, or thrown exception
+ *      !nullptr   expression from return statement, or thrown exception
  */
 
 static Expression *interpret(UnionExp *pue, Statement *s, InterState *istate)
 {
     if (!s)
-        return NULL;
+        return nullptr;
     Interpreter v(pue, istate, ctfeNeedNothing);
     s->accept(&v);
     return v.result;
@@ -6249,7 +6249,7 @@ bool isEntirelyVoid(Expressions *elems)
     for (size_t i = 0; i < elems->length; i++)
     {
         Expression *e = (*elems)[i];
-        // It can be NULL for performance reasons,
+        // It can be nullptr for performance reasons,
         // see StructLiteralExp::interpret().
         if (e && !isVoid(e))
             return false;
@@ -6263,7 +6263,7 @@ Expression *scrubArray(Loc loc, Expressions *elems, bool structlit)
     for (size_t i = 0; i < elems->length; i++)
     {
         Expression *e = (*elems)[i];
-        // It can be NULL for performance reasons,
+        // It can be nullptr for performance reasons,
         // see StructLiteralExp::interpret().
         if (!e)
             continue;
@@ -6272,7 +6272,7 @@ Expression *scrubArray(Loc loc, Expressions *elems, bool structlit)
         // Static array members are a weird special case (bug 10994).
         if (structlit && isVoid(e, true))
         {
-            e = NULL;
+            e = nullptr;
         }
         else
         {
@@ -6282,7 +6282,7 @@ Expression *scrubArray(Loc loc, Expressions *elems, bool structlit)
         }
         (*elems)[i] = e;
     }
-    return NULL;
+    return nullptr;
 }
 
 Expression *scrubStructLiteral(Loc loc, StructLiteralExp *sle)
@@ -6296,7 +6296,7 @@ Expression *scrubStructLiteral(Loc loc, StructLiteralExp *sle)
             return ex;
         sle->stageflags = old;
     }
-    return NULL;
+    return nullptr;
 }
 
 /**************************************
@@ -6361,7 +6361,7 @@ Expression *scrubArrayCache(Expressions *elems)
         Expression *e = (*elems)[i];
         (*elems)[i] = scrubCacheValue(e);
     }
-    return NULL;
+    return nullptr;
 }
 
 Expression *scrubStructLiteralCache(StructLiteralExp *sle)
@@ -6375,7 +6375,7 @@ Expression *scrubStructLiteralCache(StructLiteralExp *sle)
             return ex;
         sle->stageflags = old;
     }
-    return NULL;
+    return nullptr;
 }
 
 /******************************* Special Functions ***************************/
@@ -6406,7 +6406,7 @@ static Expression *interpret_keys(UnionExp *pue, InterState *istate, Expression 
         return pue->exp();
     }
     if (earg->op != TOKassocarrayliteral && earg->type->toBasetype()->ty != Taarray)
-        return NULL;
+        return nullptr;
     assert(earg->op == TOKassocarrayliteral);
     AssocArrayLiteralExp *aae = (AssocArrayLiteralExp *)earg;
     ArrayLiteralExp *ae = new ArrayLiteralExp(aae->loc, returnType, aae->keys);
@@ -6426,7 +6426,7 @@ static Expression *interpret_values(UnionExp *pue, InterState *istate, Expressio
         return pue->exp();
     }
     if (earg->op != TOKassocarrayliteral && earg->type->toBasetype()->ty != Taarray)
-        return NULL;
+        return nullptr;
     assert(earg->op == TOKassocarrayliteral);
     AssocArrayLiteralExp *aae = (AssocArrayLiteralExp *)earg;
     ArrayLiteralExp *ae = new ArrayLiteralExp(aae->loc, returnType, aae->values);
@@ -6447,7 +6447,7 @@ Expression *interpret_dup(UnionExp *pue, InterState *istate, Expression *earg)
         return pue->exp();
     }
     if (earg->op != TOKassocarrayliteral && earg->type->toBasetype()->ty != Taarray)
-        return NULL;
+        return nullptr;
     assert(earg->op == TOKassocarrayliteral);
     AssocArrayLiteralExp *aae = (AssocArrayLiteralExp *)copyLiteral(earg).copy();
     for (size_t i = 0; i < aae->keys->length; i++)
@@ -6474,8 +6474,8 @@ Expression *interpret_aaApply(UnionExp *pue, InterState *istate, Expression *aa,
         return pue->exp();
     }
 
-    FuncDeclaration *fd = NULL;
-    Expression *pthis = NULL;
+    FuncDeclaration *fd = nullptr;
+    Expression *pthis = nullptr;
     if (deleg->op == TOKdelegate)
     {
         fd = ((DelegateExp *)deleg)->func;
@@ -6533,8 +6533,8 @@ Expression *interpret_aaApply(UnionExp *pue, InterState *istate, Expression *aa,
  */
 static Expression *foreachApplyUtf(UnionExp *pue, InterState *istate, Expression *str, Expression *deleg, bool rvs)
 {
-    FuncDeclaration *fd = NULL;
-    Expression *pthis = NULL;
+    FuncDeclaration *fd = nullptr;
+    Expression *pthis = nullptr;
     if (deleg->op == TOKdelegate)
     {
         fd = ((DelegateExp *)deleg)->func;
@@ -6559,8 +6559,8 @@ static Expression *foreachApplyUtf(UnionExp *pue, InterState *istate, Expression
 
     str = resolveSlice(str);
 
-    StringExp *se = NULL;
-    ArrayLiteralExp *ale = NULL;
+    StringExp *se = nullptr;
+    ArrayLiteralExp *ale = nullptr;
     if (str->op == TOKstring)
         se = (StringExp *) str;
     else if (str->op == TOKarrayliteral)
@@ -6573,7 +6573,7 @@ static Expression *foreachApplyUtf(UnionExp *pue, InterState *istate, Expression
     Expressions args;
     args.setDim(numParams);
 
-    Expression *eresult = NULL;         // ded-store to prevent spurious warning
+    Expression *eresult = nullptr;         // ded-store to prevent spurious warning
 
     // Buffers for encoding; also used for decoding array literals
     utf8_t utf8buf[4];
@@ -6585,7 +6585,7 @@ static Expression *foreachApplyUtf(UnionExp *pue, InterState *istate, Expression
     {
         // Step 1: Decode the next dchar from the string.
 
-        const char *errmsg = NULL; // Used for reporting decoding errors
+        const char *errmsg = nullptr; // Used for reporting decoding errors
         dchar_t rawvalue;   // Holds the decoded dchar
         size_t currentIndex = indx; // The index of the decoded character
 
@@ -6747,7 +6747,7 @@ static Expression *foreachApplyUtf(UnionExp *pue, InterState *istate, Expression
         if (numParams == 2)
             args[0] = new IntegerExp(deleg->loc, currentIndex, indexType);
 
-        Expression *val = NULL;
+        Expression *val = nullptr;
 
         for (int k= 0; k < charlen; ++k)
         {
@@ -6785,12 +6785,12 @@ static Expression *foreachApplyUtf(UnionExp *pue, InterState *istate, Expression
 }
 
 /* If this is a built-in function, return the interpreted result,
- * Otherwise, return NULL.
+ * Otherwise, return nullptr.
  */
 Expression *evaluateIfBuiltin(UnionExp *pue, InterState *istate, Loc loc,
     FuncDeclaration *fd, Expressions *arguments, Expression *pthis)
 {
-    Expression *e = NULL;
+    Expression *e = nullptr;
     size_t nargs = arguments ? arguments->length : 0;
     if (!pthis)
     {
@@ -6816,7 +6816,7 @@ Expression *evaluateIfBuiltin(UnionExp *pue, InterState *istate, Loc loc,
     }
     if (!pthis)
     {
-        Expression *firstarg =  nargs > 0 ? (*arguments)[0] : NULL;
+        Expression *firstarg =  nargs > 0 ? (*arguments)[0] : nullptr;
         if (firstarg && firstarg->type->toBasetype()->ty == Taarray)
         {
             TypeAArray *firstAAtype = (TypeAArray *)firstarg->type;
@@ -6903,10 +6903,10 @@ Expression *evaluatePostblit(InterState *istate, Expression *e)
 {
     Type *tb = e->type->baseElemOf();
     if (tb->ty != Tstruct)
-        return NULL;
+        return nullptr;
     StructDeclaration *sd = ((TypeStruct *)tb)->sym;
     if (!sd->postblit)
-        return NULL;
+        return nullptr;
 
     if (e->op == TOKarrayliteral)
     {
@@ -6917,31 +6917,31 @@ Expression *evaluatePostblit(InterState *istate, Expression *e)
             if (e)
                 return e;
         }
-        return NULL;
+        return nullptr;
     }
     if (e->op == TOKstructliteral)
     {
         // e.__postblit()
         UnionExp ue;
-        e = interpretFunction(&ue, sd->postblit, istate, NULL, e);
+        e = interpretFunction(&ue, sd->postblit, istate, nullptr, e);
         if (e == ue.exp())
             e = ue.copy();
         if (exceptionOrCantInterpret(e))
             return e;
-        return NULL;
+        return nullptr;
     }
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 Expression *evaluateDtor(InterState *istate, Expression *e)
 {
     Type *tb = e->type->baseElemOf();
     if (tb->ty != Tstruct)
-        return NULL;
+        return nullptr;
     StructDeclaration *sd = ((TypeStruct *)tb)->sym;
     if (!sd->dtor)
-        return NULL;
+        return nullptr;
 
     UnionExp ue;
     if (e->op == TOKarrayliteral)
@@ -6953,7 +6953,7 @@ Expression *evaluateDtor(InterState *istate, Expression *e)
     else if (e->op == TOKstructliteral)
     {
         // e.__dtor()
-        e = interpretFunction(&ue, sd->dtor, istate, NULL, e);
+        e = interpretFunction(&ue, sd->dtor, istate, nullptr, e);
     }
     else
         assert(0);
@@ -6963,7 +6963,7 @@ Expression *evaluateDtor(InterState *istate, Expression *e)
             e = ue.copy();
         return e;
     }
-    return NULL;
+    return nullptr;
 }
 
 /*************************** CTFE Sanity Checks ***************************/
@@ -6975,7 +6975,7 @@ bool hasValue(VarDeclaration *vd)
 {
     if (vd->ctfeAdrOnStack == -1)
         return false;
-    return NULL != getValue(vd);
+    return nullptr != getValue(vd);
 }
 
 Expression *getValue(VarDeclaration *vd)
@@ -6985,7 +6985,7 @@ Expression *getValue(VarDeclaration *vd)
 
 void setValueNull(VarDeclaration *vd)
 {
-    ctfeStack.setValue(vd, NULL);
+    ctfeStack.setValue(vd, nullptr);
 }
 
 // Don't check for validity

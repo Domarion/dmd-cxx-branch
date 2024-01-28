@@ -128,7 +128,7 @@ void genDwarfEh(Funcsym *sfunc, int seg, Outbuffer *et, bool scancode, unsigned 
     /* Build deh table, and Action Table
      */
     int index = -1;
-    block *bprev = NULL;
+    block *bprev = nullptr;
     // The first entry encompasses the entire function
     {
         unsigned i = deh->push();

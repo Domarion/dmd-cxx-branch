@@ -26,7 +26,7 @@ static char __file__[] = __FILE__;      /* for tassert.h                */
 //
 // NOTE: For 0 operand instructions, the opcode is taken from
 // the first entry and no subsequent entries are required.
-// for instructions with operands, a NULL entry is required at the end
+// for instructions with operands, a nullptr entry is required at the end
 // as a terminator
 //
 // 0 Operand instructions
@@ -4702,8 +4702,8 @@ PTRNTAB2 aptb2SHA256MSG2[] = /* SHA256MSG2 */ {
 #define P PPTRNTAB0
 
 #define OPCODETABLE1                                            \
-        X("__emit",     ITdata | OPdb,  NULL )                      \
-        X("_emit",      ITdata | OPdb,  NULL )                      \
+        X("__emit",     ITdata | OPdb,  nullptr )                      \
+        X("_emit",      ITdata | OPdb,  nullptr )                      \
         X("aaa",        0,              aptb0AAA )                  \
         X("aad",        0,              aptb0AAD )                  \
         X("aam",        0,              aptb0AAM )                  \
@@ -4822,27 +4822,27 @@ PTRNTAB2 aptb2SHA256MSG2[] = /* SHA256MSG2 */ {
         X("cvttss2si",  2,              (P) aptb2CVTTSS2SI )        \
         X("cwd",        0,              aptb0CWD )                  \
         X("cwde",       0,              aptb0CWDE )                 \
-        X("da",         ITaddr | 4,     NULL )                      \
+        X("da",         ITaddr | 4,     nullptr )                      \
         X("daa",        0,              aptb0DAA )                  \
         X("das",        0,              aptb0DAS )                  \
-        X("db",         ITdata | OPdb,  NULL )                      \
-        X("dd",         ITdata | OPdd,  NULL )                      \
-        X("de",         ITdata | OPde,  NULL )                      \
+        X("db",         ITdata | OPdb,  nullptr )                      \
+        X("dd",         ITdata | OPdd,  nullptr )                      \
+        X("de",         ITdata | OPde,  nullptr )                      \
         X("dec",        1,              (P) aptb1DEC )              \
-        X("df",         ITdata | OPdf,  NULL )                      \
-        X("di",         ITdata | OPdi,  NULL )                      \
+        X("df",         ITdata | OPdf,  nullptr )                      \
+        X("di",         ITdata | OPdi,  nullptr )                      \
         X("div",        ITopt  | 2,     (P) aptb2DIV )              \
         X("divpd",      2,              (P) aptb2DIVPD )            \
         X("divps",      2,              (P) aptb2DIVPS )            \
         X("divsd",      2,              (P) aptb2DIVSD )            \
         X("divss",      2,              (P) aptb2DIVSS )            \
-        X("dl",         ITdata | OPdl,  NULL )                      \
+        X("dl",         ITdata | OPdl,  nullptr )                      \
         X("dppd",       3,              (P) aptb3DPPD )             \
         X("dpps",       3,              (P) aptb3DPPS )             \
-        X("dq",         ITdata | OPdq,  NULL )                      \
-        X("ds",         ITdata | OPds,  NULL )                      \
-        X("dt",         ITdata | OPdt,  NULL )                      \
-        X("dw",         ITdata | OPdw,  NULL )                      \
+        X("dq",         ITdata | OPdq,  nullptr )                      \
+        X("ds",         ITdata | OPds,  nullptr )                      \
+        X("dt",         ITdata | OPdt,  nullptr )                      \
+        X("dw",         ITdata | OPdw,  nullptr )                      \
         X("emms",       0,              aptb0EMMS )                 \
         X("enter",      2,              (P) aptb2ENTER )            \
         X("extractps",  3,              (P) aptb3EXTRACTPS )        \
@@ -5728,10 +5728,10 @@ OP *asm_op_lookup(const char *s)
 
     //dbg_printf("asm_op_lookup('%s')\n",s);
     if (strlen(s) >= sizeof(szBuf))
-        return NULL;
+        return nullptr;
     strcpy(szBuf,s);
     i = binary(szBuf,opcodestr,sizeof(opcodestr)/sizeof(opcodestr[0]));
-    return (i == -1) ? NULL : &optab[i];
+    return (i == -1) ? nullptr : &optab[i];
 }
 
 /*******************************

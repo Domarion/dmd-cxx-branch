@@ -282,7 +282,7 @@ struct Loc
     {
         linnum = 0;
         charnum = 0;
-        filename = NULL;
+        filename = nullptr;
     }
 
     Loc(const char *filename, unsigned linnum, unsigned charnum);

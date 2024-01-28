@@ -53,7 +53,7 @@ static bool addReturn0(FuncDeclaration *funcdecl)
  */
 static Expression *addInvariant(AggregateDeclaration *ad, VarDeclaration *vthis)
 {
-    Expression *e = NULL;
+    Expression *e = nullptr;
 
     // Call invariant directly only if it exists
     FuncDeclaration *inv = ad->inv;
@@ -123,7 +123,7 @@ public:
     {
         DtorExpStatement *des;
         if (fd->nrvo_can &&
-            s->finalbody && (des = s->finalbody->isDtorExpStatement()) != NULL &&
+            s->finalbody && (des = s->finalbody->isDtorExpStatement()) != nullptr &&
             fd->nrvo_var == des->var)
         {
             if (!(global.params.useExceptions && ClassDeclaration::throwable))
@@ -297,7 +297,7 @@ public:
 
     void visit(FuncDeclaration *funcdecl)
     {
-        VarDeclaration *_arguments = NULL;
+        VarDeclaration *_arguments = nullptr;
 
         if (!funcdecl->parent)
         {
@@ -332,7 +332,7 @@ public:
                 {
                     // Disable generated opAssign, because some members forbid identity assignment.
                     funcdecl->storage_class |= STCdisable;
-                    funcdecl->fbody = NULL;   // remove fbody which contains the error
+                    funcdecl->fbody = nullptr;   // remove fbody which contains the error
                     funcdecl->semantic3Errors = false;
                 }
                 return;
@@ -400,27 +400,27 @@ public:
             sc2->func = funcdecl;
             sc2->parent = funcdecl;
             sc2->callSuper = 0;
-            sc2->sbreak = NULL;
-            sc2->scontinue = NULL;
-            sc2->sw = NULL;
+            sc2->sbreak = nullptr;
+            sc2->scontinue = nullptr;
+            sc2->sw = nullptr;
             sc2->fes = funcdecl->fes;
             sc2->linkage = LINKd;
             sc2->stc &= ~(STCauto | STCscope | STCstatic | STCextern | STCabstract |
                           STCdeprecated | STCoverride |
                           STC_TYPECTOR | STCfinal | STCtls | STCgshared | STCref | STCreturn |
                           STCproperty | STCnothrow | STCpure | STCsafe | STCtrusted | STCsystem);
-            sc2->protection = Prot(Prot::public_);
+            sc2->protection = Visibility(Visibility::public_);
             sc2->explicitProtection = 0;
-            sc2->aligndecl = NULL;
+            sc2->aligndecl = nullptr;
             if (funcdecl->ident != Id::require && funcdecl->ident != Id::ensure)
                 sc2->flags = sc->flags & ~SCOPEcontract;
             sc2->flags &= ~SCOPEcompile;
-            sc2->tf = NULL;
-            sc2->os = NULL;
+            sc2->tf = nullptr;
+            sc2->os = nullptr;
             sc2->noctor = 0;
-            sc2->userAttribDecl = NULL;
+            sc2->userAttribDecl = nullptr;
             if (sc2->intypeof == 1) sc2->intypeof = 2;
-            sc2->fieldinit = NULL;
+            sc2->fieldinit = nullptr;
             sc2->fieldinit_dim = 0;
 
             /* Note: When a lambda is defined immediately under aggregate member
@@ -480,7 +480,7 @@ public:
                     }
 
                     // Declare _arguments[]
-                    funcdecl->v_arguments = new VarDeclaration(Loc(), Type::typeinfotypelist->type, Id::_arguments_typeinfo, NULL);
+                    funcdecl->v_arguments = new VarDeclaration(Loc(), Type::typeinfotypelist->type, Id::_arguments_typeinfo, nullptr);
                     funcdecl->v_arguments->storage_class |= STCtemp | STCparameter;
                     dsymbolSemantic(funcdecl->v_arguments, sc2);
                     sc2->insert(funcdecl->v_arguments);
@@ -488,7 +488,7 @@ public:
 
                     //Type *t = Type::typeinfo->type->constOf()->arrayOf();
                     Type *t = Type::dtypeinfo->type->arrayOf();
-                    _arguments = new VarDeclaration(Loc(), t, Id::_arguments, NULL);
+                    _arguments = new VarDeclaration(Loc(), t, Id::_arguments, nullptr);
                     _arguments->storage_class |= STCtemp;
                     dsymbolSemantic(_arguments, sc2);
                     sc2->insert(_arguments);
@@ -498,7 +498,7 @@ public:
                 {
                     // Declare _argptr
                     Type *t = target.va_listType(funcdecl->loc, sc);
-                    funcdecl->v_argptr = new VarDeclaration(Loc(), t, Id::_argptr, NULL);
+                    funcdecl->v_argptr = new VarDeclaration(Loc(), t, Id::_argptr, nullptr);
                     funcdecl->v_argptr->storage_class |= STCtemp;
                     dsymbolSemantic(funcdecl->v_argptr, sc2);
                     sc2->insert(funcdecl->v_argptr);
@@ -531,7 +531,7 @@ public:
                         stc |= STCtemp;
                     }
                     Type *vtype = fparam->type;
-                    VarDeclaration *v = new VarDeclaration(funcdecl->loc, vtype, id, NULL);
+                    VarDeclaration *v = new VarDeclaration(funcdecl->loc, vtype, id, nullptr);
                     //printf("declaring parameter %s of type %s\n", v->toChars(), v->type->toChars());
                     stc |= STCparameter;
                     if (f->parameterList.varargs == VARARGtypesafe && i + 1 == nparams)
@@ -572,7 +572,7 @@ public:
                         {
                             Parameter *narg = Parameter::getNth(t->arguments, j);
                             assert(narg->ident);
-                            VarDeclaration *v = sc2->search(Loc(), narg->ident, NULL)->isVarDeclaration();
+                            VarDeclaration *v = sc2->search(Loc(), narg->ident, nullptr)->isVarDeclaration();
                             assert(v);
                             Expression *e = new VarExp(v->loc, v);
                             (*exps)[j] = e;
@@ -590,7 +590,7 @@ public:
             }
 
             // Precondition invariant
-            Statement *fpreinv = NULL;
+            Statement *fpreinv = nullptr;
             if (funcdecl->addPreInvariant())
             {
                 Expression *e = addInvariant(ad, funcdecl->vthis);
@@ -599,7 +599,7 @@ public:
             }
 
             // Postcondition invariant
-            Statement *fpostinv = NULL;
+            Statement *fpostinv = nullptr;
             if (funcdecl->addPostInvariant())
             {
                 Expression *e = addInvariant(ad, funcdecl->vthis);
@@ -611,7 +611,7 @@ public:
             if (!funcdecl->fbody)
                 funcdecl->buildEnsureRequire();
 
-            Scope *scout = NULL;
+            Scope *scout = nullptr;
             if (needEnsure || funcdecl->addPostInvariant())
             {
                 if ((needEnsure && global.params.useOut == CHECKENABLEon) || fpostinv)
@@ -657,8 +657,8 @@ public:
 
                 if (funcdecl->naked)
                 {
-                    fpreinv = NULL;         // can't accommodate with no stack frame
-                    fpostinv = NULL;
+                    fpreinv = nullptr;         // can't accommodate with no stack frame
+                    fpostinv = nullptr;
                 }
 
                 assert(funcdecl->type == f ||
@@ -675,7 +675,7 @@ public:
                     if (f->checkRetType(funcdecl->loc))
                         funcdecl->fbody = new ErrorStatement();
                 }
-                if (global.params.vcomplex && f->next != NULL)
+                if (global.params.vcomplex && f->next != nullptr)
                     f->next->checkComplexTransition(funcdecl->loc);
 
                 if (funcdecl->returns && !funcdecl->fbody->isErrorStatement())
@@ -767,7 +767,7 @@ public:
                         sc2->callSuper = 0;
 
                         // Insert implicit super() at start of fbody
-                        FuncDeclaration *fd = resolveFuncCall(Loc(), sc2, cd->baseClass->ctor, NULL, funcdecl->vthis->type, NULL, 1);
+                        FuncDeclaration *fd = resolveFuncCall(Loc(), sc2, cd->baseClass->ctor, nullptr, funcdecl->vthis->type, nullptr, 1);
                         if (!fd)
                         {
                             funcdecl->error("no match for implicit super() call in constructor");
@@ -830,7 +830,7 @@ public:
                      */
                     if (blockexit & BEfallthru)
                     {
-                        Statement *s = new ReturnStatement(funcdecl->loc, NULL);
+                        Statement *s = new ReturnStatement(funcdecl->loc, nullptr);
                         s = statementSemantic(s, sc2);
                         funcdecl->fbody = new CompoundStatement(funcdecl->loc, funcdecl->fbody, s);
                         funcdecl->hasReturnExp |= (funcdecl->hasReturnExp & 1 ? 16 : 1);
@@ -975,7 +975,7 @@ public:
                 sc2 = sc2->pop();
 
                 if (global.params.useIn == CHECKENABLEoff)
-                    freq = NULL;
+                    freq = nullptr;
             }
 
             if (fens)
@@ -990,7 +990,7 @@ public:
                         if (e.id)
                         {
                             funcdecl->error(e.ensure->loc, "`void` functions have no result");
-                            //fens = NULL;
+                            //fens = nullptr;
                         }
                     }
                 }
@@ -1008,7 +1008,7 @@ public:
                 sc2 = sc2->pop();
 
                 if (global.params.useOut == CHECKENABLEoff)
-                    fens = NULL;
+                    fens = nullptr;
             }
 
             if (funcdecl->fbody && funcdecl->fbody->isErrorStatement())
@@ -1234,7 +1234,7 @@ public:
 
         // reset deco to apply inference result to mangled name
         if (f != funcdecl->type)
-            f->deco = NULL;
+            f->deco = nullptr;
 
         // Do semantic type AFTER pure/nothrow inference.
         if (!f->deco && funcdecl->ident != Id::xopEquals && funcdecl->ident != Id::xopCmp)

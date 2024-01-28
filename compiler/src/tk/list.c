@@ -25,7 +25,7 @@
 #define fileline
 
 #ifndef list_freelist
-list_t list_freelist = NULL;    /* list of free list entries            */
+list_t list_freelist = nullptr;    /* list of free list entries            */
 #endif
 static int nlist;               /* number of list items created         */
 int list_inited = 0;            /* 1 if initialized                     */
@@ -136,7 +136,7 @@ void *list_subtract(list_t *plist,void *ptr)
                 else
                         plist = &(list_next(list));
         }
-        return NULL;            /* it wasn't in the list                */
+        return nullptr;            /* it wasn't in the list                */
 }
 
 /*************************/
@@ -212,7 +212,7 @@ list_t list_prev(list_t start,list_t list)
 {
     if (start)
     {   if (start == list)
-            start = NULL;
+            start = nullptr;
         else
             while (list_next(start) != list)
             {   start = list_next(start);
@@ -226,7 +226,7 @@ list_t list_prev(list_t start,list_t list)
 
 list_t list_copy(list_t list)
 {
-    list_t c = NULL;
+    list_t c = nullptr;
     for (; list; list = list_next(list))
         list_append(&c,list_ptr(list));
     return c;
@@ -299,14 +299,14 @@ list_t list_build(void *p,...)
     list_t *pe;
     va_list ap;
 
-    alist = NULL;
+    alist = nullptr;
     pe = &alist;
     for (va_start(ap,p); p; p = va_arg(ap,void *))
     {   list_t list;
 
         list = list_alloc(fileline);
         if (list)
-        {       list_next(list) = NULL;
+        {       list_next(list) = nullptr;
                 list_ptr(list) = p;
                 list->count = 1;
                 *pe = list;
@@ -340,7 +340,7 @@ list_t list_reverse(list_t l)
 {   list_t r;
     list_t ln;
 
-    r = NULL;
+    r = nullptr;
     while (l)
     {   ln = list_next(l);
         list_next(l) = r;

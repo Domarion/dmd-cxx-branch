@@ -30,7 +30,7 @@ Nspace::Nspace(Loc loc, Identifier *ident, Dsymbols *members, bool mangleOnly)
 
 Dsymbol *Nspace::syntaxCopy(Dsymbol *)
 {
-    Nspace *ns = new Nspace(loc, ident, NULL, mangleOnly);
+    Nspace *ns = new Nspace(loc, ident, nullptr, mangleOnly);
     return ScopeDsymbol::syntaxCopy(ns);
 }
 
@@ -50,7 +50,7 @@ void Nspace::addMember(Scope *sc, ScopeDsymbol *sds)
             ScopeDsymbol *sds2 = sce->scopesym;
             if (sds2)
             {
-                sds2->importScope(this, Prot(Prot::public_));
+                sds2->importScope(this, Visibility(Visibility::public_));
                 break;
             }
         }
@@ -105,7 +105,7 @@ Dsymbol *Nspace::search(const Loc &loc, Identifier *ident, int flags)
     if (!members || !symtab) // opaque or semantic() is not yet called
     {
         error("is forward referenced when looking for `%s`", ident->toChars());
-        return NULL;
+        return nullptr;
     }
 
     return ScopeDsymbol::search(loc, ident, flags);
@@ -151,7 +151,7 @@ void Nspace::setFieldOffset(AggregateDeclaration *ad, unsigned *poffset, bool is
 {
     //printf("Nspace::setFieldOffset() %s\n", toChars());
     if (_scope)                  // if fwd reference
-        dsymbolSemantic(this, NULL);         // try to resolve it
+        dsymbolSemantic(this, nullptr);         // try to resolve it
     if (members)
     {
         for (size_t i = 0; i < members->length; i++)

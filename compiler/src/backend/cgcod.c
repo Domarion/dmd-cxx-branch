@@ -97,7 +97,7 @@ regm_t mfuncreg;        // Mask of registers preserved by a function
 regm_t allregs;                // ALLREGS optionally including mBP
 
 int dfoidx;                     /* which block we are in                */
-struct CSE *csextab = NULL;     /* CSE table (allocated for each function) */
+struct CSE *csextab = nullptr;     /* CSE table (allocated for each function) */
 size_t cstop;                   // # of entries in CSE table (csextab[])
 size_t csmax;                   // amount of space in csextab[]
 
@@ -149,7 +149,7 @@ tryagain:
     stackpush = 0;
     refparam = 0;
     calledafunc = 0;
-    retsym = NULL;
+    retsym = nullptr;
 
     cgstate.stackclean = 1;
     cgstate.funcarg.init();
@@ -250,7 +250,7 @@ tryagain:
             pass = PASSfinal;
         for (block* b = startblock; b; b = b->Bnext)
         {   code_free(b->Bcode);
-            b->Bcode = NULL;
+            b->Bcode = nullptr;
         }
         goto tryagain;
     }
@@ -271,7 +271,7 @@ tryagain:
 
     code* cprolog = prolog();                 // gen function start code
     if (cprolog)
-        pinholeopt(cprolog,NULL);       // optimize
+        pinholeopt(cprolog,nullptr);       // optimize
 
     funcoffset = Coffset;
     targ_size_t coffset = Coffset;
@@ -444,13 +444,13 @@ tryagain:
     {
         funcsym_p->Sfunc->Fstartblock = startblock;
         dwarf_except_gentables(funcsym_p, startoffset, retoffset);
-        funcsym_p->Sfunc->Fstartblock = NULL;
+        funcsym_p->Sfunc->Fstartblock = nullptr;
     }
 
     for (block* b = startblock; b; b = b->Bnext)
     {
         code_free(b->Bcode);
-        b->Bcode = NULL;
+        b->Bcode = nullptr;
     }
 
     }
@@ -460,7 +460,7 @@ tryagain:
     funcsym_p->Sregsaved = (functy == TYifunc) ? mBP : (mfuncreg | fregsaved);
 
     util_free(csextab);
-    csextab = NULL;
+    csextab = nullptr;
 #if TX86
 #ifdef DEBUG
     if (stackused != 0)
@@ -470,7 +470,7 @@ tryagain:
 
     /* Clean up ndp save array  */
     mem_free(NDP::save);
-    NDP::save = NULL;
+    NDP::save = nullptr;
     NDP::savetop = 0;
     NDP::savemax = 0;
 #endif
@@ -532,7 +532,7 @@ code *prolog()
     unsigned farfunc = tyfarfunc(tym);
 
     // Special Intel 64 bit ABI prolog setup for variadic functions
-    symbol *sv64 = NULL;                        // set to __va_argsave
+    symbol *sv64 = nullptr;                        // set to __va_argsave
     if (I64 && variadic(funcsym_p->Stype))
     {
         /* The Intel 64 bit ABI scheme.
@@ -720,7 +720,7 @@ Lagain:
     if (tyf & mTYnaked)                 // if no prolog/epilog for function
     {
         hasframe = 1;
-        return NULL;
+        return nullptr;
     }
 
     if (tym == TYifunc)
@@ -883,7 +883,7 @@ void stackoffsets(int flags)
 
     // Put autos in another array so we can do optimizations on the stack layout
     symbol *autotmp[10];
-    symbol **autos = NULL;
+    symbol **autos = nullptr;
     if (doAutoOpt)
     {
         if (globsym.top <= sizeof(autotmp)/sizeof(autotmp[0]))
@@ -1079,7 +1079,7 @@ void stackoffsets(int flags)
 STATIC void blcodgen(block *bl)
 {
     regm_t mfuncregsave = mfuncreg;
-    char *sflsave = NULL;
+    char *sflsave = nullptr;
 
     //dbg_printf("blcodgen(%p)\n",bl);
 
@@ -1113,15 +1113,15 @@ STATIC void blcodgen(block *bl)
     regcon.cse.mops &= regcon.cse.mval;
 
     // Set regcon.mvar according to what variables are in registers for this block
-    code* c = NULL;
+    code* c = nullptr;
     regcon.mvar = 0;
     regcon.mpvar = 0;
     regcon.indexregs = 1;
     int anyspill = 0;
     if (config.flags4 & CFG4optimized)
     {   SYMIDX i;
-        code *cload = NULL;
-        code *cstore = NULL;
+        code *cload = nullptr;
+        code *cstore = nullptr;
 
         sflsave = (char *) alloca(globsym.top * sizeof(char));
         for (i = 0; i < globsym.top; i++)
@@ -1286,7 +1286,7 @@ void freenode(elem *e)
         }
         for (size_t i = 0; i < cstop; i++)
         {   if (csextab[i].e == e)
-                csextab[i].e = NULL;
+                csextab[i].e = nullptr;
         }
     }
 }
@@ -1584,7 +1584,7 @@ code *getregs(regm_t r)
     regcon.cse.mval &= ~r;
     msavereg &= ~r;                     // regs that are destroyed
     regcon.immed.mval &= ~r;
-    return ms ? cse_save(ms) : NULL;
+    return ms ? cse_save(ms) : nullptr;
 }
 
 /*****************************************
@@ -1593,7 +1593,7 @@ code *getregs(regm_t r)
 
 STATIC code * cse_save(regm_t ms)
 {
-    code *c = NULL;
+    code *c = nullptr;
 
     assert((ms & regcon.cse.mops) == ms);
     regcon.cse.mops &= ~ms;
@@ -1649,7 +1649,7 @@ STATIC code * cse_save(regm_t ms)
             memset(&csextab[cstop],0,sizeof(csextab[0]));
             goto L1;
         }
-        if (csextab[i].e == NULL || i >= cstop)
+        if (csextab[i].e == nullptr || i >= cstop)
         {
         L1:
             unsigned reg = findreg(ms);          /* the register to save         */
@@ -1923,7 +1923,7 @@ if (regcon.cse.mval & 1) elem_print(regcon.cse.value[0]);
                         csextab[i].flags |= CSEload;
                         if (*pretregs == mPSW)  /* if result in CCs only */
                         {                       // CMP cs[BP],0
-                            c = gen_testcse(NULL, sz, i);
+                            c = gen_testcse(nullptr, sz, i);
                         }
                         else
                         {
@@ -2316,7 +2316,7 @@ code *scodelem(elem *e,regm_t *pretregs,regm_t keepmsk,bool constflag)
         touse &= ~oldregimmed;
   }
 
-  cs1 = cs2 = cs3 = NULL;
+  cs1 = cs2 = cs3 = nullptr;
   int adjesp = 0;
 
   for (unsigned i = 0; tosave; i++)
@@ -2375,7 +2375,7 @@ code *scodelem(elem *e,regm_t *pretregs,regm_t keepmsk,bool constflag)
             regcon.immed.mval = mval_save;
             cs1 = genadjesp(cs1, sz);
 
-            code *cx = cod3_stackadj(NULL, -sz);
+            code *cx = cod3_stackadj(nullptr, -sz);
             cx = genadjesp(cx, -sz);
             cs2 = cat(cx, cs2);
         }

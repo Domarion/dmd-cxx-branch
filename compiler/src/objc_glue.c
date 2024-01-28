@@ -64,16 +64,16 @@ int objc_getSegment(ObjcSegment segid)
 
 bool objc_hasSymbols = false;
 
-Symbol *objc_smsgSend = NULL;
-Symbol *objc_smsgSend_stret = NULL;
-Symbol *objc_smsgSend_fpret = NULL;
-Symbol *objc_smsgSend_fp2ret = NULL;
+Symbol *objc_smsgSend = nullptr;
+Symbol *objc_smsgSend_stret = nullptr;
+Symbol *objc_smsgSend_fpret = nullptr;
+Symbol *objc_smsgSend_fp2ret = nullptr;
 
-Symbol *objc_simageInfo = NULL;
-Symbol *objc_smoduleInfo = NULL;
+Symbol *objc_simageInfo = nullptr;
+Symbol *objc_smoduleInfo = nullptr;
 
-StringTable *objc_smethVarNameTable = NULL;
-StringTable *objc_smethVarRefTable = NULL;
+StringTable *objc_smethVarNameTable = nullptr;
+StringTable *objc_smethVarRefTable = nullptr;
 
 static StringTable *initStringTable(StringTable *stringtable)
 {
@@ -89,13 +89,13 @@ void objc_initSymbols()
 {
     objc_hasSymbols = false;
 
-    objc_smsgSend = NULL;
-    objc_smsgSend_stret = NULL;
-    objc_smsgSend_fpret = NULL;
-    objc_smsgSend_fp2ret = NULL;
+    objc_smsgSend = nullptr;
+    objc_smsgSend_stret = nullptr;
+    objc_smsgSend_fpret = nullptr;
+    objc_smsgSend_fp2ret = nullptr;
 
-    objc_simageInfo = NULL;
-    objc_smoduleInfo = NULL;
+    objc_simageInfo = nullptr;
+    objc_smoduleInfo = nullptr;
 
     // clear tables
     objc_smethVarNameTable = initStringTable(objc_smethVarNameTable);
@@ -177,7 +177,7 @@ Symbol *objc_getMsgSend(Type *ret, bool hasHiddenArg)
         return objc_smsgSend;
     }
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 Symbol *objc_getImageInfo()
@@ -230,7 +230,7 @@ Symbol *objc_getMethVarRef(const char *s, size_t len)
 
     StringValue *sv = objc_smethVarRefTable->update(s, len);
     Symbol *refsymbol = (Symbol *) sv->ptrvalue;
-    if (refsymbol == NULL)
+    if (refsymbol == nullptr)
     {
         // create data
         DtBuilder dtb;

@@ -46,7 +46,7 @@ TypeTuple *toArgTypes(Type *t)
 
         ToArgTypes()
         {
-            result = NULL;
+            result = nullptr;
         }
 
         void visit(Type *)
@@ -61,8 +61,8 @@ TypeTuple *toArgTypes(Type *t)
 
         void visit(TypeBasic *t)
         {
-            Type *t1 = NULL;
-            Type *t2 = NULL;
+            Type *t1 = nullptr;
+            Type *t2 = nullptr;
             switch (t->ty)
             {
                 case Tvoid:
@@ -227,7 +227,7 @@ TypeTuple *toArgTypes(Type *t)
 
             if (t1->ty != t2->ty &&
                 (t1->ty == Tfloat80 || t2->ty == Tfloat80))
-                return NULL;
+                return nullptr;
 
             // [float,float] => [cfloat]
             if (t1->ty == Tfloat32 && t2->ty == Tfloat32 && offset2 == 4)
@@ -319,8 +319,8 @@ TypeTuple *toArgTypes(Type *t)
                 result = new TypeTuple();         // pass on the stack
                 return;
             }
-            Type *t1 = NULL;
-            Type *t2 = NULL;
+            Type *t1 = nullptr;
+            Type *t2 = nullptr;
             const d_uns64 sz = t->size(Loc());
             assert(sz < 0xFFFFFFFF);
             switch ((unsigned)sz)
@@ -348,7 +348,7 @@ TypeTuple *toArgTypes(Type *t)
                     t1 = Type::tint64;
                     break;
                 case 16:
-                    t1 = NULL;                   // could be a TypeVector
+                    t1 = nullptr;                   // could be a TypeVector
                     break;
                 case 9:
                 case 10:
@@ -359,14 +359,14 @@ TypeTuple *toArgTypes(Type *t)
                 case 15:
                     if (!global.params.is64bit)
                         goto Lmemory;
-                    t1 = NULL;
+                    t1 = nullptr;
                     break;
                 default:
                     goto Lmemory;
             }
             if (global.params.is64bit && t->sym->fields.length)
             {
-                t1 = NULL;
+                t1 = nullptr;
                 for (size_t i = 0; i < t->sym->fields.length; i++)
                 {
                     VarDeclaration *f = t->sym->fields[i];
@@ -376,8 +376,8 @@ TypeTuple *toArgTypes(Type *t)
                     if (!tup)
                         goto Lmemory;
                     size_t dim = tup->arguments->length;
-                    Type *ft1 = NULL;
-                    Type *ft2 = NULL;
+                    Type *ft1 = nullptr;
+                    Type *ft2 = nullptr;
                     switch (dim)
                     {
                         case 2:

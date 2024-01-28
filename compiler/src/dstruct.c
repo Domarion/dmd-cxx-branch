@@ -41,7 +41,7 @@ FuncDeclaration *StructDeclaration::xerrcmp;    // object.xopCmp
 FuncDeclaration *search_toString(StructDeclaration *sd)
 {
     Dsymbol *s = search_function(sd, Id::tostring);
-    FuncDeclaration *fd = s ? s->isFuncDeclaration() : NULL;
+    FuncDeclaration *fd = s ? s->isFuncDeclaration() : nullptr;
     if (fd)
     {
         static TypeFunction *tftostring;
@@ -189,31 +189,31 @@ AggregateDeclaration::AggregateDeclaration(Loc loc, Identifier *id)
     this->loc = loc;
 
     storage_class = 0;
-    protection = Prot(Prot::public_);
-    type = NULL;
+    protection = Visibility(Visibility::public_);
+    type = nullptr;
     structsize = 0;             // size of struct
     alignsize = 0;              // size of struct for alignment purposes
     sizeok = SIZEOKnone;        // size not determined yet
-    deferred = NULL;
+    deferred = nullptr;
     isdeprecated = false;
     classKind = ClassKind::d;
-    inv = NULL;
-    aggNew = NULL;
+    inv = nullptr;
+    aggNew = nullptr;
 
-    stag = NULL;
-    sinit = NULL;
-    enclosing = NULL;
-    vthis = NULL;
+    stag = nullptr;
+    sinit = nullptr;
+    enclosing = nullptr;
+    vthis = nullptr;
 
-    ctor = NULL;
-    defaultCtor = NULL;
-    aliasthis = NULL;
+    ctor = nullptr;
+    defaultCtor = nullptr;
+    aliasthis = nullptr;
     noDefaultCtor = false;
-    dtor = NULL;
-    getRTInfo = NULL;
+    dtor = nullptr;
+    getRTInfo = nullptr;
 }
 
-Prot AggregateDeclaration::prot()
+Visibility AggregateDeclaration::prot()
 {
     return protection;
 }
@@ -229,10 +229,10 @@ Scope *AggregateDeclaration::newScope(Scope *sc)
     sc2->parent = this;
     if (isUnionDeclaration())
         sc2->inunion = 1;
-    sc2->protection = Prot(Prot::public_);
+    sc2->protection = Visibility(Visibility::public_);
     sc2->explicitProtection = 0;
-    sc2->aligndecl = NULL;
-    sc2->userAttribDecl = NULL;
+    sc2->aligndecl = nullptr;
+    sc2->userAttribDecl = nullptr;
     return sc2;
 }
 
@@ -260,7 +260,7 @@ void AggregateDeclaration::setScope(Scope *sc)
 bool AggregateDeclaration::determineFields()
 {
     if (_scope)
-        dsymbolSemantic(this, NULL);
+        dsymbolSemantic(this, nullptr);
     if (sizeok != SIZEOKnone)
         return true;
 
@@ -282,7 +282,7 @@ bool AggregateDeclaration::determineFields()
             AggregateDeclaration *ad = ((SV *)param)->agg;
 
             if (v->semanticRun < PASSsemanticdone)
-                dsymbolSemantic(v, NULL);
+                dsymbolSemantic(v, nullptr);
             // Note: Aggregate fields or size could have determined during v->semantic.
             if (ad->sizeok != SIZEOKnone)
                 return 1;
@@ -355,7 +355,7 @@ bool AggregateDeclaration::determineSize(Loc loc)
     }
 
     if (_scope)
-        dsymbolSemantic(this, NULL);
+        dsymbolSemantic(this, nullptr);
 
     // Determine the instance size of base class first.
     if (ClassDeclaration *cd = isClassDeclaration())
@@ -463,7 +463,7 @@ bool AggregateDeclaration::isDeprecated()
 
 bool AggregateDeclaration::isExport() const
 {
-    return protection.kind == Prot::export_;
+    return protection.kind == Visibility::export_;
 }
 
 /***************************************
@@ -498,7 +498,7 @@ bool AggregateDeclaration::checkOverlappedFields()
 
         VarDeclaration *vx = vd;
         if (vd->_init && vd->_init->isVoidInitializer())
-            vx = NULL;
+            vx = nullptr;
 
         // Find overlapped fields with the hole [vd->offset .. vd->offset->size()].
         for (size_t j = 0; j < nfields; j++)
@@ -559,7 +559,7 @@ bool AggregateDeclaration::fill(Loc loc, Expressions *elements, bool ctorinit)
     size_t dim = elements->length;
     elements->setDim(nfields);
     for (size_t i = dim; i < nfields; i++)
-        (*elements)[i] = NULL;
+        (*elements)[i] = nullptr;
 
     // Fill in missing any elements with default initializers
     for (size_t i = 0; i < nfields; i++)
@@ -570,7 +570,7 @@ bool AggregateDeclaration::fill(Loc loc, Expressions *elements, bool ctorinit)
         VarDeclaration *vd = fields[i];
         VarDeclaration *vx = vd;
         if (vd->_init && vd->_init->isVoidInitializer())
-            vx = NULL;
+            vx = nullptr;
 
         // Find overlapped fields with the hole [vd->offset .. vd->offset->size()].
         size_t fieldi = i;
@@ -584,7 +584,7 @@ bool AggregateDeclaration::fill(Loc loc, Expressions *elements, bool ctorinit)
 
             if ((*elements)[j])
             {
-                vx = NULL;
+                vx = nullptr;
                 break;
             }
             if (v2->_init && v2->_init->isVoidInitializer())
@@ -640,7 +640,7 @@ bool AggregateDeclaration::fill(Loc loc, Expressions *elements, bool ctorinit)
             Expression *e;
             if (vx->type->size() == 0)
             {
-                e = NULL;
+                e = nullptr;
             }
             else if (vx->_init)
             {
@@ -649,7 +649,7 @@ bool AggregateDeclaration::fill(Loc loc, Expressions *elements, bool ctorinit)
                 {
                     vx->error(loc, "recursive initialization of field");
                     errors = true;
-                    e = NULL;
+                    e = nullptr;
                 }
                 else
                     e = vx->getConstInitializer(false);
@@ -783,7 +783,7 @@ unsigned AggregateDeclaration::placeField(
 
 bool AggregateDeclaration::isNested()
 {
-    return enclosing != NULL;
+    return enclosing != nullptr;
 }
 
 /* Append vthis field (this->tupleof[$-1]) to make this aggregate type nested.
@@ -803,7 +803,7 @@ void AggregateDeclaration::makeNested()
     Dsymbol *s = toParent2();
     if (!s)
         return;
-    Type *t = NULL;
+    Type *t = nullptr;
     if (FuncDeclaration *fd = s->isFuncDeclaration())
     {
         enclosing = fd;
@@ -845,7 +845,7 @@ void AggregateDeclaration::makeNested()
         // Emulate vthis->semantic()
         vthis->storage_class |= STCfield;
         vthis->parent = this;
-        vthis->protection = Prot(Prot::public_);
+        vthis->protection = Visibility(Visibility::public_);
         vthis->alignment = t->alignment();
         vthis->semanticRun = PASSsemanticdone;
 
@@ -868,11 +868,11 @@ Dsymbol *AggregateDeclaration::searchCtor()
         {
             s->error("is not a constructor; identifiers starting with __ are reserved for the implementation");
             errors = true;
-            s = NULL;
+            s = nullptr;
         }
     }
     if (s && s->toParent() != this)
-        s = NULL; // search() looks through ancestor classes
+        s = nullptr; // search() looks through ancestor classes
     if (s)
     {
         // Finish all constructors semantics to determine this->noDefaultCtor.
@@ -882,7 +882,7 @@ Dsymbol *AggregateDeclaration::searchCtor()
             {
                 CtorDeclaration *f = s->isCtorDeclaration();
                 if (f && f->semanticRun == PASSinit)
-                    dsymbolSemantic(f, NULL);
+                    dsymbolSemantic(f, nullptr);
                 return 0;
             }
         };
@@ -890,7 +890,7 @@ Dsymbol *AggregateDeclaration::searchCtor()
         for (size_t i = 0; i < members->length; i++)
         {
             Dsymbol *sm = (*members)[i];
-            sm->apply(&SearchCtor::fp, NULL);
+            sm->apply(&SearchCtor::fp, nullptr);
         }
     }
     return s;
@@ -904,15 +904,15 @@ StructDeclaration::StructDeclaration(Loc loc, Identifier *id, bool inObject)
     zeroInit = 0;       // assume false until we do semantic processing
     hasIdentityAssign = false;
     hasIdentityEquals = false;
-    postblit = NULL;
+    postblit = nullptr;
 
-    xeq = NULL;
-    xcmp = NULL;
-    xhash = NULL;
+    xeq = nullptr;
+    xcmp = nullptr;
+    xhash = nullptr;
     alignment = 0;
     ispod = ISPODfwd;
-    arg1type = NULL;
-    arg2type = NULL;
+    arg1type = nullptr;
+    arg2type = nullptr;
     requestTypeInfo = false;
 
     // For forward references
@@ -948,7 +948,7 @@ Dsymbol *StructDeclaration::search(const Loc &loc, Identifier *ident, int flags)
     if (!members || !symtab)    // opaque or semantic() is not yet called
     {
         error("is forward referenced when looking for `%s`", ident->toChars());
-        return NULL;
+        return nullptr;
     }
 
     return ScopeDsymbol::search(loc, ident, flags);
@@ -1061,7 +1061,7 @@ void StructDeclaration::finalizeSize()
 
     // Set the offsets of the fields and determine the size of the struct
     unsigned offset = 0;
-    bool isunion = isUnionDeclaration() != NULL;
+    bool isunion = isUnionDeclaration() != nullptr;
     for (size_t i = 0; i < members->length; i++)
     {
         Dsymbol *s = (*members)[i];

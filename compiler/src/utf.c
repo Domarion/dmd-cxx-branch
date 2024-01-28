@@ -147,7 +147,7 @@ int utf_codeLength(int sz, dchar_t c)
 
 void utf_encodeChar(utf8_t *s, dchar_t c)
 {
-    assert(s != NULL);
+    assert(s != nullptr);
     assert(utf_isValidDchar(c));
     if (c <= 0x7F)
     {
@@ -177,7 +177,7 @@ void utf_encodeChar(utf8_t *s, dchar_t c)
 
 void utf_encodeWchar(utf16_t *s, dchar_t c)
 {
-    assert(s != NULL);
+    assert(s != nullptr);
     assert(utf_isValidDchar(c));
     if (c <= 0xFFFF)
     {
@@ -206,15 +206,15 @@ void utf_encode(int sz, void *s, dchar_t c)
 /********************************************
  * Decode a UTF-8 sequence as a single UTF-32 code point.
  * Returns:
- *      NULL    success
- *      !=NULL  error message string
+ *      nullptr    success
+ *      !=nullptr  error message string
  */
 
 const char *utf_decodeChar(utf8_t const *s, size_t len, size_t *pidx, dchar_t *presult)
 {
-    assert(s != NULL);
-    assert(pidx != NULL);
-    assert(presult != NULL);
+    assert(s != nullptr);
+    assert(pidx != nullptr);
+    assert(presult != nullptr);
     size_t i = (*pidx)++;
     assert(i < len);
     utf8_t u = s[i];
@@ -272,15 +272,15 @@ const char *utf_decodeChar(utf8_t const *s, size_t len, size_t *pidx, dchar_t *p
 /********************************************
  * Decode a UTF-16 sequence as a single UTF-32 code point.
  * Returns:
- *      NULL    success
- *      !=NULL  error message string
+ *      nullptr    success
+ *      !=nullptr  error message string
  */
 
 const char *utf_decodeWchar(utf16_t const *s, size_t len, size_t *pidx, dchar_t *presult)
 {
-    assert(s != NULL);
-    assert(pidx != NULL);
-    assert(presult != NULL);
+    assert(s != nullptr);
+    assert(pidx != nullptr);
+    assert(presult != nullptr);
     size_t i = (*pidx)++;
     assert(i < len);
     // Pre-stage results for ASCII and error cases

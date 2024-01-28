@@ -39,9 +39,9 @@ static int parseExtAsmOperands(Parser *p, GccAsmStatement *s)
 
     while (1)
     {
-        Expression *arg = NULL;
-        Identifier *name = NULL;
-        Expression *constraint = NULL;
+        Expression *arg = nullptr;
+        Identifier *name = nullptr;
+        Expression *constraint = nullptr;
 
         switch (p->token.value)
         {
@@ -135,7 +135,7 @@ Lerror:
  */
 static Expressions *parseExtAsmClobbers(Parser *p)
 {
-    Expressions *clobbers = NULL;
+    Expressions *clobbers = nullptr;
 
     while (1)
     {
@@ -186,7 +186,7 @@ Lerror:
  */
 static Identifiers *parseExtAsmGotoLabels(Parser *p)
 {
-    Identifiers *labels = NULL;
+    Identifiers *labels = nullptr;
 
     while (1)
     {
@@ -299,7 +299,7 @@ Statement *gccAsmSemantic(GccAsmStatement *s, Scope *sc)
     Parser p(sc->_module, (const utf8_t *)";", 1, false);
 
     // Make a safe copy of the token list before parsing.
-    Token *toklist = NULL;
+    Token *toklist = nullptr;
     Token **ptoklist = &toklist;
 
     for (Token *token = s->tokens; token; token = token->next)
@@ -307,7 +307,7 @@ Statement *gccAsmSemantic(GccAsmStatement *s, Scope *sc)
         *ptoklist = Token::alloc();
         memcpy(*ptoklist, token, sizeof(Token));
         ptoklist = &(*ptoklist)->next;
-        *ptoklist = NULL;
+        *ptoklist = nullptr;
     }
     p.token = *toklist;
     p.scanloc = s->loc;
@@ -315,7 +315,7 @@ Statement *gccAsmSemantic(GccAsmStatement *s, Scope *sc)
     // Parse the gcc asm statement.
     s = parseGccAsm(&p, s);
     if (p.errors)
-        return NULL;
+        return nullptr;
     s->stc = sc->stc;
 
     // Fold the instruction template string.
@@ -337,7 +337,7 @@ Statement *gccAsmSemantic(GccAsmStatement *s, Scope *sc)
             e = expressionSemantic(e, sc);
             // Check argument is a valid lvalue/rvalue.
             if (i < s->outputargs)
-                e = e->modifiableLvalue(sc, NULL);
+                e = e->modifiableLvalue(sc, nullptr);
             else if (e->checkValue())
                 e = ErrorExp::get();
             (*s->args)[i] = e;

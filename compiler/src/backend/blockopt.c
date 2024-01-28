@@ -48,7 +48,7 @@ unsigned numblks;       // number of basic blocks in current function
 block *startblock;      /* beginning block of function                  */
                         /* (can have no predecessors)                   */
 
-block **dfo = NULL;     /* array of depth first order                   */
+block **dfo = nullptr;     /* array of depth first order                   */
 unsigned dfotop;        /* # of items in dfo[]                          */
 
 block *curblock;        /* current block being read in                  */
@@ -182,7 +182,7 @@ void block_pred()
                 list_prepend(&(list_block(bp)->Bpred),b);
         }
     }
-    assert(startblock->Bpred == NULL);  /* startblock has no preds      */
+    assert(startblock->Bpred == nullptr);  /* startblock has no preds      */
 }
 
 /********************************************
@@ -234,7 +234,7 @@ void blocklist_free(block **pb)
         {       bn = b->Bnext;
                 block_free(b);
         }
-        *pb = NULL;
+        *pb = nullptr;
 }
 
 /********************************
@@ -308,7 +308,7 @@ void block_appendexp(block *b,elem *e)
         elem_debug(e);
         pe = &b->Belem;
         ec = *pe;
-        if (ec != NULL)
+        if (ec != nullptr)
         {
             type *t = e->ET;
 
@@ -353,8 +353,8 @@ void block_endfunc(int flag)
     }
     else
         curblock->BC = BCret;           // put a return at the end
-    curblock = NULL;                    // undefined from now on
-    block_last = NULL;
+    curblock = nullptr;                    // undefined from now on
+    block_last = nullptr;
 }
 
 /******************************
@@ -494,7 +494,7 @@ void brcombine()
                         op = OPandand;
                         b->Belem = PARSER ? el_bint(op,tsint,b->Belem,b2->Belem)
                                           : el_bin(op,TYint,b->Belem,b2->Belem);
-                        b2->Belem = NULL;
+                        b2->Belem = nullptr;
                     }
                     list_subtract(&(b->Bsucc),b2);
                     list_subtract(&(b2->Bpred),b);
@@ -524,8 +524,8 @@ void brcombine()
                     }
                     b->BC = bc2;
                     b->Belem->ET = b2->Belem->ET;
-                    b2->Belem = NULL;
-                    b3->Belem = NULL;
+                    b2->Belem = nullptr;
+                    b3->Belem = nullptr;
                     list_free(&b->Bsucc,FPNULL);
                     list_subtract(&(b2->Bpred),b);
                     list_subtract(&(b3->Bpred),b);
@@ -572,7 +572,7 @@ void brcombine()
                                 e = el_bin(op,TYint,b->Belem,b2->Belem);
                             }
                         }
-                        b2->Belem = NULL;
+                        b2->Belem = nullptr;
                         b->Belem = e;
                     }
                     else if (b3->Belem)
@@ -582,7 +582,7 @@ void brcombine()
                                           : el_bin(op,TYint,b->Belem,b3->Belem);
                     }
                     b->BC = BCgoto;
-                    b3->Belem = NULL;
+                    b3->Belem = nullptr;
                     list_free(&b->Bsucc,FPNULL);
 
                     b->appendSucc(bsucc);
@@ -621,7 +621,7 @@ void brcombine()
                             b->Belem = el_bin(OPcomma,b2->Belem->Ety,b->Belem,b2->Belem);
                         else
                             b->Belem = b2->Belem;
-                        b2->Belem = NULL;
+                        b2->Belem = nullptr;
                     }
                     list_subtract(&b->Bsucc,b2);
                     list_subtract(&b2->Bpred,b);
@@ -640,7 +640,7 @@ void brcombine()
                     b->BC = b2->BC;
                     b->BS = b2->BS;
                     b->Bsucc = b2->Bsucc;
-                    b2->Bsucc = NULL;
+                    b2->Bsucc = nullptr;
                     b2->BC = BCret;             /* a harmless one       */
                     cmes3("brcombine(): %p goto %p eliminated\n",b,b2);
                     anychanges++;
@@ -902,8 +902,8 @@ STATIC void elimblks()
 #endif
 
     cmes("elimblks()\n");
-    bf = NULL;
-    for (pb = &startblock; (b = *pb) != NULL;)
+    bf = nullptr;
+    for (pb = &startblock; (b = *pb) != nullptr;)
     {
         if (((b->Bflags & BFLvisited) == 0)  /* if block is not visited */
             && ((b->Bflags & BFLlabel) == 0)    /* need label offset    */
@@ -989,12 +989,12 @@ STATIC int mergeblks()
                         if (b->Belem && bL2->Belem)
                             e = doptelem(e,bc_goal[bL2->BC] | GOALagain);
                         bL2->Belem = e;
-                        b->Belem = NULL;
+                        b->Belem = nullptr;
 
                         /* Remove b from predecessors of bL2    */
                         list_free(&(bL2->Bpred),FPNULL);
                         bL2->Bpred = b->Bpred;
-                        b->Bpred = NULL;
+                        b->Bpred = nullptr;
                         /* Remove bL2 from successors of b      */
                         list_free(&b->Bsucc,FPNULL);
 
@@ -1201,7 +1201,7 @@ STATIC void blreturn()
  */
 
 STATIC list_t bl_enlist(elem *e)
-{   list_t el = NULL;
+{   list_t el = nullptr;
 
     if (e)
     {
@@ -1212,7 +1212,7 @@ STATIC list_t bl_enlist(elem *e)
 
             el2 = bl_enlist(e->E1);
             el = bl_enlist(e->E2);
-            e->E1 = e->E2 = NULL;
+            e->E1 = e->E2 = nullptr;
             el_free(e);
 
             /* Append el2 list to el    */
@@ -1235,7 +1235,7 @@ STATIC elem * bl_delist(list_t el)
 {   elem *e;
     list_t elstart = el;
 
-    for (e = NULL; el; el = list_next(el))
+    for (e = nullptr; el; el = list_next(el))
         e = el_combine(list_elem(el),e);
     list_free(&elstart,FPNULL);
     return e;
@@ -1313,14 +1313,14 @@ STATIC void bltailmerge()
                     if (bnew->BC == BCswitch)
                     {
                         bnew->BS.Bswitch = b->BS.Bswitch;
-                        b->BS.Bswitch = NULL;
-                        bn->BS.Bswitch = NULL;
+                        b->BS.Bswitch = nullptr;
+                        bn->BS.Bswitch = nullptr;
                     }
                     bn->Bnext = bnew;
 
                     /* The successor list to bnew is the same as b's was */
                     bnew->Bsucc = b->Bsucc;
-                    b->Bsucc = NULL;
+                    b->Bsucc = nullptr;
                     list_free(&bn->Bsucc,FPNULL);
 
                     /* Update the predecessor list of the successor list
@@ -1418,7 +1418,7 @@ STATIC void brmin()
                 if (bn->Bnext == bs)
                     break;
             }
-            bn->Bnext = NULL;
+            bn->Bnext = nullptr;
             b->Bnext = bs;
             for (bn = bs; bn->Bnext; bn = bn->Bnext)
                 ;
@@ -1465,11 +1465,11 @@ STATIC void brtailrecursion()
         if (b->BC == BC_try)
             return;
         pe = &b->Belem;
-        block *bn = NULL;
+        block *bn = nullptr;
         if (*pe &&
             (b->BC == BCret ||
              b->BC == BCretexp ||
-             (b->BC == BCgoto && (bn = list_block(b->Bsucc))->Belem == NULL &&
+             (b->BC == BCgoto && (bn = list_block(b->Bsucc))->Belem == nullptr &&
               bn->BC == BCret)
             )
            )
@@ -1491,7 +1491,7 @@ STATIC void brtailrecursion()
                 }
                 else
                 {   int si = 0;
-                    elem *e2 = NULL;
+                    elem *e2 = nullptr;
                     *pe = assignparams(&e->E2,&si,&e2);
                     *pe = el_combine(*pe,e2);
                 }
@@ -1534,12 +1534,12 @@ STATIC elem * assignparams(elem **pe,int *psi,elem **pe2)
     elem *e = *pe;
 
     if (e->Eoper == OPparam)
-    {   elem *ea = NULL;
-        elem *eb = NULL;
+    {   elem *ea = nullptr;
+        elem *eb = nullptr;
         elem *e2 = assignparams(&e->E2,psi,&eb);
         elem *e1 = assignparams(&e->E1,psi,&ea);
-        e->E1 = NULL;
-        e->E2 = NULL;
+        e->E1 = nullptr;
+        e->E2 = nullptr;
         e = el_combine(e1,e2);
         *pe2 = el_combine(eb,ea);
     }
@@ -1562,7 +1562,7 @@ STATIC elem * assignparams(elem **pe,int *psi,elem **pe2)
             t = e->ET;
             elem *ex = e;
             e = e->E1;
-            ex->E1 = NULL;
+            ex->E1 = nullptr;
             el_free(ex);
         }
         es = el_var(s);
@@ -1575,7 +1575,7 @@ STATIC elem * assignparams(elem **pe,int *psi,elem **pe2)
         if (op == OPstreq)
             (*pe2)->ET = t;
         *psi = ++si;
-        *pe = NULL;
+        *pe = nullptr;
     }
     return e;
 }

@@ -115,7 +115,7 @@ void WRarglst(list_t a)
   if (!a) printf("0 args\n");
   while (a)
   {     const char* c = (const char*)list_ptr(a);
-        printf("arg %d: '%s'\n", n, c ? c : "NULL");
+        printf("arg %d: '%s'\n", n, c ? c : "nullptr");
         a = a->next;
         n++;
   }

@@ -40,7 +40,7 @@ bool checkFrameAccess(Loc loc, Scope *sc, AggregateDeclaration *ad, size_t istar
 VarDeclaration *copyToTemp(StorageClass stc, const char *name, Expression *e);
 Initializer *inferType(Initializer *init, Scope *sc);
 void MODtoBuffer(OutBuffer *buf, MOD mod);
-bool reliesOnTident(Type *t, TemplateParameters *tparams = NULL, size_t iStart = 0);
+bool reliesOnTident(Type *t, TemplateParameters *tparams = nullptr, size_t iStart = 0);
 bool expressionsToString(OutBuffer &buf, Scope *sc, Expressions *exps);
 bool symbolIsVisible(Scope *sc, Dsymbol *s);
 
@@ -50,7 +50,7 @@ static unsigned setMangleOverride(Dsymbol *s, char *sym)
 
     if (ad)
     {
-        Dsymbols *decls = ad->include(NULL);
+        Dsymbols *decls = ad->include(nullptr);
         unsigned nestedCount = 0;
 
         if (decls && decls->length)
@@ -95,7 +95,7 @@ static bool canInferAttributes(FuncDeclaration *fd, Scope *sc)
     if (fd->isInstantiated())
     {
         TemplateInstance *ti = fd->parent->isTemplateInstance();
-        if (ti == NULL || ti->isTemplateMixin() || ti->tempdecl->ident == fd->ident)
+        if (ti == nullptr || ti->isTemplateMixin() || ti->tempdecl->ident == fd->ident)
             return true;
     }
 
@@ -151,7 +151,7 @@ static Type *resolveBase(ClassDeclaration *cd, Scope *sc, Scope *&scx, Type *typ
     }
     cd->_scope = scx;
     Type *t = typeSemantic(type, cd->loc, sc);
-    cd->_scope = NULL;
+    cd->_scope = nullptr;
     return t;
 }
 
@@ -163,8 +163,8 @@ static void resolveBase(ClassDeclaration *cd, Scope *sc, Scope *&scx, ClassDecla
         scx->setNoFree();
     }
     cd->_scope = scx;
-    dsymbolSemantic(sym, NULL);
-    cd->_scope = NULL;
+    dsymbolSemantic(sym, nullptr);
+    cd->_scope = nullptr;
 }
 
 class DsymbolSemanticVisitor : public Visitor
@@ -193,7 +193,7 @@ public:
         if (dsym->_scope)
         {
             sc = dsym->_scope;
-            dsym->_scope = NULL;
+            dsym->_scope = nullptr;
         }
 
         if (!sc)
@@ -214,7 +214,7 @@ public:
         Dsymbol *s = ad->search(dsym->loc, dsym->ident);
         if (!s)
         {
-            s = sc->search(dsym->loc, dsym->ident, NULL);
+            s = sc->search(dsym->loc, dsym->ident, nullptr);
             if (s)
                 error(dsym->loc, "%s is not a member of %s", s->toChars(), ad->toChars());
             else
@@ -238,7 +238,7 @@ public:
         /* disable the alias this conversion so the implicit conversion check
          * doesn't use it.
          */
-        ad->aliasthis = NULL;
+        ad->aliasthis = nullptr;
 
         Dsymbol *sx = s;
         if (sx->isAliasDeclaration())
@@ -283,12 +283,12 @@ public:
         if (dsym->semanticRun >= PASSsemanticdone)
             return;
 
-        Scope *scx = NULL;
+        Scope *scx = nullptr;
         if (dsym->_scope)
         {
             sc = dsym->_scope;
             scx = sc;
-            dsym->_scope = NULL;
+            dsym->_scope = nullptr;
         }
 
         if (!sc)
@@ -438,7 +438,7 @@ public:
              */
             TypeTuple *tt = (TypeTuple *)tb;
             size_t nelems = Parameter::dim(tt->arguments);
-            Expression *ie = (dsym->_init && !dsym->_init->isVoidInitializer()) ? initializerToExpression(dsym->_init) : NULL;
+            Expression *ie = (dsym->_init && !dsym->_init->isVoidInitializer()) ? initializerToExpression(dsym->_init) : nullptr;
             if (ie)
                 ie = expressionSemantic(ie, sc);
 
@@ -565,7 +565,7 @@ public:
                     ti = new ExpInitializer(einit->loc, einit);
                 }
                 else
-                    ti = dsym->_init ? dsym->_init->syntaxCopy() : NULL;
+                    ti = dsym->_init ? dsym->_init->syntaxCopy() : nullptr;
 
                 VarDeclaration *v = new VarDeclaration(dsym->loc, arg->type, id, ti);
                 v->storage_class |= STCtemp | STClocal | dsym->storage_class;
@@ -904,7 +904,7 @@ public:
                     if (exp->op == TOKerror)
                     {
                         dsym->_init = new ErrorInitializer();
-                        ei = NULL;
+                        ei = nullptr;
                     }
                     else
                         ei->exp = exp;
@@ -998,7 +998,7 @@ public:
                              // there is a copy constructor
                              // and exp is the same struct
                             if (sd->postblit &&
-                                tb2->toDsymbol(NULL) == sd)
+                                tb2->toDsymbol(nullptr) == sd)
                             {
                                 // The only allowable initializer is a (non-copy) constructor
                                 if (exp->isLvalue())
@@ -1044,7 +1044,7 @@ public:
         if (sc->scopesym && !sc->scopesym->isAggregateDeclaration())
         {
             for (ScopeDsymbol *sym = sc->scopesym; sym && dsym->endlinnum == 0;
-                 sym = sym->parent ? sym->parent->isScopeDsymbol() : NULL)
+                 sym = sym->parent ? sym->parent->isScopeDsymbol() : nullptr)
                 dsym->endlinnum = sym->endlinnum;
         }
     }
@@ -1063,7 +1063,7 @@ public:
         if (imp->_scope)
         {
             sc = imp->_scope;
-            imp->_scope = NULL;
+            imp->_scope = nullptr;
         }
         if (!sc)
             return;
@@ -1075,7 +1075,7 @@ public:
         {
             imp->load(sc);
             if (imp->mod)
-                imp->mod->importAll(NULL);
+                imp->mod->importAll(nullptr);
         }
 
         if (imp->mod)
@@ -1089,7 +1089,7 @@ public:
 
             if (!imp->aliasId && !imp->names.length) // neither a selective nor a renamed import
             {
-                ScopeDsymbol *scopesym = NULL;
+                ScopeDsymbol *scopesym = nullptr;
                 if (sc->explicitProtection)
                     imp->protection = sc->protection.kind;
                 for (Scope *scd = sc; scd; scd = scd->enclosing)
@@ -1108,7 +1108,7 @@ public:
                 imp->addPackageAccess(scopesym);
             }
 
-            dsymbolSemantic(imp->mod, NULL);
+            dsymbolSemantic(imp->mod, nullptr);
 
             if (imp->mod->needmoduleinfo)
             {
@@ -1150,7 +1150,7 @@ public:
 
         // object self-imports itself, so skip that (Bugzilla 7547)
         // don't list pseudo modules __entrypoint.d, __main.d (Bugzilla 11117, 11164)
-        if (global.params.moduleDeps != NULL &&
+        if (global.params.moduleDeps != nullptr &&
             !(imp->id == Id::object && sc->_module->ident == Id::object) &&
             sc->_module->ident != Id::entrypoint &&
             strcmp(sc->_module->ident->toChars(), "__main") != 0)
@@ -1549,7 +1549,7 @@ public:
         //printf("CompileDeclaration::compileIt(loc = %d) %s\n", cd->loc.linnum, cd->exp->toChars());
         OutBuffer buf;
         if (expressionsToString(buf, sc, cd->exps))
-            return NULL;
+            return nullptr;
 
         unsigned errors = global.errors;
         const size_t len = buf.length();
@@ -1559,12 +1559,12 @@ public:
 
         Dsymbols *d = p.parseDeclDefs(0);
         if (global.errors != errors)
-            return NULL;
+            return nullptr;
 
         if (p.token.value != TOKeof)
         {
             cd->error("incomplete mixin declaration (%s)", str);
-            return NULL;
+            return nullptr;
         }
         return d;
     }
@@ -1683,12 +1683,12 @@ public:
         }
         unsigned dprogress_save = Module::dprogress;
 
-        Scope *scx = NULL;
+        Scope *scx = nullptr;
         if (ed->_scope)
         {
             sc = ed->_scope;
             scx = ed->_scope;            // save so we don't make redundant copies
-            ed->_scope = NULL;
+            ed->_scope = nullptr;
         }
 
         if (!sc)
@@ -1812,7 +1812,7 @@ public:
              * so we have to do what addMember() does and install the enum members in the right symbol
              * table
              */
-            ScopeDsymbol *scopesym = NULL;
+            ScopeDsymbol *scopesym = nullptr;
             if (ed->isAnonymous())
             {
                 /* Anonymous enum members get added to enclosing scope.
@@ -1887,7 +1887,7 @@ public:
 
         em->semanticRun = PASSsemantic;
 
-        em->protection = em->ed->isAnonymous() ? em->ed->protection : Prot(Prot::public_);
+        em->protection = em->ed->isAnonymous() ? em->ed->protection : Visibility(Visibility::public_);
         em->linkage = LINKd;
         em->storage_class |= STCmanifest;
 
@@ -2011,7 +2011,7 @@ public:
             /* Find the previous enum member,
              * and set this to be the previous value + 1
              */
-            EnumMember *emprev = NULL;
+            EnumMember *emprev = nullptr;
             for (size_t i = 0; i < em->ed->members->length; i++)
             {
                 EnumMember *enm = (*em->ed->members)[i]->isEnumMember();
@@ -2189,7 +2189,7 @@ public:
         paramscope->pop();
 
         // Compute again
-        tempdecl->onemember = NULL;
+        tempdecl->onemember = nullptr;
         if (tempdecl->members)
         {
             Dsymbol *s;
@@ -2208,7 +2208,7 @@ public:
 
     void visit(TemplateInstance *ti)
     {
-        templateInstanceSemantic(ti, sc, NULL);
+        templateInstanceSemantic(ti, sc, nullptr);
     }
 
     void visit(TemplateMixin *tm)
@@ -2222,12 +2222,12 @@ public:
         }
         tm->semanticRun = PASSsemantic;
 
-        Scope *scx = NULL;
+        Scope *scx = nullptr;
         if (tm->_scope)
         {
             sc = tm->_scope;
             scx = tm->_scope;            // save so we don't make redundant copies
-            tm->_scope = NULL;
+            tm->_scope = nullptr;
         }
 
         /* Run semantic on each argument, place results in tiargs[],
@@ -2235,7 +2235,7 @@ public:
          */
         if (!tm->findTempDecl(sc) ||
             !tm->semanticTiargs(sc) ||
-            !tm->findBestMatch(sc, NULL))
+            !tm->findBestMatch(sc, nullptr))
         {
             if (tm->semanticRun == PASSinit)    // forward reference had occured
             {
@@ -2345,7 +2345,7 @@ public:
             ScopeDsymbol *sds = (ScopeDsymbol *)sce->scopesym;
             if (sds)
             {
-                sds->importScope(tm, Prot(Prot::public_));
+                sds->importScope(tm, Visibility(Visibility::public_));
                 break;
             }
         }
@@ -2436,7 +2436,7 @@ public:
         if (ns->_scope)
         {
             sc = ns->_scope;
-            ns->_scope = NULL;
+            ns->_scope = nullptr;
         }
         if (!sc)
             return;
@@ -2507,7 +2507,7 @@ public:
         if (funcdecl->_scope)
         {
             sc = funcdecl->_scope;
-            funcdecl->_scope = NULL;
+            funcdecl->_scope = nullptr;
         }
 
         if (!sc || funcdecl->errors)
@@ -2590,7 +2590,7 @@ public:
                  */
                 if (tf->purity == PUREimpure && (funcdecl->isNested() || funcdecl->isThis()))
                 {
-                    FuncDeclaration *fd = NULL;
+                    FuncDeclaration *fd = nullptr;
                     for (Dsymbol *p = funcdecl->toParent2(); p; p = p->toParent2())
                     {
                         if (AggregateDeclaration *adx = p->isAggregateDeclaration())
@@ -2599,7 +2599,7 @@ public:
                                 continue;
                             break;
                         }
-                        if ((fd = p->isFuncDeclaration()) != NULL)
+                        if ((fd = p->isFuncDeclaration()) != nullptr)
                             break;
                     }
 
@@ -2778,7 +2778,7 @@ public:
             const char *sfunc;
             if (funcdecl->isStatic())
                 sfunc = "static";
-            else if (funcdecl->protection.kind == Prot::private_ || funcdecl->protection.kind == Prot::package_)
+            else if (funcdecl->protection.kind == Visibility::private_ || funcdecl->protection.kind == Visibility::package_)
                 sfunc = protectionToChars(funcdecl->protection.kind);
             else
                 sfunc = "non-virtual";
@@ -2787,8 +2787,8 @@ public:
 
         if (funcdecl->isOverride() && !funcdecl->isVirtual())
         {
-            Prot::Kind kind = funcdecl->prot().kind;
-            if ((kind == Prot::private_ || kind == Prot::package_) && funcdecl->isMember())
+            Visibility::Kind kind = funcdecl->prot().kind;
+            if ((kind == Visibility::private_ || kind == Visibility::package_) && funcdecl->isMember())
                 funcdecl->error("%s method is not virtual and cannot override", protectionToChars(kind));
             else
                 funcdecl->error("cannot override a non-virtual function");
@@ -2907,7 +2907,7 @@ public:
                     may_override = true;
                 }
             }
-            if (may_override && funcdecl->type->nextOf() == NULL)
+            if (may_override && funcdecl->type->nextOf() == nullptr)
             {
                 /* If same name function exists in base class but 'this' is auto return,
                  * cannot find index of base class's vtbl[] to override.
@@ -2941,7 +2941,7 @@ public:
                             if (f2)
                             {
                                 f2 = f2->overloadExactMatch(funcdecl->type);
-                                if (f2 && f2->isFinalFunc() && f2->prot().kind != Prot::private_)
+                                if (f2 && f2->isFinalFunc() && f2->prot().kind != Visibility::private_)
                                     funcdecl->error("cannot override final function %s", f2->toPrettyChars());
                             }
                         }
@@ -3045,8 +3045,8 @@ public:
                     {
                         // If both are mixins, or both are not, then error.
                         // If either is not, the one that is not overrides the other.
-                        bool thismixin = funcdecl->parent->isClassDeclaration() != NULL;
-                        bool fdcmixin = fdc->parent->isClassDeclaration() != NULL;
+                        bool thismixin = funcdecl->parent->isClassDeclaration() != nullptr;
+                        bool fdcmixin = fdc->parent->isClassDeclaration() != nullptr;
                         if (thismixin == fdcmixin)
                         {
                             funcdecl->error("multiple overrides of same function");
@@ -3111,7 +3111,7 @@ public:
                     default:
                     {
                         FuncDeclaration *fdv = (FuncDeclaration *)b->sym->vtbl[vi];
-                        Type *ti = NULL;
+                        Type *ti = nullptr;
 
                         /* Remember which functions this overrides
                          */
@@ -3141,8 +3141,8 @@ public:
                             if (funcdecl->tintro)
                             {
                                 if (!funcdecl->tintro->nextOf()->equals(ti->nextOf()) &&
-                                    !funcdecl->tintro->nextOf()->isBaseOf(ti->nextOf(), NULL) &&
-                                    !ti->nextOf()->isBaseOf(funcdecl->tintro->nextOf(), NULL))
+                                    !funcdecl->tintro->nextOf()->isBaseOf(ti->nextOf(), nullptr) &&
+                                    !ti->nextOf()->isBaseOf(funcdecl->tintro->nextOf(), nullptr))
                                 {
                                     funcdecl->error("incompatible covariant types %s and %s", funcdecl->tintro->toChars(), ti->toChars());
                                 }
@@ -3156,8 +3156,8 @@ public:
 
             if (!doesoverride && funcdecl->isOverride() && (funcdecl->type->nextOf() || !may_override))
             {
-                BaseClass *bc = NULL;
-                Dsymbol *s = NULL;
+                BaseClass *bc = nullptr;
+                Dsymbol *s = nullptr;
                 for (size_t i = 0; i < cd->baseclasses->length; i++)
                 {
                     bc = (*cd->baseclasses)[i];
@@ -3189,7 +3189,7 @@ public:
                         if (f2)
                         {
                             f2 = f2->overloadExactMatch(funcdecl->type);
-                            if (f2 && f2->isFinalFunc() && f2->prot().kind != Prot::private_)
+                            if (f2 && f2->isFinalFunc() && f2->prot().kind != Visibility::private_)
                                 funcdecl->error("cannot override final function %s.%s", b->sym->toChars(), f2->toPrettyChars());
                         }
                     }
@@ -3263,7 +3263,7 @@ public:
         static bool printedMain = false;  // semantic might run more than once
         if (global.params.verbose && !printedMain)
         {
-            const char *type = funcdecl->isMain() ? "main" : funcdecl->isDllMain() ? "dllmain" : (const char *)NULL;
+            const char *type = funcdecl->isMain() ? "main" : funcdecl->isDllMain() ? "dllmain" : (const char *)nullptr;
             Module *mod = sc->_module;
 
             if (type && mod)
@@ -3304,7 +3304,7 @@ public:
         if (ctd->_scope)
         {
             sc = ctd->_scope;
-            ctd->_scope = NULL;
+            ctd->_scope = nullptr;
         }
 
         ctd->parent = sc->parent;
@@ -3348,7 +3348,7 @@ public:
                         ctd->error("default constructor for structs only allowed "
                             "with @disable, no body, and no parameters");
                         ctd->storage_class |= STCdisable;
-                        ctd->fbody = NULL;
+                        ctd->fbody = nullptr;
                     }
                     sd->noDefaultCtor = true;
                 }
@@ -3387,7 +3387,7 @@ public:
         if (pbd->_scope)
         {
             sc = pbd->_scope;
-            pbd->_scope = NULL;
+            pbd->_scope = nullptr;
         }
 
         pbd->parent = sc->parent;
@@ -3424,7 +3424,7 @@ public:
         if (dd->_scope)
         {
             sc = dd->_scope;
-            dd->_scope = NULL;
+            dd->_scope = nullptr;
         }
 
         dd->parent = sc->parent;
@@ -3461,7 +3461,7 @@ public:
         if (scd->_scope)
         {
             sc = scd->_scope;
-            scd->_scope = NULL;
+            scd->_scope = nullptr;
         }
 
         scd->parent = sc->parent;
@@ -3490,7 +3490,7 @@ public:
              * Note that this is not thread safe; should not have threads
              * during static construction.
              */
-            VarDeclaration *v = new VarDeclaration(Loc(), Type::tint32, Id::gate, NULL);
+            VarDeclaration *v = new VarDeclaration(Loc(), Type::tint32, Id::gate, nullptr);
             v->storage_class = STCtemp | (scd->isSharedStaticCtorDeclaration() ? STCstatic : STCtls);
             Statements *sa = new Statements();
             Statement *s = new ExpStatement(Loc(), v);
@@ -3498,7 +3498,7 @@ public:
             Expression *e = new IdentifierExp(Loc(), v->ident);
             e = new AddAssignExp(Loc(), e, new IntegerExp(1));
             e = new EqualExp(TOKnotequal, Loc(), e, new IntegerExp(1));
-            s = new IfStatement(Loc(), NULL, e, new ReturnStatement(Loc(), NULL), NULL, Loc());
+            s = new IfStatement(Loc(), nullptr, e, new ReturnStatement(Loc(), nullptr), nullptr, Loc());
             sa->push(s);
             if (scd->fbody)
                 sa->push(scd->fbody);
@@ -3525,7 +3525,7 @@ public:
         if (sdd->_scope)
         {
             sc = sdd->_scope;
-            sdd->_scope = NULL;
+            sdd->_scope = nullptr;
         }
 
         sdd->parent = sc->parent;
@@ -3555,7 +3555,7 @@ public:
              * Note that this is not thread safe; should not have threads
              * during static destruction.
              */
-            VarDeclaration *v = new VarDeclaration(Loc(), Type::tint32, Id::gate, NULL);
+            VarDeclaration *v = new VarDeclaration(Loc(), Type::tint32, Id::gate, nullptr);
             v->storage_class = STCtemp | (sdd->isSharedStaticDtorDeclaration() ? STCstatic : STCtls);
             Statements *sa = new Statements();
             Statement *s = new ExpStatement(Loc(), v);
@@ -3563,7 +3563,7 @@ public:
             Expression *e = new IdentifierExp(Loc(), v->ident);
             e = new AddAssignExp(Loc(), e, new IntegerExp(-1));
             e = new EqualExp(TOKnotequal, Loc(), e, new IntegerExp(0));
-            s = new IfStatement(Loc(), NULL, e, new ReturnStatement(Loc(), NULL), NULL, Loc());
+            s = new IfStatement(Loc(), nullptr, e, new ReturnStatement(Loc(), nullptr), nullptr, Loc());
             sa->push(s);
             if (sdd->fbody)
                 sa->push(sdd->fbody);
@@ -3591,7 +3591,7 @@ public:
         if (invd->_scope)
         {
             sc = invd->_scope;
-            invd->_scope = NULL;
+            invd->_scope = nullptr;
         }
 
         invd->parent = sc->parent;
@@ -3631,7 +3631,7 @@ public:
         if (utd->_scope)
         {
             sc = utd->_scope;
-            utd->_scope = NULL;
+            utd->_scope = nullptr;
         }
 
         utd->protection = sc->protection;
@@ -3666,7 +3666,7 @@ public:
         if (nd->_scope)
         {
             sc = nd->_scope;
-            nd->_scope = NULL;
+            nd->_scope = nullptr;
         }
 
         nd->parent = sc->parent;
@@ -3712,12 +3712,12 @@ public:
         unsigned errors = global.errors;
 
         //printf("+StructDeclaration::semantic(this=%p, %s '%s', sizeok = %d)\n", sd, sd->parent->toChars(), sd->toChars(), sizeok);
-        Scope *scx = NULL;
+        Scope *scx = nullptr;
         if (sd->_scope)
         {
             sc = sd->_scope;
             scx = sd->_scope;            // save so we don't make redundant copies
-            sd->_scope = NULL;
+            sd->_scope = nullptr;
         }
 
         if (!sd->parent)
@@ -3874,9 +3874,9 @@ public:
             {
                 unsigned xerrors = global.startGagging();
                 sc = sc->push();
-                sc->tinst = NULL;
-                sc->minst = NULL;
-                FuncDeclaration *fcall = resolveFuncCall(sd->loc, sc, scall, NULL, NULL, NULL, 1);
+                sc->tinst = nullptr;
+                sc->minst = nullptr;
+                FuncDeclaration *fcall = resolveFuncCall(sd->loc, sc, scall, nullptr, nullptr, nullptr, 1);
                 sc = sc->pop();
                 global.endGagging(xerrors);
 
@@ -3982,12 +3982,12 @@ public:
 
         //printf("+ClassDeclaration::semantic(%s), type = %p, sizeok = %d, this = %p\n", cldec->toChars(), cldec->type, sizeok, cldec);
 
-        Scope *scx = NULL;
+        Scope *scx = nullptr;
         if (cldec->_scope)
         {
             sc = cldec->_scope;
             scx = cldec->_scope;            // save so we don't make redundant copies
-            cldec->_scope = NULL;
+            cldec->_scope = nullptr;
         }
 
         if (!cldec->parent)
@@ -4075,7 +4075,7 @@ public:
             {
                 BaseClass *b = (*cldec->baseclasses)[0];
                 Type *tb = b->type->toBasetype();
-                TypeClass *tc = (tb->ty == Tclass) ? (TypeClass *)tb : NULL;
+                TypeClass *tc = (tb->ty == Tclass) ? (TypeClass *)tb : nullptr;
                 if (!tc)
                 {
                     if (b->type != Type::terror)
@@ -4134,7 +4134,7 @@ public:
             {
                 BaseClass *b = (*cldec->baseclasses)[i];
                 Type *tb = b->type->toBasetype();
-                TypeClass *tc = (tb->ty == Tclass) ? (TypeClass *)tb : NULL;
+                TypeClass *tc = (tb->ty == Tclass) ? (TypeClass *)tb : nullptr;
                 if (!tc || !tc->sym->isInterfaceDeclaration())
                 {
                     if (b->type != Type::terror)
@@ -4341,7 +4341,7 @@ public:
                 if (cldec->toParent2() != cldec->baseClass->toParent2() &&
                     (!cldec->toParent2() ||
                      !cldec->baseClass->toParent2()->getType() ||
-                     !cldec->baseClass->toParent2()->getType()->isBaseOf(cldec->toParent2()->getType(), NULL)))
+                     !cldec->baseClass->toParent2()->getType()->isBaseOf(cldec->toParent2()->getType(), nullptr)))
                 {
                     if (cldec->toParent2())
                     {
@@ -4356,7 +4356,7 @@ public:
                             cldec->baseClass->toChars(),
                             cldec->baseClass->toParent2()->toChars());
                     }
-                    cldec->enclosing = NULL;
+                    cldec->enclosing = nullptr;
                 }
             }
             else
@@ -4433,14 +4433,14 @@ public:
         //    this() { }
         if (!cldec->ctor && cldec->baseClass && cldec->baseClass->ctor)
         {
-            FuncDeclaration *fd = resolveFuncCall(cldec->loc, sc2, cldec->baseClass->ctor, NULL, cldec->type, NULL, 1);
+            FuncDeclaration *fd = resolveFuncCall(cldec->loc, sc2, cldec->baseClass->ctor, nullptr, cldec->type, nullptr, 1);
             if (!fd) // try shared base ctor instead
-                fd = resolveFuncCall(cldec->loc, sc2, cldec->baseClass->ctor, NULL, cldec->type->sharedOf(), NULL, 1);
+                fd = resolveFuncCall(cldec->loc, sc2, cldec->baseClass->ctor, nullptr, cldec->type->sharedOf(), nullptr, 1);
             if (fd && !fd->errors)
             {
                 //printf("Creating default this(){} for class %s\n", cldec->toChars());
                 TypeFunction *btf = fd->type->toTypeFunction();
-                TypeFunction *tf = new TypeFunction(ParameterList(), NULL, LINKd, fd->storage_class);
+                TypeFunction *tf = new TypeFunction(ParameterList(), nullptr, LINKd, fd->storage_class);
                 tf->mod = btf->mod;
                 tf->purity = btf->purity;
                 tf->isnothrow = btf->isnothrow;
@@ -4521,12 +4521,12 @@ public:
 
         //printf("+InterfaceDeclaration.semantic(%s), type = %p\n", idec->toChars(), idec->type);
 
-        Scope *scx = NULL;
+        Scope *scx = nullptr;
         if (idec->_scope)
         {
             sc = idec->_scope;
             scx = idec->_scope;            // save so we don't make redundant copies
-            idec->_scope = NULL;
+            idec->_scope = nullptr;
         }
 
         if (!idec->parent)
@@ -4613,7 +4613,7 @@ public:
             {
                 BaseClass *b = (*idec->baseclasses)[i];
                 Type *tb = b->type->toBasetype();
-                TypeClass *tc = (tb->ty == Tclass) ? (TypeClass *)tb : NULL;
+                TypeClass *tc = (tb->ty == Tclass) ? (TypeClass *)tb : nullptr;
                 if (!tc || !tc->sym->isInterfaceDeclaration())
                 {
                     if (b->type != Type::terror)
@@ -4822,7 +4822,7 @@ static void aliasSeqInstanceSemantic(TemplateInstance *tempinst, Scope *sc, Temp
     //printf("[%s] aliasSeqInstanceSemantic('%s')\n", tempinst->loc.toChars(), tempinst->toChars());
     Scope *paramscope = sc->push();
     paramscope->stc = 0;
-    paramscope->protection = Prot(Prot::public_);
+    paramscope->protection = Visibility(Visibility::public_);
 
     TemplateTupleParameter *ttp = (*tempdecl->parameters)[0]->isTemplateTupleParameter();
     Tuple *va = isTuple(tempinst->tdtypes[0]);
@@ -4846,7 +4846,7 @@ static void aliasInstanceSemantic(TemplateInstance *tempinst, Scope *sc, Templat
     //printf("[%s] aliasInstanceSemantic('%s')\n", tempinst->loc.toChars(), tempinst->toChars());
     Scope *paramscope = sc->push();
     paramscope->stc = 0;
-    paramscope->protection = Prot(Prot::public_);
+    paramscope->protection = Visibility(Visibility::public_);
 
     TemplateTypeParameter *ttp = (*tempdecl->parameters)[0]->isTemplateTypeParameter();
     Type *ta = isType(tempinst->tdtypes[0]);
@@ -4894,7 +4894,7 @@ void templateInstanceSemantic(TemplateInstance *tempinst, Scope *sc, Expressions
     // this instance should be speculative.
     if (!tempinst->tinst && sc->func && sc->func->inNonRoot())
     {
-        tempinst->minst = NULL;
+        tempinst->minst = nullptr;
     }
 
     tempinst->gagged = (global.gag > 0);
@@ -4905,7 +4905,7 @@ void templateInstanceSemantic(TemplateInstance *tempinst, Scope *sc, Expressions
      * then run semantic on each argument (place results in tiargs[]),
      * last find most specialized template from overload list/set.
      */
-    if (!tempinst->findTempDecl(sc, NULL) ||
+    if (!tempinst->findTempDecl(sc, nullptr) ||
         !tempinst->semanticTiargs(sc) ||
         !tempinst->findBestMatch(sc, fargs))
     {
@@ -4953,7 +4953,7 @@ Lerror:
      * implements the typeargs. If so, just refer to that one instead.
      */
     tempinst->inst = tempdecl->findExistingInstance(tempinst, fargs);
-    TemplateInstance *errinst = NULL;
+    TemplateInstance *errinst = nullptr;
     if (!tempinst->inst)
     {
         // So, we need to implement 'this' instance.
@@ -5056,7 +5056,7 @@ Lerror:
 
                 void visit(AttribDeclaration *ad)
                 {
-                    Dsymbols *d = ad->include(NULL);
+                    Dsymbols *d = ad->include(nullptr);
                     if (!d)
                         return;
                     for (size_t i = 0; i < d->length; i++)
@@ -5110,7 +5110,7 @@ Lerror:
     // resolve TemplateThisParameter
     for (size_t i = 0; i < tempdecl->parameters->length; i++)
     {
-        if ((*tempdecl->parameters)[i]->isTemplateThisParameter() == NULL)
+        if ((*tempdecl->parameters)[i]->isTemplateThisParameter() == nullptr)
             continue;
         Type *t = isType((*tempinst->tiargs)[i]);
         assert(t);
@@ -5142,7 +5142,7 @@ Lerror:
     // Declare each template parameter as an alias for the argument type
     Scope *paramscope = scope->push();
     paramscope->stc = 0;
-    paramscope->protection = Prot(Prot::public_);  // Bugzilla 14169: template parameters should be public
+    paramscope->protection = Visibility(Visibility::public_);  // Bugzilla 14169: template parameters should be public
     tempinst->declareParameters(paramscope);
     paramscope->pop();
 
@@ -5276,10 +5276,10 @@ Lerror:
         for (size_t i = 0; i < deferred.length; i++)
         {
             //printf("+ run deferred semantic3 on %s\n", deferred[i]->toChars());
-            semantic3(deferred[i], NULL);
+            semantic3(deferred[i], nullptr);
         }
 
-        tempinst->deferred = NULL;
+        tempinst->deferred = nullptr;
     }
     else if (tempinst->tinst)
     {
@@ -5396,11 +5396,11 @@ Lerror:
                 // should be able to remove it without messing other indices up.
                 assert((*target_symbol_list)[target_symbol_list_idx] == tempinst);
                 target_symbol_list->remove(target_symbol_list_idx);
-                tempinst->memberOf = NULL;                    // no longer a member
+                tempinst->memberOf = nullptr;                    // no longer a member
             }
             tempinst->semanticRun = PASSinit;
-            tempinst->inst = NULL;
-            tempinst->symtab = NULL;
+            tempinst->inst = nullptr;
+            tempinst->symtab = nullptr;
         }
     }
     else if (errinst)
@@ -5462,7 +5462,7 @@ void aliasSemantic(AliasDeclaration *ds, Scope *sc)
             }
             else
             {
-                ds->aliassym = NULL;
+                ds->aliassym = nullptr;
                 ds->type = Type::terror;
             }
             sc->flags = oldflags;
@@ -5482,7 +5482,7 @@ void aliasSemantic(AliasDeclaration *ds, Scope *sc)
     // for a type or an alias for a symbol. It is up to the semantic()
     // pass to distinguish.
     // If it is a type, then type is set and getType() will return that
-    // type. If it is a symbol, then aliassym is set and type is NULL -
+    // type. If it is a symbol, then aliassym is set and type is nullptr -
     // toAlias() will return aliasssym.
 
     unsigned int errors = global.errors;
@@ -5505,13 +5505,13 @@ void aliasSemantic(AliasDeclaration *ds, Scope *sc)
     Dsymbol *s = ds->type->toDsymbol(sc);
     if (errors != global.errors)
     {
-        s = NULL;
+        s = nullptr;
         ds->type = Type::terror;
     }
     if (s && s == ds)
     {
         ds->error("cannot resolve");
-        s = NULL;
+        s = nullptr;
         ds->type = Type::terror;
     }
     if (!s || !s->isEnumMember())
@@ -5547,31 +5547,31 @@ void aliasSemantic(AliasDeclaration *ds, Scope *sc)
     {
         assert(global.errors);
         ds->type = Type::terror;
-        s = NULL;
+        s = nullptr;
     }
     if (!s) // it's a type alias
     {
         //printf("alias %s resolved to type %s\n", ds->toChars(), ds->type->toChars());
         ds->type = typeSemantic(ds->type, ds->loc, sc);
-        ds->aliassym = NULL;
+        ds->aliassym = nullptr;
     }
     else    // it's a symbolic alias
     {
         //printf("alias %s resolved to %s %s\n", ds->toChars(), s->kind(), s->toChars());
-        ds->type = NULL;
+        ds->type = nullptr;
         ds->aliassym = s;
     }
     if (global.gag && errors != global.errors)
     {
         ds->type = oldtype;
-        ds->aliassym = NULL;
+        ds->aliassym = nullptr;
     }
     ds->inuse = 0;
     ds->semanticRun = PASSsemanticdone;
 
     if (Dsymbol *sx = ds->overnext)
     {
-        ds->overnext = NULL;
+        ds->overnext = nullptr;
 
         if (!ds->overloadInsert(sx))
             ScopeDsymbol::multiplyDefined(Loc(), sx, ds);

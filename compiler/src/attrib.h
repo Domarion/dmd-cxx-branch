@@ -31,7 +31,7 @@ public:
     virtual Dsymbols *include(Scope *sc);
     int apply(Dsymbol_apply_ft_t fp, void *param);
     static Scope *createNewScope(Scope *sc,
-        StorageClass newstc, LINK linkage, CPPMANGLE cppmangle, Prot protection,
+        StorageClass newstc, LINK linkage, CPPMANGLE cppmangle, Visibility protection,
         int explicitProtection, AlignDeclaration *aligndecl, PINLINE inlining);
     virtual Scope *newScope(Scope *sc);
     void addMember(Scope *sc, ScopeDsymbol *sds);
@@ -107,10 +107,10 @@ public:
 class ProtDeclaration : public AttribDeclaration
 {
 public:
-    Prot protection;
+    Visibility protection;
     Identifiers* pkg_identifiers;
 
-    ProtDeclaration(Loc loc, Prot p, Dsymbols *decl);
+    ProtDeclaration(Loc loc, Visibility p, Dsymbols *decl);
     ProtDeclaration(Loc loc, Identifiers* pkg_identifiers, Dsymbols *decl);
 
     Dsymbol *syntaxCopy(Dsymbol *s);

@@ -62,7 +62,7 @@ void rtlsym_init()
         tv->Tcount++;
 
         // Only used by dmd1 for RTLSYM_THROW
-        type *tw = NULL;
+        type *tw = nullptr;
 
 #undef SYMBOL_Z
 #define SYMBOL_Z(e, fl, regsaved, n, flags, t) \

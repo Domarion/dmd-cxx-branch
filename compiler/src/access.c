@@ -35,11 +35,11 @@ bool isFriendOf(AggregateDeclaration *ad, AggregateDeclaration *cd);
 static Dsymbol *mostVisibleOverload(Dsymbol *s);
 
 /****************************************
- * Return Prot access for Dsymbol smember in this declaration.
+ * Return Visibility access for Dsymbol smember in this declaration.
  */
-Prot getAccess(AggregateDeclaration *ad, Dsymbol *smember)
+Visibility getAccess(AggregateDeclaration *ad, Dsymbol *smember)
 {
-    Prot access_ret = Prot(Prot::none);
+    Visibility access_ret = Visibility(Visibility::none);
 
     assert(ad->isStructDeclaration() || ad->isClassDeclaration());
     if (smember->toParent() == ad)
@@ -56,23 +56,23 @@ Prot getAccess(AggregateDeclaration *ad, Dsymbol *smember)
         {
             BaseClass *b = (*cd->baseclasses)[i];
 
-            Prot access = getAccess(b->sym, smember);
+            Visibility access = getAccess(b->sym, smember);
             switch (access.kind)
             {
-                case Prot::none:
+                case Visibility::none:
                     break;
 
-                case Prot::private_:
-                    access_ret = Prot(Prot::none);  // private members of base class not accessible
+                case Visibility::private_:
+                    access_ret = Visibility(Visibility::none);  // private members of base class not accessible
                     break;
 
-                case Prot::package_:
-                case Prot::protected_:
-                case Prot::public_:
-                case Prot::export_:
+                case Visibility::package_:
+                case Visibility::protected_:
+                case Visibility::public_:
+                case Visibility::export_:
                     // If access is to be tightened
-                    if (Prot::public_ < access.kind)
-                        access = Prot(Prot::public_);
+                    if (Visibility::public_ < access.kind)
+                        access = Visibility(Visibility::public_);
 
                     // Pick path with loosest access
                     if (access_ret.isMoreRestrictiveThan(access))
@@ -113,8 +113,8 @@ static bool isAccessible(
             for (size_t i = 0; i < cdthis->baseclasses->length; i++)
             {
                 BaseClass *b = (*cdthis->baseclasses)[i];
-                Prot access = getAccess(b->sym, smember);
-                if (access.kind >= Prot::protected_ ||
+                Visibility access = getAccess(b->sym, smember);
+                if (access.kind >= Visibility::protected_ ||
                     isAccessible(smember, sfunc, b->sym, cdscope))
                 {
                     return true;
@@ -157,24 +157,24 @@ bool checkAccess(AggregateDeclaration *ad, Loc loc, Scope *sc, Dsymbol *smember)
     }
 
     // BUG: should enable this check
-    //assert(smember->parent->isBaseOf(this, NULL));
+    //assert(smember->parent->isBaseOf(this, nullptr));
 
     bool result;
-    Prot access;
+    Visibility access;
     if (smemberparent == ad)
     {
         access = smember->prot();
-        result = access.kind >= Prot::public_ ||
+        result = access.kind >= Visibility::public_ ||
                  hasPrivateAccess(ad, f) ||
                  isFriendOf(ad, cdscope) ||
-                 (access.kind == Prot::package_ && hasPackageAccess(sc, smember)) ||
+                 (access.kind == Visibility::package_ && hasPackageAccess(sc, smember)) ||
                  ad->getAccessModule() == sc->_module;
     }
-    else if ((access = getAccess(ad, smember)).kind >= Prot::public_)
+    else if ((access = getAccess(ad, smember)).kind >= Visibility::public_)
     {
         result = true;
     }
-    else if (access.kind == Prot::package_ && hasPackageAccess(sc, ad))
+    else if (access.kind == Visibility::package_ && hasPackageAccess(sc, ad))
     {
         result = true;
     }
@@ -220,7 +220,7 @@ bool hasPackageAccess(Scope *sc, Dsymbol *s)
 
 bool hasPackageAccess(Module *mod, Dsymbol *s)
 {
-    Package *pkg = NULL;
+    Package *pkg = nullptr;
 
     if (s->prot().pkg)
         pkg = s->prot().pkg;
@@ -231,7 +231,7 @@ bool hasPackageAccess(Module *mod, Dsymbol *s)
         {
             if (Module *m = s->isModule())
             {
-                DsymbolTable *dst = Package::resolve(m->md ? m->md->packages : NULL, NULL, NULL);
+                DsymbolTable *dst = Package::resolve(m->md ? m->md->packages : nullptr, nullptr, nullptr);
                 assert(dst);
                 Dsymbol *s2 = dst->lookup(m->ident);
                 assert(s2);
@@ -242,7 +242,7 @@ bool hasPackageAccess(Module *mod, Dsymbol *s)
                     break;
                 }
             }
-            else if ((pkg = s->isPackage()) != NULL)
+            else if ((pkg = s->isPackage()) != nullptr)
                 break;
         }
     }
@@ -282,7 +282,7 @@ bool hasProtectedAccess(Scope *sc, Dsymbol *s)
             if (!scx->scopesym)
                 continue;
             ClassDeclaration *cd2 = scx->scopesym->isClassDeclaration();
-            if (cd2 && cd->isBaseOf(cd2, NULL))
+            if (cd2 && cd->isBaseOf(cd2, nullptr))
                 return true;
         }
     }
@@ -296,7 +296,7 @@ bool hasPrivateAccess(AggregateDeclaration *ad, Dsymbol *smember)
 {
     if (smember)
     {
-        AggregateDeclaration *cd = NULL;
+        AggregateDeclaration *cd = nullptr;
         Dsymbol *smemberparent = smember->toParent();
         if (smemberparent)
             cd = smemberparent->isAggregateDeclaration();
@@ -385,7 +385,7 @@ bool checkAccess(Scope *sc, Package *p)
         return false;
     for (; sc; sc = sc->enclosing)
     {
-        if (sc->scopesym && sc->scopesym->isPackageAccessible(p, Prot(Prot::private_)))
+        if (sc->scopesym && sc->scopesym->isPackageAccessible(p, Visibility(Visibility::private_)))
             return false;
     }
 
@@ -407,18 +407,18 @@ bool symbolIsVisible(Module *mod, Dsymbol *s)
 
     switch (s->prot().kind)
     {
-        case Prot::undefined:
+        case Visibility::undefined:
             return true;
-        case Prot::none:
+        case Visibility::none:
             return false; // no access
-        case Prot::private_:
+        case Visibility::private_:
             return s->getAccessModule() == mod;
-        case Prot::package_:
+        case Visibility::package_:
             return s->getAccessModule() == mod || hasPackageAccess(mod, s);
-        case Prot::protected_:
+        case Visibility::protected_:
             return s->getAccessModule() == mod;
-        case Prot::public_:
-        case Prot::export_:
+        case Visibility::public_:
+        case Visibility::export_:
             return true;
         default:
             assert(0);
@@ -449,18 +449,18 @@ bool symbolIsVisible(Scope *sc, Dsymbol *s)
 
     switch (s->prot().kind)
     {
-        case Prot::undefined:
+        case Visibility::undefined:
             return true;
-        case Prot::none:
+        case Visibility::none:
             return false; // no access
-        case Prot::private_:
+        case Visibility::private_:
             return sc->_module == s->getAccessModule();
-        case Prot::package_:
+        case Visibility::package_:
             return sc->_module == s->getAccessModule() || hasPackageAccess(sc->_module, s);
-        case Prot::protected_:
+        case Visibility::protected_:
             return hasProtectedAccess(sc, s);
-        case Prot::public_:
-        case Prot::export_:
+        case Visibility::public_:
+        case Visibility::export_:
             return true;
         default:
             assert(0);
@@ -479,7 +479,7 @@ static Dsymbol *mostVisibleOverload(Dsymbol *s)
     if (!s->isOverloadable())
         return s;
 
-    Dsymbol *next = NULL;
+    Dsymbol *next = nullptr;
     Dsymbol *fstart = s;
     Dsymbol *mostVisible = s;
     for (; s; s = next)

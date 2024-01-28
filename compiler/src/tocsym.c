@@ -100,7 +100,7 @@ Symbol *toSymbol(Dsymbol *s)
 
         ToSymbol()
         {
-            result = NULL;
+            result = nullptr;
         }
 
         void visit(Dsymbol *s)
@@ -457,7 +457,7 @@ Symbol *toThunkSymbol(FuncDeclaration *fd, int offset)
 Classsym *fake_classsym(Identifier *id)
 {
     TYPE *t = type_struct_class(id->toChars(),8,0,
-        NULL,NULL,
+        nullptr,nullptr,
         false, false, true);
 
     t->Ttag->Sstruct->Sflags = STRglobal;
@@ -568,7 +568,7 @@ Symbol *aaGetSymbol(TypeAArray *taa, const char *func, int flags)
         s->Ssymnum = -1;
         symbol_func(s);
 
-        type *t = type_function(TYnfunc, NULL, 0, false, Type_toCtype(taa->next));
+        type *t = type_function(TYnfunc, nullptr, 0, false, Type_toCtype(taa->next));
         t->Tmangle = mTYman_c;
         s->Stype = t;
 

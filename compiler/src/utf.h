@@ -87,14 +87,14 @@ static utf16_t const ALPHA_TABLE[ALPHA_TABLE_LENGTH][2] =
     { 0x4E00, 0x9FA5 }, { 0xAC00, 0xD7A3 },
 };
 
-char const *const UTF8_DECODE_OK = NULL;
+char const *const UTF8_DECODE_OK = nullptr;
 extern char const UTF8_DECODE_OUTSIDE_CODE_SPACE[];
 extern char const UTF8_DECODE_TRUNCATED_SEQUENCE[];
 extern char const UTF8_DECODE_OVERLONG[];
 extern char const UTF8_DECODE_INVALID_TRAILER[];
 extern char const UTF8_DECODE_INVALID_CODE_POINT[];
 
-char const *const UTF16_DECODE_OK = NULL;
+char const *const UTF16_DECODE_OK = nullptr;
 extern char const UTF16_DECODE_TRUNCATED_SEQUENCE[];
 extern char const UTF16_DECODE_INVALID_SURROGATE[];
 extern char const UTF16_DECODE_UNPAIRED_SURROGATE[];

@@ -1015,10 +1015,10 @@ code *cdaddass(elem *e,regm_t *pretregs)
                 ce = allocreg(&retregs,&reg,tyml);
                 cs.Iop = 0x8B;
                 NEWREG(cs.Irm,reg);
-                cm = gen(NULL,&cs);             // MOV reg,EA+2
+                cm = gen(nullptr,&cs);             // MOV reg,EA+2
                 NEWREG(cs.Irm,findreglsw(retregs));
                 getlvalue_lsw(&cs);
-                cl = gen(NULL,&cs);             // MOV reg+1,EA
+                cl = gen(nullptr,&cs);             // MOV reg+1,EA
                 if (mask[reg] & idx)
                     ce = cat3(ce,cl,cm);
                 else
@@ -1139,8 +1139,8 @@ code *cdmulass(elem *e,regm_t *pretregs)
                )
             {
                 // Signed divide or modulo by power of 2
-                cr = NULL;
-                c = NULL;
+                cr = nullptr;
+                c = nullptr;
                 cl = getlvalue(&cs,e1,mAX | mDX);
                 cs.Iop = 0x8B;
                 code_newreg(&cs, AX);
@@ -1711,7 +1711,7 @@ code *cdcmp(elem *e,regm_t *pretregs)
             isregvar(e1,&retregs,&reg)
            )
         {   // Just do a TEST instruction
-            c = genregs(NULL,0x85 ^ byte,reg,reg);      // TEST reg,reg
+            c = genregs(nullptr,0x85 ^ byte,reg,reg);      // TEST reg,reg
             c->Iflags |= (cs.Iflags & CFopsize) | CFpsw;
             code_orrex(c, rex);
             if (I64 && byte && reg >= 4)
@@ -1854,7 +1854,7 @@ code *cdcmp(elem *e,regm_t *pretregs)
         }
 
         if (evalinregister(e2) && !OTassign(e1->Eoper) &&
-            !isregvar(e1,NULL,NULL))
+            !isregvar(e1,nullptr,nullptr))
         {   regm_t m;
 
             m = allregs & ~regcon.mvar;
@@ -2315,7 +2315,7 @@ code *cdcnvt(elem *e, regm_t *pretregs)
             case OPs16_d:
             case OPu16_d:
             Lload87:
-                return load87(e,0,pretregs,NULL,-1);
+                return load87(e,0,pretregs,nullptr,-1);
             case OPu32_d:
                 if (I64 && config.fpxmmregs && *pretregs & XMMREGS)
                     return xmmcnvt(e,pretregs);
@@ -2456,7 +2456,7 @@ code *cdshtlng(elem *e,regm_t *pretregs)
         {   code cs;
 
             c1 = allocreg(&retregs,&reg,TYint);
-            c2 = NULL;
+            c2 = nullptr;
             c3 = loadea(e1,&cs,0x8B,reg,0,retregs,retregs);        //  MOV Ereg,EA
             freenode(e1);
         }
@@ -2468,15 +2468,15 @@ code *cdshtlng(elem *e,regm_t *pretregs)
              */
             if (e1->Eoper == OPu16_32 && !e1->Ecount)
             {
-                c2 = NULL;
-                c3 = NULL;
+                c2 = nullptr;
+                c3 = nullptr;
             }
             else
             {
                 // Zero high 32 bits
                 c2 = getregs(retregs);
                 reg = findreg(retregs);
-                c3 = genregs(NULL,0x89,reg,reg);    // MOV Ereg,Ereg
+                c3 = genregs(nullptr,0x89,reg,reg);    // MOV Ereg,Ereg
             }
         }
         c4 = fixresult(e,retregs,pretregs);
@@ -2508,7 +2508,7 @@ code *cdshtlng(elem *e,regm_t *pretregs)
         if (!retregs)
             retregs = BYTEREGS;
         c1 = allocreg(&retregs,&reg,TYint);
-        c2 = movregconst(NULL,reg,0,0);                         //  XOR reg,reg
+        c2 = movregconst(nullptr,reg,0,0);                         //  XOR reg,reg
         c3 = loadea(e11,&cs,0x8A,reg,0,retregs,retregs);        //  MOV regL,EA
         freenode(e11);
         freenode(e1);
@@ -2569,7 +2569,7 @@ code *cdshtlng(elem *e,regm_t *pretregs)
             reg = findreg(retregs);
             if (config.flags4 & CFG4speed && op == OPu16_32)
             {   // AND reg,0xFFFF
-                c3 = genc2(NULL,0x81,modregrmx(3,4,reg),0xFFFFu);
+                c3 = genc2(nullptr,0x81,modregrmx(3,4,reg),0xFFFFu);
             }
             else
             {
@@ -2610,7 +2610,7 @@ code *cdshtlng(elem *e,regm_t *pretregs)
     c2 = allocreg(&retregs,&reg,e->Ety);
     msreg = findregmsw(retregs);
     lsreg = findreglsw(retregs);
-    c3 = genmovreg(NULL,msreg,lsreg);                           // MOV msreg,lsreg
+    c3 = genmovreg(nullptr,msreg,lsreg);                           // MOV msreg,lsreg
     assert(config.target_cpu >= TARGET_80286);                  // 8088 can't handle SAR reg,imm8
     c3 = genc2(c3,0xC1,modregrm(3,7,msreg),REGSIZE * 8 - 1);    // SAR msreg,31
     c4 = fixresult(e,retregs,pretregs);
@@ -2640,7 +2640,7 @@ code *cdbyteint(elem *e,regm_t *pretregs)
     //printf("cdbyteint(e = %p, *pretregs = %s\n", e, regm_str(*pretregs));
     op = e->Eoper;
     e1 = e->E1;
-    c0 = NULL;
+    c0 = nullptr;
     if (e1->Eoper == OPcomma)
         c0 = docommas(&e1);
 
@@ -2655,7 +2655,7 @@ code *cdbyteint(elem *e,regm_t *pretregs)
                 op == OPu8_16 && mask[reg] & BYTEREGS &&
                 config.target_cpu < TARGET_PentiumPro)
             {
-                c2 = movregconst(NULL,reg,0,0);                 //  XOR reg,reg
+                c2 = movregconst(nullptr,reg,0,0);                 //  XOR reg,reg
                 c3 = loadea(e1,&cs,0x8A,reg,0,retregs,retregs); //  MOV regL,EA
             }
             else
@@ -2724,7 +2724,7 @@ code *cdbyteint(elem *e,regm_t *pretregs)
     c2 = getregs(retregs);
 L2:
     c4 = fixresult(e,retregs,pretregs);
-    return cat6(c0,c1,c2,c3,c4,NULL);
+    return cat6(c0,c1,c2,c3,c4,nullptr);
 }
 
 
@@ -2947,7 +2947,7 @@ code *cdfar16( elem *e, regm_t *pretregs)
 
         cs.Irm |= modregrm(0,5,0);
         gen(c1,&cs);                                    /* SHR reg,3    */
-        cnop = NULL;
+        cnop = nullptr;
     }
     return cat4(c,c1,c3,cnop);
 }
@@ -3351,7 +3351,7 @@ code *cdpair(elem *e, regm_t *pretregs)
     c1 = codelem(e->E1, &regs1, FALSE);
     c2 = scodelem(e->E2, &regs2, regs1, FALSE);
 
-    cg = NULL;
+    cg = nullptr;
     if (e->E1->Ecount)
         cg = getregs(regs1);
     if (e->E2->Ecount)

@@ -149,13 +149,13 @@ Returns: name as an absolute path relative to base
 */
 const char *FileName::toAbsolute(const char *name, const char *base)
 {
-    return absolute(name) ? name : combine(base ? base : getcwd(NULL, 0), name);
+    return absolute(name) ? name : combine(base ? base : getcwd(nullptr, 0), name);
 }
 
 /********************************
  * Return filename extension (read-only).
  * Points past '.' of extension.
- * If there isn't one, return NULL.
+ * If there isn't one, return nullptr.
  */
 
 const char *FileName::ext(const char *str)
@@ -176,7 +176,7 @@ const char *FileName::ext(const char *str)
                 e--;
                 continue;
         }
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -351,7 +351,7 @@ const char *FileName::searchPath(Strings *path, const char *name, bool cwd)
 {
     if (absolute(name))
     {
-        return exists(name) ? name : NULL;
+        return exists(name) ? name : nullptr;
     }
     if (cwd)
     {
@@ -370,7 +370,7 @@ const char *FileName::searchPath(Strings *path, const char *name, bool cwd)
                 return n;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -383,8 +383,8 @@ const char *FileName::searchPath(Strings *path, const char *name, bool cwd)
  * More info:
  *      https://www.securecoding.cert.org/confluence/display/c/FIO02-C.+Canonicalize+path+names+originating+from+tainted+sources
  * Returns:
- *      NULL    file not found
- *      !=NULL  mem.xmalloc'd file name
+ *      nullptr    file not found
+ *      !=nullptr  mem.xmalloc'd file name
  */
 
 const char *FileName::safeSearchPath(Strings *path, const char *name)
@@ -396,7 +396,7 @@ const char *FileName::safeSearchPath(Strings *path, const char *name)
         char c = *p;
         if (c == '/' && p[1] == '/')
         {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -407,15 +407,15 @@ const char *FileName::safeSearchPath(Strings *path, const char *name)
          */
         for (size_t i = 0; i < path->length; i++)
         {
-            const char *cname = NULL;
+            const char *cname = nullptr;
             const char *cpath = canonicalName((*path)[i]);
             //printf("FileName::safeSearchPath(): name=%s; path=%s; cpath=%s\n",
             //      name, (char *)path->data[i], cpath);
-            if (cpath == NULL)
+            if (cpath == nullptr)
                 goto cont;
             cname = canonicalName(combine(cpath, name));
             //printf("FileName::safeSearchPath(): cname=%s\n", cname);
-            if (cname == NULL)
+            if (cname == nullptr)
                 goto cont;
             //printf("FileName::safeSearchPath(): exists=%i "
             //      "strncmp(cpath, cname, %i)=%i\n", exists(cname),
@@ -435,7 +435,7 @@ cont:
                 ::free(const_cast<char *>(cname));
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -490,8 +490,8 @@ bool FileName::ensurePathExists(const char *path)
  */
 const char *FileName::canonicalName(const char *name)
 {
-    // NULL destination buffer is allowed and preferred
-    return realpath(name, NULL);
+    // nullptr destination buffer is allowed and preferred
+    return realpath(name, nullptr);
 }
 
 /********************************

@@ -127,7 +127,7 @@ bool canThrow(Expression *e, FuncDeclaration *func, bool mustNotThrow)
         void visit(DeleteExp *de)
         {
             Type *tb = de->e1->type->toBasetype();
-            AggregateDeclaration *ad = NULL;
+            AggregateDeclaration *ad = nullptr;
             switch (tb->ty)
             {
             case Tclass:
@@ -237,7 +237,7 @@ bool Dsymbol_canThrow(Dsymbol *s, FuncDeclaration *func, bool mustNotThrow)
     ad = s->isAttribDeclaration();
     if (ad)
     {
-        Dsymbols *decl = ad->include(NULL);
+        Dsymbols *decl = ad->include(nullptr);
         if (decl && decl->length)
         {
             for (size_t i = 0; i < decl->length; i++)
@@ -248,7 +248,7 @@ bool Dsymbol_canThrow(Dsymbol *s, FuncDeclaration *func, bool mustNotThrow)
             }
         }
     }
-    else if ((vd = s->isVarDeclaration()) != NULL)
+    else if ((vd = s->isVarDeclaration()) != nullptr)
     {
         s = s->toAlias();
         if (s != vd)
@@ -269,7 +269,7 @@ bool Dsymbol_canThrow(Dsymbol *s, FuncDeclaration *func, bool mustNotThrow)
                 return canThrow(vd->edtor, func, mustNotThrow);
         }
     }
-    else if ((tm = s->isTemplateMixin()) != NULL)
+    else if ((tm = s->isTemplateMixin()) != nullptr)
     {
         //printf("%s\n", tm->toChars());
         if (tm->members)
@@ -282,7 +282,7 @@ bool Dsymbol_canThrow(Dsymbol *s, FuncDeclaration *func, bool mustNotThrow)
             }
         }
     }
-    else if ((td = s->isTupleDeclaration()) != NULL)
+    else if ((td = s->isTupleDeclaration()) != nullptr)
     {
         for (size_t i = 0; i < td->objects->length; i++)
         {

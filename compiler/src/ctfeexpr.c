@@ -166,7 +166,7 @@ const char *CTFEExp::toChars()
         case TOKbreak:      return "<break>";
         case TOKcontinue:   return "<continue>";
         case TOKgoto:       return "<goto>";
-        default:            assert(0);  return NULL;
+        default:            assert(0);  return nullptr;
     }
 }
 
@@ -223,7 +223,7 @@ bool needToCopyLiteral(Expression *expr)
     }
 }
 
-Expressions *copyLiteralArray(Expressions *oldelems, Expression *basis = NULL)
+Expressions *copyLiteralArray(Expressions *oldelems, Expression *basis = nullptr)
 {
     if (!oldelems)
         return oldelems;
@@ -630,7 +630,7 @@ TypeAArray *toBuiltinAAType(Type *t)
     if (t->ty == Taarray)
         return (TypeAArray *)t;
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 /************** TypeInfo operations ************************************/
@@ -640,7 +640,7 @@ bool isTypeInfo_Class(Type *type)
 {
     return type->ty == Tclass &&
         (Type::dtypeinfo == ((TypeClass *)type)->sym ||
-         Type::dtypeinfo->isBaseOf(((TypeClass *)type)->sym, NULL));
+         Type::dtypeinfo->isBaseOf(((TypeClass *)type)->sym, nullptr));
 }
 
 /************** Pointer operations ************************************/
@@ -1122,8 +1122,8 @@ int ctfeCmpArrays(Loc loc, Expression *e1, Expression *e2, uinteger_t len)
         lo1 = ((SliceExp *)x)->lwr->toInteger();
         x = ((SliceExp *)x)->e1;
     }
-    StringExp *se1 = (x->op == TOKstring) ? (StringExp *)x : NULL;
-    ArrayLiteralExp *ae1 = (x->op == TOKarrayliteral) ? (ArrayLiteralExp *)x : NULL;
+    StringExp *se1 = (x->op == TOKstring) ? (StringExp *)x : nullptr;
+    ArrayLiteralExp *ae1 = (x->op == TOKarrayliteral) ? (ArrayLiteralExp *)x : nullptr;
 
     x = e2;
     if (x->op == TOKslice)
@@ -1131,8 +1131,8 @@ int ctfeCmpArrays(Loc loc, Expression *e1, Expression *e2, uinteger_t len)
         lo2 = ((SliceExp *)x)->lwr->toInteger();
         x = ((SliceExp *)x)->e1;
     }
-    StringExp *se2 = (x->op == TOKstring) ? (StringExp *)x : NULL;
-    ArrayLiteralExp *ae2 = (x->op == TOKarrayliteral) ? (ArrayLiteralExp *)x : NULL;
+    StringExp *se2 = (x->op == TOKstring) ? (StringExp *)x : nullptr;
+    ArrayLiteralExp *ae2 = (x->op == TOKarrayliteral) ? (ArrayLiteralExp *)x : nullptr;
 
     // Now both must be either TOKarrayliteral or TOKstring
     if (se1 && se2)
@@ -1169,7 +1169,7 @@ int ctfeCmpArrays(Loc loc, Expression *e1, Expression *e2, uinteger_t len)
 }
 
 /* Given a delegate expression e, return .funcptr.
- * If e is NullExp, return NULL.
+ * If e is NullExp, return nullptr.
  */
 FuncDeclaration *funcptrOf(Expression *e)
 {
@@ -1180,7 +1180,7 @@ FuncDeclaration *funcptrOf(Expression *e)
     if (e->op == TOKfunction)
         return ((FuncExp *)e)->fd;
     assert(e->op == TOKnull);
-    return NULL;
+    return nullptr;
 }
 
 bool isArray(Expression *e)
@@ -1357,7 +1357,7 @@ int ctfeRawCmp(Loc loc, Expression *e1, Expression *e2)
         {
             Expression *k1 = (*es1->keys)[i];
             Expression *v1 = (*es1->values)[i];
-            Expression *v2 = NULL;
+            Expression *v2 = nullptr;
             for (size_t j = 0; j < dim; ++j)
             {
                 if (used[j])
@@ -1553,7 +1553,7 @@ UnionExp ctfeCat(Loc loc, Type *type, Expression *e1, Expression *e2)
 }
 
 /*  Given an AA literal 'ae', and a key 'e2':
- *  Return ae[e2] if present, or NULL if not found.
+ *  Return ae[e2] if present, or nullptr if not found.
  */
 Expression *findKeyInAA(Loc loc, AssocArrayLiteralExp *ae, Expression *e2)
 {
@@ -1569,7 +1569,7 @@ Expression *findKeyInAA(Loc loc, AssocArrayLiteralExp *ae, Expression *e2)
             return (*ae->values)[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /* Same as for constfold.Index, except that it only works for static arrays,
@@ -1683,7 +1683,7 @@ void assignInPlace(Expression *dest, Expression *src)
         oldelems = ((StructLiteralExp *)dest)->elements;
         newelems = ((StructLiteralExp *)src)->elements;
         if (((StructLiteralExp *)dest)->sd->isNested() && oldelems->length == newelems->length - 1)
-            oldelems->push(NULL);
+            oldelems->push(nullptr);
     }
     else if (dest->op == TOKarrayliteral && src->op==TOKarrayliteral)
     {
@@ -1972,10 +1972,10 @@ bool isCtfeReferenceValid(Expression *newval)
 void showCtfeExpr(Expression *e, int level)
 {
     for (int i = level; i > 0; --i) printf(" ");
-    Expressions *elements = NULL;
+    Expressions *elements = nullptr;
     // We need the struct definition to detect block assignment
-    StructDeclaration *sd = NULL;
-    ClassDeclaration *cd = NULL;
+    StructDeclaration *sd = nullptr;
+    ClassDeclaration *cd = nullptr;
     if (e->op == TOKstructliteral)
     {
         elements = ((StructLiteralExp *)e)->elements;
@@ -2031,8 +2031,8 @@ void showCtfeExpr(Expression *e, int level)
         size_t fieldsSoFar = 0;
         for (size_t i = 0; i < elements->length; i++)
         {
-            Expression *z = NULL;
-            VarDeclaration *v = NULL;
+            Expression *z = nullptr;
+            VarDeclaration *v = nullptr;
             if (i > 15)
             {
                 printf("...(total %d elements)\n", (int)elements->length);

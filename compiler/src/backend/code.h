@@ -19,7 +19,7 @@ class Declaration;
 
 typedef int segidx_t;           // index into SegData[]
 
-#define CNIL ((code *) NULL)
+#define CNIL ((code *) nullptr)
 
 /**********************************
  * Code data type
@@ -576,7 +576,7 @@ struct seg_data
     int                  SDrelindex;    // maximum offset encountered
     int                  SDrelcnt;      // number of relocations added
     IDXSEC               SDshtidxout;   // final section header table index
-    Symbol              *SDsym;         // if !=NULL, comdat symbol
+    Symbol              *SDsym;         // if !=nullptr, comdat symbol
     segidx_t             SDassocseg;    // for COMDATs, if !=0, this is the "associated" segment
 
     unsigned            SDaranges_offset;       // if !=0, offset in .debug_aranges
@@ -664,7 +664,7 @@ struct CodeBuilder
     code **pTail;
 
   public:
-    CodeBuilder() { head = NULL; pTail = &head; }
+    CodeBuilder() { head = nullptr; pTail = &head; }
     CodeBuilder(code *c);
     code *finish() { return head; }
 

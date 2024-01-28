@@ -107,8 +107,8 @@ bool Compiler::onImport(Module *)
     return false;
 }
 
-Module *entrypoint = NULL;
-Module *rootHasMain = NULL;
+Module *entrypoint = nullptr;
+Module *rootHasMain = nullptr;
 
 /************************************
  * Generate C main() in response to seeing D main().
@@ -146,10 +146,10 @@ void Compiler::genCmain(Scope *sc)
     bool v = global.params.verbose;
     global.params.verbose = false;
     m->importedFrom = m;
-    m->importAll(NULL);
-    dsymbolSemantic(m, NULL);
-    semantic2(m, NULL);
-    semantic3(m, NULL);
+    m->importAll(nullptr);
+    dsymbolSemantic(m, nullptr);
+    semantic2(m, nullptr);
+    semantic3(m, nullptr);
     global.params.verbose = v;
 
     entrypoint = m;

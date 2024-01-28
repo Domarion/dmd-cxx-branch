@@ -29,12 +29,12 @@ static char __file__[] = __FILE__;      // for tassert.h
 
 Outbuffer::Outbuffer()
 {
-    buf = NULL;
-    pend = NULL;
-    p = NULL;
+    buf = nullptr;
+    pend = nullptr;
+    p = nullptr;
     len = 0;
     inc = 0;
-    origbuf = NULL;
+    origbuf = nullptr;
 }
 
 Outbuffer::~Outbuffer()
@@ -199,7 +199,7 @@ void Outbuffer::write(const unsigned char *s)
 
 
 /**
- * Writes a NULL terminated String
+ * Writes a nullptr terminated String
  */
 void Outbuffer::writeString(const char *s)
 {

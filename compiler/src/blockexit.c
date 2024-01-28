@@ -79,7 +79,7 @@ int blockExit(Statement *s, FuncDeclaration *func, bool mustNotThrow)
         {
             //printf("CompoundStatement::blockExit(%p) %d result = x%X\n", cs, cs->statements->length, result);
             result = BEfallthru;
-            Statement *slast = NULL;
+            Statement *slast = nullptr;
             for (size_t i = 0; i < cs->statements->length; i++)
             {
                 Statement *s = (*cs->statements)[i];
@@ -444,7 +444,7 @@ int blockExit(Statement *s, FuncDeclaration *func, bool mustNotThrow)
             assert(cd);
 
             if (cd == ClassDeclaration::errorException ||
-                ClassDeclaration::errorException->isBaseOf(cd, NULL))
+                ClassDeclaration::errorException->isBaseOf(cd, nullptr))
             {
                 result = BEerrthrow;
                 return;

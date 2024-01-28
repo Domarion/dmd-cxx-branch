@@ -15,11 +15,7 @@
 #include "declaration.h"
 #include "statement.h"
 
-#ifdef IN_GCC
-Statement *gccAsmSemantic(GccAsmStatement *s, Scope *sc);
-#else
 Statement *inlineAsmSemantic(InlineAsmStatement *s, Scope *sc);
-#endif
 
 Statement *asmSemantic(AsmStatement *s, Scope *sc)
 {
@@ -29,16 +25,11 @@ Statement *asmSemantic(AsmStatement *s, Scope *sc)
     assert(fd);
 
     if (!s->tokens)
-        return NULL;
+        return nullptr;
 
     // Assume assembler code takes care of setting the return value
     sc->func->hasReturnExp |= 8;
 
-#ifdef IN_GCC
-    GccAsmStatement *eas = new GccAsmStatement(s->loc, s->tokens);
-    return gccAsmSemantic(eas, sc);
-#else
     InlineAsmStatement *ias = new InlineAsmStatement(s->loc, s->tokens);
     return inlineAsmSemantic(ias, sc);
-#endif
 }

@@ -53,23 +53,23 @@ ClassDeclaration::ClassDeclaration(Loc loc, Identifier *id, BaseClasses *basecla
 
     this->members = members;
 
-    baseClass = NULL;
+    baseClass = nullptr;
 
     interfaces.length = 0;
-    interfaces.ptr = NULL;
+    interfaces.ptr = nullptr;
 
-    vtblInterfaces = NULL;
+    vtblInterfaces = nullptr;
 
     //printf("ClassDeclaration(%s), dim = %d\n", id->toChars(), this->baseclasses->length);
 
     // For forward references
     type = new TypeClass(this);
 
-    staticCtor = NULL;
-    staticDtor = NULL;
+    staticCtor = nullptr;
+    staticDtor = nullptr;
 
-    vtblsym = NULL;
-    vclassinfo = NULL;
+    vtblsym = nullptr;
+    vclassinfo = nullptr;
 
     if (id)
     {
@@ -242,7 +242,7 @@ ClassDeclaration::ClassDeclaration(Loc loc, Identifier *id, BaseClasses *basecla
     isabstract = ABSfwdref;
     inuse = 0;
     baseok = BASEOKnone;
-    cpp_type_info_ptr_sym = NULL;
+    cpp_type_info_ptr_sym = nullptr;
 }
 
 ClassDeclaration *ClassDeclaration::create(Loc loc, Identifier *id, BaseClasses *baseclasses, Dsymbols *members, bool inObject)
@@ -255,7 +255,7 @@ Dsymbol *ClassDeclaration::syntaxCopy(Dsymbol *s)
     //printf("ClassDeclaration::syntaxCopy('%s')\n", toChars());
     ClassDeclaration *cd =
         s ? (ClassDeclaration *)s
-          : new ClassDeclaration(loc, ident, NULL, NULL, false);
+          : new ClassDeclaration(loc, ident, nullptr, nullptr, false);
 
     cd->storage_class |= storage_class;
 
@@ -317,7 +317,7 @@ bool ClassDeclaration::isBaseOf(ClassDeclaration *cd, int *poffset)
          */
         if (!cd->baseClass && cd->semanticRun < PASSsemanticdone && !cd->isInterfaceDeclaration())
         {
-            dsymbolSemantic(cd, NULL);
+            dsymbolSemantic(cd, nullptr);
             if (!cd->baseClass && cd->semanticRun < PASSsemanticdone)
                 cd->error("base class is forward referenced by %s", toChars());
         }
@@ -351,7 +351,7 @@ Dsymbol *ClassDeclaration::search(const Loc &loc, Identifier *ident, int flags)
         {
             // must semantic on base class/interfaces
             ++inuse;
-            dsymbolSemantic(this, NULL);
+            dsymbolSemantic(this, nullptr);
             --inuse;
         }
     }
@@ -360,7 +360,7 @@ Dsymbol *ClassDeclaration::search(const Loc &loc, Identifier *ident, int flags)
     {
         error("is forward referenced when looking for `%s`", ident->toChars());
         //*(char*)0=0;
-        return NULL;
+        return nullptr;
     }
 
     Dsymbol *s = ScopeDsymbol::search(loc, ident, flags);
@@ -387,9 +387,9 @@ Dsymbol *ClassDeclaration::search(const Loc &loc, Identifier *ident, int flags)
                     if (!s)
                         continue;
                     else if (s == this) // happens if s is nested in this and derives from this
-                        s = NULL;
-                    else if (!(flags & IgnoreSymbolVisibility) && !(s->prot().kind == Prot::protected_) && !symbolIsVisible(this, s))
-                        s = NULL;
+                        s = nullptr;
+                    else if (!(flags & IgnoreSymbolVisibility) && !(s->prot().kind == Visibility::protected_) && !symbolIsVisible(this, s))
+                        s = nullptr;
                     else
                         break;
                 }
@@ -415,14 +415,14 @@ ClassDeclaration *ClassDeclaration::searchBase(Identifier *ident)
         BaseClass *b = (*baseclasses)[i];
         ClassDeclaration *cdb = b->type->isClassHandle();
         if (!cdb)   // Bugzilla 10616
-            return NULL;
+            return nullptr;
         if (cdb->ident->equals(ident))
             return cdb;
         cdb = cdb->searchBase(ident);
         if (cdb)
             return cdb;
     }
-    return NULL;
+    return nullptr;
 }
 
 /****
@@ -564,7 +564,7 @@ bool ClassDeclaration::isFuncHidden(FuncDeclaration *fd)
     {
         //printf("not found\n");
         /* Because, due to a hack, if there are multiple definitions
-         * of fd->ident, NULL is returned.
+         * of fd->ident, nullptr is returned.
          */
         return false;
     }
@@ -600,8 +600,8 @@ bool ClassDeclaration::isFuncHidden(FuncDeclaration *fd)
 FuncDeclaration *ClassDeclaration::findFunc(Identifier *ident, TypeFunction *tf)
 {
     //printf("ClassDeclaration::findFunc(%s, %s) %s\n", ident->toChars(), tf->toChars(), toChars());
-    FuncDeclaration *fdmatch = NULL;
-    FuncDeclaration *fdambig = NULL;
+    FuncDeclaration *fdmatch = nullptr;
+    FuncDeclaration *fdambig = nullptr;
 
     ClassDeclaration *cd = this;
     Dsymbols *vtbl = &cd->vtbl;
@@ -658,7 +658,7 @@ FuncDeclaration *ClassDeclaration::findFunc(Identifier *ident, TypeFunction *tf)
 
             Lfd:
                 fdmatch = fd;
-                fdambig = NULL;
+                fdambig = nullptr;
                 //printf("Lfd fdmatch = %s %s [%s]\n", fdmatch->toChars(), fdmatch->type->toChars(), fdmatch->loc.toChars());
                 continue;
 
@@ -724,7 +724,7 @@ bool ClassDeclaration::isAbstract()
                 return 0;
 
             if (fd->_scope)
-                dsymbolSemantic(fd, NULL);
+                dsymbolSemantic(fd, nullptr);
 
             if (fd->isAbstract())
                 return 1;
@@ -794,7 +794,7 @@ void ClassDeclaration::addLocalClass(ClassDeclarations *aclasses)
 /********************************* InterfaceDeclaration ****************************/
 
 InterfaceDeclaration::InterfaceDeclaration(Loc loc, Identifier *id, BaseClasses *baseclasses)
-    : ClassDeclaration(loc, id, baseclasses, NULL, false)
+    : ClassDeclaration(loc, id, baseclasses, nullptr, false)
 {
     if (id == Id::IUnknown)     // IUnknown is the root of all COM interfaces
     {
@@ -807,7 +807,7 @@ Dsymbol *InterfaceDeclaration::syntaxCopy(Dsymbol *s)
 {
     InterfaceDeclaration *id =
         s ? (InterfaceDeclaration *)s
-          : new InterfaceDeclaration(loc, ident, NULL);
+          : new InterfaceDeclaration(loc, ident, nullptr);
     return ClassDeclaration::syntaxCopy(id);
 }
 
@@ -926,29 +926,29 @@ const char *InterfaceDeclaration::kind() const
 
 BaseClass::BaseClass()
 {
-    this->type = NULL;
-    this->sym = NULL;
+    this->type = nullptr;
+    this->sym = nullptr;
     this->offset = 0;
 
     this->baseInterfaces.length = 0;
-    this->baseInterfaces.ptr = NULL;
+    this->baseInterfaces.ptr = nullptr;
 }
 
 BaseClass::BaseClass(Type *type)
 {
     //printf("BaseClass(this = %p, '%s')\n", this, type->toChars());
     this->type = type;
-    this->sym = NULL;
+    this->sym = nullptr;
     this->offset = 0;
 
     this->baseInterfaces.length = 0;
-    this->baseInterfaces.ptr = NULL;
+    this->baseInterfaces.ptr = nullptr;
 }
 
 /****************************************
  * Fill in vtbl[] for base class based on member functions of class cd.
  * Input:
- *      vtbl            if !=NULL, fill it in
+ *      vtbl            if !=nullptr, fill it in
  *      newinstance     !=0 means all entries must be filled in by members
  *                      of cd, not members of any base classes of cd.
  * Returns:

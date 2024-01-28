@@ -35,7 +35,7 @@ struct Loc
     {
         linnum = y;
         charnum = x;
-        filename = NULL;
+        filename = nullptr;
     }
 };
 

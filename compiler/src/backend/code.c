@@ -17,7 +17,7 @@
 #include        "code.h"
 #include        "global.h"
 
-code *code_list = NULL;
+code *code_list = nullptr;
 
 /************************************
  * Allocate a chunk of code's and add them to
@@ -31,7 +31,7 @@ code *code_chunk_alloc()
     {
         code_next(&chunk[i]) = &chunk[i + 1];
     }
-    code_next(&chunk[n - 1]) = NULL;
+    code_next(&chunk[n - 1]) = nullptr;
     code_list = chunk;
     return chunk;
 }

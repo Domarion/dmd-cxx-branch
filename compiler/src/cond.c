@@ -67,8 +67,8 @@ StaticForeach *StaticForeach::syntaxCopy()
 {
     return new StaticForeach(
         loc,
-        aggrfe ? (ForeachStatement *)aggrfe->syntaxCopy() : NULL,
-        rangefe ? (ForeachRangeStatement *)rangefe->syntaxCopy() : NULL
+        aggrfe ? (ForeachStatement *)aggrfe->syntaxCopy() : nullptr,
+        rangefe ? (ForeachRangeStatement *)rangefe->syntaxCopy() : nullptr
     );
 }
 
@@ -132,8 +132,8 @@ static void lowerArrayAggregate(StaticForeach *sfe, Scope *sc)
 
 static Expression *wrapAndCall(Loc loc, Statement *s)
 {
-    TypeFunction *tf = new TypeFunction(ParameterList(), NULL, LINKdefault, 0);
-    FuncLiteralDeclaration *fd = new FuncLiteralDeclaration(loc, loc, tf, TOKreserved, NULL);
+    TypeFunction *tf = new TypeFunction(ParameterList(), nullptr, LINKdefault, 0);
+    FuncLiteralDeclaration *fd = new FuncLiteralDeclaration(loc, loc, tf, TOKreserved, nullptr);
     fd->fbody = s;
     FuncExp *fe = new FuncExp(loc, fd);
     Expression *ce = new CallExp(loc, fe, new Expressions());
@@ -197,7 +197,7 @@ static TypeStruct *createTupleType(Loc loc, Expressions *e)
     sdecl->members = new Dsymbols();
     Identifier *fid = Identifier::idPool("tuple");
     Type *ty = new TypeTypeof(loc, new TupleExp(loc, e));
-    sdecl->members->push(new VarDeclaration(loc, ty, fid, NULL));
+    sdecl->members->push(new VarDeclaration(loc, ty, fid, nullptr));
     TypeStruct *r = (TypeStruct *)sdecl->type;
     if (global.params.useTypeInfo && Type::dtypeinfo)
         r->vtinfo = TypeInfoStructDeclaration::create(r); // prevent typeinfo from going to object file
@@ -258,11 +258,11 @@ static void lowerNonArrayAggregate(StaticForeach *sfe, Scope *sc)
         {
             Parameters *params = pparams[j];
             Parameter *p = sfe->aggrfe ? (*sfe->aggrfe->parameters)[i] : sfe->rangefe->prm;
-            params->push(new Parameter(p->storageClass, p->type, p->ident, NULL, NULL));
+            params->push(new Parameter(p->storageClass, p->type, p->ident, nullptr, nullptr));
         }
     }
     Expression *res[2];
-    TypeStruct *tplty = NULL;
+    TypeStruct *tplty = nullptr;
     if (nvars == 1) // only one `static foreach` variable, generate identifiers.
     {
         for (size_t i = 0; i < 2; i++)
@@ -312,7 +312,7 @@ static void lowerNonArrayAggregate(StaticForeach *sfe, Scope *sc)
     Type *ety = new TypeTypeof(aloc, wrapAndCall(aloc, new CompoundStatement(aloc, s1)));
     Type *aty = ety->arrayOf();
     Identifier *idres = Identifier::generateId("__res");
-    VarDeclaration *vard = new VarDeclaration(aloc, aty, idres, NULL);
+    VarDeclaration *vard = new VarDeclaration(aloc, aty, idres, nullptr);
     Statements *s2 = new Statements();
 
     // Run 'typeof' gagged to avoid duplicate errors and if it fails just create
@@ -320,7 +320,7 @@ static void lowerNonArrayAggregate(StaticForeach *sfe, Scope *sc)
     unsigned olderrors = global.startGagging();
     ety = typeSemantic(ety, aloc, sc);
     if (global.endGagging(olderrors))
-        s2->push(createForeach(sfe, aloc, pparams[1], NULL));
+        s2->push(createForeach(sfe, aloc, pparams[1], nullptr));
     else
     {
         s2->push(new ExpStatement(aloc, vard));
@@ -377,7 +377,7 @@ static void lowerNonArrayAggregate(StaticForeach *sfe, Scope *sc)
     sfe->aggrfe = new ForeachStatement(sfe->loc, TOKforeach, pparams[2], aggr,
                                   sfe->aggrfe ? sfe->aggrfe->_body : sfe->rangefe->_body,
                                   sfe->aggrfe ? sfe->aggrfe->endloc : sfe->rangefe->endloc);
-    sfe->rangefe = NULL;
+    sfe->rangefe = nullptr;
     lowerArrayAggregate(sfe, sc); // finally, turn generated array into expression tuple
 }
 
@@ -610,7 +610,7 @@ static bool isReserved(const char *ident)
         "assert",
         "all",
         "none",
-        NULL
+        nullptr
     };
 
     for (unsigned i = 0; reserved[i]; i++)

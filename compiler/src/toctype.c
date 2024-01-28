@@ -88,7 +88,7 @@ public:
             else if (p->storageClass & STClazy)
             {
                 // Mangle as delegate
-                type *tf = type_function(TYnfunc, NULL, 0, false, tp);
+                type *tf = type_function(TYnfunc, nullptr, 0, false, tp);
                 tp = type_delegate(tf);
             }
             ptypes[i] = tp;
@@ -148,8 +148,8 @@ public:
         {
             StructDeclaration *sym = t->sym;
             t->ctype = type_struct_class(sym->toPrettyChars(true), sym->alignsize, sym->structsize,
-                    sym->arg1type ? Type_toCtype(sym->arg1type) : NULL,
-                    sym->arg2type ? Type_toCtype(sym->arg2type) : NULL,
+                    sym->arg1type ? Type_toCtype(sym->arg1type) : nullptr,
+                    sym->arg2type ? Type_toCtype(sym->arg2type) : nullptr,
                     sym->isUnionDeclaration() != 0,
                     false,
                     sym->isPOD() != 0);
@@ -236,8 +236,8 @@ public:
     {
         //printf("TypeClass::toCtype() %s\n", toChars());
         type *tc = type_struct_class(t->sym->toPrettyChars(true), t->sym->alignsize, t->sym->structsize,
-                NULL,
-                NULL,
+                nullptr,
+                nullptr,
                 false,
                 true,
                 true);

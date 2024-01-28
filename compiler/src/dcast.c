@@ -23,7 +23,7 @@
 #include "init.h"
 #include "tokens.h"
 
-FuncDeclaration *isFuncAddress(Expression *e, bool *hasOverloads = NULL);
+FuncDeclaration *isFuncAddress(Expression *e, bool *hasOverloads = nullptr);
 bool isCommutative(TOK op);
 MOD MODmerge(MOD mod1, MOD mod2);
 void toAutoQualChars(const char **result, Type *t1, Type *t2);
@@ -48,7 +48,7 @@ Expression *implicitCastTo(Expression *e, Scope *sc, Type *t)
         ImplicitCastTo(Scope *sc, Type *t)
             : t(t), sc(sc)
         {
-            result = NULL;
+            result = nullptr;
         }
 
         void visit(Expression *e)
@@ -118,7 +118,7 @@ Expression *implicitCastTo(Expression *e, Scope *sc, Type *t)
 
         void visit(FuncExp *e)
         {
-            //printf("FuncExp::implicitCastTo type = %p %s, t = %s\n", e->type, e->type ? e->type->toChars() : NULL, t->toChars());
+            //printf("FuncExp::implicitCastTo type = %p %s, t = %s\n", e->type, e->type ? e->type->toChars() : nullptr, t->toChars());
             FuncExp *fe;
             if (e->matchType(t, sc, &fe) > MATCHnomatch)
             {
@@ -896,7 +896,7 @@ MATCH implicitConvTo(Expression *e, Type *t)
                 (t->ty == Tpointer || t->ty == Tdelegate) && t->nextOf()->ty == Tfunction)
             {
                 OverExp *eo = (OverExp *)e->e1;
-                FuncDeclaration *f = NULL;
+                FuncDeclaration *f = nullptr;
                 for (size_t i = 0; i < eo->vars->a.length; i++)
                 {
                     Dsymbol *s = eo->vars->a[i];
@@ -978,8 +978,8 @@ MATCH implicitConvTo(Expression *e, Type *t)
 
         void visit(FuncExp *e)
         {
-            //printf("FuncExp::implicitConvTo type = %p %s, t = %s\n", e->type, e->type ? e->type->toChars() : NULL, t->toChars());
-            MATCH m = e->matchType(t, NULL, NULL, 1);
+            //printf("FuncExp::implicitConvTo type = %p %s, t = %s\n", e->type, e->type ? e->type->toChars() : nullptr, t->toChars());
+            MATCH m = e->matchType(t, nullptr, nullptr, 1);
             if (m > MATCHnomatch)
             {
                 result = m;
@@ -1274,7 +1274,7 @@ MATCH implicitConvTo(Expression *e, Type *t)
             if (tb->ty == Tarray && typeb->equivalent(tb))
             {
                 Type *tbn = tb->nextOf();
-                Type *tx = NULL;
+                Type *tx = nullptr;
 
                 /* If e->e1 is dynamic array or pointer, the uniqueness of e->e1
                  * is equivalent with the uniqueness of the referred data. And in here
@@ -1331,7 +1331,7 @@ Type *toStaticArrayType(SliceExp *e)
         if (t1b->ty == Tsarray)
             return t1b;
     }
-    return NULL;
+    return nullptr;
 }
 
 /* ==================== castTo ====================== */
@@ -1353,7 +1353,7 @@ Expression *castTo(Expression *e, Scope *sc, Type *t)
         CastTo(Scope *sc, Type *t)
             : t(t), sc(sc)
         {
-            result = NULL;
+            result = nullptr;
         }
 
         void visit(Expression *e)
@@ -1906,7 +1906,7 @@ Expression *castTo(Expression *e, Scope *sc, Type *t)
                     (t->ty == Tpointer || t->ty == Tdelegate) && t->nextOf()->ty == Tfunction)
                 {
                     OverExp *eo = (OverExp *)e->e1;
-                    FuncDeclaration *f = NULL;
+                    FuncDeclaration *f = nullptr;
                     for (size_t i = 0; i < eo->vars->a.length; i++)
                     {
                         Dsymbol *s = eo->vars->a[i];
@@ -1979,7 +1979,7 @@ Expression *castTo(Expression *e, Scope *sc, Type *t)
             }
 
             TupleExp *te = (TupleExp *)e->copy();
-            te->e0 = e->e0 ? e->e0->copy() : NULL;
+            te->e0 = e->e0 ? e->e0->copy() : nullptr;
             te->exps = (Expressions *)e->exps->copy();
             for (size_t i = 0; i < te->exps->length; i++)
             {
@@ -2153,7 +2153,7 @@ Expression *castTo(Expression *e, Scope *sc, Type *t)
                 (tb->ty == Tpointer || tb->ty == Tdelegate) && tb->nextOf()->ty == Tfunction)
             {
                 FuncDeclaration *f = e->var->isFuncDeclaration();
-                f = f ? f->overloadExactMatch(tb->nextOf()) : NULL;
+                f = f ? f->overloadExactMatch(tb->nextOf()) : nullptr;
                 if (f)
                 {
                     if (tb->ty == Tdelegate)
@@ -2396,7 +2396,7 @@ Expression *inferType(Expression *e, Type *t, int flag)
         InferType(Type *t, int flag)
             : t(t), flag(flag)
         {
-            result = NULL;
+            result = nullptr;
         }
 
 
@@ -2593,13 +2593,13 @@ Type *rawTypeMerge(Type *t1, Type *t2)
     if (ty != Terror)
         return Type::basic[ty];
 
-    return NULL;
+    return nullptr;
 }
 
 /**************************************
  * Combine types.
  * Output:
- *      *pt     merged type, if *pt is not NULL
+ *      *pt     merged type, if *pt is not nullptr
  *      *pe1    rewritten e1
  *      *pe2    rewritten e2
  * Returns:
@@ -2634,8 +2634,8 @@ bool typeMerge(Scope *sc, TOK op, Type **pt, Expression **pe1, Expression **pe2)
      * if it appears again.
      *      X -> Y -> [A] -> B -> A -> B -> ...
      */
-    Type *att1 = NULL;
-    Type *att2 = NULL;
+    Type *att1 = nullptr;
+    Type *att2 = nullptr;
 
     //if (t1) printf("\tt1 = %s\n", t1->toChars());
     //if (t2) printf("\tt2 = %s\n", t2->toChars());
@@ -2743,7 +2743,7 @@ Lagain:
             else
                 d->trust = TRUSTtrusted;
 
-            Type *tx = NULL;
+            Type *tx = nullptr;
             if (t1->ty == Tdelegate)
             {
                 tx = new TypeDelegate(d);
@@ -3013,8 +3013,8 @@ Lcc:
             MATCH i1 = MATCHnomatch;
             MATCH i2 = MATCHnomatch;
 
-            Expression *e1b = NULL;
-            Expression *e2b = NULL;
+            Expression *e1b = nullptr;
+            Expression *e2b = nullptr;
             if (ts2->sym->aliasthis)
             {
                 if (att2 && e2->type == att2)
@@ -3272,7 +3272,7 @@ Lt2:
 
 /************************************
  * Bring leaves to common type.
- * Returns ErrorExp if error occurs. otherwise returns NULL.
+ * Returns ErrorExp if error occurs. otherwise returns nullptr.
  */
 
 Expression *typeCombine(BinExp *be, Scope *sc)
@@ -3298,7 +3298,7 @@ Expression *typeCombine(BinExp *be, Scope *sc)
         return be->e1;
     if (be->e2->op == TOKerror)
         return be->e2;
-    return NULL;
+    return nullptr;
 
 Lerror:
     Expression *ex = be->incompatibleTypes();
@@ -3535,7 +3535,7 @@ IntRange getIntRange(Expression *e)
             if (vd && vd->range)
                 range = vd->range->cast(e->type);
             else if (vd && vd->_init && !vd->type->isMutable() &&
-                (ie = vd->getConstInitializer()) != NULL)
+                (ie = vd->getConstInitializer()) != nullptr)
                 ie->accept(this);
             else
                 visit((Expression *)e);

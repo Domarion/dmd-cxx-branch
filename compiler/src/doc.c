@@ -87,7 +87,7 @@ struct DocComment
     Dsymbols a;
 
     DocComment() :
-       summary(NULL), copyright(NULL), macros(NULL), pmacrotable(NULL), pescapetable(NULL)
+       summary(nullptr), copyright(nullptr), macros(nullptr), pmacrotable(nullptr), pescapetable(nullptr)
     { }
 
     static DocComment *parse(Dsymbol *s, const utf8_t *comment);
@@ -149,24 +149,24 @@ static Parameter *isFunctionParameter(Dsymbol *s, const utf8_t *p, size_t len)
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 static Dsymbol *getEponymousMember(TemplateDeclaration *td)
 {
     if (!td->onemember)
-        return NULL;
+        return nullptr;
 
     if (AggregateDeclaration *ad = td->onemember->isAggregateDeclaration())
         return ad;
     if (FuncDeclaration *fd = td->onemember->isFuncDeclaration())
         return fd;
     if (td->onemember->isEnumMember())
-        return NULL;    // Keep backward compatibility. See compilable/ddoc9.d
+        return nullptr;    // Keep backward compatibility. See compilable/ddoc9.d
     if (VarDeclaration *vd = td->onemember->isVarDeclaration())
-        return td->constraint ? NULL : vd;
+        return td->constraint ? nullptr : vd;
 
-    return NULL;
+    return nullptr;
 }
 
 /****************************************************
@@ -214,15 +214,15 @@ static Parameter *isEponymousFunctionParameter(Dsymbols *a, const utf8_t *p, siz
             td = td->overnext;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 static TemplateDeclaration *getEponymousParent(Dsymbol *s)
 {
     if (!s->parent)
-        return NULL;
+        return nullptr;
     TemplateDeclaration *td = s->parent->isTemplateDeclaration();
-    return (td && getEponymousMember(td)) ? td : NULL;
+    return (td && getEponymousMember(td)) ? td : nullptr;
 }
 
 static const char ddoc_default[] = "\
@@ -433,7 +433,7 @@ void gendocfile(Module *m)
     OutBuffer buf2;
     buf2.writestring("$(DDOC)\n");
     size_t end = buf2.length();
-    m->macrotable->expand(&buf2, 0, &end, NULL, 0);
+    m->macrotable->expand(&buf2, 0, &end, nullptr, 0);
 
     /* Remove all the escape sequences from buf2,
      * and make CR-LF the newline.
@@ -602,7 +602,7 @@ static bool emitAnchorName(OutBuffer *buf, Dsymbol *s, Scope *sc)
 
     // Use "this" not "__ctor"
     TemplateDeclaration *td;
-    if (s->isCtorDeclaration() || ((td = s->isTemplateDeclaration()) != NULL &&
+    if (s->isCtorDeclaration() || ((td = s->isTemplateDeclaration()) != nullptr &&
         td->onemember && td->onemember->isCtorDeclaration()))
     {
         buf->writestring("this");
@@ -666,7 +666,7 @@ static void expandTemplateMixinComments(TemplateMixin *tm, OutBuffer *buf, Scope
     if (!tm->semanticRun)
         dsymbolSemantic(tm, sc);
     TemplateDeclaration *td = (tm && tm->tempdecl) ?
-        tm->tempdecl->isTemplateDeclaration() : NULL;
+        tm->tempdecl->isTemplateDeclaration() : nullptr;
     if (td && td->members)
     {
         for (size_t i = 0; i < td->members->length; i++)
@@ -717,7 +717,7 @@ void emitMemberComments(ScopeDsymbol *sds, OutBuffer *buf, Scope *sc)
 
         emitComment(s, buf, sc);
     }
-    emitComment(NULL, buf, sc);
+    emitComment(nullptr, buf, sc);
 
     sc->pop();
 
@@ -731,9 +731,9 @@ void emitMemberComments(ScopeDsymbol *sds, OutBuffer *buf, Scope *sc)
         buf->writestring(")\n");
 }
 
-void emitProtection(OutBuffer *buf, Prot prot)
+void emitProtection(OutBuffer *buf, Visibility prot)
 {
-    if (prot.kind != Prot::undefined && prot.kind != Prot::public_)
+    if (prot.kind != Visibility::undefined && prot.kind != Visibility::public_)
     {
         protectionToBuffer(buf, prot);
         buf->writeByte(' ');
@@ -834,7 +834,7 @@ void emitComment(Dsymbol *s, OutBuffer *buf, Scope *sc)
                     return;
                 if (!d->type && !d->isCtorDeclaration() && !d->isAliasDeclaration())
                     return;
-                if (d->protection.kind == Prot::private_ || sc->protection.kind == Prot::private_)
+                if (d->protection.kind == Visibility::private_ || sc->protection.kind == Visibility::private_)
                     return;
             }
             if (!com)
@@ -856,7 +856,7 @@ void emitComment(Dsymbol *s, OutBuffer *buf, Scope *sc)
             }
             else
             {
-                if (ad->prot().kind == Prot::private_ || sc->protection.kind == Prot::private_)
+                if (ad->prot().kind == Visibility::private_ || sc->protection.kind == Visibility::private_)
                     return;
                 if (!ad->comment)
                     return;
@@ -870,7 +870,7 @@ void emitComment(Dsymbol *s, OutBuffer *buf, Scope *sc)
         void visit(TemplateDeclaration *td)
         {
             //printf("TemplateDeclaration::emitComment() '%s', kind = %s\n", td->toChars(), td->kind());
-            if (td->prot().kind == Prot::private_ || sc->protection.kind == Prot::private_)
+            if (td->prot().kind == Visibility::private_ || sc->protection.kind == Visibility::private_)
                 return;
             if (!td->comment)
                 return;
@@ -885,7 +885,7 @@ void emitComment(Dsymbol *s, OutBuffer *buf, Scope *sc)
 
         void visit(EnumDeclaration *ed)
         {
-            if (ed->prot().kind == Prot::private_ || sc->protection.kind == Prot::private_)
+            if (ed->prot().kind == Visibility::private_ || sc->protection.kind == Visibility::private_)
                 return;
             if (ed->isAnonymous() && ed->members)
             {
@@ -907,7 +907,7 @@ void emitComment(Dsymbol *s, OutBuffer *buf, Scope *sc)
         void visit(EnumMember *em)
         {
             //printf("EnumMember::emitComment(%p '%s'), comment = '%s'\n", em, em->toChars(), em->comment);
-            if (em->prot().kind == Prot::private_ || sc->protection.kind == Prot::private_)
+            if (em->prot().kind == Visibility::private_ || sc->protection.kind == Visibility::private_)
                 return;
             if (!em->comment)
                 return;
@@ -927,7 +927,7 @@ void emitComment(Dsymbol *s, OutBuffer *buf, Scope *sc)
              * Hence, Ddoc omits attributes from template members.
              */
 
-            Dsymbols *d = ad->include(NULL);
+            Dsymbols *d = ad->include(nullptr);
 
             if (d)
             {
@@ -963,7 +963,7 @@ void emitComment(Dsymbol *s, OutBuffer *buf, Scope *sc)
             }
 
             /* If generating doc comment, be careful because if we're inside
-             * a template, then include(NULL) will fail.
+             * a template, then include(nullptr) will fail.
              */
             Dsymbols *d = cd->decl ? cd->decl : cd->elsedecl;
             for (size_t i = 0; i < d->length; i++)
@@ -977,7 +977,7 @@ void emitComment(Dsymbol *s, OutBuffer *buf, Scope *sc)
     EmitComment v(buf, sc);
 
     if (!s)
-        v.emit(sc, NULL, NULL);
+        v.emit(sc, nullptr, nullptr);
     else
         s->accept(&v);
 }
@@ -1112,7 +1112,7 @@ void toDocBuffer(Dsymbol *s, OutBuffer *buf, Scope *sc)
             {
                 if (type->ty == Tclass || type->ty == Tstruct || type->ty == Tenum)
                 {
-                    if (Dsymbol *s = type->toDsymbol(NULL))  // elaborate type
+                    if (Dsymbol *s = type->toDsymbol(nullptr))  // elaborate type
                         prettyPrintDsymbol(s, ad->parent);
                     else
                         buf->writestring(type->toChars());
@@ -1232,7 +1232,7 @@ void toDocBuffer(Dsymbol *s, OutBuffer *buf, Scope *sc)
                     buf->writestring(": ");
                     any = 1;
                 }
-                emitProtection(buf, Prot(Prot::public_));
+                emitProtection(buf, Visibility(Visibility::public_));
                 if (bc->sym)
                 {
                     buf->printf("$(DDOC_PSUPER_SYMBOL %s)", bc->sym->toPrettyChars());
@@ -1240,7 +1240,7 @@ void toDocBuffer(Dsymbol *s, OutBuffer *buf, Scope *sc)
                 else
                 {
                     HdrGenState hgs;
-                    ::toCBuffer(bc->type, buf, NULL, &hgs);
+                    ::toCBuffer(bc->type, buf, nullptr, &hgs);
                 }
             }
             buf->writestring(";\n");
@@ -1256,7 +1256,7 @@ void toDocBuffer(Dsymbol *s, OutBuffer *buf, Scope *sc)
             {
                 buf->writestring(": $(DDOC_ENUM_BASETYPE ");
                 HdrGenState hgs;
-                ::toCBuffer(ed->memtype, buf, NULL, &hgs);
+                ::toCBuffer(ed->memtype, buf, nullptr, &hgs);
                 buf->writestring(")");
             }
             buf->writestring(";\n");
@@ -1307,7 +1307,7 @@ DocComment *DocComment::parse(Dsymbol *s, const utf8_t *comment)
 /*****************************************
  * Parse next paragraph out of *pcomment.
  * Update *pcomment to point past paragraph.
- * Returns NULL if no more paragraphs.
+ * Returns nullptr if no more paragraphs.
  * If paragraph ends in 'identifier:',
  * then (*pcomment)[0 .. idlen] is the identifier.
  */
@@ -1317,10 +1317,10 @@ void DocComment::parseSections(const utf8_t *comment)
     const utf8_t *p;
     const utf8_t *pstart;
     const utf8_t *pend;
-    const utf8_t *idstart = NULL;       // dead-store to prevent spurious warning
+    const utf8_t *idstart = nullptr;       // dead-store to prevent spurious warning
     size_t idlen;
 
-    const utf8_t *name = NULL;
+    const utf8_t *name = nullptr;
     size_t namelen = 0;
 
     //printf("parseSections('%s')\n", comment);
@@ -1433,7 +1433,7 @@ void DocComment::parseSections(const utf8_t *comment)
         }
         else
         {
-            name = NULL;
+            name = nullptr;
             namelen = 0;
             if (!*p)
                 break;
@@ -1485,7 +1485,7 @@ void DocComment::writeSections(Scope *sc, Dsymbols *a, OutBuffer *buf)
 
         for (UnitTestDeclaration *utd = s->ddocUnittest; utd; utd = utd->ddocUnittest)
         {
-            if (utd->protection.kind == Prot::private_ || !utd->comment || !utd->fbody)
+            if (utd->protection.kind == Visibility::private_ || !utd->comment || !utd->fbody)
                 continue;
 
             // Strip whitespaces to avoid showing empty summary
@@ -1536,7 +1536,7 @@ void Section::write(Loc loc, DocComment *, Scope *sc, Dsymbols *a, OutBuffer *bu
             "AUTHORS", "BUGS", "COPYRIGHT", "DATE",
             "DEPRECATED", "EXAMPLES", "HISTORY", "LICENSE",
             "RETURNS", "SEE_ALSO", "STANDARDS", "THROWS",
-            "VERSION", NULL
+            "VERSION", nullptr
         };
 
         for (size_t i = 0; table[i]; i++)
@@ -1585,13 +1585,13 @@ void ParamSection::write(Loc loc, DocComment *, Scope *sc, Dsymbols *a, OutBuffe
     size_t len = bodylen;
     const utf8_t *pend = p + len;
 
-    const utf8_t *tempstart = NULL;
+    const utf8_t *tempstart = nullptr;
     size_t templen = 0;
 
-    const utf8_t *namestart = NULL;
+    const utf8_t *namestart = nullptr;
     size_t namelen = 0;       // !=0 if line continuation
 
-    const utf8_t *textstart = NULL;
+    const utf8_t *textstart = nullptr;
     size_t textlen = 0;
 
     size_t paramcount = 0;
@@ -1729,7 +1729,7 @@ void ParamSection::write(Loc loc, DocComment *, Scope *sc, Dsymbols *a, OutBuffe
         goto L1;                // write out last one
     buf->writestring(")\n");
 
-    TypeFunction *tf = a->length == 1 ? isTypeFunction(s) : NULL;
+    TypeFunction *tf = a->length == 1 ? isTypeFunction(s) : nullptr;
     if (tf)
     {
         size_t pcount = (tf->parameterList.parameters ? tf->parameterList.parameters->length : 0) +
@@ -1764,13 +1764,13 @@ void DocComment::parseMacros(Escape **pescapetable, Macro **pmacrotable, const u
     size_t len = mlen;
     const utf8_t *pend = p + len;
 
-    const utf8_t *tempstart = NULL;
+    const utf8_t *tempstart = nullptr;
     size_t templen = 0;
 
-    const utf8_t *namestart = NULL;
+    const utf8_t *namestart = nullptr;
     size_t namelen = 0;       // !=0 if line continuation
 
-    const utf8_t *textstart = NULL;
+    const utf8_t *textstart = nullptr;
     size_t textlen = 0;
 
     while (p < pend)
@@ -2123,7 +2123,7 @@ bool isIdentifier(Dsymbols *a, const utf8_t *p, size_t len)
 
 bool isKeyword(utf8_t *p, size_t len)
 {
-    static const char *table[] = { "true", "false", "null", NULL };
+    static const char *table[] = { "true", "false", "null", nullptr };
 
     for (int i = 0; table[i]; i++)
     {
@@ -2140,7 +2140,7 @@ TypeFunction *isTypeFunction(Dsymbol *s)
 {
     FuncDeclaration *f = s->isFuncDeclaration();
 
-    /* f->type may be NULL for template members.
+    /* f->type may be nullptr for template members.
      */
     if (f && f->type)
     {
@@ -2148,7 +2148,7 @@ TypeFunction *isTypeFunction(Dsymbol *s)
         if (t->ty == Tfunction)
             return (TypeFunction *)t;
     }
-    return NULL;
+    return nullptr;
 }
 
 /****************************************************
@@ -2164,7 +2164,7 @@ Parameter *isFunctionParameter(Dsymbols *a, const utf8_t *p, size_t len)
             return fparam;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /****************************************************
@@ -2190,7 +2190,7 @@ TemplateParameter *isTemplateParameter(Dsymbols *a, const utf8_t *p, size_t len)
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /****************************************************
@@ -2206,7 +2206,7 @@ bool isReservedName(utf8_t *str, size_t len)
         "__returnLabel", "__vptr", "__monitor", "__gate", "__xopEquals", "__xopCmp",
         "__LINE__", "__FILE__", "__MODULE__", "__FUNCTION__", "__PRETTY_FUNCTION__",
         "__DATE__", "__TIME__", "__TIMESTAMP__", "__VENDOR__", "__VERSION__",
-        "__EOF__", "__LOCAL_SIZE", "___tls_get_addr", "__entrypoint", NULL };
+        "__EOF__", "__LOCAL_SIZE", "___tls_get_addr", "__entrypoint", nullptr };
 
     for (int i = 0; table[i]; i++)
     {
@@ -2222,7 +2222,7 @@ bool isReservedName(utf8_t *str, size_t len)
 
 void highlightText(Scope *sc, Dsymbols *a, OutBuffer *buf, size_t offset)
 {
-    Dsymbol *s = a->length ? (*a)[0] : NULL;   // test
+    Dsymbol *s = a->length ? (*a)[0] : nullptr;   // test
 
     //printf("highlightText()\n");
 
@@ -2655,7 +2655,7 @@ void highlightCode3(Scope *sc, OutBuffer *buf, const utf8_t *p, const utf8_t *pe
 void highlightCode2(Scope *sc, Dsymbols *a, OutBuffer *buf, size_t offset)
 {
     unsigned errorsave = global.errors;
-    Lexer lex(NULL, (utf8_t *)buf->slice().ptr, 0, buf->length() - 1, 0, 1);
+    Lexer lex(nullptr, (utf8_t *)buf->slice().ptr, 0, buf->length() - 1, 0, 1);
     OutBuffer res;
     const utf8_t *lastp = (utf8_t *)buf->slice().ptr;
 
@@ -2667,7 +2667,7 @@ void highlightCode2(Scope *sc, Dsymbols *a, OutBuffer *buf, size_t offset)
         lex.scan(&tok);
         highlightCode3(sc, &res, lastp, tok.ptr);
 
-        const char *highlight = NULL;
+        const char *highlight = nullptr;
         switch (tok.value)
         {
             case TOKidentifier:

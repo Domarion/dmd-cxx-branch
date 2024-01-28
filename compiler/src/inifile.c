@@ -29,7 +29,7 @@ char *skipspace(char *p);
  *      argv0           program name (argv[0])
  *      inifile         .ini file name
  * Returns:
- *      file path of the config file or NULL
+ *      file path of the config file or nullptr
  *      Note: this is a memory leak
  */
 const char *findConfFile(const char *argv0, const char *inifile)
@@ -85,7 +85,7 @@ const char *findConfFile(const char *argv0, const char *inifile)
 #ifndef SYSCONFDIR
 # error SYSCONFDIR not defined
 #endif
-    assert(SYSCONFDIR != NULL && strlen(SYSCONFDIR));
+    assert(SYSCONFDIR != nullptr && strlen(SYSCONFDIR));
     filename = FileName::combine(SYSCONFDIR, inifile);
 
     return filename;
@@ -314,7 +314,7 @@ void parseConfFile(StringTable *environment, const char *path, size_t length, un
                             *p = '\0';
                             if (readFromEnv(environment, pn))
                             {
-                                pn = NULL;
+                                pn = nullptr;
                                 break;
                             }
                             // remove the '?' and resume parsing starting from

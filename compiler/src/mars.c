@@ -254,6 +254,7 @@ int tryMain(size_t argc, const char *argv[])
     updateRealEnvironment(&environment);
     environment.reset(1);               // don't need environment cache any more
 
+    // TODO: move argument parsing to separate function/file
     for (size_t i = 1; i < arguments.length; i++)
     {
         const char *p = arguments[i];
@@ -887,7 +888,7 @@ Language changes listed by -transition=id:\n\
     else if (global.params.lib)
     {
         global.params.libname = global.params.objname;
-        global.params.objname = NULL;
+        global.params.objname = nullptr;
 
         // Haven't investigated handling these options with multiobj
         if (!global.params.cov && !global.params.trace)
@@ -1025,9 +1026,7 @@ Language changes listed by -transition=id:\n\
     for (size_t i = 0; i < files.length; i++)
     {
         const char *name;
-        const char *p = files[i];
-
-        p = FileName::name(p);          // strip path
+        const char *p = FileName::name(files[i]); // strip path
         const char *ext = FileName::ext(p);
         char *newname;
         if (ext)
@@ -1217,7 +1216,7 @@ Language changes listed by -transition=id:\n\
        Module *m = modules[i];
        if (global.params.verbose)
            fprintf(global.stdmsg, "importall %s\n", m->toChars());
-       m->importAll(NULL);
+       m->importAll(nullptr);
     }
     if (global.errors)
         fatal();
@@ -1230,7 +1229,7 @@ Language changes listed by -transition=id:\n\
         Module *m = modules[i];
         if (global.params.verbose)
             fprintf(global.stdmsg, "semantic  %s\n", m->toChars());
-        dsymbolSemantic(m, NULL);
+        dsymbolSemantic(m, nullptr);
     }
     if (global.errors)
         fatal();
@@ -1253,7 +1252,7 @@ Language changes listed by -transition=id:\n\
         Module *m = modules[i];
         if (global.params.verbose)
             fprintf(global.stdmsg, "semantic2 %s\n", m->toChars());
-        semantic2(m, NULL);
+        semantic2(m, nullptr);
     }
     if (global.errors)
         fatal();
@@ -1264,7 +1263,7 @@ Language changes listed by -transition=id:\n\
         Module *m = modules[i];
         if (global.params.verbose)
             fprintf(global.stdmsg, "semantic3 %s\n", m->toChars());
-        semantic3(m, NULL);
+        semantic3(m, nullptr);
     }
     Module::runDeferredSemantic3();
     if (global.errors)
@@ -1303,7 +1302,7 @@ Language changes listed by -transition=id:\n\
 
     printCtfePerformanceStats();
 
-    Library *library = NULL;
+    Library *library = nullptr;
     if (global.params.lib)
     {
         library = Library::factory();
@@ -1313,7 +1312,7 @@ Language changes listed by -transition=id:\n\
         for (size_t i = 0; i < libmodules.length; i++)
         {
             const char *p = libmodules[i];
-            library->addObject(p, NULL, 0);
+            library->addObject(p, nullptr, 0);
         }
     }
 
@@ -1568,7 +1567,7 @@ static const char* parse_arch_arg(Strings *args, const char* arch)
 
 static const char* parse_conf_arg(Strings *args)
 {
-    const char *conf=NULL;
+    const char *conf=nullptr;
     for (size_t i = 0; i < args->length; ++i)
     {
         const char* p = (*args)[i];

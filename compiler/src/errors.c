@@ -149,7 +149,7 @@ void message(const char *format, ...)
 
 // Just print, doesn't care about gagging
 void verrorPrint(const Loc& loc, COLOR headerColor, const char *header, const char *format, va_list ap,
-                const char *p1 = NULL, const char *p2 = NULL)
+                const char *p1 = nullptr, const char *p2 = nullptr)
 {
     const char *p = loc.toChars();
 

@@ -52,11 +52,7 @@ class StringExp;
 class ArrayExp;
 class SliceExp;
 struct UnionExp;
-#ifdef IN_GCC
-typedef union tree_node Symbol;
-#else
 struct Symbol;          // back end symbol
-#endif
 
 Expression *expressionSemantic(Expression *e, Scope *sc);
 Expression *semanticX(DotIdExp *exp, Scope *sc);
@@ -139,7 +135,7 @@ class Expression : public ASTNode
 {
 public:
     Loc loc;                    // file location
-    Type *type;                 // !=NULL means that semantic() has been run
+    Type *type;                 // !=nullptr means that semantic() has been run
     TOK op;                     // to minimize use of dynamic_cast
     unsigned char size;         // # of bytes in Expression so we can copy() it
     unsigned char parens;       // if this is a parenthesized expression
@@ -202,7 +198,7 @@ public:
     bool checkNogc(Scope *sc, FuncDeclaration *f);
     bool checkPostblit(Scope *sc, Type *t);
     bool checkRightThis(Scope *sc);
-    bool checkReadModifyWrite(TOK rmwOp, Expression *ex = NULL);
+    bool checkReadModifyWrite(TOK rmwOp, Expression *ex = nullptr);
     virtual int checkModifiable(Scope *sc, int flag = 0);
     virtual Expression *toBoolean(Scope *sc);
     virtual Expression *addDtorHook(Scope *sc);
@@ -472,7 +468,7 @@ class NullExp : public Expression
 public:
     unsigned char committed;    // !=0 if type is committed
 
-    NullExp(Loc loc, Type *t = NULL);
+    NullExp(Loc loc, Type *t = nullptr);
     bool equals(RootObject *o);
     bool isBool(bool result);
     StringExp *toStringExp();
@@ -548,7 +544,7 @@ public:
     Expression *syntaxCopy();
     bool equals(RootObject *o);
     Expression *getElement(size_t i);
-    static Expressions* copyElements(Expression *e1, Expression *e2 = NULL);
+    static Expressions* copyElements(Expression *e1, Expression *e2 = nullptr);
     bool isBool(bool result);
     StringExp *toStringExp();
 
@@ -587,7 +583,7 @@ class StructLiteralExp : public Expression
 {
 public:
     StructDeclaration *sd;      // which aggregate this is for
-    Expressions *elements;      // parallels sd->fields[] with NULL entries for fields to skip
+    Expressions *elements;      // parallels sd->fields[] with nullptr entries for fields to skip
     Type *stype;                // final type of result (can be different from sd's type)
 
     bool useStaticInit;         // if this is true, use the StructDeclaration's init symbol
@@ -610,8 +606,8 @@ public:
     // (with infinite recursion) of this expression.
     int stageflags;
 
-    StructLiteralExp(Loc loc, StructDeclaration *sd, Expressions *elements, Type *stype = NULL);
-    static StructLiteralExp *create(Loc loc, StructDeclaration *sd, void *elements, Type *stype = NULL);
+    StructLiteralExp(Loc loc, StructDeclaration *sd, Expressions *elements, Type *stype = nullptr);
+    static StructLiteralExp *create(Loc loc, StructDeclaration *sd, void *elements, Type *stype = nullptr);
     bool equals(RootObject *o);
     Expression *syntaxCopy();
     Expression *getField(Type *type, unsigned offset);
@@ -652,7 +648,7 @@ public:
     TemplateDeclaration *td;
     FuncDeclaration *fd;
 
-    TemplateExp(Loc loc, TemplateDeclaration *td, FuncDeclaration *fd = NULL);
+    TemplateExp(Loc loc, TemplateDeclaration *td, FuncDeclaration *fd = nullptr);
     bool isLvalue();
     Expression *toLvalue(Scope *sc, Expression *e);
     bool checkType();
@@ -665,7 +661,7 @@ class NewExp : public Expression
 public:
     /* thisexp.new(newargs) newtype(arguments)
      */
-    Expression *thisexp;        // if !NULL, 'this' for class being allocated
+    Expression *thisexp;        // if !nullptr, 'this' for class being allocated
     Expressions *newargs;       // Array of Expression's to call new operator
     Type *newtype;
     Expressions *arguments;     // Array of Expression's
@@ -689,7 +685,7 @@ class NewAnonClassExp : public Expression
 public:
     /* thisexp.new(newargs) class baseclasses { } (arguments)
      */
-    Expression *thisexp;        // if !NULL, 'this' for class being allocated
+    Expression *thisexp;        // if !nullptr, 'this' for class being allocated
     Expressions *newargs;       // Array of Expression's to call new operator
     ClassDeclaration *cd;       // class being instantiated
     Expressions *arguments;     // Array of Expression's to call class constructor
@@ -828,9 +824,9 @@ public:
      * is(targ id == tok2)
      */
     Type *targ;
-    Identifier *id;     // can be NULL
+    Identifier *id;     // can be nullptr
     TOK tok;       // ':' or '=='
-    Type *tspec;        // can be NULL
+    Type *tspec;        // can be nullptr
     TOK tok2;      // 'struct', 'union', etc.
     TemplateParameters *parameters;
 
@@ -916,7 +912,7 @@ class AssertExp : public UnaExp
 public:
     Expression *msg;
 
-    AssertExp(Loc loc, Expression *e, Expression *msg = NULL);
+    AssertExp(Loc loc, Expression *e, Expression *msg = nullptr);
     Expression *syntaxCopy();
 
     void accept(Visitor *v) { v->visit(this); }
@@ -1116,8 +1112,8 @@ public:
 class SliceExp : public UnaExp
 {
 public:
-    Expression *upr;            // NULL if implicit 0
-    Expression *lwr;            // NULL if implicit [length - 1]
+    Expression *upr;            // nullptr if implicit 0
+    Expression *lwr;            // nullptr if implicit [length - 1]
     VarDeclaration *lengthVar;
     bool upperIsInBounds;       // true if upr <= e1.length
     bool lowerIsLessThanUpper;  // true if lwr <= upr
@@ -1183,7 +1179,7 @@ public:
     size_t currentDimension;            // for opDollar
     VarDeclaration *lengthVar;
 
-    ArrayExp(Loc loc, Expression *e1, Expression *index = NULL);
+    ArrayExp(Loc loc, Expression *e1, Expression *index = nullptr);
     ArrayExp(Loc loc, Expression *e1, Expressions *args);
     Expression *syntaxCopy();
     bool isLvalue();

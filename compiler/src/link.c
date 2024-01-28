@@ -80,7 +80,7 @@ int findNoMainError(int fd)
     static const char nmeErrorMessage[] = "undefined reference to `_Dmain'";
 
     FILE *stream = fdopen(fd, "r");
-    if (stream == NULL) return -1;
+    if (stream == nullptr) return -1;
 
     const size_t len = 64 * 1024 - 1;
     char buffer[len + 1]; // + '\0'
@@ -294,7 +294,7 @@ int runLINK()
         fprintf(global.stdmsg, "\n");
     }
 
-    argv.push(NULL);
+    argv.push(nullptr);
 
     // set up pipes
     int fds[2];
@@ -387,7 +387,7 @@ int runProgram()
     {   const char *a = global.params.runargs[i];
         argv.push(a);
     }
-    argv.push(NULL);
+    argv.push(nullptr);
 
     pid_t childpid;
     int status;

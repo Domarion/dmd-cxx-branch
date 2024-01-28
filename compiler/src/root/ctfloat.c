@@ -42,7 +42,7 @@ void CTFloat::yl2xp1(const real_t* x, const real_t* y, real_t* res)
 
 real_t CTFloat::parse(const char *literal, bool *isOutOfRange)
 {
-    real_t r = ::strtold(literal, NULL);
+    real_t r = ::strtold(literal, nullptr);
     if (isOutOfRange)
         *isOutOfRange = (errno == ERANGE);
     return r;

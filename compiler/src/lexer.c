@@ -70,10 +70,10 @@ Lexer::Lexer(const char *filename,
     //printf("Lexer::Lexer(%p,%d)\n",base,length);
     //printf("lexer.filename = %s\n", filename);
     this->token = Token();
-    this->token.ptr = NULL;
+    this->token.ptr = nullptr;
     this->token.value = TOKreserved;
-    this->token.blockComment = NULL;
-    this->token.lineComment = NULL;
+    this->token.blockComment = nullptr;
+    this->token.lineComment = nullptr;
     this->base = base;
     this->end  = base + endoffset;
     p = base + begoffset;
@@ -257,8 +257,8 @@ void Lexer::scan(Token *t)
     unsigned lastLine = scanloc.linnum;
     Loc startLoc;
 
-    t->blockComment = NULL;
-    t->lineComment = NULL;
+    t->blockComment = nullptr;
+    t->lineComment = nullptr;
     while (1)
     {
         t->ptr = p;
@@ -1241,7 +1241,7 @@ TOK Lexer::delimitedStringConstant(Token *t)
     unsigned delimright = 0;
     unsigned nest = 1;
     unsigned nestcount = ~0; // dead assignment, needed to suppress warning
-    Identifier *hereid = NULL;
+    Identifier *hereid = nullptr;
     unsigned blankrol = 0;
     unsigned startline = 0;
 
@@ -2064,7 +2064,7 @@ void Lexer::poundLine()
 {
     Token tok;
     int linnum = this->scanloc.linnum;
-    char *filespec = NULL;
+    char *filespec = nullptr;
     Loc loc = this->loc();
 
     scan(&tok);

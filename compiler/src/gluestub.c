@@ -23,7 +23,7 @@
 
 Symbol *toInitializer(AggregateDeclaration *ad)
 {
-    return NULL;
+    return nullptr;
 }
 
 // glue
@@ -59,31 +59,31 @@ void backend_term()
 Library *LibMSCoff_factory()
 {
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 Library *LibOMF_factory()
 {
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 Library *LibElf_factory()
 {
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 Library *LibMach_factory()
 {
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 Statement* asmSemantic(AsmStatement *s, Scope *sc)
 {
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 // toir

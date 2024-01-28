@@ -58,7 +58,7 @@ extern int mem_inited;          /* != 0 if mem package is initialized.  */
  *                              'Fatal error: out of memory' sent
  *                              to stdout. This is the default behavior.
  *              MEM_ABORT:      Abort the program with no message.
- *              MEM_RETNULL:    Return NULL back to caller.
+ *              MEM_RETNULL:    Return nullptr back to caller.
  *              MEM_CALLFP:     Call application-specified function.
  *                              fp must be supplied.
  *      fp                      Optional function pointer. Supplied if
@@ -96,7 +96,7 @@ void mem_setexception(int,...);
  *      char *mem_strdup(const char *s);
  * Returns:
  *      pointer to copied string if succussful.
- *      else returns NULL (if MEM_RETNULL)
+ *      else returns nullptr (if MEM_RETNULL)
  */
 
 char *mem_strdup(const char *);
@@ -136,9 +136,9 @@ void mem_checkptr(void *ptr);
  *      numbytes        Number of bytes to allocate
  * Returns:
  *      if (numbytes > 0)
- *              pointer to allocated data, NULL if out of memory
+ *              pointer to allocated data, nullptr if out of memory
  *      else
- *              return NULL
+ *              return nullptr
  */
 
 void *mem_malloc(size_t);

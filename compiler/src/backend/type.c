@@ -23,8 +23,8 @@
 static char __file__[] = __FILE__;      /* for tassert.h                */
 #include        "tassert.h"
 
-static type *type_list = NULL;          // free list of types
-static param_t *param_list = NULL;      // free list of params
+static type *type_list = nullptr;          // free list of types
+static param_t *param_list = nullptr;      // free list of params
 
 static int type_num,type_max;   /* gather statistics on # of types      */
 
@@ -338,7 +338,7 @@ extern "C" // because of size_t on OSX 32
 {
 type *type_function(tym_t tyf, type **ptypes, size_t nparams, bool variadic, type *tret)
 {
-    param_t *paramtypes = NULL;
+    param_t *paramtypes = nullptr;
     for (size_t i = 0; i < nparams; i++)
     {
         param_append_type(&paramtypes, ptypes[i]);
@@ -626,7 +626,7 @@ type *type_copy(type *t)
                 if (tyfunc(tn->Tty))
                 {
                 L1:
-                    tn->Tparamtypes = NULL;
+                    tn->Tparamtypes = nullptr;
                     for (p = t->Tparamtypes; p; p = p->Pnext)
                     {   param_t *pn;
 
@@ -793,7 +793,7 @@ int type_isdependent(type *t)
             }
         }
         else if (type_struct(t) &&
-                 (stempl = t->Ttag->Sstruct->Stempsym) != NULL)
+                 (stempl = t->Ttag->Sstruct->Stempsym) != nullptr)
         {
             for (param_t *p = t->Ttag->Sstruct->Sarglist; p; p = p->Pnext)
             {
@@ -1027,7 +1027,7 @@ void param_free_l(param_t *p)
 /***********************
  * Free parameter list.
  * Output:
- *      paramlst = NULL
+ *      paramlst = nullptr
  */
 
 void param_free(param_t **pparamlst)
@@ -1051,7 +1051,7 @@ void param_free(param_t **pparamlst)
         p->Pnext = param_list;
         param_list = p;
     }
-    *pparamlst = NULL;
+    *pparamlst = nullptr;
 }
 
 /***********************************
@@ -1077,7 +1077,7 @@ unsigned param_t::length()
 
 param_t *param_t::createTal(param_t *ptali)
 {
-    param_t *ptal = NULL;
+    param_t *ptal = nullptr;
     param_t **pp = &ptal;
     param_t *p;
 
@@ -1149,7 +1149,7 @@ int param_t::searchn(char *id)
  */
 
 symbol *param_search(const char *name, param_t **pp)
-{   symbol *s = NULL;
+{   symbol *s = nullptr;
     param_t *p;
 
     p = (*pp)->search((char *)name);

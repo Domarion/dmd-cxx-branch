@@ -35,7 +35,7 @@
 int mem_inited = 0;             /* != 0 if initialized                  */
 
 static int mem_behavior = MEM_ABORTMSG;
-static int (*oom_fp)(void) = NULL;  /* out-of-memory handler                */
+static int (*oom_fp)(void) = nullptr;  /* out-of-memory handler                */
 static int mem_count;           /* # of allocs that haven't been free'd */
 static int mem_scount;          /* # of sallocs that haven't been free'd */
 
@@ -59,7 +59,7 @@ void mem_setexception(enum MEM_E flag,...)
  * This is called when we're out of memory.
  * Returns:
  *      1:      try again to allocate the memory
- *      0:      give up and return NULL
+ *      0:      give up and return nullptr
  */
 
 int mem_exception()
@@ -101,7 +101,7 @@ char *mem_strdup(const char *s)
             if (p)
                 return (char *)memcpy(p,s,len);
         }
-        return NULL;
+        return nullptr;
 }
 
 /************* C++ Implementation ***************/
@@ -143,7 +143,7 @@ void * __cdecl operator new(size_t size)
         if (size == 0)
             size++;
         p = mem_malloc((unsigned)size);
-        if (p != NULL || _new_handler == NULL)
+        if (p != nullptr || _new_handler == nullptr)
             break;
         (*_new_handler)();
     }
@@ -162,7 +162,7 @@ void * __cdecl operator new[](size_t size)
         if (size == 0)
             size++;
         p = mem_malloc((unsigned)size);
-        if (p != NULL || _new_handler == NULL)
+        if (p != nullptr || _new_handler == nullptr)
             break;
         (*_new_handler)();
     }
@@ -193,11 +193,11 @@ void *mem_malloc(size_t numbytes)
 {       void *p;
 
         if (numbytes == 0)
-                return NULL;
+                return nullptr;
         while (1)
         {
                 p = malloc(numbytes);
-                if (p == NULL)
+                if (p == nullptr)
                 {       if (mem_exception())
                                 continue;
                 }
@@ -217,11 +217,11 @@ void *mem_calloc(size_t numbytes)
 {       void *p;
 
         if (numbytes == 0)
-            return NULL;
+            return nullptr;
         while (1)
         {
                 p = calloc(numbytes,1);
-                if (p == NULL)
+                if (p == nullptr)
                 {       if (mem_exception())
                                 continue;
                 }
@@ -240,17 +240,17 @@ void *mem_calloc(size_t numbytes)
 void *mem_realloc(void *oldmem_ptr,size_t newnumbytes)
 {   void *p;
 
-    if (oldmem_ptr == NULL)
+    if (oldmem_ptr == nullptr)
         p = mem_malloc(newnumbytes);
     else if (newnumbytes == 0)
     {   mem_free(oldmem_ptr);
-        p = NULL;
+        p = nullptr;
     }
     else
     {
         do
             p = realloc(oldmem_ptr,newnumbytes);
-        while (p == NULL && mem_exception());
+        while (p == nullptr && mem_exception());
     }
     /*printf("realloc(x%lx,%d) = x%lx, mem_count = %d\n",oldmem_ptr,newnumbytes,p,mem_count);*/
     return p;
@@ -261,7 +261,7 @@ void *mem_realloc(void *oldmem_ptr,size_t newnumbytes)
 void mem_free(void *ptr)
 {
     /*printf("free(x%lx) mem_count=%d\n",ptr,mem_count);*/
-    if (ptr != NULL)
+    if (ptr != nullptr)
     {
 #if !MEM_NOMEMCOUNT
         assert(mem_count != 0);
@@ -300,7 +300,7 @@ void *mem_fmalloc(size_t numbytes)
      */
 
     if (!numbytes)
-        return NULL;
+        return nullptr;
 
     if (numbytes <= heapleft)
     {
@@ -319,7 +319,7 @@ L1:
     if (!heap)
     {   if (mem_exception())
             goto L1;
-        return NULL;
+        return nullptr;
     }
     goto L2;
 }
@@ -343,7 +343,7 @@ char *mem_fstrdup(const char *s)
             if (p)
                 return (char *)memcpy(p,s,len);
         }
-        return NULL;
+        return nullptr;
 }
 
 /***************************/
@@ -353,7 +353,7 @@ void mem_init()
         if (mem_inited == 0)
         {       mem_count = 0;
                 mem_scount = 0;
-                oom_fp = NULL;
+                oom_fp = nullptr;
                 mem_behavior = MEM_ABORTMSG;
         }
         mem_inited++;

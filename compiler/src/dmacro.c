@@ -31,7 +31,7 @@ utf8_t *memdup(const utf8_t *p, size_t len)
 
 Macro::Macro(const utf8_t *name, size_t namelen, const utf8_t *text, size_t textlen)
 {
-    next = NULL;
+    next = nullptr;
 
     this->name = name;
     this->namelen = namelen;
@@ -285,7 +285,7 @@ void Macro::expand(OutBuffer *buf, size_t start, size_t *pend,
 
                 // Scan replaced text for further expansion
                 size_t mend = u + marglen;
-                expand(buf, u, &mend, NULL, 0);
+                expand(buf, u, &mend, nullptr, 0);
                 end += mend - (u + marglen);
                 u = mend;
             }
@@ -301,7 +301,7 @@ void Macro::expand(OutBuffer *buf, size_t start, size_t *pend,
 
                 // Scan replaced text for further expansion
                 size_t mend = u + 2 + marglen;
-                expand(buf, u + 2, &mend, NULL, 0);
+                expand(buf, u + 2, &mend, nullptr, 0);
                 end += mend - (u + 2 + marglen);
                 u = mend;
             }

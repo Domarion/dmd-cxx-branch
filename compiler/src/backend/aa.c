@@ -59,7 +59,7 @@ AArray::AArray(TypeInfo *keyti, size_t valuesize)
     this->keyti = keyti;
     this->valuesize = valuesize;
     this->nodes = 0;
-    this->buckets = NULL;
+    this->buckets = nullptr;
     this->buckets_length = 0;
 }
 
@@ -85,7 +85,7 @@ void delnodes(aaA* e)
         en = e;
         e = e->right;
         delete [] en;
-    } while (e != NULL);
+    } while (e != nullptr);
 }
 
 AArray::~AArray()
@@ -127,7 +127,7 @@ void* AArray::get(void *pkey)
     i = key_hash % buckets_length;
     //printf("key_hash = %x, buckets_length = %d, i = %d\n", key_hash, buckets_length, i);
     aaA** pe = &buckets[i];
-    while ((e = *pe) != NULL)
+    while ((e = *pe) != nullptr)
     {   int c;
 
         c = hashCmp(key_hash, e->hash);
@@ -150,8 +150,8 @@ void* AArray::get(void *pkey)
     memcpy(e + 1, pkey, keysize);
     memset((unsigned char *)(e + 1) + keysize, 0, valuesize);
     e->hash = key_hash;
-    e->left = NULL;
-    e->right = NULL;
+    e->left = nullptr;
+    e->right = nullptr;
     *pe = e;
 
     ++nodes;
@@ -170,8 +170,8 @@ Lret:
 /*************************************************
  * Determine if key is in aa.
  * Returns:
- *      NULL    not in aa
- *      !=NULL  in aa, return pointer to value
+ *      nullptr    not in aa
+ *      !=nullptr  in aa, return pointer to value
  */
 
 void* AArray::in(void *pkey)
@@ -185,7 +185,7 @@ void* AArray::in(void *pkey)
         //printf("hash = %d\n", key_hash);
         size_t i = key_hash % len;
         aaA *e = buckets[i];
-        while (e != NULL)
+        while (e != nullptr)
         {   int c;
 
             c = hashCmp(key_hash, e->hash);
@@ -204,7 +204,7 @@ void* AArray::in(void *pkey)
     }
 
     // Not found
-    return NULL;
+    return nullptr;
 }
 
 
@@ -223,7 +223,7 @@ void AArray::del(void *pkey)
         //printf("hash = %d\n", key_hash);
         size_t i = key_hash % buckets_length;
         aaA** pe = &buckets[i];
-        while ((e = *pe) != NULL)       // NULL means not found
+        while ((e = *pe) != nullptr)       // nullptr means not found
         {   int c;
 
             c = hashCmp(key_hash, e->hash);
@@ -234,27 +234,27 @@ void AArray::del(void *pkey)
                 {
                     if (!e->left && !e->right)
                     {
-                        *pe = NULL;
+                        *pe = nullptr;
                     }
                     else if (e->left && !e->right)
                     {
                         *pe = e->left;
-                         e->left = NULL;
+                         e->left = nullptr;
                     }
                     else if (!e->left && e->right)
                     {
                         *pe = e->right;
-                         e->right = NULL;
+                         e->right = nullptr;
                     }
                     else
                     {
                         *pe = e->left;
-                        e->left = NULL;
+                        e->left = nullptr;
                         do
                             pe = &(*pe)->right;
                         while (*pe);
                         *pe = e->right;
-                        e->right = NULL;
+                        e->right = nullptr;
                     }
 
                     nodes--;
@@ -279,7 +279,7 @@ void AArray::del(void *pkey)
 
 void *AArray::keys()
 {
-    void *p = NULL;
+    void *p = nullptr;
 
     if (nodes)
     {
@@ -311,7 +311,7 @@ void *AArray::keys_x(aaA* e, void *p, size_t keysize)
             p = keys_x(e->left, p, keysize);
         }
         e = e->right;
-    } while (e != NULL);
+    } while (e != nullptr);
     return p;
 }
 
@@ -321,7 +321,7 @@ void *AArray::keys_x(aaA* e, void *p, size_t keysize)
 
 void *AArray::values()
 {
-    void *p = NULL;
+    void *p = nullptr;
 
     if (nodes)
     {
@@ -354,7 +354,7 @@ void *AArray::values_x(aaA *e, void *p)
             p = values_x(e->left, p);
         }
         e = e->right;
-    } while (e != NULL);
+    } while (e != nullptr);
     return p;
 }
 
@@ -405,8 +405,8 @@ void AArray::rehash_x(aaA* olde, aaA** newbuckets, size_t newbuckets_length)
     {
         aaA* left = olde->left;
         aaA* right = olde->right;
-        olde->left = NULL;
-        olde->right = NULL;
+        olde->left = nullptr;
+        olde->right = nullptr;
 
         aaA* e;
 
@@ -414,7 +414,7 @@ void AArray::rehash_x(aaA* olde, aaA** newbuckets, size_t newbuckets_length)
         hash_t key_hash = olde->hash;
         size_t i = key_hash % newbuckets_length;
         aaA** pe = &newbuckets[i];
-        while ((e = *pe) != NULL)
+        while ((e = *pe) != nullptr)
         {   int c;
 
             //printf("\te = %p, e->left = %p, e->right = %p\n", e, e->left, e->right);

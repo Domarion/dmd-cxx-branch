@@ -138,7 +138,7 @@ public:
         }
 
         Type *tb = e->e1->type->toBasetype();
-        AggregateDeclaration *ad = NULL;
+        AggregateDeclaration *ad = nullptr;
         switch (tb->ty)
         {
         case Tclass:

@@ -12,7 +12,7 @@
 #include "scope.h"
 #include "visitor.h"
 
-bool reliesOnTident(Type *t, TemplateParameters *tparams = NULL, size_t iStart = 0);
+bool reliesOnTident(Type *t, TemplateParameters *tparams = nullptr, size_t iStart = 0);
 
 class TemplateParameterSemanticVisitor : public Visitor
 {

@@ -50,7 +50,7 @@ FuncDeclaration *buildArrayOp(Identifier *ident, BinExp *exp, Scope *sc)
     Parameter *p = (*fparams)[0];
     // foreach (i; 0 .. p.length)
     Statement *s1 = new ForeachRangeStatement(Loc(), TOKforeach,
-        new Parameter(0, NULL, Id::p, NULL, NULL),
+        new Parameter(0, nullptr, Id::p, nullptr, nullptr),
         new IntegerExp(Loc(), 0, Type::tsize_t),
         new ArrayLengthExp(Loc(), new IdentifierExp(Loc(), p->ident)),
         new ExpStatement(Loc(), loopbody),
@@ -69,7 +69,7 @@ FuncDeclaration *buildArrayOp(Identifier *ident, BinExp *exp, Scope *sc)
     //printf("fd: %s %s\n", ident->toChars(), ftype->toChars());
     FuncDeclaration *fd = new FuncDeclaration(Loc(), Loc(), ident, STCundefined, ftype);
     fd->fbody = fbody;
-    fd->protection = Prot(Prot::public_);
+    fd->protection = Visibility(Visibility::public_);
     fd->linkage = LINKc;
     fd->isArrayOp = 1;
 
@@ -87,7 +87,7 @@ FuncDeclaration *buildArrayOp(Identifier *ident, BinExp *exp, Scope *sc)
     {
         fd->type = Type::terror;
         fd->errors = true;
-        fd->fbody = NULL;
+        fd->fbody = nullptr;
     }
     sc->pop();
 
@@ -348,7 +348,7 @@ void buildArrayIdent(Expression *e, OutBuffer *buf, Expressions *arguments)
         {
             /* Evaluate assign expressions left to right
              */
-            const char *s = NULL;
+            const char *s = nullptr;
             switch(e->op)
             {
             case TOKadd: s = "Add"; break;
@@ -414,14 +414,14 @@ Expression *buildArrayLoop(Expression *e, Parameters *fparams)
 
     public:
         BuildArrayLoopVisitor(Parameters *fparams)
-            : fparams(fparams), result(NULL)
+            : fparams(fparams), result(nullptr)
         {
         }
 
         void visit(Expression *e)
         {
             Identifier *id = Identifier::generateId("c", fparams->length);
-            Parameter *param = new Parameter(0, e->type, id, NULL, NULL);
+            Parameter *param = new Parameter(0, e->type, id, nullptr, nullptr);
             fparams->shift(param);
             result = new IdentifierExp(Loc(), id);
         }
@@ -440,7 +440,7 @@ Expression *buildArrayLoop(Expression *e, Parameters *fparams)
         void visit(ArrayLiteralExp *e)
         {
             Identifier *id = Identifier::generateId("p", fparams->length);
-            Parameter *param = new Parameter(STCconst, e->type, id, NULL, NULL);
+            Parameter *param = new Parameter(STCconst, e->type, id, nullptr, nullptr);
             fparams->shift(param);
             Expression *ie = new IdentifierExp(Loc(), id);
             Expression *index = new IdentifierExp(Loc(), Id::p);
@@ -450,7 +450,7 @@ Expression *buildArrayLoop(Expression *e, Parameters *fparams)
         void visit(SliceExp *e)
         {
             Identifier *id = Identifier::generateId("p", fparams->length);
-            Parameter *param = new Parameter(STCconst, e->type, id, NULL, NULL);
+            Parameter *param = new Parameter(STCconst, e->type, id, nullptr, nullptr);
             fparams->shift(param);
             Expression *ie = new IdentifierExp(Loc(), id);
             Expression *index = new IdentifierExp(Loc(), Id::p);
@@ -519,7 +519,7 @@ Expression *buildArrayLoop(Expression *e, Parameters *fparams)
                 BinExp *be = (BinExp *)e->copy();
                 be->e1 = buildArrayLoop(be->e1);
                 be->e2 = buildArrayLoop(be->e2);
-                be->type = NULL;
+                be->type = nullptr;
                 result = be;
                 return;
             }

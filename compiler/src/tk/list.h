@@ -90,7 +90,7 @@ extern int list_inited;         /* != 0 if list package is initialized  */
  *      void list_appenddata(list_t *plist,int d);
  */
 
-#define list_appenddata(plist,d) (list_data(list_append((plist),NULL)) = (d))
+#define list_appenddata(plist,d) (list_data(list_append((plist),nullptr)) = (d))
 
 /********************************
  * Prepend integer item to list.
@@ -98,7 +98,7 @@ extern int list_inited;         /* != 0 if list package is initialized  */
  *      void list_prependdata(list_t *plist,int d);
  */
 
-#define list_prependdata(plist,d) (list_data(list_prepend((plist),NULL)) = (d))
+#define list_prependdata(plist,d) (list_data(list_prepend((plist),nullptr)) = (d))
 
 /**********************
  * Initialize list package.
@@ -123,7 +123,7 @@ extern int list_inited;         /* != 0 if list package is initialized  */
  *      freeptr         Pointer to freeing function for the data pointer
  *                      (use FPNULL if none)
  * Output:
- *      *plist is NULL
+ *      *plist is nullptr
  */
 
 /***************************
@@ -133,7 +133,7 @@ extern int list_inited;         /* != 0 if list package is initialized  */
  * Output:
  *      *plist is updated to be the start of the new list
  * Returns:
- *      NULL if *plist is NULL
+ *      nullptr if *plist is nullptr
  *      otherwise ptr
  */
 
@@ -141,7 +141,7 @@ extern int list_inited;         /* != 0 if list package is initialized  */
  * Remove first element in list pointed to by *plist.
  *      void *list_pop(list_t *plist);
  * Returns:
- *      First element, NULL if *plist is NULL
+ *      First element, nullptr if *plist is nullptr
  */
 
 #define list_pop(plist) list_subtract((plist),list_ptr(*(plist)))
@@ -152,7 +152,7 @@ extern int list_inited;         /* != 0 if list package is initialized  */
  *      list_t list_append(list_t *plist,void *ptr);
  * Returns:
  *      pointer to list item created.
- *      NULL if out of memory
+ *      nullptr if out of memory
  */
 
 /*************************
@@ -161,7 +161,7 @@ extern int list_inited;         /* != 0 if list package is initialized  */
  *      list_t list_prepend(list_t *plist,void *ptr);
  * Returns:
  *      pointer to list item created (which is also the start of the list).
- *      NULL if out of memory
+ *      nullptr if out of memory
  */
 
 /*************************
@@ -205,7 +205,7 @@ extern int list_inited;         /* != 0 if list package is initialized  */
 int list_cmp (list_t list1,list_t list2,int (*func) (void *,void *));
 
 /*************************
- * Search for ptr in list. If found, return list entry that it is, else NULL.
+ * Search for ptr in list. If found, return list entry that it is, else nullptr.
  * Use:
  *      list_t list_inlist(list_t list,void *ptr);
  */
@@ -221,7 +221,7 @@ int list_cmp (list_t list1,list_t list2,int (*func) (void *,void *));
 list_t list_cat (list_t *pl1, list_t l2);
 
 /*************************
- * Build a list out of the NULL-terminated argument list.
+ * Build a list out of the nullptr-terminated argument list.
  * Returns:
  *      generated list
  */

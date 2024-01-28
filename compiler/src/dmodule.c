@@ -44,44 +44,43 @@ Module::Module(const char *filename, Identifier *ident, int doDocComment, int do
 {
     const char *srcfilename;
 
-//    printf("Module::Module(filename = '%s', ident = '%s')\n", filename, ident->toChars());
     this->arg = filename;
-    md = NULL;
+    md = nullptr;
     errors = 0;
     numlines = 0;
-    members = NULL;
+    members = nullptr;
     isDocFile = 0;
     isPackageFile = false;
-    pkg = NULL;
+    pkg = nullptr;
     needmoduleinfo = 0;
     selfimports = 0;
     rootimports = 0;
     insearch = 0;
-    searchCacheIdent = NULL;
-    searchCacheSymbol = NULL;
+    searchCacheIdent = nullptr;
+    searchCacheSymbol = nullptr;
     searchCacheFlags = 0;
-    decldefs = NULL;
-    sictor = NULL;
-    sctor = NULL;
-    sdtor = NULL;
-    ssharedctor = NULL;
-    sshareddtor = NULL;
-    stest = NULL;
-    sfilename = NULL;
-    importedFrom = NULL;
-    srcfile = NULL;
-    docfile = NULL;
+    decldefs = nullptr;
+    sictor = nullptr;
+    sctor = nullptr;
+    sdtor = nullptr;
+    ssharedctor = nullptr;
+    sshareddtor = nullptr;
+    stest = nullptr;
+    sfilename = nullptr;
+    importedFrom = nullptr;
+    srcfile = nullptr;
+    docfile = nullptr;
 
-    debugids = NULL;
-    debugidsNot = NULL;
-    versionids = NULL;
-    versionidsNot = NULL;
+    debugids = nullptr;
+    debugidsNot = nullptr;
+    versionids = nullptr;
+    versionidsNot = nullptr;
 
-    macrotable = NULL;
-    escapetable = NULL;
+    macrotable = nullptr;
+    escapetable = nullptr;
     doppelganger = 0;
-    cov = NULL;
-    covb = NULL;
+    cov = nullptr;
+    covb = nullptr;
 
     nameoffset = 0;
     namelen = 0;
@@ -128,10 +127,10 @@ void Module::setDocfile()
 /*********************************************
  * Combines things into output file name for .html and .di files.
  * Input:
- *      name    Command line name given for the file, NULL if none
- *      dir     Command line directory given for the file, NULL if none
+ *      name    Command line name given for the file, nullptr if none
+ *      dir     Command line directory given for the file, nullptr if none
  *      arg     Name of the source file
- *      ext     File name extension to use if 'name' is NULL
+ *      ext     File name extension to use if 'name' is nullptr
  *      global.params.preservePaths     get output path from arg
  *      srcfile Input file - output file name must not match input file
  */
@@ -221,7 +220,7 @@ static const char *getFilename(Identifiers *packages, Identifier *ident)
 {
     const char *filename = ident->toChars();
 
-    if (packages == NULL || packages->length == 0)
+    if (packages == nullptr || packages->length == 0)
         return filename;
 
     OutBuffer buf;
@@ -255,7 +254,7 @@ static const char *getFilename(Identifiers *packages, Identifier *ident)
  *      filename        as supplied by the user
  *      global.path
  * Returns:
- *      NULL if it's not different from filename.
+ *      nullptr if it's not different from filename.
  */
 
 static const char *lookForSourceFile(const char *filename)
@@ -287,10 +286,10 @@ static const char *lookForSourceFile(const char *filename)
     }
 
     if (FileName::absolute(filename))
-        return NULL;
+        return nullptr;
 
     if (!global.path)
-        return NULL;
+        return nullptr;
 
     for (size_t i = 0; i < global.path->length; i++)
     {
@@ -327,7 +326,7 @@ static const char *lookForSourceFile(const char *filename)
         }
         FileName::free(n);
     }
-    return NULL;
+    return nullptr;
 }
 
 Module *Module::load(Loc loc, Identifiers *packages, Identifier *ident)
@@ -348,7 +347,7 @@ Module *Module::load(Loc loc, Identifiers *packages, Identifier *ident)
     m->loc = loc;
 
     if (!m->read(loc))
-        return NULL;
+        return nullptr;
 
     if (global.params.verbose)
     {
@@ -389,7 +388,7 @@ bool Module::read(Loc loc)
         {
             ::error(loc, "cannot find source code for runtime library file 'object.d'");
             errorSupplemental(loc, "dmd might not be correctly installed. Run 'dmd -man' for installation instructions.");
-            const char *dmdConfFile = global.inifilename.length ? FileName::canonicalName(global.inifilename.ptr) : NULL;
+            const char *dmdConfFile = global.inifilename.length ? FileName::canonicalName(global.inifilename.ptr) : nullptr;
             errorSupplemental(loc, "config file: %s", dmdConfFile ? dmdConfFile : "not found");
         }
         else
@@ -612,7 +611,7 @@ Module *Module::parse()
         return this;
     }
     {
-        Parser p(this, buf, buflen, docfile != NULL);
+        Parser p(this, buf, buflen, docfile != nullptr);
         p.nextToken();
         members = p.parseModule();
         md = p.md;
@@ -623,7 +622,7 @@ Module *Module::parse()
 
     if (srcfile->ref == 0)
         ::free(srcfile->buffer);
-    srcfile->buffer = NULL;
+    srcfile->buffer = nullptr;
     srcfile->len = 0;
 
     /* The symbol table into which the module is to be inserted.
@@ -637,11 +636,11 @@ Module *Module::parse()
          * the name of this module.
          */
         this->ident = md->id;
-        Package *ppack = NULL;
+        Package *ppack = nullptr;
         dst = Package::resolve(md->packages, &this->parent, &ppack);
         assert(dst);
 
-        Module *m = ppack ? ppack->isModule() : NULL;
+        Module *m = ppack ? ppack->isModule() : nullptr;
         if (m && (strcmp(m->srcfile->name->name(), "package.d") != 0 &&
                   strcmp(m->srcfile->name->name(), "package.di") != 0))
         {
@@ -689,8 +688,8 @@ Module *Module::parse()
          * the one inserted to the symbol table.
          */
         Dsymbol *ps = dst->lookup(ident);
-        Package *p = ps ? ps->isPackage() : NULL;
-        if (p == NULL)
+        Package *p = ps ? ps->isPackage() : nullptr;
+        if (p == nullptr)
         {
             p = new Package(ident);
             p->tag = this->tag; // reuse the same package tag
@@ -748,8 +747,6 @@ Module *Module::parse()
 
 void Module::importAll(Scope *)
 {
-    //printf("+Module::importAll(this = %p, '%s'): parent = %p\n", this, toChars(), parent);
-
     if (_scope)
         return;                 // already done
 
@@ -774,9 +771,9 @@ void Module::importAll(Scope *)
     //    classinst == classinst -> .object.opEquals(classinst, classinst)
     // would fail inside object.d.
     if (members->length == 0 || ((*members)[0])->ident != Id::object ||
-        (*members)[0]->isImport() == NULL)
+        (*members)[0]->isImport() == nullptr)
     {
-        Import *im = new Import(Loc(), NULL, Id::object, NULL, 0);
+        Import *im = new Import(Loc(), nullptr, Id::object, nullptr, 0);
         members->shift(im);
     }
 
@@ -834,7 +831,7 @@ Dsymbol *Module::search(const Loc &loc, Identifier *ident, int flags)
 
     //printf("%s Module::search('%s', flags = x%x) insearch = %d\n", toChars(), ident->toChars(), flags, insearch);
     if (insearch)
-        return NULL;
+        return nullptr;
 
     /* Qualified module searches always search their imports,
      * even if SearchLocalsOnly
@@ -866,12 +863,12 @@ Dsymbol *Module::search(const Loc &loc, Identifier *ident, int flags)
     return s;
 }
 
-bool Module::isPackageAccessible(Package *p, Prot protection, int flags)
+bool Module::isPackageAccessible(Package *p, Visibility protection, int flags)
 {
     if (insearch) // don't follow import cycles
         return false;
     if (flags & IgnorePrivateImports)
-        protection = Prot(Prot::public_); // only consider public imports
+        protection = Visibility(Visibility::public_); // only consider public imports
     insearch = true;
     bool r = ScopeDsymbol::isPackageAccessible(p, protection);
     insearch = false;
@@ -880,7 +877,7 @@ bool Module::isPackageAccessible(Package *p, Prot protection, int flags)
 
 Dsymbol *Module::symtabInsert(Dsymbol *s)
 {
-    searchCacheIdent = NULL;       // symbol is inserted, so invalidate cache
+    searchCacheIdent = nullptr;       // symbol is inserted, so invalidate cache
     return Package::symtabInsert(s);
 }
 
@@ -889,7 +886,7 @@ void Module::clearCache()
     for (size_t i = 0; i < amodules.length; i++)
     {
         Module *m = amodules[i];
-        m->searchCacheIdent = NULL;
+        m->searchCacheIdent = nullptr;
     }
 }
 
@@ -948,7 +945,7 @@ void Module::runDeferredSemantic()
             break;
 
         Dsymbol **todo;
-        Dsymbol **todoalloc = NULL;
+        Dsymbol **todoalloc = nullptr;
         Dsymbol *tmp;
         if (len == 1)
         {
@@ -966,15 +963,12 @@ void Module::runDeferredSemantic()
         {
             Dsymbol *s = todo[i];
 
-            dsymbolSemantic(s, NULL);
-            //printf("deferred: %s, parent = %s\n", s->toChars(), s->parent->toChars());
+            dsymbolSemantic(s, nullptr);
         }
-        //printf("\tdeferred.length = %d, len = %d, dprogress = %d\n", deferred.length, len, dprogress);
         if (todoalloc)
             free(todoalloc);
     } while (deferred.length < len || dprogress);  // while making progress
     nested--;
-    //printf("-Module::runDeferredSemantic(), len = %d\n", deferred.length);
 }
 
 void Module::runDeferredSemantic2()
@@ -985,8 +979,7 @@ void Module::runDeferredSemantic2()
     for (size_t i = 0; i < a->length; i++)
     {
         Dsymbol *s = (*a)[i];
-        //printf("[%d] %s semantic2a\n", i, s->toPrettyChars());
-        semantic2(s, NULL);
+        semantic2(s, nullptr);
 
         if (global.errors)
             break;
@@ -1002,9 +995,8 @@ void Module::runDeferredSemantic3()
     for (size_t i = 0; i < a->length; i++)
     {
         Dsymbol *s = (*a)[i];
-        //printf("[%d] %s semantic3a\n", i, s->toPrettyChars());
 
-        semantic3(s, NULL);
+        semantic3(s, nullptr);
 
         if (global.errors)
             break;
@@ -1020,7 +1012,6 @@ void Module::runDeferredSemantic3()
 
 int Module::imports(Module *m)
 {
-    //printf("%s Module::imports(%s)\n", toChars(), m->toChars());
     for (size_t i = 0; i < aimports.length; i++)
     {
         Module *mi = aimports[i];
@@ -1043,7 +1034,6 @@ int Module::imports(Module *m)
 
 bool Module::selfImports()
 {
-    //printf("Module::selfImports() %s\n", toChars());
     if (selfimports == 0)
     {
         for (size_t i = 0; i < amodules.length; i++)
@@ -1063,7 +1053,6 @@ bool Module::selfImports()
 
 bool Module::rootImports()
 {
-    //printf("Module::rootImports() %s\n", toChars());
     if (rootimports == 0)
     {
         for (size_t i = 0; i < amodules.length; i++)
@@ -1099,7 +1088,7 @@ ModuleDeclaration::ModuleDeclaration(Loc loc, Identifiers *packages, Identifier 
     this->packages = packages;
     this->id = id;
     this->isdeprecated = false;
-    this->msg = NULL;
+    this->msg = nullptr;
 }
 
 const char *ModuleDeclaration::toChars()
@@ -1125,7 +1114,7 @@ Package::Package(Identifier *ident)
         : ScopeDsymbol(ident)
 {
     this->isPkgMod = PKGunknown;
-    this->mod = NULL;
+    this->mod = nullptr;
     static unsigned packageTag = 0;
     this->tag = packageTag++;
 }
@@ -1142,7 +1131,7 @@ Module *Package::isPackageMod()
     {
         return mod;
     }
-    return NULL;
+    return nullptr;
 }
 
 /**
@@ -1194,18 +1183,17 @@ bool Package::isAncestorPackageOf(const Package * const pkg) const
  * Returns:
  *      the symbol table that mod should be inserted into
  * Output:
- *      *pparent        the rightmost package, i.e. pkg2, or NULL if no packages
- *      *ppkg           the leftmost package, i.e. pkg1, or NULL if no packages
+ *      *pparent        the rightmost package, i.e. pkg2, or nullptr if no packages
+ *      *ppkg           the leftmost package, i.e. pkg1, or nullptr if no packages
  */
 
 DsymbolTable *Package::resolve(Identifiers *packages, Dsymbol **pparent, Package **ppkg)
 {
     DsymbolTable *dst = Module::modules;
-    Dsymbol *parent = NULL;
+    Dsymbol *parent = nullptr;
 
-    //printf("Package::resolve()\n");
     if (ppkg)
-        *ppkg = NULL;
+        *ppkg = nullptr;
 
     if (packages)
     {
@@ -1254,15 +1242,13 @@ DsymbolTable *Package::resolve(Identifiers *packages, Dsymbol **pparent, Package
 
 Dsymbol *Package::search(const Loc &loc, Identifier *ident, int flags)
 {
-    //printf("%s Package::search('%s', flags = x%x)\n", toChars(), ident->toChars(), flags);
     flags &= ~SearchLocalsOnly;  // searching an import is always transitive
     if (!isModule() && mod)
     {
         // Prefer full package name.
-        Dsymbol *s = symtab ? symtab->lookup(ident) : NULL;
+        Dsymbol *s = symtab ? symtab->lookup(ident) : nullptr;
         if (s)
             return s;
-        //printf("[%s] through pkdmod: %s\n", loc.toChars(), toChars());
         return mod->search(loc, ident, flags);
     }
 

@@ -251,7 +251,7 @@ Type *Target::va_listType(const Loc &loc, Scope *sc)
     else
     {
         assert(0);
-        return NULL;
+        return nullptr;
     }
 
     return tvalist;
@@ -380,7 +380,7 @@ LINK Target::systemLinkage()
 /**
  * Return a tuple describing how argument type is put to a function.
  * Value is an empty tuple if type is always passed on the stack.
- * NULL if the type is a `void` or argtypes aren't supported by the target.
+ * nullptr if the type is a `void` or argtypes aren't supported by the target.
  */
 TypeTuple *Target::toArgTypes(Type *t)
 {
@@ -548,7 +548,7 @@ Expression *Target::getTargetInfo(const char* name, const Loc& loc)
             return new StringExp(loc, const_cast<char*>(""));
     }
 
-    return NULL;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -568,7 +568,7 @@ const char *TargetCPP::typeInfoMangle(ClassDeclaration *cd)
 
 const char *TargetCPP::thunkMangle(FuncDeclaration *, int)
 {
-    return NULL;
+    return nullptr;
 }
 
 /******************************
@@ -577,7 +577,7 @@ const char *TargetCPP::thunkMangle(FuncDeclaration *, int)
  */
 const char* TargetCPP::typeMangle(Type *)
 {
-    return NULL;
+    return nullptr;
 }
 
 /**

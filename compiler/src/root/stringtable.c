@@ -45,7 +45,7 @@ uint32_t StringTable::allocValue(const char *s, size_t length, void *ptrvalue)
 
 StringValue *StringTable::getValue(uint32_t vptr)
 {
-    if (!vptr) return NULL;
+    if (!vptr) return nullptr;
 
     const size_t idx = (vptr >> POOL_BITS) - 1;
     const size_t off = vptr & (POOL_SIZE - 1);
@@ -68,7 +68,7 @@ void StringTable::_init(size_t size)
     if (size < 32) size = 32;
     table = (StringEntry *)mem.xcalloc(size, sizeof(table[0]));
     tabledim = size;
-    pools = NULL;
+    pools = nullptr;
     npools = nfill = 0;
     count = 0;
 }
@@ -80,8 +80,8 @@ void StringTable::reset(size_t size)
 
     mem.xfree(table);
     mem.xfree(pools);
-    table = NULL;
-    pools = NULL;
+    table = nullptr;
+    pools = nullptr;
     _init(size);
 }
 
@@ -92,8 +92,8 @@ StringTable::~StringTable()
 
     mem.xfree(table);
     mem.xfree(pools);
-    table = NULL;
-    pools = NULL;
+    table = nullptr;
+    pools = nullptr;
 }
 
 size_t StringTable::findSlot(hash_t hash, const char *s, size_t length)
@@ -116,7 +116,7 @@ StringValue *StringTable::lookup(const char *s, size_t length)
 {
     const hash_t hash = calcHash(s, length);
     const size_t i = findSlot(hash, s, length);
-    // printf("lookup %.*s %p\n", (int)length, s, table[i].value ?: NULL);
+    // printf("lookup %.*s %p\n", (int)length, s, table[i].value ?: nullptr);
     return getValue(table[i].vptr);
 }
 
@@ -132,9 +132,9 @@ StringValue *StringTable::update(const char *s, size_t length)
             i = findSlot(hash, s, length);
         }
         table[i].hash = hash;
-        table[i].vptr = allocValue(s, length, NULL);
+        table[i].vptr = allocValue(s, length, nullptr);
     }
-    // printf("update %.*s %p\n", (int)length, s, table[i].value ?: NULL);
+    // printf("update %.*s %p\n", (int)length, s, table[i].value ?: nullptr);
     return getValue(table[i].vptr);
 }
 
@@ -143,7 +143,7 @@ StringValue *StringTable::insert(const char *s, size_t length, void *ptrvalue)
     const hash_t hash = calcHash(s, length);
     size_t i = findSlot(hash, s, length);
     if (table[i].vptr)
-        return NULL; // already in table
+        return nullptr; // already in table
     if (++count > tabledim * loadFactor)
     {
         grow();
@@ -151,7 +151,7 @@ StringValue *StringTable::insert(const char *s, size_t length, void *ptrvalue)
     }
     table[i].hash = hash;
     table[i].vptr = allocValue(s, length, ptrvalue);
-    // printf("insert %.*s %p\n", (int)length, s, table[i].value ?: NULL);
+    // printf("insert %.*s %p\n", (int)length, s, table[i].value ?: nullptr);
     return getValue(table[i].vptr);
 }
 

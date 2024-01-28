@@ -26,7 +26,7 @@
 
 Expression *eval_unimp(Loc, FuncDeclaration *, Expressions *)
 {
-    return NULL;
+    return nullptr;
 }
 
 Expression *eval_sin(Loc loc, FuncDeclaration *, Expressions *arguments)
@@ -427,7 +427,7 @@ BUILTIN isBuiltin(FuncDeclaration *fd)
 
 /**************************************
  * Evaluate builtin function.
- * Return result; NULL if cannot evaluate it.
+ * Return result; nullptr if cannot evaluate it.
  */
 
 Expression *eval_builtin(Loc loc, FuncDeclaration *fd, Expressions *arguments)

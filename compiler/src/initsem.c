@@ -19,7 +19,7 @@
 #include "template.h"
 #include "id.h"
 
-FuncDeclaration *isFuncAddress(Expression *e, bool *hasOverloads = NULL);
+FuncDeclaration *isFuncAddress(Expression *e, bool *hasOverloads = nullptr);
 Initializer *inferType(Initializer *init, Scope *sc);
 bool hasNonConstPointers(Expression *e);
 
@@ -33,7 +33,7 @@ public:
 
     InitializerSemanticVisitor(Scope *sc, Type *t, NeedInterpret needInterpret)
     {
-        this->result = NULL;
+        this->result = nullptr;
         this->sc = sc;
         this->t = t;
         this->needInterpret = needInterpret;
@@ -81,7 +81,7 @@ public:
             Expressions *elements = new Expressions();
             elements->setDim(nfields);
             for (size_t j = 0; j < elements->length; j++)
-                (*elements)[j] = NULL;
+                (*elements)[j] = nullptr;
 
             // Run semantic for explicitly given initializers
             // TODO: this part is slightly different from StructLiteralExp::semantic.
@@ -180,8 +180,8 @@ public:
             TOK tok = (t->ty == Tdelegate) ? TOKdelegate : TOKfunction;
             /* Rewrite as empty delegate literal { }
             */
-            Type *tf = new TypeFunction(ParameterList(), NULL, LINKd);
-            FuncLiteralDeclaration *fd = new FuncLiteralDeclaration(i->loc, Loc(), tf, tok, NULL);
+            Type *tf = new TypeFunction(ParameterList(), nullptr, LINKd);
+            FuncLiteralDeclaration *fd = new FuncLiteralDeclaration(i->loc, Loc(), tf, tok, nullptr);
             fd->fbody = new CompoundStatement(i->loc, new Statements());
             fd->endloc = i->loc;
             Expression *e = new FuncExp(i->loc, fd);
@@ -289,7 +289,7 @@ public:
                 for (size_t k = 0; k < te->exps->length; ++k)
                 {
                     Expression *e = (*te->exps)[k];
-                    i->index.insert(j + k, (Expression *)NULL);
+                    i->index.insert(j + k, (Expression *)nullptr);
                     i->value.insert(j + k, new ExpInitializer(e->loc, e));
                 }
                 j--;
@@ -439,7 +439,7 @@ public:
             {
                 // Rewrite as S().ctor(exp)
                 Expression *e;
-                e = new StructLiteralExp(i->loc, sd, NULL);
+                e = new StructLiteralExp(i->loc, sd, nullptr);
                 e = new DotIdExp(i->loc, e, Id::ctor);
                 e = new CallExp(i->loc, e, i->exp);
                 e = expressionSemantic(e, sc);
@@ -526,7 +526,7 @@ public:
 
     InferTypeVisitor(Scope *sc)
     {
-        this->result = NULL;
+        this->result = nullptr;
         this->sc = sc;
     }
 
@@ -550,7 +550,7 @@ public:
     void visit(ArrayInitializer *init)
     {
         //printf("ArrayInitializer::inferType() %s\n", init->toChars());
-        Expressions *keys = NULL;
+        Expressions *keys = nullptr;
         Expressions *values;
         if (init->isAssociativeArray())
         {
@@ -609,7 +609,7 @@ public:
                 assert((*elements)[i]->op != TOKerror);
             }
 
-            Expression *e = new ArrayLiteralExp(init->loc, NULL, elements);
+            Expression *e = new ArrayLiteralExp(init->loc, nullptr, elements);
             ExpInitializer *ei = new ExpInitializer(init->loc, e);
             result = inferType(ei, sc);
             return;
@@ -706,7 +706,7 @@ public:
 
     InitToExpressionVisitor(Type *itype)
     {
-        this->result = NULL;
+        this->result = nullptr;
         this->itype = itype;
     }
 
@@ -717,7 +717,7 @@ public:
 
     void visit(VoidInitializer *)
     {
-        result = NULL;
+        result = nullptr;
     }
 
     /***************************************
@@ -728,12 +728,12 @@ public:
     void visit(StructInitializer *)
     {
         // cannot convert to an expression without target 'ad'
-        result = NULL;
+        result = nullptr;
     }
 
     /********************************
      * If possible, convert array initializer to array literal.
-     * Otherwise return NULL.
+     * Otherwise return nullptr.
      */
 
     void visit(ArrayInitializer *init)
@@ -744,7 +744,7 @@ public:
         Expressions *elements;
         unsigned edim;
         const unsigned amax = 0x80000000;
-        Type *t = NULL;
+        Type *t = nullptr;
         if (init->type)
         {
             if (init->type == Type::terror)
@@ -822,7 +822,7 @@ public:
         /* Fill in any missing elements with the default initializer
          */
         {
-            Expression *_init = NULL;
+            Expression *_init = nullptr;
             for (size_t i = 0; i < edim; i++)
             {
                 if (!(*elements)[i])
@@ -879,7 +879,7 @@ public:
         }
 
     Lno:
-        result = NULL;
+        result = nullptr;
     }
 
     void visit(ExpInitializer *i)

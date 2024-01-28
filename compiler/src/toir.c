@@ -59,7 +59,7 @@ elem *incUsageElem(IRState *irs, Loc loc)
 
     if (!irs->blx->module->cov || !linnum ||
         loc.filename != irs->blx->module->srcfile->toChars())
-        return NULL;
+        return nullptr;
 
     //printf("cov = %p, covb = %p, linnum = %u\n", irs->blx->module->cov, irs->blx->module->covb, p, linnum);
 
@@ -68,7 +68,7 @@ elem *incUsageElem(IRState *irs, Loc loc)
     /* Set bit in covb[] indicating this is a valid code line number
      */
     unsigned *p = irs->blx->module->covb;
-    if (p)      // covb can be NULL if it has already been written out to its .obj file
+    if (p)      // covb can be nullptr if it has already been written out to its .obj file
     {
         assert(linnum < irs->blx->module->numlines);
         p += linnum / (sizeof(*p) * 8);
@@ -208,7 +208,7 @@ elem *getEthis(Loc loc, IRState *irs, Dsymbol *fd)
             }
             else
             {
-                /* Use NULL if no references to the current function's frame
+                /* Use nullptr if no references to the current function's frame
                  */
                 ethis = el_long(TYnptr, 0);
             }
@@ -255,7 +255,7 @@ elem *getEthis(Loc loc, IRState *irs, Dsymbol *fd)
                 }
                 ClassDeclaration *cd = ad->isClassDeclaration();
                 ClassDeclaration *cdx = fd->isClassDeclaration();
-                if (cd && cdx && cdx->isBaseOf(cd, NULL))
+                if (cd && cdx && cdx->isBaseOf(cd, nullptr))
                     break;
                 StructDeclaration *sd = ad->isStructDeclaration();
                 if (fd == sd)
@@ -355,9 +355,9 @@ int intrinsic_op(FuncDeclaration *fd)
         return op;
 
     // get type of first argument
-    TypeFunction *tf = fd->type ? fd->type->isTypeFunction() : NULL;
-    Parameter *param1 = tf && tf->parameterList.length() > 0 ? tf->parameterList[0] : NULL;
-    Type *argtype1 = param1 ? param1->type : NULL;
+    TypeFunction *tf = fd->type ? fd->type->isTypeFunction() : nullptr;
+    Parameter *param1 = tf && tf->parameterList.length() > 0 ? tf->parameterList[0] : nullptr;
+    Type *argtype1 = param1 ? param1->type : nullptr;
 
     const Identifier *id1 = (*md->packages)[0];
     // ... except core.stdc.stdarg.va_start.
@@ -466,7 +466,7 @@ Lva_start:
 elem *resolveLengthVar(VarDeclaration *lengthVar, elem **pe, Type *t1)
 {
     //printf("resolveLengthVar()\n");
-    elem *einit = NULL;
+    elem *einit = nullptr;
 
     if (lengthVar && !(lengthVar->storage_class & STCconst))
     {
@@ -602,7 +602,7 @@ void buildClosure(FuncDeclaration *fd, IRState *irs)
         strcat(strcat(closname, name1), name2);
 
         /* Build type for closure */
-        type *Closstru = type_struct_class(closname, target.ptrsize, 0, NULL, NULL, false, false, true);
+        type *Closstru = type_struct_class(closname, target.ptrsize, 0, nullptr, nullptr, false, false, true);
         free(closname);
         symbol_struct_addField(Closstru->Ttag, "__chain", Type_toCtype(Type::tvoidptr), 0);
 
@@ -639,7 +639,7 @@ void buildClosure(FuncDeclaration *fd, IRState *irs)
 
             /* Set Sscope to closure */
             Symbol *vsym = toSymbol(v);
-            assert(vsym->Sscope == NULL);
+            assert(vsym->Sscope == nullptr);
             vsym->Sscope = sclosure;
 
             /* Add variable as closure type member */
@@ -688,7 +688,7 @@ void buildClosure(FuncDeclaration *fd, IRState *irs)
             if (!v->isParameter())
                 continue;
             tym_t tym = totym(v->type);
-            if (ISREF(v, NULL))
+            if (ISREF(v, nullptr))
                 tym = TYnptr;   // reference parameters are just pointers
             else if (v->storage_class & STClazy)
                 tym = TYdelegate;

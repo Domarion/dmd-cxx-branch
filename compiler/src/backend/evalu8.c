@@ -264,7 +264,7 @@ elem * evalu8(elem *e, goal_t goal)
     if (e1->Eoper == OPconst && !tyvector(e1->Ety))
     {
         tym2 = 0;
-        e2 = NULL;
+        e2 = nullptr;
         if (EBIN(e))
         {   e2 = e->E2;
             elem_debug(e2);
@@ -280,7 +280,7 @@ elem * evalu8(elem *e, goal_t goal)
         else
         {
             tym2 = 0;
-            e2 = NULL;
+            e2 = nullptr;
             i2 = 0;             // not used, but static analyzer complains
             l2 = 0;             // "
             d2 = 0;             // "

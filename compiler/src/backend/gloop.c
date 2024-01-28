@@ -167,7 +167,7 @@ void loop::print()
 {
 #ifdef DEBUG
   loop *l = this;
-  dbg_printf("loop %p, next = %p\n",l,(l) ? l->Lnext : (loop *) NULL);
+  dbg_printf("loop %p, next = %p\n",l,(l) ? l->Lnext : (loop *) nullptr);
   if (!l)
         return;
   dbg_printf("\thead: B%d, tail: B%d, prehead: B%d\n",l->Lhead->Bdfoidx,
@@ -182,7 +182,7 @@ void loop::print()
  * Allocate loop.
  */
 
-loop *loop::freelist = NULL;
+loop *loop::freelist = nullptr;
 
 loop *loop::mycalloc()
 {   loop *l;
@@ -214,7 +214,7 @@ STATIC void freeloop(loop **pl)
         l->Lnext = loop::freelist;
         loop::freelist = l;
   }
-  *pl = NULL;
+  *pl = nullptr;
 }
 
 /**********************************
@@ -292,7 +292,7 @@ void compdom()
                 bl = dfo[i]->Bpred;
                 if (bl)                 // if there are predecessors
                 {       vec_copy(t1,list_block(bl)->Bdom);
-                        while ((bl = list_next(bl)) != NULL)
+                        while ((bl = list_next(bl)) != nullptr)
                             vec_andass(t1,list_block(bl)->Bdom);
                 }
                 else
@@ -447,13 +447,13 @@ L1:
         The preheader is a block that has only the head as a successor.
         All other predecessors of head must be inside the loop.
      */
-    l->Lpreheader = NULL;
+    l->Lpreheader = nullptr;
     for (bl = head->Bpred; bl; bl = list_next(bl))
     {   block *b = list_block(bl);
 
         if (!vec_testbit(b->Bdfoidx,l->Lloop))  /* if not in loop       */
         {   if (l->Lpreheader)                  /* if already one       */
-            {   l->Lpreheader = NULL;           /* can only be one      */
+            {   l->Lpreheader = nullptr;           /* can only be one      */
                 break;
             }
             else
@@ -602,7 +602,7 @@ STATIC int looprotate(loop *l)
                 *pbl2 = *pbl;
                 *pbl = list_next(*pbl);
                 pbln = pbl;                     // don't skip this next one
-                list_next(*pbl2) = NULL;
+                list_next(*pbl2) = nullptr;
                 bl = list_block(*pbl2)->Bsucc;
                 pbl2 = &(list_next(*pbl2));
                 for (; bl; bl = list_next(bl))
@@ -684,7 +684,7 @@ void loopopt()
     loop *startloop;
 
     cmes("loopopt()\n");
-    startloop = NULL;
+    startloop = nullptr;
 restart:
     file_progress();
     if (blockinit())                    // init block data
@@ -747,7 +747,7 @@ restart:
 
             l->Lpreheader = p;
             p->BC = BCgoto;
-            assert(p->Bsucc == NULL);
+            assert(p->Bsucc == nullptr);
             list_append(&(p->Bsucc),h); /* only successor is h          */
             p->Btry = h->Btry;
 
@@ -923,7 +923,7 @@ STATIC void markinvar(elem *n,vec_t rd)
                             gref = 1;
                         }
 
-                        updaterd(n,rd,NULL);
+                        updaterd(n,rd,nullptr);
                         break;
 
         case OPcallns:
@@ -937,21 +937,21 @@ STATIC void markinvar(elem *n,vec_t rd)
         case OPmemset:
                 markinvar(n->E2,rd);
                 markinvar(n->E1,rd);
-                updaterd(n,rd,NULL);
+                updaterd(n,rd,nullptr);
                 break;
         case OPbtc:
         case OPbtr:
         case OPbts:
                 markinvar(n->E1,rd);
                 markinvar(n->E2,rd);
-                updaterd(n,rd,NULL);
+                updaterd(n,rd,nullptr);
                 break;
         case OPucall:
                 markinvar(n->E1,rd);
                 /* FALL-THROUGH */
         case OPasm:
                 gref = 1;
-                updaterd(n,rd,NULL);
+                updaterd(n,rd,nullptr);
                 break;
 
         case OPucallns:
@@ -1422,7 +1422,7 @@ Lnextlis:
                                         continue;
                                 refstop = -1;
                                 if (dfo[i]->Belem &&
-                                    refs(v,dfo[i]->Belem,(elem *)NULL)) //if refs of v
+                                    refs(v,dfo[i]->Belem,(elem *)nullptr)) //if refs of v
                                 {   vec_free(tmp);
                                         goto L3;
                                 }
@@ -1678,7 +1678,7 @@ STATIC void appendelem(elem *n,elem **pn)
  * Allocate famlist.
  */
 
-famlist *famlist::freelist = NULL;
+famlist *famlist::freelist = nullptr;
 
 famlist *famlist::mycalloc()
 {   famlist *fl;
@@ -1698,7 +1698,7 @@ famlist *famlist::mycalloc()
  * Allocate Iv.
  */
 
-Iv *Iv::freelist = NULL;
+Iv *Iv::freelist = nullptr;
 
 Iv *Iv::mycalloc()
 {   Iv *iv;
@@ -1822,7 +1822,7 @@ STATIC famlist * newfamlist(tym_t ty)
 STATIC void loopiv(loop *l)
 {
   cmes2("loopiv(%p)\n",l);
-  assert(l->Livlist == NULL && l->Lopeqlist == NULL);
+  assert(l->Livlist == nullptr && l->Lopeqlist == nullptr);
   elimspec(l);
   if (doflow)
   {     flowrd();               /* compute reaching defs                */
@@ -1840,9 +1840,9 @@ STATIC void loopiv(loop *l)
       elimopeqs(l);             // eliminate op= variables
 
   freeivlist(l->Livlist);       // free up IV list
-  l->Livlist = NULL;
+  l->Livlist = nullptr;
   freeivlist(l->Lopeqlist);     // free up list
-  l->Lopeqlist = NULL;
+  l->Lopeqlist = nullptr;
 
   /* Do copy propagation and dead assignment elimination        */
   /* upon return to optfunc()                                   */
@@ -2144,7 +2144,7 @@ STATIC void ivfamelems(Iv *biv,elem **pn)
   if (OTunary(op))
   {     ivfamelems(biv,&n->E1);
         n1 = n->E1;
-        n2 = NULL;
+        n2 = nullptr;
   }
   else if (OTbinary(op))
   {     ivfamelems(biv,&n->E1);
@@ -2547,7 +2547,7 @@ STATIC bool funcprev(Iv *biv,famlist *fl)
         }
 
         flse1 = doptelem(flse1,GOALvalue | GOALagain);
-        fl->c2 = NULL;
+        fl->c2 = nullptr;
     L2:
 #ifdef DEBUG
         if (debugc)
@@ -2603,7 +2603,7 @@ STATIC void elimbasivs(loop *l)
         pref = onlyref(X,l,*biv->IVincr,&refcount);
 
         /* if only ref of X is of the form (X) or (X relop e) or (e relop X) */
-        if (pref != NULL && refcount <= 1)
+        if (pref != nullptr && refcount <= 1)
         {       elem *ref;
                 tym_t flty;
 
@@ -2924,7 +2924,7 @@ STATIC void elimopeqs(loop *l)
         pref = onlyref(X,l,*biv->IVincr,&refcount);
 
         // if only ref of X is of the form (X) or (X relop e) or (e relop X)
-        if (pref != NULL && refcount <= 1)
+        if (pref != nullptr && refcount <= 1)
             ;
         else if (refcount == 0)                 // if no uses of IV in loop
         {   // Eliminate the basic IV if it is not live on any successor
@@ -2961,14 +2961,14 @@ STATIC void elimopeqs(loop *l)
  * Find simplest elem in family.
  * Input:
  *      tym     type of basic IV
- * Return NULL if none found.
+ * Return nullptr if none found.
  */
 
 STATIC famlist * simfl(famlist *fl,tym_t tym)
 { famlist *sofar;
 
   assert(fl);
-  sofar = NULL;
+  sofar = nullptr;
   for (; fl; fl = fl->FLnext)
   {
         if (fl->FLtemp == FLELIM)       /* no variable, so skip it      */
@@ -3087,7 +3087,7 @@ Lf2:
  *      If ref of X in loop l is of the form (X relop e) or (e relop X)
  *              Return the relop elem
  *      Else
- *              Return NULL
+ *              Return nullptr
  */
 
 static int count;
@@ -3107,7 +3107,7 @@ STATIC elem ** onlyref(symbol *x,loop *l,elem *incn,int *prefcount)
 #endif
   assert(X->Ssymnum < globsym.top && l && incn);
   count = 0;
-  nd = NULL;
+  nd = nullptr;
   foreach (i,dfotop,l->Lloop)           /* for each block in loop       */
   {     block *b;
 

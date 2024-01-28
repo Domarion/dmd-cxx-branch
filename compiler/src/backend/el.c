@@ -40,7 +40,7 @@ static int eprm_cnt;                    /* max # of allocs at any point */
  * Do our own storage allocation of elems.
  */
 
-static elem *nextfree = NULL;           /* pointer to next free elem    */
+static elem *nextfree = nullptr;           /* pointer to next free elem    */
 
 static int elcount = 0;                 /* number of allocated elems    */
 static int elem_size = sizeof(elem);
@@ -220,7 +220,7 @@ void el_count_free()
 
 /*********************
  * Combine e1 and e2 with a comma-expression.
- * Be careful about either or both being NULL.
+ * Be careful about either or both being nullptr.
  */
 
 elem * el_combine(elem *e1,elem *e2)
@@ -236,7 +236,7 @@ elem * el_combine(elem *e1,elem *e2)
 
 /*********************
  * Combine e1 and e2 as parameters to a function.
- * Be careful about either or both being NULL.
+ * Be careful about either or both being nullptr.
  */
 
 elem * el_param(elem *e1,elem *e2)
@@ -252,7 +252,7 @@ elem * el_param(elem *e1,elem *e2)
 }
 
 /*********************************
- * Create parameter list, terminated by a NULL.
+ * Create parameter list, terminated by a nullptr.
  */
 
 elem *el_params(elem *e1, ...)
@@ -260,7 +260,7 @@ elem *el_params(elem *e1, ...)
     elem *e;
     va_list ap;
 
-    e = NULL;
+    e = nullptr;
     for (va_start(ap, e1); e1; e1 = va_arg(ap, elem *))
     {
         e = el_param(e, e1);
@@ -277,7 +277,7 @@ elem *el_params(elem *e1, ...)
 elem *el_params(void **args, int length)
 {
     if (length == 0)
-        return NULL;
+        return nullptr;
     if (length == 1)
         return (elem *)args[0];
     int mid = length >> 1;
@@ -293,7 +293,7 @@ elem *el_params(void **args, int length)
 elem *el_combines(void **args, int length)
 {
     if (length == 0)
-        return NULL;
+        return nullptr;
     if (length == 1)
         return (elem *)args[0];
     int mid = length >> 1;
@@ -339,8 +339,8 @@ void el_opFree(elem *e, unsigned op)
     {
         el_opFree(e->E1, op);
         el_opFree(e->E2, op);
-        e->E1 = NULL;
-        e->E2 = NULL;
+        e->E1 = nullptr;
+        e->E2 = nullptr;
         el_free(e);
     }
 }
@@ -352,7 +352,7 @@ void el_opFree(elem *e, unsigned op)
 elem *el_opCombine(elem **args, size_t length, unsigned op, unsigned ty)
 {
     if (length == 0)
-        return NULL;
+        return nullptr;
     if (length == 1)
         return args[0];
     return el_bin(op, ty, el_opCombine(args, length - 1, op, ty), args[length - 1]);
@@ -436,7 +436,7 @@ elem * el_selecte1(elem *e)
     e1 = e->E1;
     elem_debug(e1);
     if (e->E2) elem_debug(e->E2);
-    e->E1 = NULL;                               // so e1 won't be freed
+    e->E1 = nullptr;                               // so e1 won't be freed
     if (configv.addlinenumbers)
     {
         if (e->Esrcpos.Slinnum)
@@ -465,7 +465,7 @@ elem * el_selecte2(elem *e)
         elem_debug(e->E1);
     e2 = e->E2;
     elem_debug(e2);
-    e->E2 = NULL;                       // so e2 won't be freed
+    e->E2 = nullptr;                       // so e2 won't be freed
     if (configv.addlinenumbers)
     {
         if (e->Esrcpos.Slinnum)
@@ -614,7 +614,7 @@ int el_appears(elem *e,Symbol *s)
  * Look for symbol that is a base of addressing mode e.
  * Returns:
  *      s       symbol used as base
- *      NULL    couldn't find a base symbol
+ *      nullptr    couldn't find a base symbol
  */
 
 /****************************************
@@ -631,7 +631,7 @@ int el_anydef(elem *ed, elem *e)
     elem *e1;
 
     edop = ed->Eoper;
-    s = (edop == OPvar) ? ed->EV.sp.Vsym : NULL;
+    s = (edop == OPvar) ? ed->EV.sp.Vsym : nullptr;
     while (1)
     {
         op = e->Eoper;
@@ -664,7 +664,7 @@ int el_anydef(elem *ed, elem *e)
 elem * el_bint(unsigned op,type *t,elem *e1,elem *e2)
 {   elem *e;
 
-    /* e2 is NULL when OPpostinc is built       */
+    /* e2 is nullptr when OPpostinc is built       */
     assert(op < OPMAX && OTbinary(op) && e1);
     assert(PARSER);
     e = el_calloc();
@@ -799,7 +799,7 @@ elem * el_settype(elem *e,type *)
 elem * el_typesize(type *)
 {
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 /************************************
@@ -886,7 +886,7 @@ Lnodep:
 symbol *el_alloc_localgot()
 {
     /* Since localgot is a local variable to each function,
-     * localgot must be set back to NULL
+     * localgot must be set back to nullptr
      * at the start of code gen for each function.
      */
     if (I32 && !localgot)
@@ -1193,7 +1193,7 @@ elem * el_var(symbol *s)
 
         e->Eoper = OPind;
         e->E1 = el_bin(OPadd,e1->Ety,e2,e1);
-        e->E2 = NULL;
+        e->E2 = nullptr;
 
     }
     return e;
@@ -1461,7 +1461,7 @@ elem *el_convstring(elem *e)
     elem_debug(e);
     assert(e->Eoper == OPstring);
     p = e->EV.ss.Vstring;
-    e->EV.ss.Vstring = NULL;
+    e->EV.ss.Vstring = nullptr;
     len = e->EV.ss.Vstrlen;
 
     if (eecontext.EEin)                 // if compiling debugger expression
@@ -1637,7 +1637,7 @@ elem * el_const(tym_t ty,union eve *pconst)
  * Create constructor/destructor pair of elems.
  * Caution: The pattern generated here must match that detected in e2ir.c's visit(CallExp).
  * Params:
- *      ec = code to construct (may be NULL)
+ *      ec = code to construct (may be nullptr)
  *      ed = code to destruct
  *      pedtor = set to destructor node
  * Returns:
@@ -1772,7 +1772,7 @@ elem *el_zero(type *t)
 
 /*******************
  * Find and return pointer to parent of e starting at *pe.
- * Return NULL if can't find it.
+ * Return nullptr if can't find it.
  */
 
 elem ** el_parent(elem *e,elem **pe)
@@ -1791,7 +1791,7 @@ elem ** el_parent(elem *e,elem **pe)
                                                  : el_parent(e,&((*pe)->E2));
   }
   else
-        return NULL;
+        return nullptr;
 }
 
 /*******************************

@@ -41,17 +41,17 @@ char debuga,debugb,debugc,debugd,debuge,debugf,debugr,debugs,debugt,debugu,debug
 /* File variables: */
 
 char *argv0;                    // argv[0] (program name)
-FILE *fdep = NULL;              // dependency file stream pointer
-FILE *flst = NULL;              // list file stream pointer
-FILE *fin = NULL;               // input file
-char     *foutdir = NULL,       // directory to place output files in
-         *finname = NULL,
-        *foutname = NULL,
-        *fsymname = NULL,
-        *fphreadname = NULL,
-        *ftdbname = NULL,
-        *fdepname = NULL,
-        *flstname = NULL;       /* the filename strings                 */
+FILE *fdep = nullptr;              // dependency file stream pointer
+FILE *flst = nullptr;              // list file stream pointer
+FILE *fin = nullptr;               // input file
+char     *foutdir = nullptr,       // directory to place output files in
+         *finname = nullptr,
+        *foutname = nullptr,
+        *fsymname = nullptr,
+        *fphreadname = nullptr,
+        *ftdbname = nullptr,
+        *fdepname = nullptr,
+        *flstname = nullptr;       /* the filename strings                 */
 
 int pathsysi;                   // -isystem= index
 list_t headers;                 /* pre-include files                    */
@@ -74,7 +74,7 @@ int level = 0;                  /* declaration level                    */
                                 /* 2: function local declarations       */
                                 /* 3+: compound statement decls         */
 
-param_t *paramlst = NULL;       /* function parameter list              */
+param_t *paramlst = nullptr;       /* function parameter list              */
 tym_t pointertype = TYnptr;     /* default data pointer type            */
 
 /************************
@@ -124,4 +124,4 @@ const char *regstring[32] = {"AX","CX","DX","BX","SP","BP","SI","DI",
 
 type *chartype;                 /* default 'char' type                  */
 
-Obj *objmod = NULL;
+Obj *objmod = nullptr;

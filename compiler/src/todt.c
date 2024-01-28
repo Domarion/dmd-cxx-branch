@@ -42,7 +42,7 @@ void Type_toDt(Type *t, DtBuilder& dtb);
 static void toDtElem(TypeSArray *tsa, DtBuilder& dtb, Expression *e);
 void ClassDeclaration_toDt(ClassDeclaration *cd, DtBuilder& dtb);
 void StructDeclaration_toDt(StructDeclaration *sd, DtBuilder& dtb);
-static void membersToDt(AggregateDeclaration *ad, DtBuilder& dtb, Expressions *elements, size_t, ClassDeclaration *, BaseClass ***ppb = NULL);
+static void membersToDt(AggregateDeclaration *ad, DtBuilder& dtb, Expressions *elements, size_t, ClassDeclaration *, BaseClass ***ppb = nullptr);
 static void ClassReferenceExp_toDt(ClassReferenceExp *e, DtBuilder& dtb, int off);
 void ClassReferenceExp_toInstanceDt(ClassReferenceExp *ce, DtBuilder& dtb);
 Symbol *toSymbol(Dsymbol *s);
@@ -128,7 +128,7 @@ void Initializer_toDt(Initializer *init, DtBuilder& dtb)
 
             size_t n = tn->numberOfElems(ai->loc);
 
-            dt_t *dtdefault = NULL;
+            dt_t *dtdefault = nullptr;
 
             DtBuilder dtbarray;
             for (size_t i = 0; i < ai->dim; i++)
@@ -444,7 +444,7 @@ void Expression_toDt(Expression *e, DtBuilder& dtb)
         {
             //printf("StructLiteralExp::toDt() %s, ctfe = %d\n", sle->toChars(), sle->ownedByCtfe);
             assert(sle->sd->fields.length - sle->sd->isNested() <= sle->elements->length);
-            membersToDt(sle->sd, dtb, sle->elements, 0, NULL);
+            membersToDt(sle->sd, dtb, sle->elements, 0, nullptr);
         }
 
         void visit(SymOffExp *e)
@@ -496,7 +496,7 @@ void Expression_toDt(Expression *e, DtBuilder& dtb)
             {
                 // change to non-nested
                 e->fd->tok = TOKfunction;
-                e->fd->vthis = NULL;
+                e->fd->vthis = nullptr;
             }
             Symbol *s = toSymbol(e->fd);
             if (e->fd->isNested())
@@ -545,7 +545,7 @@ void Expression_toDt(Expression *e, DtBuilder& dtb)
         {
             if (Type *t = isType(e->obj))
             {
-                genTypeInfo(e->loc, t, NULL);
+                genTypeInfo(e->loc, t, nullptr);
                 Symbol *s = toSymbol(t->vtinfo);
                 dtb.xoff(s, 0);
                 return;
@@ -566,7 +566,7 @@ void ClassDeclaration_toDt(ClassDeclaration *cd, DtBuilder& dtb)
 {
     //printf("ClassDeclaration::toDt(this = '%s')\n", cd->toChars());
 
-    membersToDt(cd, dtb, NULL, 0, cd);
+    membersToDt(cd, dtb, nullptr, 0, cd);
 
     //printf("-ClassDeclaration::toDt(this = '%s')\n", cd->toChars());
 }
@@ -574,7 +574,7 @@ void ClassDeclaration_toDt(ClassDeclaration *cd, DtBuilder& dtb)
 void StructDeclaration_toDt(StructDeclaration *sd, DtBuilder& dtb)
 {
     //printf("+StructDeclaration::toDt(), this='%s'\n", sd->toChars());
-    membersToDt(sd, dtb, NULL, 0, NULL);
+    membersToDt(sd, dtb, nullptr, 0, nullptr);
 
     //printf("-StructDeclaration::toDt(), this='%s'\n", sd->toChars());
 }
@@ -611,7 +611,7 @@ void cpp_type_info_ptr_toDt(ClassDeclaration *cd, DtBuilder& dtb)
  * Params:
  *      ad = aggregate with members
  *      pdt = tail of initializer list to start appending initialized data to
- *      elements = values to use as initializers, NULL means use default initializers
+ *      elements = values to use as initializers, nullptr means use default initializers
  *      firstFieldIndex = starting place is elements[firstFieldIndex]
  *      concreteType = structs: null, classes: most derived class
  *      ppb = pointer that moves through BaseClass[] from most derived class
@@ -710,7 +710,7 @@ static void membersToDt(AggregateDeclaration *ad, DtBuilder& dtb,
         else if (ad->fields[i]->_init && ad->fields[i]->_init->isVoidInitializer())
             continue;
 
-        VarDeclaration *vd = NULL;
+        VarDeclaration *vd = nullptr;
         size_t k;
         for (size_t j = i; j < ad->fields.length; j++)
         {
@@ -814,12 +814,12 @@ void Type_toDt(Type *t, DtBuilder& dtb)
         void visit(TypeVector *t)
         {
             assert(t->basetype->ty == Tsarray);
-            toDtElem((TypeSArray *)t->basetype, dtb, NULL);
+            toDtElem((TypeSArray *)t->basetype, dtb, nullptr);
         }
 
         void visit(TypeSArray *t)
         {
-            toDtElem(t, dtb, NULL);
+            toDtElem(t, dtb, nullptr);
         }
 
         void visit(TypeStruct *t)
@@ -940,7 +940,7 @@ public:
             dtb.size(0);                                   // monitor
         Type *tm = d->tinfo->mutableOf();
         tm = tm->merge();
-        genTypeInfo(d->loc, tm, NULL);
+        genTypeInfo(d->loc, tm, nullptr);
         dtb.xoff(toSymbol(tm->vtinfo), 0);
     }
 
@@ -954,7 +954,7 @@ public:
             dtb.size(0);                                   // monitor
         Type *tm = d->tinfo->mutableOf();
         tm = tm->merge();
-        genTypeInfo(d->loc, tm, NULL);
+        genTypeInfo(d->loc, tm, nullptr);
         dtb.xoff(toSymbol(tm->vtinfo), 0);
     }
 
@@ -968,7 +968,7 @@ public:
             dtb.size(0);                                   // monitor
         Type *tm = d->tinfo->unSharedOf();
         tm = tm->merge();
-        genTypeInfo(d->loc, tm, NULL);
+        genTypeInfo(d->loc, tm, nullptr);
         dtb.xoff(toSymbol(tm->vtinfo), 0);
     }
 
@@ -982,7 +982,7 @@ public:
             dtb.size(0);                                   // monitor
         Type *tm = d->tinfo->mutableOf();
         tm = tm->merge();
-        genTypeInfo(d->loc, tm, NULL);
+        genTypeInfo(d->loc, tm, nullptr);
         dtb.xoff(toSymbol(tm->vtinfo), 0);
     }
 
@@ -1009,7 +1009,7 @@ public:
         // TypeInfo for enum members
         if (sd->memtype)
         {
-            genTypeInfo(d->loc, sd->memtype, NULL);
+            genTypeInfo(d->loc, sd->memtype, nullptr);
             dtb.xoff(toSymbol(sd->memtype->vtinfo), 0);
         }
         else
@@ -1051,7 +1051,7 @@ public:
 
         TypePointer *tc = (TypePointer *)d->tinfo;
 
-        genTypeInfo(d->loc, tc->next, NULL);
+        genTypeInfo(d->loc, tc->next, nullptr);
         dtb.xoff(toSymbol(tc->next->vtinfo), 0); // TypeInfo for type being pointed to
     }
 
@@ -1068,7 +1068,7 @@ public:
 
         TypeDArray *tc = (TypeDArray *)d->tinfo;
 
-        genTypeInfo(d->loc, tc->next, NULL);
+        genTypeInfo(d->loc, tc->next, nullptr);
         dtb.xoff(toSymbol(tc->next->vtinfo), 0); // TypeInfo for array of type
     }
 
@@ -1085,7 +1085,7 @@ public:
 
         TypeSArray *tc = (TypeSArray *)d->tinfo;
 
-        genTypeInfo(d->loc, tc->next, NULL);
+        genTypeInfo(d->loc, tc->next, nullptr);
         dtb.xoff(toSymbol(tc->next->vtinfo), 0);   // TypeInfo for array of type
 
         dtb.size(tc->dim->toInteger());          // length
@@ -1104,7 +1104,7 @@ public:
 
         TypeVector *tc = (TypeVector *)d->tinfo;
 
-        genTypeInfo(d->loc, tc->basetype, NULL);
+        genTypeInfo(d->loc, tc->basetype, nullptr);
         dtb.xoff(toSymbol(tc->basetype->vtinfo), 0); // TypeInfo for equivalent static array
     }
 
@@ -1121,10 +1121,10 @@ public:
 
         TypeAArray *tc = (TypeAArray *)d->tinfo;
 
-        genTypeInfo(d->loc, tc->next, NULL);
+        genTypeInfo(d->loc, tc->next, nullptr);
         dtb.xoff(toSymbol(tc->next->vtinfo), 0);   // TypeInfo for array of type
 
-        genTypeInfo(d->loc, tc->index, NULL);
+        genTypeInfo(d->loc, tc->index, nullptr);
         dtb.xoff(toSymbol(tc->index->vtinfo), 0);  // TypeInfo for array of type
     }
 
@@ -1141,7 +1141,7 @@ public:
 
         TypeFunction *tc = (TypeFunction *)d->tinfo;
 
-        genTypeInfo(d->loc, tc->next, NULL);
+        genTypeInfo(d->loc, tc->next, nullptr);
         dtb.xoff(toSymbol(tc->next->vtinfo), 0); // TypeInfo for function return value
 
         const char *name = d->tinfo->deco;
@@ -1167,7 +1167,7 @@ public:
 
         TypeDelegate *tc = (TypeDelegate *)d->tinfo;
 
-        genTypeInfo(d->loc, tc->next->nextOf(), NULL);
+        genTypeInfo(d->loc, tc->next->nextOf(), nullptr);
         dtb.xoff(toSymbol(tc->next->nextOf()->vtinfo), 0); // TypeInfo for delegate return value
 
         const char *name = d->tinfo->deco;
@@ -1250,7 +1250,7 @@ public:
         // void[] init;
         dtb.size(sd->structsize);            // init.length
         if (sd->zeroInit)
-            dtb.size(0);                     // NULL for 0 initialization
+            dtb.size(0);                     // nullptr for 0 initialization
         else
             dtb.xoff(toInitializer(sd), 0);    // init.ptr
 
@@ -1317,7 +1317,7 @@ public:
                 // m_argi
                 if (t)
                 {
-                    genTypeInfo(d->loc, t, NULL);
+                    genTypeInfo(d->loc, t, nullptr);
                     dtb.xoff(toSymbol(t->vtinfo), 0);
                 }
                 else
@@ -1388,7 +1388,7 @@ public:
         {
             Parameter *arg = (*tu->arguments)[i];
 
-            genTypeInfo(d->loc, arg->type, NULL);
+            genTypeInfo(d->loc, arg->type, nullptr);
             Symbol *s = toSymbol(arg->type->vtinfo);
             dtbargs.xoff(s, 0);
         }

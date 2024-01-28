@@ -42,7 +42,7 @@ AttribDeclaration::AttribDeclaration(Dsymbols *decl)
 Dsymbols *AttribDeclaration::include(Scope *)
 {
     if (errors)
-        return NULL;
+        return nullptr;
 
     return decl;
 }
@@ -73,7 +73,7 @@ int AttribDeclaration::apply(Dsymbol_apply_ft_t fp, void *param)
  * the scope after it used.
  */
 Scope *AttribDeclaration::createNewScope(Scope *sc,
-        StorageClass stc, LINK linkage, CPPMANGLE cppmangle, Prot protection,
+        StorageClass stc, LINK linkage, CPPMANGLE cppmangle, Visibility protection,
         int explicitProtection, AlignDeclaration *aligndecl, PINLINE inlining)
 {
     Scope *sc2 = sc;
@@ -172,7 +172,7 @@ void AttribDeclaration::addComment(const utf8_t *comment)
     //printf("AttribDeclaration::addComment %s\n", comment);
     if (comment)
     {
-        Dsymbols *d = include(NULL);
+        Dsymbols *d = include(nullptr);
 
         if (d)
         {
@@ -188,7 +188,7 @@ void AttribDeclaration::addComment(const utf8_t *comment)
 
 void AttribDeclaration::setFieldOffset(AggregateDeclaration *ad, unsigned *poffset, bool isunion)
 {
-    Dsymbols *d = include(NULL);
+    Dsymbols *d = include(nullptr);
 
     if (d)
     {
@@ -202,7 +202,7 @@ void AttribDeclaration::setFieldOffset(AggregateDeclaration *ad, unsigned *poffs
 
 bool AttribDeclaration::hasPointers()
 {
-    Dsymbols *d = include(NULL);
+    Dsymbols *d = include(nullptr);
 
     if (d)
     {
@@ -218,7 +218,7 @@ bool AttribDeclaration::hasPointers()
 
 bool AttribDeclaration::hasStaticCtorOrDtor()
 {
-    Dsymbols *d = include(NULL);
+    Dsymbols *d = include(nullptr);
 
     if (d)
     {
@@ -239,14 +239,14 @@ const char *AttribDeclaration::kind() const
 
 bool AttribDeclaration::oneMember(Dsymbol **ps, Identifier *ident)
 {
-    Dsymbols *d = include(NULL);
+    Dsymbols *d = include(nullptr);
 
     return Dsymbol::oneMembers(d, ps, ident);
 }
 
 void AttribDeclaration::checkCtorConstInit()
 {
-    Dsymbols *d = include(NULL);
+    Dsymbols *d = include(nullptr);
 
     if (d)
     {
@@ -263,7 +263,7 @@ void AttribDeclaration::checkCtorConstInit()
 
 void AttribDeclaration::addLocalClass(ClassDeclarations *aclasses)
 {
-    Dsymbols *d = include(NULL);
+    Dsymbols *d = include(nullptr);
 
     if (d)
     {
@@ -374,7 +374,7 @@ DeprecatedDeclaration::DeprecatedDeclaration(Expression *msg, Dsymbols *decl)
         : StorageClassDeclaration(STCdeprecated, decl)
 {
     this->msg = msg;
-    this->msgstr = NULL;
+    this->msgstr = nullptr;
 }
 
 Dsymbol *DeprecatedDeclaration::syntaxCopy(Dsymbol *s)
@@ -414,7 +414,7 @@ const char *DeprecatedDeclaration::getMessage()
 {
     if (Scope *sc = _scope)
     {
-        _scope = NULL;
+        _scope = nullptr;
 
         sc = sc->startCTFE();
         msg = expressionSemantic(msg, sc);
@@ -497,12 +497,12 @@ const char *CPPMangleDeclaration::toChars()
  *  p = protection attribute data
  *  decl = declarations which are affected by this protection attribute
  */
-ProtDeclaration::ProtDeclaration(Loc loc, Prot p, Dsymbols *decl)
+ProtDeclaration::ProtDeclaration(Loc loc, Visibility p, Dsymbols *decl)
         : AttribDeclaration(decl)
 {
     this->loc = loc;
     this->protection = p;
-    this->pkg_identifiers = NULL;
+    this->pkg_identifiers = nullptr;
     //printf("decl = %p\n", decl);
 }
 
@@ -516,15 +516,15 @@ ProtDeclaration::ProtDeclaration(Loc loc, Identifiers* pkg_identifiers, Dsymbols
         : AttribDeclaration(decl)
 {
     this->loc = loc;
-    this->protection.kind = Prot::package_;
-    this->protection.pkg  = NULL;
+    this->protection.kind = Visibility::package_;
+    this->protection.pkg  = nullptr;
     this->pkg_identifiers = pkg_identifiers;
 }
 
 Dsymbol *ProtDeclaration::syntaxCopy(Dsymbol *s)
 {
     assert(!s);
-    if (protection.kind == Prot::package_)
+    if (protection.kind == Visibility::package_)
         return new ProtDeclaration(this->loc, pkg_identifiers, Dsymbol::arraySyntaxCopy(decl));
     else
         return new ProtDeclaration(this->loc, protection, Dsymbol::arraySyntaxCopy(decl));
@@ -544,12 +544,12 @@ void ProtDeclaration::addMember(Scope *sc, ScopeDsymbol *sds)
     if (pkg_identifiers)
     {
         Dsymbol* tmp;
-        Package::resolve(pkg_identifiers, &tmp, NULL);
-        protection.pkg = tmp ? tmp->isPackage() : NULL;
-        pkg_identifiers = NULL;
+        Package::resolve(pkg_identifiers, &tmp, nullptr);
+        protection.pkg = tmp ? tmp->isPackage() : nullptr;
+        pkg_identifiers = nullptr;
     }
 
-    if (protection.kind == Prot::package_ && protection.pkg && sc->_module)
+    if (protection.kind == Visibility::package_ && protection.pkg && sc->_module)
     {
         Module *m = sc->_module;
 
@@ -562,7 +562,7 @@ void ProtDeclaration::addMember(Scope *sc, ScopeDsymbol *sds)
         // isModule()
         if (!m->isPackage() || !protection.pkg->ident->equals(m->isPackage()->ident))
         {
-            Package* pkg = m->parent ? m->parent->isPackage() : NULL;
+            Package* pkg = m->parent ? m->parent->isPackage() : nullptr;
             if (!pkg || !protection.pkg->isAncestorPackageOf(pkg))
                 error("does not bind to one of ancestor packages of module `%s`",
                       m->toPrettyChars(true));
@@ -579,7 +579,7 @@ const char *ProtDeclaration::kind() const
 
 const char *ProtDeclaration::toPrettyChars(bool)
 {
-    assert(protection.kind > Prot::undefined);
+    assert(protection.kind > Visibility::undefined);
 
     OutBuffer buf;
     buf.writeByte('\'');
@@ -602,7 +602,7 @@ Dsymbol *AlignDeclaration::syntaxCopy(Dsymbol *s)
 {
     assert(!s);
     return new AlignDeclaration(loc,
-        ealign ? ealign->syntaxCopy() : NULL,
+        ealign ? ealign->syntaxCopy() : nullptr,
         Dsymbol::arraySyntaxCopy(decl));
 }
 
@@ -849,14 +849,14 @@ bool ConditionalDeclaration::oneMember(Dsymbol **ps, Identifier *ident)
     //printf("ConditionalDeclaration::oneMember(), inc = %d\n", condition->inc);
     if (condition->inc)
     {
-        Dsymbols *d = condition->include(NULL) ? decl : elsedecl;
+        Dsymbols *d = condition->include(nullptr) ? decl : elsedecl;
         return Dsymbol::oneMembers(d, ps, ident);
     }
     else
     {
-        bool res = (Dsymbol::oneMembers(    decl, ps, ident) && *ps == NULL &&
-                    Dsymbol::oneMembers(elsedecl, ps, ident) && *ps == NULL);
-        *ps = NULL;
+        bool res = (Dsymbol::oneMembers(    decl, ps, ident) && *ps == nullptr &&
+                    Dsymbol::oneMembers(elsedecl, ps, ident) && *ps == nullptr);
+        *ps = nullptr;
         return res;
     }
 }
@@ -868,7 +868,7 @@ Dsymbols *ConditionalDeclaration::include(Scope *sc)
     //printf("ConditionalDeclaration::include(sc = %p) _scope = %p\n", sc, _scope);
 
     if (errors)
-        return NULL;
+        return nullptr;
 
     assert(condition);
     return condition->include(_scope ? _scope : sc) ? decl : elsedecl;
@@ -924,7 +924,7 @@ StaticIfDeclaration::StaticIfDeclaration(Condition *condition,
         : ConditionalDeclaration(condition, decl, elsedecl)
 {
     //printf("StaticIfDeclaration::StaticIfDeclaration()\n");
-    scopesym = NULL;
+    scopesym = nullptr;
     addisdone = false;
     onStack = false;
 }
@@ -946,7 +946,7 @@ Dsymbols *StaticIfDeclaration::include(Scope *sc)
     //printf("StaticIfDeclaration::include(sc = %p) _scope = %p\n", sc, _scope);
 
     if (errors || onStack)
-        return NULL;
+        return nullptr;
     onStack = true;
     Dsymbols *d;
 
@@ -1031,10 +1031,10 @@ StaticForeachDeclaration::StaticForeachDeclaration(StaticForeach *sfe, Dsymbols 
         : AttribDeclaration(decl)
 {
     this->sfe = sfe;
-    this->scopesym = NULL;
+    this->scopesym = nullptr;
     this->onStack = false;
     this->cached = false;
-    this->cache = NULL;
+    this->cache = nullptr;
 }
 
 Dsymbol *StaticForeachDeclaration::syntaxCopy(Dsymbol *s)
@@ -1056,14 +1056,14 @@ bool StaticForeachDeclaration::oneMember(Dsymbol **ps, Identifier *ident)
     {
         return AttribDeclaration::oneMember(ps, ident);
     }
-    *ps = NULL; // a `static foreach` declaration may in general expand to multiple symbols
+    *ps = nullptr; // a `static foreach` declaration may in general expand to multiple symbols
     return false;
 }
 
 Dsymbols *StaticForeachDeclaration::include(Scope *)
 {
     if (errors || onStack)
-        return NULL;
+        return nullptr;
     if (cached)
     {
         assert(!onStack);
@@ -1078,7 +1078,7 @@ Dsymbols *StaticForeachDeclaration::include(Scope *)
     if (!staticForeachReady(sfe))
     {
         onStack = false;
-        return NULL; // TODO: ok?
+        return nullptr; // TODO: ok?
     }
 
     // expand static foreach
@@ -1162,7 +1162,7 @@ const char *StaticForeachDeclaration::kind() const
 ForwardingAttribDeclaration::ForwardingAttribDeclaration(Dsymbols *decl)
         : AttribDeclaration(decl)
 {
-    sym = new ForwardingScopeDsymbol(NULL);
+    sym = new ForwardingScopeDsymbol(nullptr);
     sym->symtab = new DsymbolTable();
 }
 
@@ -1188,12 +1188,12 @@ void ForwardingAttribDeclaration::addMember(Scope *sc, ScopeDsymbol *sds)
 // These are mixin declarations, like mixin("int x");
 
 CompileDeclaration::CompileDeclaration(Loc loc, Expressions *exps)
-    : AttribDeclaration(NULL)
+    : AttribDeclaration(nullptr)
 {
     //printf("CompileDeclaration(loc = %d)\n", loc.linnum);
     this->loc = loc;
     this->exps = exps;
-    this->scopesym = NULL;
+    this->scopesym = nullptr;
     this->compiled = false;
 }
 
@@ -1301,7 +1301,7 @@ Expressions *UserAttributeDeclaration::getAttributes()
 {
     if (Scope *sc = _scope)
     {
-        _scope = NULL;
+        _scope = nullptr;
         arrayExpressionSemantic(atts, sc);
     }
 

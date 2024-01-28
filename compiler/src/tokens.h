@@ -222,7 +222,7 @@ struct Token
     static Token *alloc();
     void free();
 
-    Token() : next(NULL) {}
+    Token() : next(nullptr) {}
     int isKeyword();
     const char *toChars() const;
     static const char *toChars(TOK);

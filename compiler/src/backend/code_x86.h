@@ -468,7 +468,7 @@ struct code
 
 struct NDP
 {
-    elem *e;                    // which elem is stored here (NULL if none)
+    elem *e;                    // which elem is stored here (nullptr if none)
     unsigned offset;            // offset from e (used for complex numbers)
 
     static NDP *save;

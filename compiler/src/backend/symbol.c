@@ -350,7 +350,7 @@ void symbol_tree_check(symbol *s)
  *      p ->    identifier string
  * Returns:
  *      pointer to symbol
- *      NULL if couldn't find it
+ *      nullptr if couldn't find it
  */
 
 /*********************************
@@ -415,7 +415,7 @@ void symbol_free(symbol *s)
                     assert(s->Senum);
                     list_free(&s->Senumlist,FPNULL);
                     MEM_PH_FREE(s->Senum);
-                    s->Senum = NULL;
+                    s->Senum = nullptr;
                     break;
 
                 case SCparameter:
@@ -508,13 +508,13 @@ void freesymtab(symbol **stab,SYMIDX n1,SYMIDX n2)
 
         s = stab[si];
         if (s && s->Sflags & SFLfree)
-        {   stab[si] = NULL;
+        {   stab[si] = nullptr;
 #ifdef DEBUG
             if (debugy)
                 dbg_printf("Freeing %p '%s' (%d)\n",s,s->Sident,si);
             symbol_debug(s);
 #endif
-            s->Sl = s->Sr = NULL;
+            s->Sl = s->Sr = nullptr;
             s->Ssymnum = -1;
             symbol_free(s);
         }
@@ -533,7 +533,7 @@ symbol * symbol_copy(symbol *s)
     /*dbg_printf("symbol_copy(%s)\n",s->Sident);*/
     scopy = symbol_calloc(s->Sident);
     memcpy(scopy,s,sizeof(symbol) - sizeof(s->Sident));
-    scopy->Sl = scopy->Sr = scopy->Snext = NULL;
+    scopy->Sl = scopy->Sr = scopy->Snext = nullptr;
     scopy->Ssymnum = -1;
     if (scopy->Sdt)
     {
@@ -554,7 +554,7 @@ symbol * symbol_copy(symbol *s)
 /***************************
  * Look down baseclass list to find sbase.
  * Returns:
- *      NULL    not found
+ *      nullptr    not found
  *      pointer to baseclass
  */
 

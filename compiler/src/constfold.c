@@ -10,9 +10,7 @@
 
 #include "root/dsystem.h"               // mem{cpy|set|cmp}()
 
-#ifndef IN_GCC
 #include <math.h>
-#endif
 
 #include "root/rmem.h"
 #include "root/root.h"
@@ -228,7 +226,6 @@ UnionExp Add(Loc loc, Type *type, Expression *e1, Expression *e2)
         new(&ue) IntegerExp(loc, e1->toInteger() + e2->toInteger(), type);
     return ue;
 }
-
 
 UnionExp Min(Loc loc, Type *type, Expression *e1, Expression *e2)
 {
@@ -479,22 +476,12 @@ UnionExp Mod(Loc loc, Type *type, Expression *e1, Expression *e2)
         if (e2->type->isreal())
         {
             real_t r2 = e2->toReal();
-
-#ifdef IN_GCC
-            c = complex_t(e1->toReal() % r2, e1->toImaginary() % r2);
-#else
             c = complex_t(::fmodl(e1->toReal(), r2), ::fmodl(e1->toImaginary(), r2));
-#endif
         }
         else if (e2->type->isimaginary())
         {
             real_t i2 = e2->toImaginary();
-
-#ifdef IN_GCC
-            c = complex_t(e1->toReal() % i2, e1->toImaginary() % i2);
-#else
             c = complex_t(::fmodl(e1->toReal(), i2), ::fmodl(e1->toImaginary(), i2));
-#endif
         }
         else
             assert(0);
@@ -1024,7 +1011,6 @@ UnionExp Identity(TOK op, Loc loc, Type *type, Expression *e1, Expression *e2)
     return ue;
 }
 
-
 UnionExp Cmp(TOK op, Loc loc, Type *type, Expression *e1, Expression *e2)
 {
     UnionExp ue;
@@ -1232,7 +1218,7 @@ L1:
     else if (tb->ty == Tstruct && e1->op == TOKint64)
     {
         // Struct = 0;
-        StructDeclaration *sd = tb->toDsymbol(NULL)->isStructDeclaration();
+        StructDeclaration *sd = tb->toDsymbol(nullptr)->isStructDeclaration();
         assert(sd);
         Expressions *elements = new Expressions;
         for (size_t i = 0; i < sd->fields.length; i++)
@@ -1260,7 +1246,6 @@ L1:
     }
     return ue;
 }
-
 
 UnionExp ArrayLength(Type *type, Expression *e1)
 {
@@ -1781,7 +1766,7 @@ UnionExp Cat(Type *type, Expression *e1, Expression *e2)
         // Concatenate the arrays
         Expressions *elems = ArrayLiteralExp::copyElements(e1, e2);
 
-        new(&ue) ArrayLiteralExp(e1->loc, NULL, elems);
+        new(&ue) ArrayLiteralExp(e1->loc, nullptr, elems);
 
         e = ue.exp();
         if (type->toBasetype()->ty == Tsarray)
@@ -1807,7 +1792,7 @@ UnionExp Cat(Type *type, Expression *e1, Expression *e2)
         // Concatenate the array with null
         Expressions *elems = ArrayLiteralExp::copyElements(e);
 
-        new(&ue) ArrayLiteralExp(e->loc, NULL, elems);
+        new(&ue) ArrayLiteralExp(e->loc, nullptr, elems);
 
         e = ue.exp();
         if (type->toBasetype()->ty == Tsarray)
@@ -1827,7 +1812,7 @@ UnionExp Cat(Type *type, Expression *e1, Expression *e2)
             ? ArrayLiteralExp::copyElements(e1) : new Expressions();
         elems->push(e2);
 
-        new(&ue) ArrayLiteralExp(e1->loc, NULL, elems);
+        new(&ue) ArrayLiteralExp(e1->loc, nullptr, elems);
 
         e = ue.exp();
         if (type->toBasetype()->ty == Tsarray)
@@ -1844,7 +1829,7 @@ UnionExp Cat(Type *type, Expression *e1, Expression *e2)
     {
         Expressions *elems = ArrayLiteralExp::copyElements(e1, e2);
 
-        new(&ue) ArrayLiteralExp(e2->loc, NULL, elems);
+        new(&ue) ArrayLiteralExp(e2->loc, nullptr, elems);
 
         e = ue.exp();
         if (type->toBasetype()->ty == Tsarray)
@@ -1883,7 +1868,7 @@ UnionExp Cat(Type *type, Expression *e1, Expression *e2)
         if (!e->type->equals(type))
         {
             StringExp *se = (StringExp *)e->copy();
-            e = se->castTo(NULL, type);
+            e = se->castTo(nullptr, type);
             new(&ue) UnionExp(e);
             e = ue.exp();
         }

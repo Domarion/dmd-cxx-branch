@@ -43,8 +43,8 @@ MATCH MODmethodConv(MOD modfrom, MOD modto);
  */
 Ensure::Ensure()
 {
-    this->id = NULL;
-    this->ensure = NULL;
+    this->id = nullptr;
+    this->ensure = nullptr;
 }
 
 Ensure::Ensure(Identifier *id, Statement *ensure)
@@ -63,7 +63,7 @@ Ensure Ensure::syntaxCopy()
  */
 Ensures *Ensure::arraySyntaxCopy(Ensures *a)
 {
-    Ensures *b = NULL;
+    Ensures *b = nullptr;
     if (a)
     {
         b = a->copy();
@@ -90,25 +90,25 @@ FuncDeclaration::FuncDeclaration(Loc loc, Loc endloc, Identifier *id, StorageCla
     }
     this->loc = loc;
     this->endloc = endloc;
-    fthrows = NULL;
-    frequire = NULL;
-    fdrequire = NULL;
-    fdensure = NULL;
-    mangleString = NULL;
-    vresult = NULL;
-    returnLabel = NULL;
-    fensure = NULL;
-    frequires = NULL;
-    fensures = NULL;
-    fbody = NULL;
-    localsymtab = NULL;
-    vthis = NULL;
-    v_arguments = NULL;
-    v_argptr = NULL;
-    parameters = NULL;
-    labtab = NULL;
-    overnext = NULL;
-    overnext0 = NULL;
+    fthrows = nullptr;
+    frequire = nullptr;
+    fdrequire = nullptr;
+    fdensure = nullptr;
+    mangleString = nullptr;
+    vresult = nullptr;
+    returnLabel = nullptr;
+    fensure = nullptr;
+    frequires = nullptr;
+    fensures = nullptr;
+    fbody = nullptr;
+    localsymtab = nullptr;
+    vthis = nullptr;
+    v_arguments = nullptr;
+    v_argptr = nullptr;
+    parameters = nullptr;
+    labtab = nullptr;
+    overnext = nullptr;
+    overnext0 = nullptr;
     vtblIndex = -1;
     hasReturnExp = 0;
     naked = false;
@@ -117,29 +117,29 @@ FuncDeclaration::FuncDeclaration(Loc loc, Loc endloc, Identifier *id, StorageCla
     inlineStatusStmt = ILSuninitialized;
     inlining = PINLINEdefault;
     inlineNest = 0;
-    ctfeCode = NULL;
+    ctfeCode = nullptr;
     isArrayOp = 0;
     semantic3Errors = false;
-    fes = NULL;
-    interfaceVirtual = NULL;
+    fes = nullptr;
+    interfaceVirtual = nullptr;
     introducing = 0;
-    tintro = NULL;
+    tintro = nullptr;
     /* The type given for "infer the return type" is a TypeFunction with
-     * NULL for the return type.
+     * nullptr for the return type.
      */
-    inferRetType = (type && type->nextOf() == NULL);
+    inferRetType = (type && type->nextOf() == nullptr);
     storage_class2 = 0;
     hasReturnExp = 0;
     nrvo_can = 1;
-    nrvo_var = NULL;
-    shidden = NULL;
+    nrvo_var = nullptr;
+    shidden = nullptr;
     builtin = BUILTINunknown;
     tookAddressOf = 0;
     requiresClosure = false;
-    inlinedNestedCallees = NULL;
+    inlinedNestedCallees = nullptr;
     flags = 0;
-    returns = NULL;
-    gotos = NULL;
+    returns = nullptr;
+    gotos = nullptr;
 }
 
 FuncDeclaration *FuncDeclaration::create(Loc loc, Loc endloc, Identifier *id, StorageClass storage_class, Type *type)
@@ -153,9 +153,9 @@ Dsymbol *FuncDeclaration::syntaxCopy(Dsymbol *s)
     FuncDeclaration *f =
         s ? (FuncDeclaration *)s
           : new FuncDeclaration(loc, endloc, ident, storage_class, type->syntaxCopy());
-    f->frequires = frequires ? Statement::arraySyntaxCopy(frequires) : NULL;
-    f->fensures = fensures ? Ensure::arraySyntaxCopy(fensures) : NULL;
-    f->fbody = fbody ? fbody->syntaxCopy() : NULL;
+    f->frequires = frequires ? Statement::arraySyntaxCopy(frequires) : nullptr;
+    f->fensures = fensures ? Ensure::arraySyntaxCopy(fensures) : nullptr;
+    f->fbody = fbody ? fbody->syntaxCopy() : nullptr;
     assert(!fthrows); // deprecated
     return f;
 }
@@ -266,7 +266,7 @@ void FuncDeclaration::buildEnsureRequire()
                 IdentifierExp *resultId = new IdentifierExp(rloc, Id::result);
                 ExpInitializer *init = new ExpInitializer(rloc, resultId);
                 StorageClass stc = STCref | STCtemp | STCresult;
-                VarDeclaration *decl = new VarDeclaration(rloc, NULL, r.id, init);
+                VarDeclaration *decl = new VarDeclaration(rloc, nullptr, r.id, init);
                 decl->storage_class = stc;
                 ExpStatement *sdecl = new ExpStatement(rloc, decl);
                 s->push(new ScopeStatement(rloc, new CompoundStatement(rloc, sdecl, r.ensure), rloc));
@@ -304,7 +304,7 @@ void FuncDeclaration::buildEnsureRequire()
                                                   Id::require, STCundefined, tf);
         fd->fbody = frequire;
         Statement *s1 = new ExpStatement(loc, fd);
-        Expression *e = new CallExp(loc, new VarExp(loc, fd, false), (Expressions *)NULL);
+        Expression *e = new CallExp(loc, new VarExp(loc, fd, false), (Expressions *)nullptr);
         Statement *s2 = new ExpStatement(loc, e);
         frequire = new CompoundStatement(loc, s1, s2);
         fdrequire = fd;
@@ -319,10 +319,10 @@ void FuncDeclaration::buildEnsureRequire()
          */
         Loc loc = fensure->loc;
         Parameters *fparams = new Parameters();
-        Parameter *p = NULL;
+        Parameter *p = nullptr;
         if (canBuildResultVar(this))
         {
-            p = new Parameter(STCref | STCconst, f->nextOf(), Id::result, NULL, NULL);
+            p = new Parameter(STCref | STCconst, f->nextOf(), Id::result, nullptr, nullptr);
             fparams->push(p);
         }
         TypeFunction *tf = new TypeFunction(ParameterList(fparams), Type::tvoid, LINKd);
@@ -334,7 +334,7 @@ void FuncDeclaration::buildEnsureRequire()
                                                   Id::ensure, STCundefined, tf);
         fd->fbody = fensure;
         Statement *s1 = new ExpStatement(loc, fd);
-        Expression *eresult = NULL;
+        Expression *eresult = nullptr;
         if (canBuildResultVar(this))
             eresult = new IdentifierExp(loc, Id::result);
         Expression *e = new CallExp(loc, new VarExp(loc, fd, false), eresult);
@@ -378,7 +378,7 @@ bool FuncDeclaration::functionSemantic()
 
     TemplateInstance *ti;
     if (isInstantiated() && !isVirtualMethod() &&
-        ((ti = parent->isTemplateInstance()) == NULL || ti->isTemplateMixin() || ti->tempdecl->ident == ident))
+        ((ti = parent->isTemplateInstance()) == nullptr || ti->isTemplateMixin() || ti->tempdecl->ident == ident))
     {
         AggregateDeclaration *ad = isMember2();
         if (ad && ad->sizeok != SIZEOKdone)
@@ -518,7 +518,7 @@ VarDeclaration *FuncDeclaration::declareThis(Scope *sc, AggregateDeclaration *ad
         return v;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool FuncDeclaration::equals(RootObject *o)
@@ -543,10 +543,10 @@ bool FuncDeclaration::equals(RootObject *o)
         }
 
         if (fa1 && (fd1 = fa1->toAliasFunc())->isUnique() && !fa1->hasOverloads)
-            fa1 = NULL;
+            fa1 = nullptr;
         if (fa2 && (fd2 = fa2->toAliasFunc())->isUnique() && !fa2->hasOverloads)
-            fa2 = NULL;
-        if ((fa1 != NULL) != (fa2 != NULL))
+            fa2 = nullptr;
+        if ((fa1 != nullptr) != (fa2 != nullptr))
             return false;
 
         return fd1->toParent()->equals(fd2->toParent()) &&
@@ -569,7 +569,7 @@ void FuncDeclaration::buildResultVar(Scope *sc, Type *tret)
          * So, in here it may be a temporary type for vresult, and after
          * fbody->semantic() running, vresult->type might be modified.
          */
-        vresult = new VarDeclaration(loc, tret, Id::result, NULL);
+        vresult = new VarDeclaration(loc, tret, Id::result, nullptr);
         vresult->storage_class |= STCnodtor | STCtemp;
         if (!isVirtual())
             vresult->storage_class |= STCconst;
@@ -658,18 +658,18 @@ Statement *FuncDeclaration::mergeFrequire(Statement *sf)
              *   try { __require(); }
              *   catch (Throwable) { frequire; }
              */
-            Expression *eresult = NULL;
+            Expression *eresult = nullptr;
             Expression *e = new CallExp(loc, new VarExp(loc, fdv->fdrequire, false), eresult);
             Statement *s2 = new ExpStatement(loc, e);
 
-            Catch *c = new Catch(loc, getThrowable(), NULL, sf);
+            Catch *c = new Catch(loc, getThrowable(), nullptr, sf);
             c->internalCatch = true;
             Catches *catches = new Catches();
             catches->push(c);
             sf = new TryCatchStatement(loc, s2, catches);
         }
         else
-            return NULL;
+            return nullptr;
     }
     return sf;
 }
@@ -713,14 +713,14 @@ Statement *FuncDeclaration::mergeFensure(Statement *sf, Identifier *oid)
         {
             //printf("fdv->fensure: %s\n", fdv->fensure->toChars());
             // Make the call: __ensure(result)
-            Expression *eresult = NULL;
+            Expression *eresult = nullptr;
             if (canBuildResultVar(this))
             {
                 eresult = new IdentifierExp(loc, oid);
 
                 Type *t1 = fdv->type->nextOf()->toBasetype();
                 Type *t2 = this->type->nextOf()->toBasetype();
-                if (t1->isBaseOf(t2, NULL))
+                if (t1->isBaseOf(t2, nullptr))
                 {
                     /* Making temporary reference variable is necessary
                      * in covariant return.
@@ -763,7 +763,7 @@ int FuncDeclaration::overrides(FuncDeclaration *fd)
         {   ClassDeclaration *cd1 = toParent()->isClassDeclaration();
             ClassDeclaration *cd2 = fd->toParent()->isClassDeclaration();
 
-            if (cd1 && cd2 && cd2->isBaseOf(cd1, NULL))
+            if (cd1 && cd2 && cd2->isBaseOf(cd1, nullptr))
                 result = 1;
         }
     }
@@ -784,7 +784,7 @@ int FuncDeclaration::overrides(FuncDeclaration *fd)
 int FuncDeclaration::findVtblIndex(Dsymbols *vtbl, int dim)
 {
     //printf("findVtblIndex() %s\n", toChars());
-    FuncDeclaration *mismatch = NULL;
+    FuncDeclaration *mismatch = nullptr;
     StorageClass mismatchstc = 0;
     int mismatchvi = -1;
     int exactvi = -1;
@@ -864,7 +864,7 @@ int FuncDeclaration::findVtblIndex(Dsymbols *vtbl, int dim)
  * Params:
  *  cd = class that function is in
  * Returns:
- *  base class if overriding, NULL if not
+ *  base class if overriding, nullptr if not
  */
 BaseClass *FuncDeclaration::overrideInterface()
 {
@@ -876,7 +876,7 @@ BaseClass *FuncDeclaration::overrideInterface()
         if (v >= 0)
             return b;
     }
-    return NULL;
+    return nullptr;
 }
 
 /****************************************************
@@ -1011,7 +1011,7 @@ int overloadApply(Dsymbol *fstart, void *param, int (*fp)(void *, Dsymbol *))
 
 /********************************************
  * If there are no overloads of function f, return that function,
- * otherwise return NULL.
+ * otherwise return nullptr.
  */
 
 FuncDeclaration *FuncDeclaration::isUnique()
@@ -1027,7 +1027,7 @@ FuncDeclaration *FuncDeclaration::isUnique()
 
         if (*pf)
         {
-            *pf = NULL;
+            *pf = nullptr;
             return 1;               // ambiguous, done
         }
         else
@@ -1037,7 +1037,7 @@ FuncDeclaration *FuncDeclaration::isUnique()
         }
     }
   };
-    FuncDeclaration *result = NULL;
+    FuncDeclaration *result = nullptr;
     overloadApply(this, &result, &ParamUnique::fp);
     return result;
 }
@@ -1085,7 +1085,7 @@ FuncDeclaration *FuncDeclaration::overloadExactMatch(Type *t)
   };
     ParamExact p;
     p.t = t;
-    p.f = NULL;
+    p.f = nullptr;
     overloadApply(this, &p, &ParamExact::fp);
     return p.f;
 }
@@ -1126,9 +1126,9 @@ void MODMatchToBuffer(OutBuffer *buf, unsigned char lhsMod, unsigned char rhsMod
  *      eg. If 'tthis' is mutable, and there's both mutable and const methods,
  *          the mutable method will be a better match.
  * 3. If there's two or more match candidates, but there's no better match,
- *    Returns NULL and 'hasOverloads' is set to true to represent "ambiguous match".
+ *    Returns nullptr and 'hasOverloads' is set to true to represent "ambiguous match".
  *      eg. If 'tthis' is mutable, and there's two or more mutable methods.
- * 4. If there's no candidates, it's "no match" and returns NULL with error report.
+ * 4. If there's no candidates, it's "no match" and returns nullptr with error report.
  *      e.g. If 'tthis' is const but there's no const methods.
  */
 FuncDeclaration *FuncDeclaration::overloadModMatch(Loc loc, Type *tthis, bool &hasOverloads)
@@ -1198,7 +1198,7 @@ FuncDeclaration *FuncDeclaration::overloadModMatch(Loc loc, Type *tthis, bool &h
             if (m->last <= MATCHconvert)
             {
                 // clear last secondary matching
-                m->nextf = NULL;
+                m->nextf = nullptr;
                 m->count = 0;
             }
             m->last = match;
@@ -1272,7 +1272,7 @@ TemplateDeclaration *FuncDeclaration::findTemplateDeclRoot()
             return td;
         f = f->overnext->isFuncDeclaration();
     }
-    return NULL;
+    return nullptr;
 }
 
 /*************************************
@@ -1329,7 +1329,7 @@ MATCH FuncDeclaration::leastAsSpecialized(FuncDeclaration *g)
         args[u] = e;
     }
 
-    MATCH m = (MATCH) tg->callMatch(NULL, &args, 1);
+    MATCH m = (MATCH) tg->callMatch(nullptr, &args, 1);
     if (m > MATCHnomatch)
     {
         /* A variadic parameter list is less specialized than a
@@ -1450,9 +1450,9 @@ struct FuncCandidateWalker
  *      loc             instantiation location
  *      sc              instantiation scope
  *      tiargs          initial list of template arguments
- *      tthis           if !NULL, the 'this' pointer argument
+ *      tthis           if !nullptr, the 'this' pointer argument
  *      fargs           arguments to function
- *      flags           1: do not issue error message on no match, just return NULL
+ *      flags           1: do not issue error message on no match, just return nullptr
  *                      2: overloadResolve only
  */
 
@@ -1460,19 +1460,19 @@ FuncDeclaration *resolveFuncCall(Loc loc, Scope *sc, Dsymbol *s,
         Objects *tiargs, Type *tthis, Expressions *fargs, int flags)
 {
     if (!s)
-        return NULL;                    // no match
+        return nullptr;                    // no match
 
     if ((tiargs && arrayObjectIsError(tiargs)) ||
         (fargs  && arrayObjectIsError((Objects *)fargs)))
     {
-        return NULL;
+        return nullptr;
     }
 
     Match m;
     memset(&m, 0, sizeof(m));
     m.last = MATCHnomatch;
 
-    const char *failMessage = NULL;
+    const char *failMessage = nullptr;
     functionResolve(&m, s, loc, sc, tiargs, tthis, fargs, &failMessage);
 
     if (m.last > MATCHnomatch && m.lastf)
@@ -1500,7 +1500,7 @@ FuncDeclaration *resolveFuncCall(Loc loc, Scope *sc, Dsymbol *s,
 
         // if do not print error messages
         if (flags & 1)
-            return NULL;    // no match
+            return nullptr;    // no match
     }
 
     FuncDeclaration *fd = s->isFuncDeclaration();
@@ -1544,7 +1544,7 @@ FuncDeclaration *resolveFuncCall(Loc loc, Scope *sc, Dsymbol *s,
         {
             assert(fd);
 
-            bool hasOverloads = fd->overnext != NULL;
+            bool hasOverloads = fd->overnext != nullptr;
             TypeFunction *tf = fd->type->toTypeFunction();
             if (tthis && !MODimplicitConv(tthis->mod, tf->mod)) // modifier mismatch
             {
@@ -1597,7 +1597,7 @@ FuncDeclaration *resolveFuncCall(Loc loc, Scope *sc, Dsymbol *s,
                 m.lastf->loc.toChars(), m.lastf->toPrettyChars(), lastprms,
                 m.nextf->loc.toChars(), m.nextf->toPrettyChars(), nextprms);
     }
-    return NULL;
+    return nullptr;
 }
 
 /********************************
@@ -1727,14 +1727,14 @@ bool FuncDeclaration::isDllMain()
 
 bool FuncDeclaration::isExport() const
 {
-    return protection.kind == Prot::export_;
+    return protection.kind == Visibility::export_;
 }
 
 bool FuncDeclaration::isImportedSymbol() const
 {
     //printf("isImportedSymbol()\n");
     //printf("protection = %d\n", protection);
-    return (protection.kind == Prot::export_) && !fbody;
+    return (protection.kind == Visibility::export_) && !fbody;
 }
 
 // Determine if function goes into virtual function pointer table
@@ -1746,7 +1746,7 @@ bool FuncDeclaration::isVirtual()
 
     Dsymbol *p = toParent();
     return isMember() &&
-        !(isStatic() || protection.kind == Prot::private_ || protection.kind == Prot::package_) &&
+        !(isStatic() || protection.kind == Visibility::private_ || protection.kind == Visibility::package_) &&
         p->isClassDeclaration() &&
         !(p->isInterfaceDeclaration() && isFinalFunc());
 }
@@ -1777,7 +1777,7 @@ bool FuncDeclaration::isFinalFunc()
     ClassDeclaration *cd;
     return isMember() &&
         (Declaration::isFinal() ||
-         ((cd = toParent()->isClassDeclaration()) != NULL && cd->storage_class & STCfinal));
+         ((cd = toParent()->isClassDeclaration()) != nullptr && cd->storage_class & STCfinal));
 }
 
 bool FuncDeclaration::isCodeseg() const
@@ -1925,10 +1925,10 @@ Type *getIndirection(Type *t)
     if (t->ty == Taarray || t->ty == Tclass)
         return t;
     if (t->ty == Tstruct)
-        return t->hasPointers() ? t : NULL; // TODO
+        return t->hasPointers() ? t : nullptr; // TODO
 
     // should consider TypeDelegate?
-    return NULL;
+    return nullptr;
 }
 
 /**************************************
@@ -1941,7 +1941,7 @@ Type *getIndirection(Type *t)
  * a const(int) reference can point to a pre-existing int, but not the other
  * way round.
  */
-bool traverseIndirections(Type *ta, Type *tb, void *p = NULL, bool reversePass = false)
+bool traverseIndirections(Type *ta, Type *tb, void *p = nullptr, bool reversePass = false)
 {
     Type *source = ta;
     Type *target = tb;
@@ -1977,7 +1977,7 @@ bool traverseIndirections(Type *ta, Type *tb, void *p = NULL, bool reversePass =
         c.prev = ctxt;
         c.type = tb;
 
-        AggregateDeclaration *sym = tb->toDsymbol(NULL)->isAggregateDeclaration();
+        AggregateDeclaration *sym = tb->toDsymbol(nullptr)->isAggregateDeclaration();
         for (size_t i = 0; i < sym->fields.length; i++)
         {
             VarDeclaration *v = sym->fields[i];
@@ -2053,7 +2053,7 @@ bool FuncDeclaration::parametersIntersect(Type *t)
         if (traverseIndirections(tprmi, t))
             return false;
     }
-    if (AggregateDeclaration *ad = isCtorDeclaration() ? NULL : isThis())
+    if (AggregateDeclaration *ad = isCtorDeclaration() ? nullptr : isThis())
     {
         Type *tthis = ad->getType()->addMod(tf->mod);
         //printf("\ttthis = %s\n", tthis->toChars());
@@ -2077,7 +2077,7 @@ bool FuncDeclaration::isNested()
     //printf("\ttoParent2() = '%s'\n", f->toParent2()->toChars());
     return ((f->storage_class & STCstatic) == 0) &&
            (f->linkage == LINKd) &&
-           (f->toParent2()->isFuncDeclaration() != NULL);
+           (f->toParent2()->isFuncDeclaration() != nullptr);
 }
 
 /****************************************
@@ -2091,7 +2091,7 @@ bool FuncDeclaration::isNested()
 AggregateDeclaration *FuncDeclaration::isThis()
 {
     //printf("+FuncDeclaration::isThis() '%s'\n", toChars());
-    AggregateDeclaration *ad = (storage_class & STCstatic) ? NULL : isMember2();
+    AggregateDeclaration *ad = (storage_class & STCstatic) ? nullptr : isMember2();
     //printf("-FuncDeclaration::isThis() %p\n", ad);
     return ad;
 }
@@ -2099,27 +2099,27 @@ AggregateDeclaration *FuncDeclaration::isThis()
 bool FuncDeclaration::needThis()
 {
     //printf("FuncDeclaration::needThis() '%s'\n", toChars());
-    return toAliasFunc()->isThis() != NULL;
+    return toAliasFunc()->isThis() != nullptr;
 }
 
 bool FuncDeclaration::addPreInvariant()
 {
     AggregateDeclaration *ad = isThis();
-    ClassDeclaration *cd = ad ? ad->isClassDeclaration() : NULL;
+    ClassDeclaration *cd = ad ? ad->isClassDeclaration() : nullptr;
     return (ad && !(cd && cd->isCPPclass()) &&
             global.params.useInvariants == CHECKENABLEon &&
-            (protection.kind == Prot::protected_ || protection.kind == Prot::public_ || protection.kind == Prot::export_) &&
+            (protection.kind == Visibility::protected_ || protection.kind == Visibility::public_ || protection.kind == Visibility::export_) &&
             !naked);
 }
 
 bool FuncDeclaration::addPostInvariant()
 {
     AggregateDeclaration *ad = isThis();
-    ClassDeclaration *cd = ad ? ad->isClassDeclaration() : NULL;
+    ClassDeclaration *cd = ad ? ad->isClassDeclaration() : nullptr;
     return (ad && !(cd && cd->isCPPclass()) &&
             ad->inv &&
             global.params.useInvariants == CHECKENABLEon &&
-            (protection.kind == Prot::protected_ || protection.kind == Prot::public_ || protection.kind == Prot::export_) &&
+            (protection.kind == Visibility::protected_ || protection.kind == Visibility::public_ || protection.kind == Visibility::export_) &&
             !naked);
 }
 
@@ -2137,7 +2137,7 @@ FuncDeclaration *FuncDeclaration::genCfunc(Parameters *fparams, Type *treturn, I
     FuncDeclaration *fd;
     TypeFunction *tf;
     Dsymbol *s;
-    static DsymbolTable *st = NULL;
+    static DsymbolTable *st = nullptr;
 
     //printf("genCfunc(name = '%s')\n", id->toChars());
     //printf("treturn\n\t"); treturn->print();
@@ -2156,7 +2156,7 @@ FuncDeclaration *FuncDeclaration::genCfunc(Parameters *fparams, Type *treturn, I
     {
         tf = new TypeFunction(ParameterList(fparams), treturn, LINKc, stc);
         fd = new FuncDeclaration(Loc(), Loc(), id, STCstatic, tf);
-        fd->protection = Prot(Prot::public_);
+        fd->protection = Visibility(Visibility::public_);
         fd->linkage = LINKc;
 
         st->insert(fd);
@@ -2203,7 +2203,7 @@ void FuncDeclaration::checkDmain()
  */
 bool FuncDeclaration::checkNRVO()
 {
-    if (!nrvo_can || returns == NULL)
+    if (!nrvo_can || returns == nullptr)
         return false;
 
     TypeFunction *tf = type->toTypeFunction();
@@ -2219,7 +2219,7 @@ bool FuncDeclaration::checkNRVO()
             VarDeclaration *v = ve->var->isVarDeclaration();
             if (!v || v->isOut() || v->isRef())
                 return false;
-            else if (nrvo_var == NULL)
+            else if (nrvo_var == nullptr)
             {
                 // Variables in the data segment (e.g. globals, TLS or not),
                 // parameters and closure variables cannot be NRVOed.
@@ -2260,7 +2260,7 @@ bool FuncDeclaration::checkNestedReference(Scope *sc, Loc loc)
         if (fld->tok == TOKreserved)
         {
             fld->tok = TOKfunction;
-            fld->vthis = NULL;
+            fld->vthis = nullptr;
         }
     }
 
@@ -2350,7 +2350,7 @@ void markAsNeedingClosure(Dsymbol *f, FuncDeclaration *outerFunc)
  * Note that nested functions can only call lexically earlier nested
  * functions, so loops are impossible.
  */
-bool checkEscapingSiblings(FuncDeclaration *f, FuncDeclaration *outerFunc, void *p = NULL)
+bool checkEscapingSiblings(FuncDeclaration *f, FuncDeclaration *outerFunc, void *p = nullptr)
 {
     struct PrevSibling
     {
@@ -2637,12 +2637,12 @@ FuncDeclaration *FuncAliasDeclaration::toAliasFunc()
 
 FuncLiteralDeclaration::FuncLiteralDeclaration(Loc loc, Loc endloc, Type *type,
         TOK tok, ForeachStatement *fes, Identifier *id)
-    : FuncDeclaration(loc, endloc, NULL, STCundefined, type)
+    : FuncDeclaration(loc, endloc, nullptr, STCundefined, type)
 {
     this->ident = id ? id : Id::empty;
     this->tok = tok;
     this->fes = fes;
-    this->treq = NULL;
+    this->treq = nullptr;
     this->deferToObj = false;
     //printf("FuncLiteralDeclaration() id = '%s', type = '%s'\n", this->ident->toChars(), type->toChars());
 }
@@ -2666,7 +2666,7 @@ bool FuncLiteralDeclaration::isNested()
 AggregateDeclaration *FuncLiteralDeclaration::isThis()
 {
     //printf("FuncLiteralDeclaration::isThis() '%s'\n", toChars());
-    return tok == TOKdelegate ? FuncDeclaration::isThis() : NULL;
+    return tok == TOKdelegate ? FuncDeclaration::isThis() : nullptr;
 }
 
 bool FuncLiteralDeclaration::isVirtual()
@@ -2793,7 +2793,7 @@ bool CtorDeclaration::addPostInvariant()
 /********************************* PostBlitDeclaration ****************************/
 
 PostBlitDeclaration::PostBlitDeclaration(Loc loc, Loc endloc, StorageClass stc, Identifier *id)
-    : FuncDeclaration(loc, endloc, id, stc, NULL)
+    : FuncDeclaration(loc, endloc, id, stc, nullptr)
 {
 }
 
@@ -2827,12 +2827,12 @@ bool PostBlitDeclaration::isVirtual()
 /********************************* DtorDeclaration ****************************/
 
 DtorDeclaration::DtorDeclaration(Loc loc, Loc endloc)
-    : FuncDeclaration(loc, endloc, Id::dtor, STCundefined, NULL)
+    : FuncDeclaration(loc, endloc, Id::dtor, STCundefined, nullptr)
 {
 }
 
 DtorDeclaration::DtorDeclaration(Loc loc, Loc endloc, StorageClass stc, Identifier *id)
-    : FuncDeclaration(loc, endloc, id, stc, NULL)
+    : FuncDeclaration(loc, endloc, id, stc, nullptr)
 {
 }
 
@@ -2878,13 +2878,13 @@ bool DtorDeclaration::isVirtual()
 
 StaticCtorDeclaration::StaticCtorDeclaration(Loc loc, Loc endloc, StorageClass stc)
     : FuncDeclaration(loc, endloc,
-      Identifier::generateId("_staticCtor"), STCstatic | stc, NULL)
+      Identifier::generateId("_staticCtor"), STCstatic | stc, nullptr)
 {
 }
 
 StaticCtorDeclaration::StaticCtorDeclaration(Loc loc, Loc endloc, const char *name, StorageClass stc)
     : FuncDeclaration(loc, endloc,
-      Identifier::generateId(name), STCstatic | stc, NULL)
+      Identifier::generateId(name), STCstatic | stc, nullptr)
 {
 }
 
@@ -2897,7 +2897,7 @@ Dsymbol *StaticCtorDeclaration::syntaxCopy(Dsymbol *s)
 
 AggregateDeclaration *StaticCtorDeclaration::isThis()
 {
-    return NULL;
+    return nullptr;
 }
 
 bool StaticCtorDeclaration::isVirtual()
@@ -2938,16 +2938,16 @@ Dsymbol *SharedStaticCtorDeclaration::syntaxCopy(Dsymbol *s)
 
 StaticDtorDeclaration::StaticDtorDeclaration(Loc loc, Loc endloc, StorageClass stc)
     : FuncDeclaration(loc, endloc,
-      Identifier::generateId("_staticDtor"), STCstatic | stc, NULL)
+      Identifier::generateId("_staticDtor"), STCstatic | stc, nullptr)
 {
-    vgate = NULL;
+    vgate = nullptr;
 }
 
 StaticDtorDeclaration::StaticDtorDeclaration(Loc loc, Loc endloc, const char *name, StorageClass stc)
     : FuncDeclaration(loc, endloc,
-      Identifier::generateId(name), STCstatic | stc, NULL)
+      Identifier::generateId(name), STCstatic | stc, nullptr)
 {
-    vgate = NULL;
+    vgate = nullptr;
 }
 
 Dsymbol *StaticDtorDeclaration::syntaxCopy(Dsymbol *s)
@@ -2959,7 +2959,7 @@ Dsymbol *StaticDtorDeclaration::syntaxCopy(Dsymbol *s)
 
 AggregateDeclaration *StaticDtorDeclaration::isThis()
 {
-    return NULL;
+    return nullptr;
 }
 
 bool StaticDtorDeclaration::isVirtual()
@@ -3001,7 +3001,7 @@ Dsymbol *SharedStaticDtorDeclaration::syntaxCopy(Dsymbol *s)
 InvariantDeclaration::InvariantDeclaration(Loc loc, Loc endloc, StorageClass stc, Identifier *id)
     : FuncDeclaration(loc, endloc,
                       id ? id : Identifier::generateId("__invariant"),
-                      stc, NULL)
+                      stc, nullptr)
 {
 }
 
@@ -3042,7 +3042,7 @@ static Identifier *unitTestId(Loc loc)
 }
 
 UnitTestDeclaration::UnitTestDeclaration(Loc loc, Loc endloc, StorageClass stc, char *codedoc)
-    : FuncDeclaration(loc, endloc, unitTestId(loc), stc, NULL)
+    : FuncDeclaration(loc, endloc, unitTestId(loc), stc, nullptr)
 {
     this->codedoc = codedoc;
 }
@@ -3056,7 +3056,7 @@ Dsymbol *UnitTestDeclaration::syntaxCopy(Dsymbol *s)
 
 AggregateDeclaration *UnitTestDeclaration::isThis()
 {
-    return NULL;
+    return nullptr;
 }
 
 bool UnitTestDeclaration::isVirtual()
@@ -3077,7 +3077,7 @@ bool UnitTestDeclaration::addPostInvariant()
 /********************************* NewDeclaration ****************************/
 
 NewDeclaration::NewDeclaration(Loc loc, Loc endloc, StorageClass stc, Parameters *fparams, VarArg varargs)
-    : FuncDeclaration(loc, endloc, Id::classNew, STCstatic | stc, NULL)
+    : FuncDeclaration(loc, endloc, Id::classNew, STCstatic | stc, nullptr)
 {
     this->parameters = fparams;
     this->varargs = varargs;

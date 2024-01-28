@@ -389,7 +389,7 @@ typedef struct block
             block       *endscope;      // block that forms the end of the
                                         // scope for the declared Symbols
             unsigned blknum;            // position of block from startblock
-            Symbol      *Binitvar;      // !=NULL points to an auto variable with
+            Symbol      *Binitvar;      // !=nullptr points to an auto variable with
                                         // an explicit or implicit initializer
             block       *gotolist;      // BCtry, BCcatch: backward list of try scopes
             block       *gotothread;    // BCgoto: threaded list of goto's to
@@ -478,7 +478,7 @@ enum BC {
     BCret       = 3,    // return (no return value)
     BCretexp    = 4,    // return with return value
     BCexit      = 5,    // never reaches end of block (like exit() was called)
-    BCasm       = 6,    // inline assembler block (Belem is NULL, Bcode
+    BCasm       = 6,    // inline assembler block (Belem is nullptr, Bcode
                         // contains code generated).
                         // These blocks have one or more successors in Bsucc,
                         // never 0
@@ -602,7 +602,7 @@ typedef struct FUNC_S
     union
     {
         Symbol *Ftempl;         // if Finstance this is the template that generated it
-        struct Thunk *Fthunk;   // !=NULL if this function is actually a thunk
+        struct Thunk *Fthunk;   // !=nullptr if this function is actually a thunk
     };
     Funcsym *Falias;            // SCfuncalias: function Symbol referenced
                                 // by using-declaration
@@ -613,7 +613,7 @@ typedef struct FUNC_S
                                 // is the template-argument-list
     list_t Ffwdrefinstances;    // SCfunctempl: list of forward referenced instances
     list_t Fexcspec;            // List of types in the exception-specification
-                                // (NULL if none or empty)
+                                // (nullptr if none or empty)
     Funcsym *Fexplicitspec;     // SCfunctempl, SCftexpspec: threaded list
                                 // of SCftexpspec explicit specializations
     Funcsym *Fsurrogatesym;     // Fsurrogate: surrogate cast function
@@ -640,7 +640,7 @@ typedef struct FUNC_S
 typedef struct MEMINIT
 {
     list_t  MIelemlist;         /* arg list for initializer             */
-    Symbol *MIsym;              /* if NULL, then this initializer is    */
+    Symbol *MIsym;              /* if nullptr, then this initializer is    */
                                 /* for the base class. Otherwise, this  */
                                 /* is the member that needs the ctor    */
                                 /* called for it                        */
@@ -661,7 +661,7 @@ typedef struct BASECLASS
                                         //     Valid in Sbase list
     symlist_t         BCpublics;        // public members of base class (list is freeable)
     list_t            BCmptrlist;       // (in Smptrbase only) this is the vtbl
-                                        // (NULL if not different from base class's vtbl
+                                        // (nullptr if not different from base class's vtbl
     Symbol           *BCvtbl;           // Symbol for vtbl[] array (in Smptrbase list)
                                         // Symbol for vbtbl[] array (in Svbptrbase list)
     unsigned          BCflags;          // base class flags
@@ -679,7 +679,7 @@ typedef struct BASECLASS
     Classsym         *BCparent;         // immediate parent of this base class
                                         //     in Smptrbase
 #if TX86
-    struct BASECLASS *BCpbase;          // parent base, NULL if did not come from a parent
+    struct BASECLASS *BCpbase;          // parent base, nullptr if did not come from a parent
 #endif
 } baseclass_t;
 
@@ -711,7 +711,7 @@ typedef struct MPTR
 
 struct TMF
 {
-    Classsym *stag;             // if !=NULL, this is the enclosing class
+    Classsym *stag;             // if !=nullptr, this is the enclosing class
     token_t *tbody;             // tokens making it up
     token_t *to;                // pointer within tbody where we left off in
                                 // template_function_decl()
@@ -720,7 +720,7 @@ struct TMF
 
     // These are for member templates
     int castoverload;           // 1: it's a user defined cast
-    char *name;                 // name of template (NULL if castoverload)
+    char *name;                 // name of template (nullptr if castoverload)
     int member_template;        // 0: regular template
                                 // 1: member template
     param_t *temp_arglist2;     // if member template,
@@ -804,7 +804,7 @@ typedef struct TEMPLATE
     symbol *TMprimary;          // primary class template
     symbol *TMpartial;          // next class template partial specialization
     param_t *TMptal;            // template-argument-list for partial specialization
-                                // (NULL for primary class template)
+                                // (nullptr for primary class template)
     list_t TMfriends;           // list of Classsym's for which any instantiated
                                 // classes of this template will be friends of
     list_t TMnestedfriends;     // list of TMNF's
@@ -891,7 +891,7 @@ typedef struct STRUCT
     baseclass_t *Svirtbase;     // list of all virtual base classes
     baseclass_t *Smptrbase;     // list of all base classes that have
                                 // their own vtbl[]
-    baseclass_t *Sprimary;      // if not NULL, then points to primary
+    baseclass_t *Sprimary;      // if not nullptr, then points to primary
                                 // base class
     Funcsym *Svecctor;          // constructor for use by vec_new()
     Funcsym *Sctor;             // constructor function
@@ -907,7 +907,7 @@ typedef struct STRUCT
     Symbol *Svtbl;              // Symbol of vtbl[]
     Symbol *Svbptr;             // Symbol of pointer to vbtbl[]
     Symbol *Svbptr_parent;      // base class for which Svbptr is a member.
-                                // NULL if Svbptr is a member of this class
+                                // nullptr if Svbptr is a member of this class
     targ_size_t Svbptr_off;     // offset of Svbptr member
     Symbol *Svbtbl;             // virtual base offset table
     baseclass_t *Svbptrbase;    // list of all base classes in canonical
@@ -935,7 +935,7 @@ typedef struct STRUCT
      *  A<int> a;               // primary
      * Gives:
      *  Sarglist = <int>
-     *  Spr_arglist = NULL;
+     *  Spr_arglist = nullptr;
      *
      *  A<int*> a;              // specialization
      * Gives:
@@ -949,7 +949,7 @@ typedef struct STRUCT
     param_t *Spr_arglist;       // if this struct is an instantiation
                                 // of a specialized template class, this is the
                                 // actual primary arg list used.
-                                // It is NULL for the
+                                // It is nullptr for the
                                 // primary template class (since it would be
                                 // identical to Sarglist).
 } struct_t;
@@ -1061,7 +1061,7 @@ struct Symbol
         #define SFLskipinit     0x10000 // SCfield, SCmember: initializer is skipped
         #define SFLnodebug      0x20000 // don't generate debug info
         #define SFLwasstatic    0x800000 // was an uninitialized static
-        #define SFLweak         0x1000000 // resolve to NULL if not found
+        #define SFLweak         0x1000000 // resolve to nullptr if not found
         #define SFLartifical    0x4000000 // compiler generated symbol
 
         // CPP
@@ -1177,16 +1177,16 @@ inline char *prettyident(Symbol *s) { return s->Sident; }
  *                      parameter list as a symbol table
  * For template-parameter-list:
  *      Pident          identifier of parameter
- *      Ptype           if NULL, this is a type-parameter
+ *      Ptype           if nullptr, this is a type-parameter
  *                      else the type for a parameter-declaration value argument
  *      Pelem           default value for value argument
  *      Pdeftype        default value for type-parameter
  *      Pptpl           template-parameter-list for template-template-parameter
  *      Psym            default value for template-template-parameter
  * For template-arg-list: (actual arguments)
- *      Pident          NULL
+ *      Pident          nullptr
  *      Ptype           type-name
- *      Pelem           expression (either Ptype or Pelem is NULL)
+ *      Pelem           expression (either Ptype or Pelem is nullptr)
  *      Psym            SCtemplate for template-template-argument
  */
 
@@ -1201,10 +1201,10 @@ struct PARAM
 #endif
 
     char *Pident;               // identifier
-    type *Ptype;                // type of parameter (NULL if not known yet)
+    type *Ptype;                // type of parameter (nullptr if not known yet)
     elem *Pelem;                // default value
     token_t *PelemToken;        // tokens making up default elem
-    type *Pdeftype;             // Ptype==NULL: default type for type-argument
+    type *Pdeftype;             // Ptype==nullptr: default type for type-argument
     param_t *Pptpl;             // template-parameter-list for template-template-parameter
     Symbol *Psym;
     PARAM *Pnext;               // next in list

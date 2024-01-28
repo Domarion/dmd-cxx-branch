@@ -16,11 +16,11 @@ const char idchars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123
  * find the one with the closest symbol with
  * respect to the cost defined by the search function
  * Input/Output:
- *      p       best found spelling (NULL if none found yet)
+ *      p       best found spelling (nullptr if none found yet)
  *      cost    cost of p (INT_MAX if none found yet)
  * Input:
- *      np      new found spelling (NULL if none found)
- *      ncost   cost of np if non-NULL
+ *      np      new found spelling (nullptr if none found)
+ *      ncost   cost of np if non-nullptr
  * Returns:
  *      true    if the cost is less or equal 0
  *      false   otherwise
@@ -41,7 +41,7 @@ void *spellerY(const char *seed, size_t seedlen, fp_speller_t fp, void *fparg,
         const char *charset, size_t index, int* cost)
 {
     if (!seedlen)
-        return NULL;
+        return nullptr;
     assert(seed[seedlen] == 0);
 
     char tmp[30];
@@ -52,12 +52,12 @@ void *spellerY(const char *seed, size_t seedlen, fp_speller_t fp, void *fparg,
     {
         buf = (char *)alloca(seedlen + 2);    // leave space for extra char
         if (!buf)
-            return NULL;                      // no matches
+            return nullptr;                      // no matches
     }
 
     memcpy(buf, seed, index);
     *cost = INT_MAX;
-    void* p = NULL;
+    void* p = nullptr;
     int ncost = 0;
 
     /* Delete at seed[index] */
@@ -110,7 +110,7 @@ void *spellerX(const char *seed, size_t seedlen, fp_speller_t fp, void *fparg,
         const char *charset, int flag)
 {
     if (!seedlen)
-        return NULL;
+        return nullptr;
 
     char tmp[30];
     char *buf;
@@ -120,10 +120,10 @@ void *spellerX(const char *seed, size_t seedlen, fp_speller_t fp, void *fparg,
     {
         buf = (char *)alloca(seedlen + 2);    // leave space for extra char
         if (!buf)
-            return NULL;                      // no matches
+            return nullptr;                      // no matches
     }
     int cost = INT_MAX, ncost = 0;
-    void *p = NULL, *np;
+    void *p = nullptr, *np;
 
     /* Deletions */
     memcpy(buf, seed + 1, seedlen);
@@ -212,7 +212,7 @@ void *spellerX(const char *seed, size_t seedlen, fp_speller_t fp, void *fparg,
  *      fparg           argument to search function
  *      charset         character set
  * Returns:
- *      NULL            no correct spellings found
+ *      nullptr            no correct spellings found
  *      void*           value returned by fp() for first possible correct spelling
  */
 
@@ -227,5 +227,5 @@ void *speller(const char *seed, fp_speller_t fp, void *fparg, const char *charse
 //      if (seedlen > 10)
 //          break;
     }
-    return NULL;   // didn't find it
+    return nullptr;   // didn't find it
 }

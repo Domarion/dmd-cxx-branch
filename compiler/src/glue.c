@@ -121,7 +121,7 @@ void obj_write_deferred(Library *library)
         {
             // it doesn't make sense to make up a module if we don't know where to put the symbol
             //  so output it into it's own object file without ModuleInfo
-            objmod->initfile(idbuf.peekChars(), NULL, mname);
+            objmod->initfile(idbuf.peekChars(), nullptr, mname);
             toObjFile(s, false);
             objmod->termfile();
         }
@@ -165,7 +165,7 @@ void obj_write_deferred(Library *library)
 symbol *callFuncsAndGates(Module *m, symbols *sctors, StaticDtorDeclarations *ectorgates,
         const char *id)
 {
-    symbol *sctor = NULL;
+    symbol *sctor = nullptr;
 
     if ((sctors && sctors->length) ||
         (ectorgates && ectorgates->length))
@@ -176,14 +176,14 @@ symbol *callFuncsAndGates(Module *m, symbols *sctors, StaticDtorDeclarations *ec
             /* t will be the type of the functions generated:
              *      extern (C) void func();
              */
-            t = type_function(TYnfunc, NULL, 0, false, tsvoid);
+            t = type_function(TYnfunc, nullptr, 0, false, tsvoid);
             t->Tmangle = mTYman_c;
         }
 
-        localgot = NULL;
+        localgot = nullptr;
         sctor = toSymbolX(m, id, SCglobal, t, "FZv");
         cstate.CSpsymtab = &sctor->Sfunc->Flocsym;
-        elem *ector = NULL;
+        elem *ector = nullptr;
 
         if (ectorgates)
         {
@@ -229,7 +229,7 @@ void obj_start(char *srcfile)
     rtlsym_reset();
     clearStringTab();
 
-    objmod = Obj::init(&objbuf, srcfile, NULL);
+    objmod = Obj::init(&objbuf, srcfile, nullptr);
 
     el_reset();
     cg87_reset();
@@ -241,27 +241,27 @@ void obj_end(Library *library, File *objfile)
     const char *objfilename = objfile->name->toChars();
     objmod->term(objfilename);
     delete objmod;
-    objmod = NULL;
+    objmod = nullptr;
 
     if (library)
     {
         // Transfer image to library
         library->addObject(objfilename, objbuf.buf, objbuf.p - objbuf.buf);
-        objbuf.buf = NULL;
+        objbuf.buf = nullptr;
     }
     else
     {
         // Transfer image to file
         objfile->setbuffer(objbuf.buf, objbuf.p - objbuf.buf);
-        objbuf.buf = NULL;
+        objbuf.buf = nullptr;
 
         ensurePathToNameExists(Loc(), objfilename);
 
         //printf("write obj %s\n", objfilename);
         writeFile(Loc(), objfile);
     }
-    objbuf.pend = NULL;
-    objbuf.p = NULL;
+    objbuf.pend = nullptr;
+    objbuf.p = nullptr;
     objbuf.len = 0;
     objbuf.inc = 0;
 }
@@ -305,10 +305,10 @@ void genObjFile(Module *m, bool multiobj)
 
     lastmname = (char*)m->srcfile->toChars();
 
-    objmod->initfile(lastmname, NULL, m->toPrettyChars());
+    objmod->initfile(lastmname, nullptr, m->toPrettyChars());
 
-    eictor = NULL;
-    ictorlocalgot = NULL;
+    eictor = nullptr;
+    ictorlocalgot = nullptr;
     sctors.setDim(0);
     ectorgates.setDim(0);
     sdtors.setDim(0);
@@ -388,7 +388,7 @@ void genObjFile(Module *m, bool multiobj)
         outdata(bcov);
 
         free(m->covb);
-        m->covb = NULL;
+        m->covb = nullptr;
 
         /* Generate:
          *  _d_cover_register(uint[] __coverage, BitArray __bcoverage, string filename);
@@ -398,7 +398,7 @@ void genObjFile(Module *m, bool multiobj)
         /* t will be the type of the functions generated:
          *      extern (C) void func();
          */
-        type *t = type_function(TYnfunc, NULL, 0, false, tsvoid);
+        type *t = type_function(TYnfunc, nullptr, 0, false, tsvoid);
         t->Tmangle = mTYman_c;
 
         m->sictor = toSymbolX(m, "__modictor", SCglobal, t, "FZv");
@@ -414,7 +414,7 @@ void genObjFile(Module *m, bool multiobj)
                       ecov,
                       ebcov,
                       efilename,
-                      NULL);
+                      nullptr);
         e = el_bin(OPcall, TYvoid, el_var(getRtlsym(RTLSYM_DCOVER2)), e);
         eictor = el_combine(e, eictor);
         ictorlocalgot = localgot;
@@ -437,11 +437,11 @@ void genObjFile(Module *m, bool multiobj)
         }
 
         m->sctor = callFuncsAndGates(m, &sctors, &ectorgates, "__modctor");
-        m->sdtor = callFuncsAndGates(m, &sdtors, NULL, "__moddtor");
+        m->sdtor = callFuncsAndGates(m, &sdtors, nullptr, "__moddtor");
 
         m->ssharedctor = callFuncsAndGates(m, &ssharedctors, (StaticDtorDeclarations *)&esharedctorgates, "__modsharedctor");
-        m->sshareddtor = callFuncsAndGates(m, &sshareddtors, NULL, "__modshareddtor");
-        m->stest = callFuncsAndGates(m, &stests, NULL, "__modtest");
+        m->sshareddtor = callFuncsAndGates(m, &sshareddtors, nullptr, "__modshareddtor");
+        m->stest = callFuncsAndGates(m, &stests, nullptr, "__modtest");
 
         if (m->doppelganger)
             genModuleInfo(m);
@@ -659,10 +659,10 @@ UnitTestDeclaration *needsDeferredNested(FuncDeclaration *fd)
         if (!fdp)
             break;
         if (UnitTestDeclaration *udp = fdp->isUnitTestDeclaration())
-            return udp->semanticRun < PASSobj ? udp : NULL;
+            return udp->semanticRun < PASSobj ? udp : nullptr;
         fd = fdp;
     }
-    return NULL;
+    return nullptr;
 }
 
 void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
@@ -672,7 +672,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
     if (fd->semanticRun >= PASSobj) // if toObjFile() already run
         return;
 
-    if (fd->type && fd->type->ty == Tfunction && ((TypeFunction *)fd->type)->next == NULL)
+    if (fd->type && fd->type->ty == Tfunction && ((TypeFunction *)fd->type)->next == nullptr)
         return;
 
     // If errors occurred compiling it, such as bugzilla 6118
@@ -824,7 +824,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
     cstate.CSpsymtab = &f->Flocsym;
 
     // Find module m for this function
-    Module *m = NULL;
+    Module *m = nullptr;
     for (Dsymbol *p = fd->parent; p; p = p->parent)
     {
         m = p->isModule();
@@ -835,11 +835,11 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
     IRState irs(m, fd);
     Dsymbols deferToObj;                   // write these to OBJ file later
     irs.deferToObj = &deferToObj;
-    void *labels = NULL;
+    void *labels = nullptr;
     irs.labels = &labels;
 
-    symbol *shidden = NULL;
-    Symbol *sthis = NULL;
+    symbol *shidden = nullptr;
+    Symbol *sthis = nullptr;
     tym_t tyf = tybasic(s->Stype->Tty);
     //printf("linkage = %d, tyf = x%x\n", linkage, tyf);
     int reverse = tyrevfunc(s->Stype->Tty);
@@ -881,7 +881,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
     }
 
     // Estimate number of parameters, pi
-    size_t pi = (fd->v_arguments != NULL);
+    size_t pi = (fd->v_arguments != nullptr);
     if (fd->parameters)
         pi += fd->parameters->length;
 
@@ -979,11 +979,11 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
     // Done with params
     if (params != paramsbuf)
         free(params);
-    params = NULL;
+    params = nullptr;
 
     if (fd->fbody)
     {
-        localgot = NULL;
+        localgot = nullptr;
 
         Statement *sbody = fd->fbody;
 
@@ -1004,7 +1004,7 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
             // Declare va_argsave
             if (global.params.is64bit)
             {
-                type *t = type_struct_class("__va_argsave_t", 16, 8 * 6 + 8 * 16 + 8 * 3, NULL, NULL, false, false, true);
+                type *t = type_struct_class("__va_argsave_t", 16, 8 * 6 + 8 * 16 + 8 * 3, nullptr, nullptr, false, false, true);
                 // The backend will pick this up by name
                 Symbol *s = symbol_name("__va_argsave", SCauto, t);
                 s->Stype->Tty |= mTYvolatile;
@@ -1036,16 +1036,16 @@ void FuncDeclaration_toObjFile(FuncDeclaration *fd, bool multiobj)
              */
             StringExp *se = StringExp::create(Loc(), s->Sident);
             se->type = Type::tstring;
-            se->type = typeSemantic(se->type, Loc(), NULL);
+            se->type = typeSemantic(se->type, Loc(), nullptr);
             Expressions *exps = Expressions_create();
             exps->push(se);
-            FuncDeclaration *fdpro = FuncDeclaration::genCfunc(NULL, Type::tvoid, "trace_pro");
+            FuncDeclaration *fdpro = FuncDeclaration::genCfunc(nullptr, Type::tvoid, "trace_pro");
             Expression *ec = VarExp::create(Loc(), fdpro);
             Expression *e = CallExp::create(Loc(), ec, exps);
             e->type = Type::tvoid;
             Statement *sp = ExpStatement::create(fd->loc, e);
 
-            FuncDeclaration *fdepi = FuncDeclaration::genCfunc(NULL, Type::tvoid, "_c_trace_epi");
+            FuncDeclaration *fdepi = FuncDeclaration::genCfunc(nullptr, Type::tvoid, "_c_trace_epi");
             ec = VarExp::create(Loc(), fdepi);
             e = CallExp::create(Loc(), ec);
             e->type = Type::tvoid;
@@ -1242,7 +1242,7 @@ unsigned totym(Type *tx)
         case Tenum:
         {
             Type *tb = tx->toBasetype();
-            const Identifier *id = tx->toDsymbol(NULL)->ident;
+            const Identifier *id = tx->toDsymbol(nullptr)->ident;
             if (id == Id::__c_long)
                 t = tb->ty == Tint32 ? TYlong : TYllong;
             else if (id == Id::__c_ulong)
@@ -1371,7 +1371,7 @@ Symbol *toSymbol(Type *t)
         return toSymbol(((TypeClass *)t)->sym);
     }
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 /**************************************

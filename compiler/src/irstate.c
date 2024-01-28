@@ -29,7 +29,7 @@ Label **IRState::lookupLabel(Statement *s)
     Label **slot = (Label **)dmd_aaGet((AA **)labels, (void *)s);
     if (*slot)
         return slot;
-    return NULL;
+    return nullptr;
 }
 
 /****
@@ -49,8 +49,8 @@ block *IRState::getBreakBlock(Identifier *ident)
     IRState *bc;
     if (ident)
     {
-        Statement *related = NULL;
-        block *ret = NULL;
+        Statement *related = nullptr;
+        block *ret = nullptr;
         for (bc = this; bc; bc = bc->prev)
         {
             // The label for a breakBlock may actually be some levels up (e.g.
@@ -74,7 +74,7 @@ block *IRState::getBreakBlock(Identifier *ident)
                 return bc->breakBlock;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 block *IRState::getContBlock(Identifier *ident)
@@ -83,7 +83,7 @@ block *IRState::getContBlock(Identifier *ident)
 
     if (ident)
     {
-        block *ret = NULL;
+        block *ret = nullptr;
         for (bc = this; bc; bc = bc->prev)
         {
             // The label for a contBlock may actually be some levels up (e.g.
@@ -106,7 +106,7 @@ block *IRState::getContBlock(Identifier *ident)
                 return bc->contBlock;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 block *IRState::getSwitchBlock()
@@ -118,7 +118,7 @@ block *IRState::getSwitchBlock()
         if (bc->switchBlock)
             return bc->switchBlock;
     }
-    return NULL;
+    return nullptr;
 }
 
 block *IRState::getDefaultBlock()
@@ -130,7 +130,7 @@ block *IRState::getDefaultBlock()
         if (bc->defaultBlock)
             return bc->defaultBlock;
     }
-    return NULL;
+    return nullptr;
 }
 
 block *IRState::getFinallyBlock()
@@ -142,7 +142,7 @@ block *IRState::getFinallyBlock()
         if (bc->finallyBlock)
             return bc->finallyBlock;
     }
-    return NULL;
+    return nullptr;
 }
 
 FuncDeclaration *IRState::getFunc()

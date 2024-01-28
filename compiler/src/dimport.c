@@ -27,7 +27,7 @@
 
 Import::Import(Loc loc, Identifiers *packages, Identifier *id, Identifier *aliasId,
         int isstatic)
-    : Dsymbol(NULL)
+    : Dsymbol(nullptr)
 {
     assert(id);
     this->loc = loc;
@@ -35,9 +35,9 @@ Import::Import(Loc loc, Identifiers *packages, Identifier *id, Identifier *alias
     this->id = id;
     this->aliasId = aliasId;
     this->isstatic = isstatic;
-    this->protection = Prot(Prot::private_); // default to private
-    this->pkg = NULL;
-    this->mod = NULL;
+    this->protection = Visibility(Visibility::private_); // default to private
+    this->pkg = nullptr;
+    this->mod = nullptr;
 
     // Set symbol name (bracketed)
     if (aliasId)
@@ -63,7 +63,7 @@ void Import::addAlias(Identifier *name, Identifier *alias)
         error("cannot have an import bind list");
 
     if (!aliasId)
-        this->ident = NULL;     // make it an anonymous import
+        this->ident = nullptr;     // make it an anonymous import
 
     names.push(name);
     aliases.push(alias);
@@ -74,7 +74,7 @@ const char *Import::kind() const
     return isstatic ? "static import" : "import";
 }
 
-Prot Import::prot()
+Visibility Import::prot()
 {
     return protection;
 }
@@ -98,7 +98,7 @@ void Import::load(Scope *sc)
     //printf("Import::load('%s') %p\n", toPrettyChars(), this);
 
     // See if existing module
-    DsymbolTable *dst = Package::resolve(packages, NULL, &pkg);
+    DsymbolTable *dst = Package::resolve(packages, nullptr, &pkg);
     Dsymbol *s = dst->lookup(id);
     if (s)
     {
@@ -183,11 +183,11 @@ void Import::importAll(Scope *sc)
 
     if (sc->stc & STCstatic)
         isstatic = true;
-    mod->importAll(NULL);
+    mod->importAll(nullptr);
     if (mod->md && mod->md->isdeprecated)
     {
         Expression *msg = mod->md->msg;
-        if (StringExp *se = msg ? msg->toStringExp() : NULL)
+        if (StringExp *se = msg ? msg->toStringExp() : nullptr)
             mod->deprecation(loc, "is deprecated - %s", se->string);
         else
             mod->deprecation(loc, "is deprecated");
@@ -224,7 +224,7 @@ void Import::addPackageAccess(ScopeDsymbol *scopesym)
             // An import of truly empty file/package can happen
             // https://issues.dlang.org/show_bug.cgi?id=20151
             // Package in the path conflicts with a module name
-            if (p == NULL)
+            if (p == nullptr)
                 return;
             scopesym->addAccessiblePackage(p, protection);
         }
@@ -297,9 +297,9 @@ Dsymbol *Import::search(const Loc &loc, Identifier *ident, int flags)
 
     if (!pkg)
     {
-        load(NULL);
-        mod->importAll(NULL);
-        dsymbolSemantic(mod, NULL);
+        load(nullptr);
+        mod->importAll(nullptr);
+        dsymbolSemantic(mod, nullptr);
     }
 
     // Forward it to the package/module
@@ -313,7 +313,7 @@ bool Import::overloadInsert(Dsymbol *s)
      */
     assert(ident && ident == s->ident);
     Import *imp;
-    if (!aliasId && (imp = s->isImport()) != NULL && !imp->aliasId)
+    if (!aliasId && (imp = s->isImport()) != nullptr && !imp->aliasId)
         return true;
     else
         return false;

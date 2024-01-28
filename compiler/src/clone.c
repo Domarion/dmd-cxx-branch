@@ -97,15 +97,15 @@ FuncDeclaration *hasIdentityOpAssign(AggregateDeclaration *ad, Scope *sc)
 
         unsigned errors = global.startGagging();    // Do not report errors, even if the template opAssign fbody makes it.
         sc = sc->push();
-        sc->tinst = NULL;
-        sc->minst = NULL;
+        sc->tinst = nullptr;
+        sc->minst = nullptr;
 
         a[0] = er.exp();
-        FuncDeclaration *f = resolveFuncCall(ad->loc, sc, assign, NULL, ad->type, &a, 1);
+        FuncDeclaration *f = resolveFuncCall(ad->loc, sc, assign, nullptr, ad->type, &a, 1);
         if (!f)
         {
             a[0] = el.exp();
-            f = resolveFuncCall(ad->loc, sc, assign, NULL, ad->type, &a, 1);
+            f = resolveFuncCall(ad->loc, sc, assign, nullptr, ad->type, &a, 1);
         }
 
         sc = sc->pop();
@@ -114,20 +114,20 @@ FuncDeclaration *hasIdentityOpAssign(AggregateDeclaration *ad, Scope *sc)
         if (f)
         {
             if (f->errors)
-                return NULL;
+                return nullptr;
             ParameterList fparams = f->getParameterList();
             if (fparams.length())
             {
                 Parameter *fparam0 = fparams[0];
-                if (fparam0->type->toDsymbol(NULL) != ad)
-                    f = NULL;
+                if (fparam0->type->toDsymbol(nullptr) != ad)
+                    f = nullptr;
             }
         }
         // BUGS: This detection mechanism cannot find some opAssign-s like follows:
         // struct S { void opAssign(ref immutable S) const; }
         return f;
     }
-    return NULL;
+    return nullptr;
 }
 
 /*******************************************
@@ -206,7 +206,7 @@ FuncDeclaration *buildOpAssign(StructDeclaration *sd, Scope *sc)
     // will be defined.
 
     if (!needOpAssign(sd))
-        return NULL;
+        return nullptr;
 
     //printf("StructDeclaration::buildOpAssign() %s\n", sd->toChars());
     StorageClass stc = STCsafe | STCnothrow | STCpure | STCnogc;
@@ -235,20 +235,20 @@ FuncDeclaration *buildOpAssign(StructDeclaration *sd, Scope *sc)
     if (sd->dtor || sd->postblit)
     {
         if (!sd->type->isAssignable())  // Bugzilla 13044
-            return NULL;
+            return nullptr;
         stc = mergeFuncAttrs(stc, sd->dtor);
         if (stc & STCsafe)
             stc = (stc & ~STCsafe) | STCtrusted;
     }
 
     Parameters *fparams = new Parameters;
-    fparams->push(new Parameter(STCnodtor, sd->type, Id::p, NULL, NULL));
+    fparams->push(new Parameter(STCnodtor, sd->type, Id::p, nullptr, nullptr));
     TypeFunction *tf = new TypeFunction(ParameterList(fparams), sd->handleType(), LINKd, stc | STCref);
 
     FuncDeclaration *fop = new FuncDeclaration(declLoc, Loc(), Id::assign, stc, tf);
     fop->storage_class |= STCinference;
     fop->generated = true;
-    Expression *e = NULL;
+    Expression *e = nullptr;
     if (stc & STCdisable)
     {
     }
@@ -259,8 +259,8 @@ FuncDeclaration *buildOpAssign(StructDeclaration *sd, Scope *sc)
          */
         //printf("\tswap copy\n");
         Identifier *idtmp = Identifier::generateId("__swap");
-        VarDeclaration *tmp = NULL;
-        AssignExp *ec = NULL;
+        VarDeclaration *tmp = nullptr;
+        AssignExp *ec = nullptr;
         if (sd->dtor)
         {
             tmp = new VarDeclaration(loc, sd->type, idtmp, new VoidInitializer(loc));
@@ -333,7 +333,7 @@ FuncDeclaration *buildOpAssign(StructDeclaration *sd, Scope *sc)
     {
         // Disable generated opAssign, because some members forbid identity assignment.
         fop->storage_class |= STCdisable;
-        fop->fbody = NULL;  // remove fbody which contains the error
+        fop->fbody = nullptr;  // remove fbody which contains the error
     }
 
     //printf("-StructDeclaration::buildOpAssign() %s, errors = %d\n", sd->toChars(), (fop->storage_class & STCdisable) != 0);
@@ -410,13 +410,13 @@ FuncDeclaration *hasIdentityOpEquals(AggregateDeclaration *ad,  Scope *sc)
     {
         /* check identity opEquals exists
          */
-        UnionExp er; new(&er) NullExp(ad->loc, NULL);        // dummy rvalue
+        UnionExp er; new(&er) NullExp(ad->loc, nullptr);        // dummy rvalue
         UnionExp el; new(&el) IdentifierExp(ad->loc, Id::p); // dummy lvalue
         Expressions a;
         a.setDim(1);
         for (size_t i = 0; i < 5; i++)
         {
-            Type *tthis = NULL;         // dead-store to prevent spurious warning
+            Type *tthis = nullptr;         // dead-store to prevent spurious warning
             switch (i)
             {
                 case 0:  tthis = ad->type;                  break;
@@ -426,18 +426,18 @@ FuncDeclaration *hasIdentityOpEquals(AggregateDeclaration *ad,  Scope *sc)
                 case 4:  tthis = ad->type->sharedConstOf(); break;
                 default: assert(0);
             }
-            FuncDeclaration *f = NULL;
+            FuncDeclaration *f = nullptr;
 
             unsigned errors = global.startGagging();    // Do not report errors, even if the template opAssign fbody makes it.
             sc = sc->push();
-            sc->tinst = NULL;
-            sc->minst = NULL;
+            sc->tinst = nullptr;
+            sc->minst = nullptr;
 
             for (size_t j = 0; j < 2; j++)
             {
                 a[0] = (j == 0 ? er.exp() : el.exp());
                 a[0]->type = tthis;
-                f = resolveFuncCall(ad->loc, sc, eq, NULL, tthis, &a, 1);
+                f = resolveFuncCall(ad->loc, sc, eq, nullptr, tthis, &a, 1);
                 if (f)
                     break;
             }
@@ -448,12 +448,12 @@ FuncDeclaration *hasIdentityOpEquals(AggregateDeclaration *ad,  Scope *sc)
             if (f)
             {
                 if (f->errors)
-                    return NULL;
+                    return nullptr;
                 return f;
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /******************************************
@@ -471,7 +471,7 @@ FuncDeclaration *buildOpEquals(StructDeclaration *sd, Scope *sc)
     {
         sd->hasIdentityEquals = true;
     }
-    return NULL;
+    return nullptr;
 }
 
 /******************************************
@@ -487,7 +487,7 @@ FuncDeclaration *buildOpEquals(StructDeclaration *sd, Scope *sc)
 FuncDeclaration *buildXopEquals(StructDeclaration *sd, Scope *sc)
 {
     if (!needOpEquals(sd))
-        return NULL;        // bitwise comparison would work
+        return nullptr;        // bitwise comparison would work
 
     //printf("StructDeclaration::buildXopEquals() %s\n", sd->toChars());
     if (Dsymbol *eq = search_function(sd, Id::eq))
@@ -501,7 +501,7 @@ FuncDeclaration *buildXopEquals(StructDeclaration *sd, Scope *sc)
                 /* const bool opEquals(ref const S s);
                  */
                 Parameters *parameters = new Parameters;
-                parameters->push(new Parameter(STCref | STCconst, sd->type, NULL, NULL, NULL));
+                parameters->push(new Parameter(STCref | STCconst, sd->type, nullptr, nullptr, nullptr));
                 tfeqptr = new TypeFunction(ParameterList(parameters), Type::tbool, LINKd);
                 tfeqptr->mod = MODconst;
                 tfeqptr = (TypeFunction *)typeSemantic(tfeqptr, Loc(), &scx);
@@ -529,8 +529,8 @@ FuncDeclaration *buildXopEquals(StructDeclaration *sd, Scope *sc)
     Loc loc = Loc();        // loc is unnecessary so errors are gagged
 
     Parameters *parameters = new Parameters;
-    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::p, NULL, NULL));
-    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::q, NULL, NULL));
+    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::p, nullptr, nullptr));
+    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::q, nullptr, nullptr));
     TypeFunction *tf = new TypeFunction(ParameterList(parameters), Type::tbool, LINKd);
 
     Identifier *id = Id::xopEquals;
@@ -581,7 +581,7 @@ FuncDeclaration *buildXopCmp(StructDeclaration *sd, Scope *sc)
                 /* const int opCmp(ref const S s);
                  */
                 Parameters *parameters = new Parameters;
-                parameters->push(new Parameter(STCref | STCconst, sd->type, NULL, NULL, NULL));
+                parameters->push(new Parameter(STCref | STCconst, sd->type, nullptr, nullptr, nullptr));
                 tfcmpptr = new TypeFunction(ParameterList(parameters), Type::tint32, LINKd);
                 tfcmpptr->mod = MODconst;
                 tfcmpptr = (TypeFunction *)typeSemantic(tfcmpptr, Loc(), &scx);
@@ -594,7 +594,7 @@ FuncDeclaration *buildXopCmp(StructDeclaration *sd, Scope *sc)
     else
     {
         // FIXME: doesn't work for recursive alias this
-        return NULL;
+        return nullptr;
     }
 
     if (!sd->xerrcmp)
@@ -614,8 +614,8 @@ FuncDeclaration *buildXopCmp(StructDeclaration *sd, Scope *sc)
     Loc loc = Loc();        // loc is unnecessary so errors are gagged
 
     Parameters *parameters = new Parameters;
-    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::p, NULL, NULL));
-    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::q, NULL, NULL));
+    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::p, nullptr, nullptr));
+    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::q, nullptr, nullptr));
     TypeFunction *tf = new TypeFunction(ParameterList(parameters), Type::tint32, LINKd);
 
     Identifier *id = Id::xopCmp;
@@ -623,11 +623,7 @@ FuncDeclaration *buildXopCmp(StructDeclaration *sd, Scope *sc)
     fop->generated = true;
     Expression *e1 = new IdentifierExp(loc, Id::p);
     Expression *e2 = new IdentifierExp(loc, Id::q);
-#ifdef IN_GCC
-    Expression *e = new CallExp(loc, new DotIdExp(loc, e1, Id::cmp), e2);
-#else
     Expression *e = new CallExp(loc, new DotIdExp(loc, e2, Id::cmp), e1);
-#endif
 
     fop->fbody = new ReturnStatement(loc, e);
 
@@ -729,14 +725,14 @@ FuncDeclaration *buildXtoHash(StructDeclaration *sd, Scope *sc)
     }
 
     if (!needToHash(sd))
-        return NULL;
+        return nullptr;
 
     //printf("StructDeclaration::buildXtoHash() %s\n", sd->toPrettyChars());
     Loc declLoc = Loc();    // loc is unnecessary so __xtoHash is never called directly
     Loc loc = Loc();        // internal code should have no loc to prevent coverage
 
     Parameters *parameters = new Parameters();
-    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::p, NULL, NULL));
+    parameters->push(new Parameter(STCref | STCconst, sd->type, Id::p, nullptr, nullptr));
     TypeFunction *tf = new TypeFunction(ParameterList(parameters), Type::thash_t,
                                         LINKd, STCnothrow | STCtrusted);
 
@@ -780,7 +776,7 @@ FuncDeclaration *buildPostBlit(StructDeclaration *sd, Scope *sc)
 {
     //printf("StructDeclaration::buildPostBlit() %s\n", sd->toChars());
     if (sd->isUnionDeclaration())
-        return NULL;
+        return nullptr;
 
     StorageClass stc = STCsafe | STCnothrow | STCpure | STCnogc;
     Loc declLoc = sd->postblits.length ? sd->postblits[0]->loc : sd->loc;
@@ -816,7 +812,7 @@ FuncDeclaration *buildPostBlit(StructDeclaration *sd, Scope *sc)
             break;
         }
 
-        Expression *ex = NULL;
+        Expression *ex = nullptr;
         tv = v->type->toBasetype();
         if (tv->ty == Tstruct)
         {
@@ -922,13 +918,13 @@ FuncDeclaration *buildPostBlit(StructDeclaration *sd, Scope *sc)
         PostBlitDeclaration *dd = new PostBlitDeclaration(declLoc, Loc(), stc, Id::__fieldPostblit);
         dd->generated = true;
         dd->storage_class |= STCinference;
-        dd->fbody = (stc & STCdisable) ? NULL : new CompoundStatement(loc, a);
+        dd->fbody = (stc & STCdisable) ? nullptr : new CompoundStatement(loc, a);
         sd->postblits.shift(dd);
         sd->members->push(dd);
         dsymbolSemantic(dd, sc);
     }
 
-    FuncDeclaration *xpostblit = NULL;
+    FuncDeclaration *xpostblit = nullptr;
     switch (sd->postblits.length)
     {
         case 0:
@@ -939,7 +935,7 @@ FuncDeclaration *buildPostBlit(StructDeclaration *sd, Scope *sc)
             break;
 
         default:
-            Expression *e = NULL;
+            Expression *e = nullptr;
             stc = STCsafe | STCnothrow | STCpure | STCnogc;
             for (size_t i = 0; i < sd->postblits.length; i++)
             {
@@ -947,7 +943,7 @@ FuncDeclaration *buildPostBlit(StructDeclaration *sd, Scope *sc)
                 stc = mergeFuncAttrs(stc, fd);
                 if (stc & STCdisable)
                 {
-                    e = NULL;
+                    e = nullptr;
                     break;
                 }
                 Expression *ex = new ThisExp(loc);
@@ -985,13 +981,13 @@ FuncDeclaration *buildDtor(AggregateDeclaration *ad, Scope *sc)
 {
     //printf("AggregateDeclaration::buildDtor() %s\n", ad->toChars());
     if (ad->isUnionDeclaration())
-        return NULL;
+        return nullptr;
 
     StorageClass stc = STCsafe | STCnothrow | STCpure | STCnogc;
     Loc declLoc = ad->dtors.length ? ad->dtors[0]->loc : ad->loc;
     Loc loc = Loc();    // internal code should have no loc to prevent coverage
 
-    Expression *e = NULL;
+    Expression *e = nullptr;
     for (size_t i = 0; i < ad->fields.length; i++)
     {
         VarDeclaration *v = ad->fields[i];
@@ -1010,11 +1006,11 @@ FuncDeclaration *buildDtor(AggregateDeclaration *ad, Scope *sc)
         stc = mergeFuncAttrs(stc, sdv->dtor);
         if (stc & STCdisable)
         {
-            e = NULL;
+            e = nullptr;
             break;
         }
 
-        Expression *ex = NULL;
+        Expression *ex = nullptr;
         tv = v->type->toBasetype();
         if (tv->ty == Tstruct)
         {
@@ -1075,7 +1071,7 @@ FuncDeclaration *buildDtor(AggregateDeclaration *ad, Scope *sc)
         dsymbolSemantic(dd, sc);
     }
 
-    FuncDeclaration *xdtor = NULL;
+    FuncDeclaration *xdtor = nullptr;
     switch (ad->dtors.length)
     {
         case 0:
@@ -1086,7 +1082,7 @@ FuncDeclaration *buildDtor(AggregateDeclaration *ad, Scope *sc)
             break;
 
         default:
-            e = NULL;
+            e = nullptr;
             stc = STCsafe | STCnothrow | STCpure | STCnogc;
             for (size_t i = 0; i < ad->dtors.length; i++)
             {
@@ -1094,7 +1090,7 @@ FuncDeclaration *buildDtor(AggregateDeclaration *ad, Scope *sc)
                 stc = mergeFuncAttrs(stc, fd);
                 if (stc & STCdisable)
                 {
-                    e = NULL;
+                    e = nullptr;
                     break;
                 }
                 Expression *ex = new ThisExp(loc);
@@ -1139,14 +1135,14 @@ FuncDeclaration *buildInv(AggregateDeclaration *ad, Scope *sc)
     switch (ad->invs.length)
     {
         case 0:
-            return NULL;
+            return nullptr;
 
         case 1:
             // Don't return invs[0] so it has uniquely generated name.
             /* fall through */
 
         default:
-            Expression *e = NULL;
+            Expression *e = nullptr;
             StorageClass stcx = 0;
             for (size_t i = 0; i < ad->invs.length; i++)
             {
@@ -1162,7 +1158,7 @@ FuncDeclaration *buildInv(AggregateDeclaration *ad, Scope *sc)
                 {
             // currently rejects
                     ad->error(ad->invs[i]->loc, "mixing invariants with shared/synchronized differene is not supported");
-                    e = NULL;
+                    e = nullptr;
                     break;
 
                 }

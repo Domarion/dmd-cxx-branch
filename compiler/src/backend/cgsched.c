@@ -1722,7 +1722,7 @@ STATIC int pair_agi(Cinfo *c1,Cinfo *c2)
  * in Pentium Pro and Pentium II.
  * Input:
  *      c0,c1,c2        candidates for decoders 0,1,2
- *                      c2 can be NULL
+ *                      c2 can be nullptr
  * Returns:
  *      !=0 if they can decode simultaneously
  */
@@ -1753,7 +1753,7 @@ Lnopair:
 /********************************************
  * Get next instruction worth looking at for scheduling.
  * Returns:
- *      NULL    no more instructions
+ *      nullptr    no more instructions
  */
 
 STATIC code * cnext(code *c)
@@ -2169,7 +2169,7 @@ code **Schedule::assemble(code **pc)
         if (ci->fxch_pre)
         {   code *cf;
             assert(i);
-            cf = gen2(NULL,0xD9,0xC8 + ci->fxch_pre);
+            cf = gen2(nullptr,0xD9,0xC8 + ci->fxch_pre);
             *pc = cf;
             pc = &code_next(cf);
         }
@@ -2196,7 +2196,7 @@ code **Schedule::assemble(code **pc)
                 }
             }
             {   code *cf;
-                cf = gen2(NULL,0xD9,0xC8 + ci->fxch_post);
+                cf = gen2(nullptr,0xD9,0xC8 + ci->fxch_post);
                 *pc = cf;
                 pc = &code_next(cf);
             }
@@ -2465,7 +2465,7 @@ Linsert:
             {
                 fpu += tbl[j]->fpuadjust;
                 if (fpu >= 8)                   // if FPU stack overflow
-                {   tbl[i] = NULL;
+                {   tbl[i] = nullptr;
                     //printf("fpu stack overflow\n");
                     goto Lnoinsert;
                 }
@@ -2634,7 +2634,7 @@ Lnostage:
  * Snip off tail of instruction sequence.
  * Returns:
  *      next instruction (the tail) or
- *      NULL for no more instructions
+ *      nullptr for no more instructions
  */
 
 STATIC code * csnip(code *c)
@@ -2656,7 +2656,7 @@ STATIC code * csnip(code *c)
                   c->Iflags & iflags))
                 break;
         }
-        *pc = NULL;
+        *pc = nullptr;
     }
     return c;
 }
@@ -2669,7 +2669,7 @@ STATIC code * csnip(code *c)
 
 code *schedule(code *c,regm_t scratch)
 {
-    code *cresult = NULL;
+    code *cresult = nullptr;
     code **pctail = &cresult;
     Schedule sch;
 
@@ -2685,7 +2685,7 @@ code *schedule(code *c,regm_t scratch)
             // Just append this instruction to pctail and go to the next one
             *pctail = c;
             cn = code_next(c);
-            code_next(c) = NULL;
+            code_next(c) = nullptr;
             pctail = &code_next(c);
             c = cn;
             continue;
@@ -3116,7 +3116,7 @@ code *simpleops(code *c,regm_t scratch)
             c->Iop = 0x8B;
             c->Irm = (c->Irm & modregrm(3,0,7)) | modregrm(0,reg,0);
 
-            c2 = gen1(NULL,0x50 + reg);
+            c2 = gen1(nullptr,0x50 + reg);
         L1:
 //c->print();
 //c2->print();
@@ -3137,7 +3137,7 @@ void Cinfo::print()
 {
     Cinfo *ci = this;
 
-    if (ci == NULL)
+    if (ci == nullptr)
     {
         printf("Cinfo 0\n");
         return;

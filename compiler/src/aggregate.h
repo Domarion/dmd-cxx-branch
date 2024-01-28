@@ -85,7 +85,7 @@ class AggregateDeclaration : public ScopeDsymbol
 public:
     Type *type;
     StorageClass storage_class;
-    Prot protection;
+    Visibility protection;
     unsigned structsize;        // size of struct
     unsigned alignsize;         // size of struct for alignment purposes
     VarDeclarations fields;     // VarDeclaration fields
@@ -95,7 +95,7 @@ public:
 
     ClassKind::Type classKind;  // specifies the linkage type
 
-    /* !=NULL if is nested
+    /* !=nullptr if is nested
      * pointing to the dsymbol that directly enclosing it.
      * 1. The function that enclosing it (nested struct and class)
      * 2. The class that enclosing it (nested class only)
@@ -143,7 +143,7 @@ public:
     bool isExport() const;
     Dsymbol *searchCtor();
 
-    Prot prot();
+    Visibility prot();
 
     // 'this' type
     Type *handleType() { return type; }
@@ -264,7 +264,7 @@ public:
     static ClassDeclaration *errorException;
     static ClassDeclaration *cpp_type_info_ptr;
 
-    ClassDeclaration *baseClass;        // NULL only if this is Object
+    ClassDeclaration *baseClass;        // nullptr only if this is Object
     FuncDeclaration *staticCtor;
     FuncDeclaration *staticDtor;
     Dsymbols vtbl;                      // Array of FuncDeclaration's making up the vtbl[]

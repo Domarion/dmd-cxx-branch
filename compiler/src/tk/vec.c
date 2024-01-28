@@ -60,7 +60,7 @@ void vec_term()
                 vn = (void **)(*v);
                 mem_free(v);
             }
-            vecfreelist[i] = NULL;
+            vecfreelist[i] = nullptr;
         }
 #endif
     }
@@ -76,9 +76,9 @@ vec_t vec_calloc(size_t numbits)
   size_t dim;
 
   if (numbits == 0)
-        return (vec_t) NULL;
+        return (vec_t) nullptr;
   dim = (numbits + (VECBITS - 1)) >> VECSHIFT;
-  if (dim < VECMAX && (v = vecfreelist[dim]) != NULL)
+  if (dim < VECMAX && (v = vecfreelist[dim]) != nullptr)
   {
         vecfreelist[dim] = *(vec_t *)v;
         v += 2;
@@ -124,7 +124,7 @@ vec_t vec_clone(vec_t v)
     if (v)
     {   dim = vec_dim(v);
         nbytes = (dim + 2) * sizeof(vec_base_t);
-        if (dim < VECMAX && (vc = vecfreelist[dim]) != NULL)
+        if (dim < VECMAX && (vc = vecfreelist[dim]) != nullptr)
         {
             vecfreelist[dim] = *(vec_t *)vc;
             goto L1;
@@ -141,7 +141,7 @@ vec_t vec_clone(vec_t v)
             v = vc + 2;
         }
         else
-            v = NULL;
+            v = nullptr;
     }
     return v;
 }
@@ -182,7 +182,7 @@ vec_t vec_realloc(vec_t v, size_t numbits)
             return vec_calloc(numbits);
         if (!numbits)
         {   vec_free(v);
-            return NULL;
+            return nullptr;
         }
         vbits = vec_numbits(v);
         if (numbits == vbits)

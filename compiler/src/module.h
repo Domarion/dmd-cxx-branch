@@ -32,7 +32,7 @@ class Package : public ScopeDsymbol
 public:
     PKG isPkgMod;
     unsigned tag;       // auto incremented tag, used to mask package tree in scopes
-    Module *mod;        // != NULL if isPkgMod == PKGmodule
+    Module *mod;        // != nullptr if isPkgMod == PKGmodule
 
     Package(Identifier *ident);
     const char *kind() const;
@@ -66,7 +66,7 @@ public:
 
 
     const char *arg;    // original argument name
-    ModuleDeclaration *md; // if !NULL, the contents of the ModuleDeclaration declaration
+    ModuleDeclaration *md; // if !nullptr, the contents of the ModuleDeclaration declaration
     File *srcfile;      // input source file
     File *objfile;      // output .obj file
     File *hdrfile;      // 'header' file
@@ -124,7 +124,7 @@ public:
     void importAll(Scope *sc);
     int needModuleInfo();
     Dsymbol *search(const Loc &loc, Identifier *ident, int flags = SearchLocalsOnly);
-    bool isPackageAccessible(Package *p, Prot protection, int flags = 0);
+    bool isPackageAccessible(Package *p, Visibility protection, int flags = 0);
     Dsymbol *symtabInsert(Dsymbol *s);
     void deleteObjFile();
     static void addDeferredSemantic(Dsymbol *s);

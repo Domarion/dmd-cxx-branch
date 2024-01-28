@@ -76,12 +76,12 @@ STATIC void elemdatafree(Elemdata **plist)
         list_free(&el->rdlist);
         MEM_BEF_FREE(el);
     }
-    *plist = NULL;
+    *plist = nullptr;
 }
 
-static Elemdata *eqeqlist = NULL;       // list of Elemdata's of OPeqeq & OPne elems
-static Elemdata *rellist = NULL;        // list of Elemdata's of relop elems
-static Elemdata *inclist = NULL;        // list of Elemdata's of increment elems
+static Elemdata *eqeqlist = nullptr;       // list of Elemdata's of OPeqeq & OPne elems
+static Elemdata *rellist = nullptr;        // list of Elemdata's of relop elems
+static Elemdata *inclist = nullptr;        // list of Elemdata's of increment elems
 
 /*************************** Constant Propagation ***************************/
 
@@ -116,7 +116,7 @@ STATIC void rd_compute()
         flowrd();               /* compute reaching definitions (rd)    */
         if (go.deftop == 0)        /* if no reaching defs                  */
                 return;
-        assert(rellist == NULL && inclist == NULL && eqeqlist == NULL);
+        assert(rellist == nullptr && inclist == nullptr && eqeqlist == nullptr);
         block_clearvisit();
         for (i = 0; i < dfotop; i++)    /* for each block               */
         {   block *b = dfo[i];
@@ -215,7 +215,7 @@ STATIC void conpropwalk(elem *n,vec_t IN)
                         {   elem *e;
                             list_t rdl;
 
-                            rdl = listrds(IN,t,NULL);
+                            rdl = listrds(IN,t,nullptr);
                             if (!(config.flags & CFGnowarning)) // if warnings are enabled
                                 chkrd(t,rdl);
                             e = chkprop(t,rdl);
@@ -263,7 +263,7 @@ STATIC void conpropwalk(elem *n,vec_t IN)
                        )
                     {
                         //dbg_printf("appending to rellist\n"); elem_print(n);
-                        pdata = Elemdata::ctor(n,thisblock,listrds(IN,n->E1,NULL));
+                        pdata = Elemdata::ctor(n,thisblock,listrds(IN,n->E1,nullptr));
                         pdata->next = rellist;
                         rellist = pdata;
                     }
@@ -277,7 +277,7 @@ STATIC void conpropwalk(elem *n,vec_t IN)
                     if (tyintegral(n->E1->Ety))
                     {
                         //dbg_printf("appending to inclist\n"); elem_print(n);
-                        pdata = Elemdata::ctor(n,thisblock,listrds(IN,n->E1,NULL));
+                        pdata = Elemdata::ctor(n,thisblock,listrds(IN,n->E1,nullptr));
                         pdata->next = inclist;
                         inclist = pdata;
                     }
@@ -288,7 +288,7 @@ STATIC void conpropwalk(elem *n,vec_t IN)
                     // Collect compare elems and their rd's in the rellist list
                     if (tyintegral(n->E1->Ety))
                     {   //dbg_printf("appending to eqeqlist\n"); elem_print(n);
-                        pdata = Elemdata::ctor(n,thisblock,listrds(IN,n->E1,NULL));
+                        pdata = Elemdata::ctor(n,thisblock,listrds(IN,n->E1,nullptr));
                         pdata->next = eqeqlist;
                         eqeqlist = pdata;
                     }
@@ -298,7 +298,7 @@ STATIC void conpropwalk(elem *n,vec_t IN)
 
 
         if (OTdef(op))                  /* if definition elem           */
-            updaterd(n,IN,NULL);        /* then update IN vector        */
+            updaterd(n,IN,nullptr);        /* then update IN vector        */
 
         /* now we get to the part that checks to see if we can  */
         /* propagate a constant.                                */
@@ -306,7 +306,7 @@ STATIC void conpropwalk(elem *n,vec_t IN)
         {   list_t rdl;
 
             //printf("const prop: %s\n", n->EV.sp.Vsym->Sident);
-            rdl = listrds(IN,n,NULL);
+            rdl = listrds(IN,n,nullptr);
 
             if (!(config.flags & CFGnowarning))     // if warnings are enabled
                 chkrd(n,rdl);
@@ -404,13 +404,13 @@ STATIC void chkrd(elem *n,list_t rdlist)
  * them before startblock, but we just kludge it and don't propagate
  * stuff for them.
  * Returns:
- *      NULL    do not propagate constant
+ *      nullptr    do not propagate constant
  *      e       constant elem that we should replace n with
  */
 
 STATIC elem * chkprop(elem *n,list_t rdlist)
 {
-    elem *foundelem = NULL;
+    elem *foundelem = nullptr;
     int unambig;
     symbol *sv;
     tym_t nty;
@@ -507,7 +507,7 @@ STATIC elem * chkprop(elem *n,list_t rdlist)
         return foundelem;
     }
 noprop:
-    return NULL;
+    return nullptr;
 }
 
 /***********************************
@@ -527,7 +527,7 @@ list_t listrds(vec_t IN,elem *e,vec_t f)
 
     //printf("listrds: "); WReqn(e); printf("\n");
     assert(IN);
-    list_t rdlist = NULL;
+    list_t rdlist = nullptr;
     assert(e->Eoper == OPvar);
     s = e->EV.sp.Vsym;
     ty = e->Ety;
@@ -949,7 +949,7 @@ STATIC void cpwalk(elem *n,vec_t IN)
         else if (op == OPvar && !nocp)  // if reference to variable v
         {       symbol *v = n->EV.sp.Vsym;
                 symbol *f;
-                elem *foundelem = NULL;
+                elem *foundelem = nullptr;
                 tym_t ty;
 
                 //printf("Checking copyprop for '%s', ty=x%x\n",v->Sident,n->Ety);
@@ -1037,7 +1037,7 @@ STATIC void cpwalk(elem *n,vec_t IN)
 static unsigned asstop,         /* # of assignment elems in assnod[]    */
                 assmax = 0,     /* size of assnod[]                     */
                 assnum;         /* current position in assnod[]         */
-static elem **assnod = NULL;    /* array of pointers to asg elems       */
+static elem **assnod = nullptr;    /* array of pointers to asg elems       */
 static vec_t ambigref;          /* vector of assignment elems that      */
                                 /* are referenced when an ambiguous     */
                                 /* reference is done (as in *p or call) */
@@ -1108,7 +1108,7 @@ void rmdeadass()
                 vec_free(POSS);
         } /* for */
         util_free(assnod);
-        assnod = NULL;
+        assnod = nullptr;
         assmax = 0;
 }
 
@@ -1634,7 +1634,7 @@ void verybusyexp()
                                 {
                                         /* Fix so nobody else will      */
                                         /* vbe this elem                */
-                                        go.expnod[k] = NULL;
+                                        go.expnod[k] = nullptr;
                                         vec_clearbit(k,b->Bout);
                                 }
                         } while (++k < go.exptop);

@@ -68,11 +68,8 @@ class SymbolDeclaration;
 class Expression;
 class OverloadSet;
 struct AA;
-#ifdef IN_GCC
-typedef union tree_node Symbol;
-#else
 struct Symbol;
-#endif
+
 
 struct Ungag
 {
@@ -86,7 +83,7 @@ void dsymbolSemantic(Dsymbol *dsym, Scope *sc);
 void semantic2(Dsymbol *dsym, Scope* sc);
 void semantic3(Dsymbol *dsym, Scope* sc);
 
-struct Prot
+struct Visibility
 {
     enum Kind
     {
@@ -101,16 +98,16 @@ struct Prot
     Kind kind;
     Package *pkg;
 
-    Prot();
-    Prot(Kind kind);
+    Visibility();
+    Visibility(Kind kind);
 
-    bool isMoreRestrictiveThan(const Prot other) const;
-    bool operator==(const Prot& other) const;
+    bool isMoreRestrictiveThan(const Visibility other) const;
+    bool operator==(const Visibility& other) const;
 };
 
 // in hdrgen.c
-void protectionToBuffer(OutBuffer *buf, Prot prot);
-const char *protectionToChars(Prot::Kind kind);
+void protectionToBuffer(OutBuffer *buf, Visibility prot);
+const char *protectionToChars(Visibility::Kind kind);
 
 /* State of symbol in winding its way through the passes of the compiler
  */
@@ -135,7 +132,7 @@ enum
     IgnoreNone              = 0x00, // default
     IgnorePrivateImports    = 0x01, // don't search private imports
     IgnoreErrors            = 0x02, // don't give error messages
-    IgnoreAmbiguous         = 0x04, // return NULL if ambiguous
+    IgnoreAmbiguous         = 0x04, // return nullptr if ambiguous
     SearchLocalsOnly        = 0x08, // only look at locals (don't search imports)
     SearchImportsOnly       = 0x10, // only look in imports
     SearchUnqualifiedModule = 0x20, // the module scope search is unqualified,
@@ -156,13 +153,13 @@ public:
     Symbol *isym;               // import version of csym
     const utf8_t *comment;      // documentation comment for this Dsymbol
     Loc loc;                    // where defined
-    Scope *_scope;               // !=NULL means context to use for semantic()
+    Scope *_scope;               // !=nullptr means context to use for semantic()
     const utf8_t *prettystring;
     bool errors;                // this symbol failed to pass semantic()
     PASS semanticRun;
     DeprecatedDeclaration *depdecl; // customized deprecation message
     UserAttributeDeclaration *userAttribDecl;   // user defined attributes
-    UnitTestDeclaration *ddocUnittest; // !=NULL means there's a ddoc unittest associated with this symbol (only use this with ddoc)
+    UnitTestDeclaration *ddocUnittest; // !=nullptr means there's a ddoc unittest associated with this symbol (only use this with ddoc)
 
     Dsymbol();
     Dsymbol(Identifier *);
@@ -220,7 +217,7 @@ public:
     ClassDeclaration *isClassMember();          // is this a member of a ClassDeclaration?
     virtual Type *getType();                    // is this a type?
     virtual bool needThis();                    // need a 'this' pointer?
-    virtual Prot prot();
+    virtual Visibility prot();
     virtual Dsymbol *syntaxCopy(Dsymbol *s);    // copy only syntax trees
     virtual bool oneMember(Dsymbol **ps, Identifier *ident);
     static bool oneMembers(Dsymbols *members, Dsymbol **ps, Identifier *ident);
@@ -235,52 +232,52 @@ public:
     bool inNonRoot();
 
     // Eliminate need for dynamic_cast
-    virtual Package *isPackage() { return NULL; }
-    virtual Module *isModule() { return NULL; }
-    virtual EnumMember *isEnumMember() { return NULL; }
-    virtual TemplateDeclaration *isTemplateDeclaration() { return NULL; }
-    virtual TemplateInstance *isTemplateInstance() { return NULL; }
-    virtual TemplateMixin *isTemplateMixin() { return NULL; }
-    virtual ForwardingAttribDeclaration *isForwardingAttribDeclaration() { return NULL; }
-    virtual Nspace *isNspace() { return NULL; }
-    virtual Declaration *isDeclaration() { return NULL; }
-    virtual StorageClassDeclaration *isStorageClassDeclaration(){ return NULL; }
-    virtual ThisDeclaration *isThisDeclaration() { return NULL; }
-    virtual TypeInfoDeclaration *isTypeInfoDeclaration() { return NULL; }
-    virtual TupleDeclaration *isTupleDeclaration() { return NULL; }
-    virtual AliasDeclaration *isAliasDeclaration() { return NULL; }
-    virtual AggregateDeclaration *isAggregateDeclaration() { return NULL; }
-    virtual FuncDeclaration *isFuncDeclaration() { return NULL; }
-    virtual FuncAliasDeclaration *isFuncAliasDeclaration() { return NULL; }
-    virtual OverDeclaration *isOverDeclaration() { return NULL; }
-    virtual FuncLiteralDeclaration *isFuncLiteralDeclaration() { return NULL; }
-    virtual CtorDeclaration *isCtorDeclaration() { return NULL; }
-    virtual PostBlitDeclaration *isPostBlitDeclaration() { return NULL; }
-    virtual DtorDeclaration *isDtorDeclaration() { return NULL; }
-    virtual StaticCtorDeclaration *isStaticCtorDeclaration() { return NULL; }
-    virtual StaticDtorDeclaration *isStaticDtorDeclaration() { return NULL; }
-    virtual SharedStaticCtorDeclaration *isSharedStaticCtorDeclaration() { return NULL; }
-    virtual SharedStaticDtorDeclaration *isSharedStaticDtorDeclaration() { return NULL; }
-    virtual InvariantDeclaration *isInvariantDeclaration() { return NULL; }
-    virtual UnitTestDeclaration *isUnitTestDeclaration() { return NULL; }
-    virtual NewDeclaration *isNewDeclaration() { return NULL; }
-    virtual VarDeclaration *isVarDeclaration() { return NULL; }
-    virtual VersionSymbol *isVersionSymbol() { return NULL; }
-    virtual DebugSymbol *isDebugSymbol() { return NULL; }
-    virtual ClassDeclaration *isClassDeclaration() { return NULL; }
-    virtual StructDeclaration *isStructDeclaration() { return NULL; }
-    virtual UnionDeclaration *isUnionDeclaration() { return NULL; }
-    virtual InterfaceDeclaration *isInterfaceDeclaration() { return NULL; }
-    virtual ScopeDsymbol *isScopeDsymbol() { return NULL; }
-    virtual ForwardingScopeDsymbol *isForwardingScopeDsymbol() { return NULL; }
-    virtual WithScopeSymbol *isWithScopeSymbol() { return NULL; }
-    virtual ArrayScopeSymbol *isArrayScopeSymbol() { return NULL; }
-    virtual Import *isImport() { return NULL; }
-    virtual EnumDeclaration *isEnumDeclaration() { return NULL; }
-    virtual SymbolDeclaration *isSymbolDeclaration() { return NULL; }
-    virtual AttribDeclaration *isAttribDeclaration() { return NULL; }
-    virtual AnonDeclaration *isAnonDeclaration() { return NULL; }
-    virtual OverloadSet *isOverloadSet() { return NULL; }
+    virtual Package *isPackage() { return nullptr; }
+    virtual Module *isModule() { return nullptr; }
+    virtual EnumMember *isEnumMember() { return nullptr; }
+    virtual TemplateDeclaration *isTemplateDeclaration() { return nullptr; }
+    virtual TemplateInstance *isTemplateInstance() { return nullptr; }
+    virtual TemplateMixin *isTemplateMixin() { return nullptr; }
+    virtual ForwardingAttribDeclaration *isForwardingAttribDeclaration() { return nullptr; }
+    virtual Nspace *isNspace() { return nullptr; }
+    virtual Declaration *isDeclaration() { return nullptr; }
+    virtual StorageClassDeclaration *isStorageClassDeclaration(){ return nullptr; }
+    virtual ThisDeclaration *isThisDeclaration() { return nullptr; }
+    virtual TypeInfoDeclaration *isTypeInfoDeclaration() { return nullptr; }
+    virtual TupleDeclaration *isTupleDeclaration() { return nullptr; }
+    virtual AliasDeclaration *isAliasDeclaration() { return nullptr; }
+    virtual AggregateDeclaration *isAggregateDeclaration() { return nullptr; }
+    virtual FuncDeclaration *isFuncDeclaration() { return nullptr; }
+    virtual FuncAliasDeclaration *isFuncAliasDeclaration() { return nullptr; }
+    virtual OverDeclaration *isOverDeclaration() { return nullptr; }
+    virtual FuncLiteralDeclaration *isFuncLiteralDeclaration() { return nullptr; }
+    virtual CtorDeclaration *isCtorDeclaration() { return nullptr; }
+    virtual PostBlitDeclaration *isPostBlitDeclaration() { return nullptr; }
+    virtual DtorDeclaration *isDtorDeclaration() { return nullptr; }
+    virtual StaticCtorDeclaration *isStaticCtorDeclaration() { return nullptr; }
+    virtual StaticDtorDeclaration *isStaticDtorDeclaration() { return nullptr; }
+    virtual SharedStaticCtorDeclaration *isSharedStaticCtorDeclaration() { return nullptr; }
+    virtual SharedStaticDtorDeclaration *isSharedStaticDtorDeclaration() { return nullptr; }
+    virtual InvariantDeclaration *isInvariantDeclaration() { return nullptr; }
+    virtual UnitTestDeclaration *isUnitTestDeclaration() { return nullptr; }
+    virtual NewDeclaration *isNewDeclaration() { return nullptr; }
+    virtual VarDeclaration *isVarDeclaration() { return nullptr; }
+    virtual VersionSymbol *isVersionSymbol() { return nullptr; }
+    virtual DebugSymbol *isDebugSymbol() { return nullptr; }
+    virtual ClassDeclaration *isClassDeclaration() { return nullptr; }
+    virtual StructDeclaration *isStructDeclaration() { return nullptr; }
+    virtual UnionDeclaration *isUnionDeclaration() { return nullptr; }
+    virtual InterfaceDeclaration *isInterfaceDeclaration() { return nullptr; }
+    virtual ScopeDsymbol *isScopeDsymbol() { return nullptr; }
+    virtual ForwardingScopeDsymbol *isForwardingScopeDsymbol() { return nullptr; }
+    virtual WithScopeSymbol *isWithScopeSymbol() { return nullptr; }
+    virtual ArrayScopeSymbol *isArrayScopeSymbol() { return nullptr; }
+    virtual Import *isImport() { return nullptr; }
+    virtual EnumDeclaration *isEnumDeclaration() { return nullptr; }
+    virtual SymbolDeclaration *isSymbolDeclaration() { return nullptr; }
+    virtual AttribDeclaration *isAttribDeclaration() { return nullptr; }
+    virtual AnonDeclaration *isAnonDeclaration() { return nullptr; }
+    virtual OverloadSet *isOverloadSet() { return nullptr; }
     void accept(Visitor *v) { v->visit(this); }
 };
 
@@ -295,7 +292,7 @@ public:
 
 private:
     Dsymbols *importedScopes;   // imported Dsymbol's
-    Prot::Kind *prots;            // array of PROTKIND, one for each import
+    Visibility::Kind *prots;            // array of PROTKIND, one for each import
 
     BitArray accessiblePackages, privateAccessiblePackages;
 
@@ -305,9 +302,9 @@ public:
     Dsymbol *syntaxCopy(Dsymbol *s);
     Dsymbol *search(const Loc &loc, Identifier *ident, int flags = SearchLocalsOnly);
     OverloadSet *mergeOverloadSet(Identifier *ident, OverloadSet *os, Dsymbol *s);
-    virtual void importScope(Dsymbol *s, Prot protection);
-    void addAccessiblePackage(Package *p, Prot protection);
-    virtual bool isPackageAccessible(Package *p, Prot protection, int flags = 0);
+    virtual void importScope(Dsymbol *s, Visibility protection);
+    void addAccessiblePackage(Package *p, Visibility protection);
+    virtual bool isPackageAccessible(Package *p, Visibility protection, int flags = 0);
     bool isforwardRef();
     static void multiplyDefined(Loc loc, Dsymbol *s1, Dsymbol *s2);
     const char *kind() const;
@@ -317,7 +314,7 @@ public:
     bool hasStaticCtorOrDtor();
 
     static size_t dim(Dsymbols *members);
-    static Dsymbol *getNth(Dsymbols *members, size_t nth, size_t *pn = NULL);
+    static Dsymbol *getNth(Dsymbols *members, size_t nth, size_t *pn = nullptr);
 
     ScopeDsymbol *isScopeDsymbol() { return this; }
     void accept(Visitor *v) { v->visit(this); }
@@ -363,7 +360,7 @@ class OverloadSet : public Dsymbol
 public:
     Dsymbols a;         // array of Dsymbols
 
-    OverloadSet(Identifier *ident, OverloadSet *os = NULL);
+    OverloadSet(Identifier *ident, OverloadSet *os = nullptr);
     void push(Dsymbol *s);
     OverloadSet *isOverloadSet() { return this; }
     const char *kind() const;
@@ -380,7 +377,7 @@ public:
     ForwardingScopeDsymbol(ScopeDsymbol *forward);
     Dsymbol *symtabInsert(Dsymbol *s);
     Dsymbol *symtabLookup(Dsymbol *s, Identifier *id);
-    void importScope(Dsymbol *s, Prot protection);
+    void importScope(Dsymbol *s, Visibility protection);
     const char *kind() const;
 
     ForwardingScopeDsymbol *isForwardingScopeDsymbol() { return this; }
@@ -395,10 +392,10 @@ public:
 
     DsymbolTable();
 
-    // Look up Identifier. Return Dsymbol if found, NULL if not.
+    // Look up Identifier. Return Dsymbol if found, nullptr if not.
     Dsymbol *lookup(Identifier const * const ident);
 
-    // Insert Dsymbol in table. Return NULL if already there.
+    // Insert Dsymbol in table. Return nullptr if already there.
     Dsymbol *insert(Dsymbol *s);
 
     // Look for Dsymbol in table. If there, return it. If not, insert s and return that.

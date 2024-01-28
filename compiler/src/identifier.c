@@ -60,7 +60,7 @@ int Identifier::getValue() const
 
 const char *Identifier::toHChars2()
 {
-    const char *p = NULL;
+    const char *p = nullptr;
 
     if (this == Id::ctor) p = "this";
     else if (this == Id::dtor) p = "~this";
@@ -132,7 +132,7 @@ Identifier *Identifier::idPool(const char *s, size_t len)
 
 Identifier *Identifier::idPool(const char *s, size_t len, int value)
 {
-    StringValue *sv = stringtable.insert(s, len, NULL);
+    StringValue *sv = stringtable.insert(s, len, nullptr);
     assert(sv);
     Identifier *id = new Identifier(sv->toDchars(), len, value);
     sv->ptrvalue = (char *)id;
@@ -178,7 +178,7 @@ Identifier *Identifier::lookup(const char *s, size_t len)
 {
     StringValue *sv = stringtable.lookup(s, len);
     if (!sv)
-        return NULL;
+        return nullptr;
     return (Identifier *)sv->ptrvalue;
 }
 

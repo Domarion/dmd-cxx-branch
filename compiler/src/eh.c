@@ -37,7 +37,7 @@ extern void error(const char *filename, unsigned linnum, unsigned charnum, const
 symbol *except_gentables()
 {
     //printf("except_gentables()\n");
-    return NULL;
+    return nullptr;
 }
 
 /**********************************************

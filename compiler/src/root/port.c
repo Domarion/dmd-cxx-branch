@@ -53,14 +53,14 @@ int Port::memicmp(const char *s1, const char *s2, size_t n)
 bool Port::isFloat32LiteralOutOfRange(const char *p)
 {
     errno = 0;
-    ::strtof(p, NULL);
+    ::strtof(p, nullptr);
     return errno == ERANGE;
 }
 
 bool Port::isFloat64LiteralOutOfRange(const char *p)
 {
     errno = 0;
-    ::strtod(p, NULL);
+    ::strtod(p, nullptr);
     return errno == ERANGE;
 }
 

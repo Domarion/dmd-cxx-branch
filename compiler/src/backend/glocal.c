@@ -350,7 +350,7 @@ Loop:
                                 go.changes++;
                                 em->Ety = e->Ety;
                                 el_copy(e,em);
-                                em->E1 = em->E2 = NULL;
+                                em->E1 = em->E2 = nullptr;
                                 em->Eoper = OPconst;
                             }
                             local_rem(u);
@@ -474,7 +474,7 @@ STATIC void local_ins(elem *e)
         if (s->Sflags & SFLunambig)     // if can only be referenced directly
         {   int flags;
 
-            flags = local_getflags(e->E2,NULL);
+            flags = local_getflags(e->E2,nullptr);
 #if TX86
             if (!(flags & (LFvolatile | LFinp | LFoutp)) &&
 #else

@@ -20,7 +20,7 @@
 File::File(const FileName *n)
 {
     ref = 0;
-    buffer = NULL;
+    buffer = nullptr;
     len = 0;
     name = const_cast<FileName *>(n);
 }
@@ -33,7 +33,7 @@ File *File::create(const char *n)
 File::File(const char *n)
 {
     ref = 0;
-    buffer = NULL;
+    buffer = nullptr;
     len = 0;
     name = new FileName(n);
 }
@@ -78,11 +78,8 @@ bool File::read()
         goto err2;
     }
     size = (size_t)buf.st_size;
-#ifdef IN_GCC
-    buffer = (unsigned char *) ::xmalloc(size + 2);
-#else
     buffer = (unsigned char *) ::malloc(size + 2);
-#endif
+
     if (!buffer)
     {
         printf("\tmalloc error, errno = %d\n",errno);
@@ -113,7 +110,7 @@ err2:
     close(fd);
 err:
     ::free(buffer);
-    buffer = NULL;
+    buffer = nullptr;
     len = 0;
 
 err1:

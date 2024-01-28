@@ -39,7 +39,7 @@ static dt_t *dt_calloc(int dtx)
         {
             chunk[i].DTnext = &chunk[i + 1];
         }
-        chunk[n - 1].DTnext = NULL;
+        chunk[n - 1].DTnext = nullptr;
         dt_freelist = chunk;
         dt = chunk;
     }
@@ -48,7 +48,7 @@ static dt_t *dt_calloc(int dtx)
 #ifdef DEBUG
     memset(dt, 0xBE, sizeof(*dt));
 #endif
-    dt->DTnext = NULL;
+    dt->DTnext = nullptr;
     dt->dt = dtx;
     return dt;
 }
@@ -201,7 +201,7 @@ void dt2common(dt_t **pdt)
 
 DtBuilder::DtBuilder()
 {
-    head = NULL;
+    head = nullptr;
     pTail = &head;
 }
 
@@ -224,7 +224,7 @@ dt_t *DtBuilder::finish()
             // combine head and dtn
             head->DTazeros += dtn->DTazeros;
             head->DTnext = dtn->DTnext;
-            dtn->DTnext = NULL;
+            dtn->DTnext = nullptr;
             dt_free(dtn);
         }
     }
@@ -478,7 +478,7 @@ void DtBuilder::repeat(dt_t *dt, size_t count)
 
     if (dtpointers(dt))
     {
-        dt_t *dtp = NULL;
+        dt_t *dtp = nullptr;
         dt_t **pdt = &dtp;
         for (size_t i = 0; i < count; ++i)
         {
@@ -486,7 +486,7 @@ void DtBuilder::repeat(dt_t *dt, size_t count)
             {
                 dt_t *dtx = dt_calloc(dtn->dt);
                 *dtx = *dtn;
-                dtx->DTnext = NULL;
+                dtx->DTnext = nullptr;
                 switch (dtx->dt)
                 {
                     case DT_abytes:
@@ -502,7 +502,7 @@ void DtBuilder::repeat(dt_t *dt, size_t count)
         }
         assert(!*pTail);
         *pTail = dtp;
-        assert(*pdt == NULL);
+        assert(*pdt == nullptr);
         pTail = pdt;
         return;
     }
@@ -565,5 +565,5 @@ unsigned DtBuilder::length()
  */
 bool DtBuilder::isZeroLength()
 {
-    return head == NULL;
+    return head == nullptr;
 }

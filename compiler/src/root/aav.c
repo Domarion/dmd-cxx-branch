@@ -64,10 +64,10 @@ Value* dmd_aaGet(AA** paa, Key key)
         a->b = (aaA**)a->binit;
         a->b_length = 4;
         a->nodes = 0;
-        a->binit[0] = NULL;
-        a->binit[1] = NULL;
-        a->binit[2] = NULL;
-        a->binit[3] = NULL;
+        a->binit[0] = nullptr;
+        a->binit[1] = nullptr;
+        a->binit[2] = nullptr;
+        a->binit[3] = nullptr;
         *paa = a;
         assert((*paa)->b_length == 4);
     }
@@ -77,7 +77,7 @@ Value* dmd_aaGet(AA** paa, Key key)
     size_t i = hash((size_t)key) & ((*paa)->b_length - 1);
     aaA** pe = &(*paa)->b[i];
     aaA *e;
-    while ((e = *pe) != NULL)
+    while ((e = *pe) != nullptr)
     {
         if (key == e->key)
             return &e->value;
@@ -90,9 +90,9 @@ Value* dmd_aaGet(AA** paa, Key key)
     size_t nodes = ++(*paa)->nodes;
     e = (nodes != 1) ? (aaA *)mem.xmalloc(sizeof(aaA)) : &(*paa)->aafirst;
     //e = new aaA();
-    e->next = NULL;
+    e->next = nullptr;
     e->key = key;
-    e->value = NULL;
+    e->value = nullptr;
     *pe = e;
 
     //printf("length = %d, nodes = %d\n", (*paa)->b_length, nodes);
@@ -108,7 +108,7 @@ Value* dmd_aaGet(AA** paa, Key key)
 
 /*************************************************
  * Get value in associative array indexed by key.
- * Returns NULL if it is not already there.
+ * Returns nullptr if it is not already there.
  */
 
 Value dmd_aaGetRvalue(AA* aa, Key key)
@@ -127,7 +127,7 @@ Value dmd_aaGetRvalue(AA* aa, Key key)
             e = e->next;
         }
     }
-    return NULL;    // not found
+    return nullptr;    // not found
 }
 
 

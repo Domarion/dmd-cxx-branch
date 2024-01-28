@@ -35,7 +35,7 @@
 #include "target.h"
 
 typedef int (*ForeachDg)(void *ctx, size_t idx, Dsymbol *s);
-int ScopeDsymbol_foreach(Scope *sc, Dsymbols *members, ForeachDg dg, void *ctx, size_t *pn = NULL);
+int ScopeDsymbol_foreach(Scope *sc, Dsymbols *members, ForeachDg dg, void *ctx, size_t *pn = nullptr);
 void freeFieldinit(Scope *sc);
 Expression *resolve(Loc loc, Scope *sc, Dsymbol *s, bool hasOverloads);
 Package *resolveIsPackage(Dsymbol *sym);
@@ -155,7 +155,7 @@ static void collectUnitTests(Dsymbols *symbols, AA *uniqueUnitTests, Expressions
 
             if (attrDecl)
             {
-                Dsymbols *decl = attrDecl->include(NULL);
+                Dsymbols *decl = attrDecl->include(nullptr);
                 collectUnitTests(decl, uniqueUnitTests, unitTests);
             }
         }
@@ -225,11 +225,11 @@ static Dsymbol *getDsymbolWithoutExpCtx(RootObject *oarg)
         a delegate, function, function-pointer
       or a variable of the former.  Otherwise, `null`.
 */
-static TypeFunction *toTypeFunction(RootObject *o, FuncDeclaration **fdp = NULL)
+static TypeFunction *toTypeFunction(RootObject *o, FuncDeclaration **fdp = nullptr)
 {
     Dsymbol *s = getDsymbolWithoutExpCtx(o);
     Type *t = isType(o);
-    TypeFunction *tf = NULL;
+    TypeFunction *tf = nullptr;
 
     if (s)
     {
@@ -294,7 +294,7 @@ bool isTemplate(Dsymbol *s)
     if (!s->toAlias()->isOverloadable())
         return false;
 
-    return overloadApply(s, NULL, &fpisTemplate) != 0;
+    return overloadApply(s, nullptr, &fpisTemplate) != 0;
 }
 
 static Expression *isDsymX(TraitsExp *e, bool (*fp)(Dsymbol *s))
@@ -355,7 +355,7 @@ static Expression *isDeclX(TraitsExp *e, bool (*fp)(Declaration *d))
 }
 
 static bool isPkgModule(Package *p) { return p->isModule() || p->isPackageMod(); }
-static bool isPkgPackage(Package *p) { return p->isModule() == NULL; }
+static bool isPkgPackage(Package *p) { return p->isModule() == nullptr; }
 
 static Expression *isPkgX(TraitsExp *e, bool (*fp)(Package *p))
 {
@@ -451,7 +451,7 @@ TraitsInitializer::TraitsInitializer()
         "getLocation",
         "hasPostblit",
         "isCopyable",
-        NULL
+        nullptr
     };
 
     traitsStringTable._init(56);
@@ -470,11 +470,11 @@ void *trait_search_fp(void *, const char *seed, int* cost)
     //printf("trait_search_fp('%s')\n", seed);
     size_t len = strlen(seed);
     if (!len)
-        return NULL;
+        return nullptr;
 
     *cost = 0;
     StringValue *sv = traitsStringTable.lookup(seed, len);
-    return sv ? (void*)sv->ptrvalue : NULL;
+    return sv ? (void*)sv->ptrvalue : nullptr;
 }
 
 /**
@@ -734,7 +734,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         }
 
         Type *tb = t->baseElemOf();
-        if (StructDeclaration *sd = (tb->ty == Tstruct) ? ((TypeStruct *)tb)->sym : NULL)
+        if (StructDeclaration *sd = (tb->ty == Tstruct) ? ((TypeStruct *)tb)->sym : nullptr)
         {
             return (sd->isPOD()) ? True(e) : False(e);
         }
@@ -755,7 +755,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         }
 
         Type *tb = t->baseElemOf();
-        if (StructDeclaration *sd = (tb->ty == Tstruct) ? ((TypeStruct *)tb)->sym : NULL)
+        if (StructDeclaration *sd = (tb->ty == Tstruct) ? ((TypeStruct *)tb)->sym : nullptr)
         {
             return sd->postblit ? True(e) : False(e);
         }
@@ -889,7 +889,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             return dimError(e, 1, dim);
 
         RootObject *o = (*e->args)[0];
-        Identifier *id = NULL;
+        Identifier *id = nullptr;
         if (Parameter *po = isParameter(o))
         {
             if (!po->ident)
@@ -934,7 +934,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             return ErrorExp::get();
         }
         if (s->semanticRun == PASSinit)
-            dsymbolSemantic(s, NULL);
+            dsymbolSemantic(s, nullptr);
 
         const char *protName = protectionToChars(s->prot().kind);   // TODO: How about package(names)
         assert(protName);
@@ -1100,7 +1100,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             if (e->ident == Id::hasMember)
             {
-                if (sym->search(e->loc, id) != NULL)
+                if (sym->search(e->loc, id) != nullptr)
                     return True(e);
             }
             ex = new DsymbolExp(e->loc, sym);
@@ -1155,14 +1155,14 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             {
                 VarExp *ve = (VarExp *)ex;
                 f = ve->var->isFuncDeclaration();
-                ex = NULL;
+                ex = nullptr;
             }
             else if (ex->op == TOKdotvar)
             {
                 DotVarExp *dve = (DotVarExp *)ex;
                 f = dve->var->isFuncDeclaration();
                 if (dve->e1->op == TOKdottype || dve->e1->op == TOKthis)
-                    ex = NULL;
+                    ex = nullptr;
                 else
                     ex = dve->e1;
             }
@@ -1173,20 +1173,20 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
                 f = td;
                 if (td && td->funcroot)
                     f = td->funcroot;
-                ex = NULL;
+                ex = nullptr;
             }
             else
-                f = NULL;
+                f = nullptr;
             Ptrait p;
             p.sym = sym;
             p.exps = exps;
             p.e1 = ex;
             p.ident = e->ident;
             p.includeTemplates = includeTemplates;
-            AA *funcTypeHash = NULL;
+            AA *funcTypeHash = nullptr;
             p.funcTypeHash = &funcTypeHash;
 
-            InterfaceDeclaration *ifd = NULL;
+            InterfaceDeclaration *ifd = nullptr;
             if (sym)
                 ifd = sym->isInterfaceDeclaration();
             // If the symbol passed as a parameter is an
@@ -1219,7 +1219,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
 
         RootObject *o = (*e->args)[0];
         Dsymbol *s = getDsymbol(o);
-        ClassDeclaration *cd = s ? s->isClassDeclaration() : NULL;
+        ClassDeclaration *cd = s ? s->isClassDeclaration() : nullptr;
         if (!cd)
         {
             e->error("first argument is not a class");
@@ -1244,7 +1244,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
 
         RootObject *o = (*e->args)[0];
         Dsymbol *s = getDsymbol(o);
-        AggregateDeclaration *ad = s ? s->isAggregateDeclaration() : NULL;
+        AggregateDeclaration *ad = s ? s->isAggregateDeclaration() : nullptr;
         if (!ad)
         {
             e->error("argument is not an aggregate type");
@@ -1273,7 +1273,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         RootObject *o = (*e->args)[0];
         Parameter *po = isParameter(o);
         Dsymbol *s = getDsymbolWithoutExpCtx(o);
-        UserAttributeDeclaration *udad = NULL;
+        UserAttributeDeclaration *udad = nullptr;
         if (po)
         {
             udad = po->userAttribDecl;
@@ -1331,7 +1331,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             return dimError(e, 1, dim);
 
         RootObject *o = (*e->args)[0];
-        FuncDeclaration *fd = NULL;
+        FuncDeclaration *fd = nullptr;
         TypeFunction *tf = toTypeFunction(o, &fd);
 
         if (!tf)
@@ -1358,7 +1358,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         LINK link;
         VarArg varargs;
         RootObject *o = (*e->args)[0];
-        FuncDeclaration *fd = NULL;
+        FuncDeclaration *fd = nullptr;
         TypeFunction *tf = toTypeFunction(o, &fd);
 
         if (tf)
@@ -1401,7 +1401,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         RootObject *o = (*e->args)[0];
         RootObject *o1 = (*e->args)[1];
 
-        FuncDeclaration *fd = NULL;
+        FuncDeclaration *fd = nullptr;
         TypeFunction *tf = toTypeFunction(o, &fd);
 
         ParameterList fparams;
@@ -1494,15 +1494,15 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         else
         {
             Dsymbol *s = getDsymbol(o);
-            Declaration *d = NULL;
-            AggregateDeclaration *ad = NULL;
-            if (!s || ((d = s->isDeclaration()) == NULL
-                       && (ad = s->isAggregateDeclaration()) == NULL))
+            Declaration *d = nullptr;
+            AggregateDeclaration *ad = nullptr;
+            if (!s || ((d = s->isDeclaration()) == nullptr
+                       && (ad = s->isAggregateDeclaration()) == nullptr))
             {
                 e->error("argument to `__traits(getLinkage, %s)` is not a declaration", o->toChars());
                 return ErrorExp::get();
             }
-            if (d != NULL)
+            if (d != nullptr)
                 link = d->linkage;
             else
             {
@@ -1625,7 +1625,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
                     EnumDeclaration *ed = sm->isEnumDeclaration();
                     if (ed)
                     {
-                        ScopeDsymbol_foreach(NULL, ed->members, &PushIdentsDg::dg, ctx);
+                        ScopeDsymbol_foreach(nullptr, ed->members, &PushIdentsDg::dg, ctx);
                     }
                 }
                 return 0;
@@ -1641,7 +1641,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (cd && e->ident == Id::allMembers)
         {
             if (cd->semanticRun < PASSsemanticdone)
-                dsymbolSemantic(cd, NULL);    // Bugzilla 13668: Try to resolve forward reference
+                dsymbolSemantic(cd, nullptr);    // Bugzilla 13668: Try to resolve forward reference
 
             struct PushBaseMembers
             {
@@ -1651,7 +1651,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
                     {
                         ClassDeclaration *cb = (*cd->baseclasses)[i]->sym;
                         assert(cb);
-                        ScopeDsymbol_foreach(NULL, cb->members, &PushIdentsDg::dg, ctx);
+                        ScopeDsymbol_foreach(nullptr, cb->members, &PushIdentsDg::dg, ctx);
                         if (cb->baseclasses->length)
                             dg(cb, ctx);
                     }
@@ -1690,8 +1690,8 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         {
             unsigned errors = global.startGagging();
             Scope *sc2 = sc->push();
-            sc2->tinst = NULL;
-            sc2->minst = NULL;
+            sc2->tinst = nullptr;
+            sc2->minst = nullptr;
             sc2->flags = (sc->flags & ~(SCOPEctfe | SCOPEcondition)) | SCOPEcompile | SCOPEfullinst;
             bool err = false;
 
@@ -1764,7 +1764,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             // we only need it to evaluate the expression
             // https://issues.dlang.org/show_bug.cgi?id=15428
             freeFieldinit(sc2);
-            sc2->enclosing = NULL;
+            sc2->enclosing = nullptr;
             sc2->pop();
 
             if (global.endGagging(errors) || err)
@@ -1846,7 +1846,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         if (global.params.useUnitTests)
         {
             // Should actually be a set
-            AA* uniqueUnitTests = NULL;
+            AA* uniqueUnitTests = nullptr;
             collectUnitTests(sds->members, uniqueUnitTests, exps);
         }
         TupleExp *te= new TupleExp(e->loc, exps);
@@ -1860,7 +1860,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         RootObject *o = (*e->args)[0];
         Dsymbol *s = getDsymbolWithoutExpCtx(o);
 
-        FuncDeclaration *fd = s ? s->isFuncDeclaration() : NULL;
+        FuncDeclaration *fd = s ? s->isFuncDeclaration() : nullptr;
         if (!fd)
         {
             e->error("first argument to __traits(getVirtualIndex) must be a function");
@@ -1897,7 +1897,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
             return dimError(e, 1, dim);
 
         Expression *ex = isExpression((*e->args)[0]);
-        StringExp *se = ex ? ex->ctfeInterpret()->toStringExp() : NULL;
+        StringExp *se = ex ? ex->ctfeInterpret()->toStringExp() : nullptr;
         if (!ex || !se || se->len == 0)
         {
             e->error("string expected as argument of __traits `%s` instead of `%s`", e->ident->toChars(), ex->toChars());
@@ -1944,7 +1944,7 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
         return expressionSemantic(tup, sc);
     }
 
-    if (const char *sub = (const char *)speller(e->ident->toChars(), &trait_search_fp, NULL, idchars))
+    if (const char *sub = (const char *)speller(e->ident->toChars(), &trait_search_fp, nullptr, idchars))
         e->error("unrecognized trait `%s`, did you mean `%s`?", e->ident->toChars(), sub);
     else
         e->error("unrecognized trait `%s`", e->ident->toChars());
