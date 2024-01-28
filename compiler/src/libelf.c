@@ -23,8 +23,6 @@
 #include "mars.h"
 #include "lib.h"
 
-#define LOG 0
-
 struct ObjModule;
 
 struct ObjSymbol
@@ -88,10 +86,6 @@ LibElf::LibElf()
 
 void LibElf::setFilename(const char *dir, const char *filename)
 {
-#if LOG
-    printf("LibElf::setFilename(dir = '%s', filename = '%s')\n",
-        dir ? dir : "", filename ? filename : "");
-#endif
     const char *arg = filename;
     if (!arg || !*arg)
     {   // Generate lib file name from first obj name
@@ -204,9 +198,6 @@ void OmToHeader(Header *h, ObjModule *om)
 
 void LibElf::addSymbol(ObjModule *om, char *name, int pickAny)
 {
-#if LOG
-    printf("LibElf::addSymbol(%s, %s, %d)\n", om->name, name, pickAny);
-#endif
     StringValue *s = tab.insert(name, strlen(name), nullptr);
     if (!s)
     {   // already in table
@@ -236,11 +227,6 @@ void LibElf::addSymbol(ObjModule *om, char *name, int pickAny)
 
 void LibElf::scanObjModule(ObjModule *om)
 {
-#if LOG
-    printf("LibElf::scanObjModule(%s)\n", om->name);
-#endif
-
-
     struct Context
     {
         LibElf *lib;
@@ -275,9 +261,7 @@ void LibElf::addObject(const char *module_name, void *buf, size_t buflen)
 {
     if (!module_name)
         module_name = "";
-#if LOG
-    printf("LibElf::addObject(%s)\n", module_name);
-#endif
+
     int fromfile = 0;
     if (!buf)
     {   assert(module_name[0]);
@@ -292,9 +276,6 @@ void LibElf::addObject(const char *module_name, void *buf, size_t buflen)
 
     if (buflen < 16)
     {
-#if LOG
-        printf("buf = %p, buflen = %d\n", buf, buflen);
-#endif
       Lcorrupt:
         error("corrupt object module %s %d", module_name, reason);
         return;
@@ -305,9 +286,6 @@ void LibElf::addObject(const char *module_name, void *buf, size_t buflen)
          * Pull each object module out of the library and add it
          * to the object module array.
          */
-#if LOG
-        printf("archive, buf = %p, buflen = %d\n", buf, buflen);
-#endif
         unsigned offset = 8;
         char *symtab = nullptr;
         unsigned symtab_size = 0;
@@ -517,10 +495,6 @@ void LibElf::addObject(const char *module_name, void *buf, size_t buflen)
 
 void LibElf::WriteLibToBuffer(OutBuffer *libbuf)
 {
-#if LOG
-    printf("LibElf::WriteLibToBuffer()\n");
-#endif
-
     /************* Scan Object Modules for Symbols ******************/
 
     for (size_t i = 0; i < objmodules.length; i++)
@@ -548,10 +522,6 @@ void LibElf::WriteLibToBuffer(OutBuffer *libbuf)
             om->name_offset = -1;
     }
 
-#if LOG
-    printf("\tnoffset = x%x\n", noffset);
-#endif
-
     /************* Determine module offsets ******************/
 
     unsigned moffset = 8 + sizeof(Header) + 4;
@@ -562,10 +532,6 @@ void LibElf::WriteLibToBuffer(OutBuffer *libbuf)
         moffset += 4 + strlen(os->name) + 1;
     }
     unsigned hoffset = moffset;
-
-#if LOG
-    printf("\tmoffset = x%x\n", moffset);
-#endif
 
     moffset += moffset & 1;
     if (noffset)
@@ -616,10 +582,6 @@ void LibElf::WriteLibToBuffer(OutBuffer *libbuf)
         libbuf->writeByte(0);
     }
 
-#if LOG
-    printf("\tlibbuf->moffset = x%x\n", libbuf->length());
-#endif
-
     /* Write out the string section
      */
     if (noffset)
@@ -664,8 +626,5 @@ void LibElf::WriteLibToBuffer(OutBuffer *libbuf)
         libbuf->write(om->base, om->length);    // module contents
     }
 
-#if LOG
-    printf("moffset = x%x, libbuf->offset = x%x\n", moffset, libbuf->length());
-#endif
     assert(libbuf->length() == moffset);
 }

@@ -17,8 +17,6 @@
 
 #include "mars.h"
 
-#define LOG 0
-
 /*****************************************************************************/
 
 static char elf[4] = { 0x7F, 'E', 'L', 'F' };   // ELF file signature
@@ -36,10 +34,6 @@ static char elf[4] = { 0x7F, 'E', 'L', 'F' };   // ELF file signature
 
 void scanElfObjModule(void* pctx, void (*pAddSymbol)(void* pctx, char* name, int pickAny), void *base, size_t buflen, const char *module_name, Loc loc)
 {
-#if LOG
-    printf("scanElfObjModule(%s)\n", module_name);
-#endif
-
     unsigned char *buf = (unsigned char *)base;
     int reason = 0;
 

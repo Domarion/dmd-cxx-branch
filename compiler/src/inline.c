@@ -10,8 +10,6 @@
 
 // Routines to perform function inlining
 
-#define LOG 0
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -86,9 +84,6 @@ Statement *inlineAsStatement(Statement *s, InlineDoState *ids)
 
         void visit(ExpStatement *s)
         {
-        #if LOG
-            if (s->exp) printf("ExpStatement::inlineAsStatement() '%s'\n", s->exp->toChars());
-        #endif
             result = new ExpStatement(s->loc, s->exp ? doInline(s->exp, ids) : nullptr);
         }
 
@@ -212,9 +207,6 @@ Expression *doInline(Statement *s, InlineDoState *ids)
 
         void visit(ExpStatement *s)
         {
-        #if LOG
-            if (s->exp) printf("ExpStatement::doInline() '%s'\n", s->exp->toChars());
-        #endif
             result = s->exp ? doInline(s->exp, ids) : nullptr;
         }
 
@@ -863,9 +855,6 @@ public:
 
     void visit(ExpStatement *s)
     {
-    #if LOG
-        printf("ExpStatement::inlineScan(%s)\n", s->toChars());
-    #endif
         if (!s->exp)
             return;
 
@@ -1272,9 +1261,6 @@ public:
 
     void visit(FuncDeclaration *fd)
     {
-    #if LOG
-        printf("FuncDeclaration::inlineScan('%s')\n", fd->toPrettyChars());
-    #endif
         if ((fd->isUnitTestDeclaration() && !global.params.useUnitTests) ||
             fd->flags & FUNCFLAGinlineScanned)
             return;
@@ -1329,9 +1315,6 @@ public:
 
     void visit(TemplateInstance *ti)
     {
-    #if LOG
-        printf("TemplateInstance::inlineScan('%s')\n", ti->toChars());
-    #endif
         if (!ti->errors && ti->members)
         {
             for (size_t i = 0; i < ti->members->length; i++)
@@ -1575,7 +1558,7 @@ static void expandInline(Loc callLoc, FuncDeclaration *fd, FuncDeclaration *pare
 
 #define EXPANDINLINE_LOG 0
 
-#if LOG || CANINLINE_LOG || EXPANDINLINE_LOG
+#if CANINLINE_LOG || EXPANDINLINE_LOG
     printf("FuncDeclaration::expandInline('%s')\n", fd->toChars());
 #endif
 #if EXPANDINLINE_LOG

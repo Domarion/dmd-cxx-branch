@@ -19,8 +19,6 @@
 #include        "port.h"
 #include        "stringtable.h"
 
-#define LOG     0
-
 char *skipspace(char *p);
 
 /*****************************
@@ -34,10 +32,6 @@ char *skipspace(char *p);
  */
 const char *findConfFile(const char *argv0, const char *inifile)
 {
-#if LOG
-    printf("findinifile(argv0 = '%s', inifile = '%s')\n", argv0, inifile);
-#endif
-
     if (FileName::absolute(inifile))
         return inifile;
     if (FileName::exists(inifile))
@@ -60,9 +54,6 @@ const char *findConfFile(const char *argv0, const char *inifile)
 
     // Search PATH for argv0
     const char *p = getenv("PATH");
-#if LOG
-    printf("\tPATH='%s'\n", p);
-#endif
     Strings *paths = FileName::splitPath(p);
     const char *abspath = FileName::searchPath(paths, argv0, false);
     if (abspath)
@@ -335,10 +326,6 @@ void parseConfFile(StringTable *environment, const char *path, size_t length, un
                     if (pn)
                     {
                         writeToEnv(environment, strdup(pn));
-#if LOG
-                        printf("\tputenv('%s')\n", pn);
-                        //printf("getenv(\"TEST\") = '%s'\n",getenv("TEST"));
-#endif
                     }
                 }
                 break;

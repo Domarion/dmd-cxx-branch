@@ -1154,9 +1154,6 @@ void toObjFile(Dsymbol *ds, bool multiobj)
 
         void visit(TemplateInstance *ti)
         {
-        #if LOG
-            printf("TemplateInstance::toObjFile(%p, '%s')\n", ti, ti->toChars());
-        #endif
             if (!isError(ti) && ti->members)
             {
                 if (!ti->needsCodegen())
@@ -1201,9 +1198,6 @@ void toObjFile(Dsymbol *ds, bool multiobj)
 
         void visit(Nspace *ns)
         {
-        #if LOG
-            printf("Nspace::toObjFile('%s', this = %p)\n", ns->toChars(), ns);
-        #endif
             if (!isError(ns) && ns->members)
             {
                 if (multiobj)
