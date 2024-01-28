@@ -1,6 +1,6 @@
 INSTALL_DIR=$(PWD)/../install
 ECTAGS_LANGS = Make,C,C++,Sh
-ECTAGS_FILES = src/*.[ch] src/backend/*.[ch] src/root/*.[ch] src/tk/*.[ch]
+ECTAGS_FILES = src/*.(cpp|hpp) src/backend/*.(cpp|hpp) src/root/*.(cpp|hpp) src/tk/*.(cpp|hpp)
 
 .PHONY: all clean test install auto-tester-build auto-tester-test
 
@@ -23,7 +23,7 @@ test:
 # Creates Exuberant Ctags tags file
 tags: posix.mak $(ECTAGS_FILES)
 	ctags --sort=yes --links=no --excmd=number --languages=$(ECTAGS_LANGS) \
-		--langmap='C++:+.c,C++:+.h' --extra=+f --file-scope=yes --fields=afikmsSt --totals=yes posix.mak $(ECTAGS_FILES)
+		--langmap='C++:+.cpp,C++:+.hpp' --extra=+f --file-scope=yes --fields=afikmsSt --totals=yes posix.mak $(ECTAGS_FILES)
 
 install: all
 	$(MAKE) INSTALL_DIR=$(INSTALL_DIR) -C src -f posix.mak install
