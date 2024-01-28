@@ -90,20 +90,27 @@ Lexer::Lexer(const char *filename,
     if (p[0] == '#' && p[1] =='!')
     {
         p += 2;
-        while (1)
+        for (;;p++)
         {
-            utf8_t c = *p++;
+            utf8_t c = *p;
             switch (c)
             {
+                case '\n':
+                    p++;
+                    break;
+
                 case 0:
                 case 0x1A:
-                    p--;
-                    /* fall through */
-
-                case '\n':
                     break;
 
                 default:
+                    // Note: We do allow malformed UTF-8 on shebang line.
+                    // It could have a meaning if the native system
+                    // encoding is not Unicode. See test compilable/test13512.d
+                    // for example encoded in KOI-8.
+                    // We also allow bidirectional control characters.
+                    // We do not execute the shebang line, so it can't be used
+                    // to conceal code. It is up to the shell to sanitize it.
                     continue;
             }
             break;
@@ -2184,7 +2191,7 @@ unsigned Lexer::decodeUTF()
     const utf8_t *s = p;
     size_t len;
     size_t idx;
-    const char *msg;
+    ;
 
     c = *s;
     assert(c & 0x80);
@@ -2194,8 +2201,14 @@ unsigned Lexer::decodeUTF()
         ;
 
     idx = 0;
-    msg = utf_decodeChar(s, len, &idx, &u);
+    const char *msg = utf_decodeChar(s, len, &idx, &u);
     p += idx - 1;
+
+    if (!msg && isBidiControl(u))
+    {
+        msg = "Bidirectional control characters are disallowed for security reasons.";
+    }
+
     if (msg)
     {
         error("%s", msg);
