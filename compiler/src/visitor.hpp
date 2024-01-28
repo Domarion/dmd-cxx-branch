@@ -52,7 +52,6 @@ class GotoStatement;
 class LabelStatement;
 class AsmStatement;
 class InlineAsmStatement;
-class GccAsmStatement;
 class CompoundAsmStatement;
 class ImportStatement;
 
@@ -345,7 +344,6 @@ public:
     virtual void visit(LabelStatement *s) { visit((Statement *)s); }
     virtual void visit(AsmStatement *s) { visit((Statement *)s); }
     virtual void visit(InlineAsmStatement *s) { visit((AsmStatement *)s); }
-    virtual void visit(GccAsmStatement *s) { visit((AsmStatement *)s); }
     virtual void visit(CompoundAsmStatement *s) { visit((CompoundStatement *)s); }
     virtual void visit(ImportStatement *s) { visit((Statement *)s); }
 

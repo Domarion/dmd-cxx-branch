@@ -265,7 +265,7 @@ ROOT_OBJS = \
 GLUE_OBJS = \
 	glue.o msc.o s2ir.o todt.o e2ir.o tocsym.o \
 	toobj.o toctype.o toelfdebug.o toir.o \
-	irstate.o typinf.o iasm.o iasmdmd.o iasmgcc.o objc_glue_stubs.o libelf.o scanelf.o
+        irstate.o typinf.o iasm.o iasmdmd.o objc_glue_stubs.o libelf.o scanelf.o
 
 BACK_OBJS = go.o gdag.o gother.o gflow.o gloop.o var.o el.o \
 	glocal.o os.o evalu8.o cgcs.o \

@@ -1700,28 +1700,6 @@ Statement *InlineAsmStatement::syntaxCopy()
     return new InlineAsmStatement(loc, tokens);
 }
 
-
-/************************ GccAsmStatement ***************************************/
-
-GccAsmStatement::GccAsmStatement(Loc loc, Token *tokens)
-        : AsmStatement(loc, tokens)
-{
-    this->stc = STCundefined;
-    this->insn = nullptr;
-    this->args = nullptr;
-    this->outputargs = 0;
-    this->names = nullptr;
-    this->constraints = nullptr;
-    this->clobbers = nullptr;
-    this->labels = nullptr;
-    this->gotos = nullptr;
-}
-
-Statement *GccAsmStatement::syntaxCopy()
-{
-    return new GccAsmStatement(loc, tokens);
-}
-
 /************************ CompoundAsmStatement ***************************************/
 
 CompoundAsmStatement::CompoundAsmStatement(Loc loc, Statements *s, StorageClass stc)
