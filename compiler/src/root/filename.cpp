@@ -50,9 +50,7 @@ Strings *FileName::splitPath(const char *path)
     char c = 0;                         // unnecessary initializer is for VC /W4
     const char *p;
     OutBuffer buf;
-    Strings *array;
-
-    array = new Strings();
+    Strings *array = new Strings();
     if (path)
     {
         p = path;
@@ -205,7 +203,6 @@ const char *FileName::removeExt(const char *str)
 /********************************
  * Return filename name excluding path (read-only).
  */
-
 const char *FileName::name(const char *str)
 {
     size_t len = strlen(str);
@@ -237,7 +234,6 @@ const char *FileName::name()
  * Return path portion of str.
  * Path will does not include trailing path separator.
  */
-
 const char *FileName::path(const char *str)
 {
     const char *n = name(str);
@@ -409,17 +405,11 @@ const char *FileName::safeSearchPath(Strings *path, const char *name)
         {
             const char *cname = nullptr;
             const char *cpath = canonicalName((*path)[i]);
-            //printf("FileName::safeSearchPath(): name=%s; path=%s; cpath=%s\n",
-            //      name, (char *)path->data[i], cpath);
             if (cpath == nullptr)
                 goto cont;
             cname = canonicalName(combine(cpath, name));
-            //printf("FileName::safeSearchPath(): cname=%s\n", cname);
             if (cname == nullptr)
                 goto cont;
-            //printf("FileName::safeSearchPath(): exists=%i "
-            //      "strncmp(cpath, cname, %i)=%i\n", exists(cname),
-            //      strlen(cpath), strncmp(cpath, cname, strlen(cpath)));
             // exists and name is *really* a "child" of path
             if (exists(cname) && strncmp(cpath, cname, strlen(cpath)) == 0)
             {
@@ -452,7 +442,6 @@ int FileName::exists(const char *name)
 
 bool FileName::ensurePathExists(const char *path)
 {
-    //printf("FileName::ensurePathExists(%s)\n", path ? path : "");
     if (path && *path)
     {
         if (!exists(path))

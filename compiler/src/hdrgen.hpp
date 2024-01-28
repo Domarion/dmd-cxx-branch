@@ -17,15 +17,13 @@ void genhdrfile(Module *m);
 
 struct HdrGenState
 {
-    bool hdrgen;        // true if generating header file
-    bool ddoc;          // true if generating Ddoc file
-    bool fullDump;      // true if generating a full AST dump file
-    bool fullQual;      // fully qualify types when printing
-    int tpltMember;
-    int autoMember;
-    int forStmtInit;
-
-    HdrGenState() { memset(this, 0, sizeof(HdrGenState)); }
+    bool hdrgen = false;        // true if generating header file
+    bool ddoc = false;          // true if generating Ddoc file
+    bool fullDump = false;      // true if generating a full AST dump file
+    bool fullQual = false;      // fully qualify types when printing
+    int tpltMember = 0;
+    int autoMember = 0;
+    int forStmtInit = 0;
 };
 
 void toCBuffer(Statement *s, OutBuffer *buf, HdrGenState *hgs);

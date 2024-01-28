@@ -66,9 +66,6 @@ enum CPU
 
 enum CppStdRevision
 {
-    CppStdRevisionCpp98 = 199711,
-    CppStdRevisionCpp11 = 201103,
-    CppStdRevisionCpp14 = 201402,
     CppStdRevisionCpp17 = 201703
 };
 
@@ -119,7 +116,7 @@ struct Param
     bool addMain;       // add a default main() function
     bool allInst;       // generate code for all template instantiations
     bool vsafe;         // use enhanced @safe checking
-    unsigned cplusplus = CppStdRevisionCpp98;     // version of C++ name mangling to support
+    unsigned cplusplus = CppStdRevisionCpp17;     // version of C++ name mangling to support
     bool showGaggedErrors;  // print gagged errors anyway
 
     CPU cpu;                // CPU instruction set to target

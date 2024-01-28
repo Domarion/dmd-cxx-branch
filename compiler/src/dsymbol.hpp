@@ -105,7 +105,7 @@ struct Visibility
     bool operator==(const Visibility& other) const;
 };
 
-// in hdrgen.c
+// in hdrgen.cpp
 void protectionToBuffer(OutBuffer *buf, Visibility prot);
 const char *protectionToChars(Visibility::Kind kind);
 

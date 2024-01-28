@@ -4216,8 +4216,6 @@ public:
                     cldec->error("cannot inherit from final class %s", cldec->baseClass->toChars());
 
                 // Inherit properties from base class
-                if (cldec->baseClass->isCOMclass())
-                    cldec->com = true;
                 if (cldec->baseClass->isCPPclass())
                     cldec->classKind = ClassKind::cpp;
                 if (cldec->baseClass->isscope)
@@ -4232,10 +4230,6 @@ public:
             for (size_t i = 0; i < cldec->interfaces.length; i++)
             {
                 BaseClass *b = cldec->interfaces.ptr[i];
-                // If this is an interface, and it derives from a COM interface,
-                // then this is a COM interface too.
-                if (b->sym->isCOMinterface())
-                    cldec->com = true;
                 if (cldec->isCPPclass() && !b->sym->isCPPinterface())
                 {
                     error(cldec->loc, "C++ class `%s` cannot implement D interface `%s`",
@@ -4681,10 +4675,6 @@ public:
             for (size_t i = 0; i < idec->interfaces.length; i++)
             {
                 BaseClass *b = idec->interfaces.ptr[i];
-                // If this is an interface, and it derives from a COM interface,
-                // then this is a COM interface too.
-                if (b->sym->isCOMinterface())
-                    idec->com = true;
                 if (b->sym->isCPPinterface())
                     idec->classKind = ClassKind::cpp;
             }

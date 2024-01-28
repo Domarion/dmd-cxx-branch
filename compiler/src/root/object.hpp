@@ -10,7 +10,7 @@
 
 #include "dsystem.hpp"
 
-typedef size_t hash_t;
+using hash_t = size_t;
 
 struct OutBuffer;
 

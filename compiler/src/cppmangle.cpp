@@ -148,7 +148,7 @@ class CppMangleVisitor : public Visitor
         // 4. null pointer: std::nullptr_t (since C++11)
         if (t->ty == Tvoid || t->ty == Tbool)
             return true;
-        else if (t->ty == Tnull && global.params.cplusplus >= CppStdRevisionCpp11)
+        else if (t->ty == Tnull && global.params.cplusplus >= CppStdRevisionCpp17)
             return true;
         else
             return t->isTypeBasic() && (t->isintegral() || t->isreal());

@@ -27,7 +27,6 @@ Macros defined by the compiler, not the code:
     There are currently no macros for byte endianness order.
  */
 
-
 #include "root/dsystem.hpp"
 
 void unittests();
@@ -35,11 +34,8 @@ void unittests();
 struct OutBuffer;
 
 #include "globals.hpp"
-
 #include "root/ctfloat.hpp"
-
 #include "complex_t.hpp"
-
 #include "errors.hpp"
 
 class Dsymbol;

@@ -237,7 +237,6 @@ ClassDeclaration::ClassDeclaration(Loc loc, Identifier *id, BaseClasses *basecla
         }
     }
 
-    com = false;
     isscope = false;
     isabstract = ABSfwdref;
     inuse = 0;
@@ -273,13 +272,6 @@ Dsymbol *ClassDeclaration::syntaxCopy(Dsymbol *s)
 Scope *ClassDeclaration::newScope(Scope *sc)
 {
     Scope *sc2 = AggregateDeclaration::newScope(sc);
-    if (isCOMclass())
-    {
-        /* This enables us to use COM objects under Linux and
-         * work with things like XPCOM
-         */
-        sc2->linkage = target.systemLinkage();
-    }
     return sc2;
 }
 
@@ -681,16 +673,6 @@ FuncDeclaration *ClassDeclaration::findFunc(Identifier *ident, TypeFunction *tf)
 /****************************************
  */
 
-bool ClassDeclaration::isCOMclass() const
-{
-    return com;
-}
-
-bool ClassDeclaration::isCOMinterface() const
-{
-    return false;
-}
-
 bool ClassDeclaration::isCPPclass() const
 {
     return classKind == ClassKind::cpp;
@@ -796,9 +778,8 @@ void ClassDeclaration::addLocalClass(ClassDeclarations *aclasses)
 InterfaceDeclaration::InterfaceDeclaration(Loc loc, Identifier *id, BaseClasses *baseclasses)
     : ClassDeclaration(loc, id, baseclasses, nullptr, false)
 {
-    if (id == Id::IUnknown)     // IUnknown is the root of all COM interfaces
+    if (id == Id::IUnknown)
     {
-        com = true;
         classKind = ClassKind::cpp; // IUnknown is also a C++ interface
     }
 }
@@ -898,14 +879,9 @@ bool InterfaceDeclaration::isBaseOf(BaseClass *bc, int *poffset)
 
 int InterfaceDeclaration::vtblOffset() const
 {
-    if (isCOMinterface() || isCPPinterface())
+    if (isCPPinterface())
         return 0;
     return 1;
-}
-
-bool InterfaceDeclaration::isCOMinterface() const
-{
-    return com;
 }
 
 bool InterfaceDeclaration::isCPPinterface() const
@@ -956,7 +932,7 @@ BaseClass::BaseClass(Type *type)
  *      by base classes)
  */
 
-bool BaseClass::fillVtbl(ClassDeclaration *cd, FuncDeclarations *vtbl, int newinstance)
+bool BaseClass::fillVtbl(ClassDeclaration *cd, FuncDeclarations *vtbl, int /*newinstance*/)
 {
     bool result = false;
 
@@ -968,8 +944,6 @@ bool BaseClass::fillVtbl(ClassDeclaration *cd, FuncDeclarations *vtbl, int newin
     for (size_t j = sym->vtblOffset(); j < sym->vtbl.length; j++)
     {
         FuncDeclaration *ifd = sym->vtbl[j]->isFuncDeclaration();
-
-        //printf("        vtbl[%d] is '%s'\n", j, ifd ? ifd->toChars() : "null");
 
         assert(ifd);
         // Find corresponding function in this class
@@ -994,10 +968,6 @@ bool BaseClass::fillVtbl(ClassDeclaration *cd, FuncDeclarations *vtbl, int newin
 
 void BaseClass::copyBaseInterfaces(BaseClasses *vtblInterfaces)
 {
-    //printf("+copyBaseInterfaces(), %s\n", sym->toChars());
-//    if (baseInterfaces.length)
-//      return;
-
     baseInterfaces.length = sym->interfaces.length;
     baseInterfaces.ptr = (BaseClass *)mem.xcalloc(baseInterfaces.length, sizeof(BaseClass));
 
@@ -1014,5 +984,4 @@ void BaseClass::copyBaseInterfaces(BaseClasses *vtblInterfaces)
             vtblInterfaces->push(b);    // only need for M.I.
         b->copyBaseInterfaces(vtblInterfaces);
     }
-    //printf("-copyBaseInterfaces\n");
 }

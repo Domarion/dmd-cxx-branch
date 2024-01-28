@@ -11,10 +11,7 @@
  * Memory management routines.
  *
  * Compiling:
- *
- *      #define MEM_DEBUG 1 when compiling to enable extended debugging
- *      features.
- *
+ * *
  *      #define MEM_NONE 1 to compile out mem, i.e. have it all drop
  *      directly to calls to malloc, free, etc.
  *
@@ -29,18 +26,6 @@
  *      o Behavior on out-of-memory conditions can be controlled
  *        via mem_setexception().
  *
- * Extended debugging features:
- *
- *      o Enabled by #define MEM_DEBUG 1 when compiling.
- *      o Check values are inserted before and after the alloc'ed data
- *        to detect pointer underruns and overruns.
- *      o Free'd pointers are checked against alloc'ed pointers.
- *      o Free'd storage is cleared to smoke out references to free'd data.
- *      o Realloc'd pointers are always changed, and the previous storage
- *        is cleared, to detect erroneous dependencies on the previous
- *        pointer.
- *      o The routine mem_checkptr() is provided to check an alloc'ed
- *        pointer.
  */
 
 /********************* GLOBAL VARIABLES *************************/

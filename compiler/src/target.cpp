@@ -28,8 +28,6 @@
 
 const char *toCppMangleItanium(Dsymbol *);
 const char *cppTypeInfoMangleItanium(Dsymbol *);
-const char *toCppMangleMSVC(Dsymbol *);
-const char *cppTypeInfoMangleMSVC(Dsymbol *);
 TypeTuple *toArgTypes(Type *t);
 
 Target target;

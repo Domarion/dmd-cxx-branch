@@ -22,10 +22,6 @@ const char *toCppMangleItanium(Dsymbol *s);
 const char *cppTypeInfoMangleItanium(Dsymbol *s);
 const char *cppThunkMangleItanium(FuncDeclaration *fd, int offset);
 
-// In cppmanglewin.c
-const char *toCppMangleMSVC(Dsymbol *s);
-const char *cppTypeInfoMangleMSVC(Dsymbol *s);
-
 // In dmangle.c
 const char *mangleExact(FuncDeclaration *fd);
 void mangleToBuffer(Type *s, OutBuffer *buf);

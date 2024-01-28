@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "dsystem.hpp"    // for size_t
+#include <cstddef>    // for size_t
 
 struct Mem
 {

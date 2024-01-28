@@ -22,7 +22,6 @@ char *OutBuffer::extractData()
 
 void OutBuffer::reserve(size_t nbytes)
 {
-    //printf("OutBuffer::reserve: size = %d, offset = %d, nbytes = %d\n", data.length, offset, nbytes);
     if (data.length - offset < nbytes)
     {
         data.length = (offset + nbytes) * 2;

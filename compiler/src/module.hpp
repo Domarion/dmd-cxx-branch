@@ -142,7 +142,6 @@ public:
     bool isCoreModule(Identifier *ident);
 
     // Back end
-
     int doppelganger;           // sub-module
     Symbol *cov;                // private uint[] __coverage;
     unsigned *covb;             // bit array of valid code line numbers

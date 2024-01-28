@@ -53,7 +53,6 @@ enum ParseStatementFlags
     PSsemi_ok = 0x10    // empty ';' are really ok
 };
 
-
 class Parser : public Lexer
 {
 public:
@@ -162,7 +161,6 @@ public:
 };
 
 // Operator precedence - greater values are higher precedence
-
 enum PREC
 {
     PREC_zero,

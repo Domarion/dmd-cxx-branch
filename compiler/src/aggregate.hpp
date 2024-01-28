@@ -243,7 +243,6 @@ struct ClassFlags
     typedef unsigned Type;
     enum Enum
     {
-        isCOMclass = 0x1,
         noPointers = 0x2,
         hasOffTi = 0x4,
         hasCtor = 0x8,
@@ -280,7 +279,6 @@ public:
                                         // their own vtbl[]
 
     TypeInfoClassDeclaration *vclassinfo;       // the ClassInfo object for this ClassDeclaration
-    bool com;                           // true if this is a COM class (meaning it derives from IUnknown)
     bool isscope;                       // true if this is a scope class
     Abstract isabstract;                // 0: fwdref, 1: is abstract class, 2: not abstract
     int inuse;                          // to prevent recursive attempts
@@ -304,8 +302,6 @@ public:
     bool hasMonitor();
     bool isFuncHidden(FuncDeclaration *fd);
     FuncDeclaration *findFunc(Identifier *ident, TypeFunction *tf);
-    bool isCOMclass() const;
-    virtual bool isCOMinterface() const;
     bool isCPPclass() const;
     virtual bool isCPPinterface() const;
     bool isAbstract();
@@ -332,7 +328,6 @@ public:
     const char *kind() const;
     int vtblOffset() const;
     bool isCPPinterface() const;
-    bool isCOMinterface() const;
 
     InterfaceDeclaration *isInterfaceDeclaration() { return this; }
     void accept(Visitor *v) { v->visit(this); }

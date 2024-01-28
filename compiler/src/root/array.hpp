@@ -79,7 +79,6 @@ struct Array
 
     void reserve(size_t nentries)
     {
-        //printf("Array::reserve: length = %d, data.length = %d, nentries = %d\n", (int)length, (int)data.length, (int)nentries);
         if (data.length - length < nentries)
         {
             if (data.length == 0)
@@ -169,9 +168,7 @@ struct Array
 
     TYPE& operator[] (size_t index)
     {
-#ifdef DEBUG
         assert(index < length);
-#endif
         return data.ptr[index];
     }
 

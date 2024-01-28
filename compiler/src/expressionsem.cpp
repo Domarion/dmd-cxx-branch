@@ -6101,14 +6101,6 @@ public:
         {   case Tclass:
             {
                 ClassDeclaration *cd = ((TypeClass *)tb)->sym;
-
-                if (cd->isCOMinterface())
-                {   /* Because COM classes are deleted by IUnknown.Release()
-                */
-                    exp->error("cannot delete instance of COM interface %s", cd->toChars());
-                    return setError();
-                }
-
                 ad = cd;
                 break;
             }

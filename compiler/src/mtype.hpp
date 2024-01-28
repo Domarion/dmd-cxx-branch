@@ -96,10 +96,9 @@ enum ENUMTY
     Tnoreturn,
     TMAX
 };
-typedef unsigned char TY;       // ENUMTY
+using TY = unsigned char;       // ENUMTY
 
 #define SIZE_INVALID (~(d_uns64)0)   // error return from size() functions
-
 
 /**
  * type modifiers
@@ -114,7 +113,7 @@ enum MODFlags
     MODwildconst = (MODwild | MODconst), // type is wild const
     MODmutable   = 0x10       // type is mutable (only used in wildcard matching)
 };
-typedef unsigned char MOD;
+using MOD = unsigned char;
 
 // These tables are for implicit conversion of binary ops;
 // the indices are the type of operand one, followed by operand two.
@@ -130,7 +129,6 @@ enum VarArg
     VARARGnone     = 0,  /// fixed number of arguments
     VARARGvariadic = 1,  /// T t, ...)  can be C-style (core.stdc.stdarg) or D-style (core.vararg)
     VARARGtypesafe = 2   /// T t ...) typesafe https://dlang.org/spec/function.html#typesafe_variadic_functions
-                         ///   or https://dlang.org/spec/function.html#typesafe_variadic_functions
 };
 
 class Type : public ASTNode

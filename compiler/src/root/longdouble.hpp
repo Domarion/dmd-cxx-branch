@@ -11,8 +11,8 @@
 #pragma once
 
 #include <stdio.h>
-typedef long double longdouble;
-typedef volatile long double volatile_longdouble;
+using longdouble = long double;
+using volatile_longdouble = volatile long double;
 
 // also used from within C code, so use a #define rather than a template
 // template<typename T> longdouble ldouble(T x) { return (longdouble) x; }

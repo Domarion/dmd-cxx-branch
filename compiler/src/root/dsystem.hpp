@@ -20,17 +20,17 @@
 #define __STDC_LIMIT_MACROS 1
 #endif
 
-#include <assert.h>
+#include <cassert>
 #include <ctype.h>
-#include <errno.h>
-#include <limits.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
+#include <cerrno>
+#include <climits>
+#include <cstdarg>
+#include <cstddef>
+#include <cstring>
+#include <cstdint>
+#include <cstdlib>
+#include <cstdio>
+#include <ctime>
 
 #include <new>
 

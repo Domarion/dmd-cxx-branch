@@ -56,7 +56,6 @@ symbol *except_gentables()
 
 void except_fillInEHTable(symbol *s)
 {
-    unsigned fsize = NPTRSIZE;             // target size of function pointer
     DtBuilder dtb;
 
     /*
@@ -99,8 +98,6 @@ void except_fillInEHTable(symbol *s)
     {
         if (b->BC == BC_try && b->Bscope_index >= guarddim)
             guarddim = b->Bscope_index + 1;
-//      printf("b->BC = %2d, Bscope_index = %2d, last_index = %2d, offset = x%x\n",
-//              b->BC, b->Bscope_index, b->Blast_index, b->Boffset);
         if (usednteh & EHcleanup)
             for (code *c = b->Bcode; c; c = code_next(c))
             {
@@ -108,7 +105,6 @@ void except_fillInEHTable(symbol *s)
                     ndctors++;
             }
     }
-    //printf("guarddim = %d, ndctors = %d\n", guarddim, ndctors);
 
     unsigned catchoffset = sz + (guarddim + ndctors) * GUARD_SIZE;
 
@@ -116,7 +112,6 @@ void except_fillInEHTable(symbol *s)
     int i = 0;
     for (block *b = startblock; b; b = b->Bnext)
     {
-        //printf("b = %p, b->Btry = %p, b->offset = %x\n", b, b->Btry, b->Boffset);
         if (b->BC == BC_try)
         {
             assert(b->Bscope_index >= i);

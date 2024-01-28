@@ -13,7 +13,7 @@
 class RootObject;
 
 template <typename TYPE> struct Array;
-typedef Array<const char *> Strings;
+using Strings = Array<const char *>;
 
 struct FileName
 {

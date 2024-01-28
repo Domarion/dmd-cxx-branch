@@ -9,11 +9,7 @@
 #pragma once
 
 #include "object.hpp"
-
 #include "filename.hpp"
-
 #include "file.hpp"
-
 #include "outbuffer.hpp"
-
 #include "array.hpp"

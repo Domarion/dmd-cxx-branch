@@ -64,7 +64,6 @@ public:
     void accept(Visitor *v) { v->visit(this); }
 };
 
-
 class EnumMember : public VarDeclaration
 {
 public:

@@ -11,7 +11,7 @@
 #include "longdouble.hpp"
 
 // Type used by the front-end for compile-time reals
-typedef longdouble real_t;
+using real_t = longdouble;
 
 // Compile-time floating-point helper
 struct CTFloat

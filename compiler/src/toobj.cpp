@@ -280,7 +280,7 @@ void toObjFile(Dsymbol *ds, bool multiobj)
             }
 
             bool gentypeinfo = global.params.useTypeInfo && Type::dtypeinfo;
-            bool genclassinfo = gentypeinfo || !(cd->isCPPclass() || cd->isCOMclass());
+            bool genclassinfo = gentypeinfo || !(cd->isCPPclass());
 
             // Generate C symbols
             if (genclassinfo)
@@ -413,7 +413,6 @@ void toObjFile(Dsymbol *ds, bool multiobj)
 
                 // flags
                 ClassFlags::Type flags = ClassFlags::hasOffTi;
-                if (cd->isCOMclass()) flags |= ClassFlags::isCOMclass;
                 if (cd->isCPPclass()) flags |= ClassFlags::isCPPclass;
                 flags |= ClassFlags::hasGetMembers;
                 flags |= ClassFlags::hasTypeInfo;
@@ -801,7 +800,6 @@ void toObjFile(Dsymbol *ds, bool multiobj)
 
             // flags
             ClassFlags::Type flags = ClassFlags::hasOffTi | ClassFlags::hasTypeInfo;
-            if (id->isCOMinterface()) flags |= ClassFlags::isCOMclass;
             dtb.size(flags);
 
             // deallocator

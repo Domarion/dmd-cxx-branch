@@ -13,6 +13,7 @@
 #include "root/array.hpp"
 #include "root/bitarray.hpp"
 
+// TODO: Generate?
 typedef Array<class TemplateParameter *> TemplateParameters;
 
 typedef Array<class Expression *> Expressions;
