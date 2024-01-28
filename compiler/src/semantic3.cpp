@@ -883,7 +883,6 @@ public:
                         if (tret->ty == Terror)
                         {
                             // Bugzilla 13702
-                            exp = checkGC(sc2, exp);
                             continue;
                         }
 
@@ -916,8 +915,6 @@ public:
                             if (tret->hasPointers())
                                 checkReturnEscape(sc2, exp, false);
                         }
-
-                        exp = checkGC(sc2, exp);
 
                         if (funcdecl->vresult)
                         {
@@ -1181,14 +1178,6 @@ public:
             if (funcdecl->type == f)
                 f = (TypeFunction *)f->copy();
             f->trust = TRUSTsafe;
-        }
-
-        if (funcdecl->flags & FUNCFLAGnogcInprocess)
-        {
-            funcdecl->flags &= ~FUNCFLAGnogcInprocess;
-            if (funcdecl->type == f)
-                f = (TypeFunction *)f->copy();
-            f->isnogc = true;
         }
 
         if (funcdecl->flags & FUNCFLAGreturnInprocess)

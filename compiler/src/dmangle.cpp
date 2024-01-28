@@ -333,7 +333,7 @@ public:
         }
         buf->writeByte(mc);
 
-        if (ta->purity || ta->isnothrow || ta->isnogc || ta->isproperty || ta->isref || ta->trust || ta->isreturn || ta->isscope)
+        if (ta->purity || ta->isnothrow || ta->isproperty || ta->isref || ta->trust || ta->isreturn || ta->isscope)
         {
             if (ta->purity)
                 buf->writestring("Na");
@@ -343,8 +343,6 @@ public:
                 buf->writestring("Nc");
             if (ta->isproperty)
                 buf->writestring("Nd");
-            if (ta->isnogc)
-                buf->writestring("Ni");
             if (ta->isreturn)
                 buf->writestring("Nj");
             if (ta->isscope && !ta->isreturn && !ta->isscopeinferred)

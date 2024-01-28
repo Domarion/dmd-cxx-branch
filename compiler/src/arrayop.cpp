@@ -60,8 +60,8 @@ FuncDeclaration *buildArrayOp(Identifier *ident, BinExp *exp, Scope *sc)
     //printf("s2: %s\n", s2->toChars());
     Statement *fbody = new CompoundStatement(Loc(), s1, s2);
 
-    // Built-in array ops should be @trusted, pure, nothrow and nogc
-    StorageClass stc = STCtrusted | STCpure | STCnothrow | STCnogc;
+    // Built-in array ops should be @trusted, pure, nothrow
+    StorageClass stc = STCtrusted | STCpure | STCnothrow;
 
     /* Construct the function
      */

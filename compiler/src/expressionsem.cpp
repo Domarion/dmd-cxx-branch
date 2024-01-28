@@ -3155,7 +3155,6 @@ public:
                 exp->checkDisabled(sc, f);
                 exp->checkPurity(sc, f);
                 exp->checkSafety(sc, f);
-                exp->checkNogc(sc, f);
                 checkAccess(cd, exp->loc, sc, f);
 
                 TypeFunction *tf = (TypeFunction *)f->type;
@@ -3184,7 +3183,6 @@ public:
                 exp->checkDisabled(sc, f);
                 exp->checkPurity(sc, f);
                 exp->checkSafety(sc, f);
-                exp->checkNogc(sc, f);
                 checkAccess(cd, exp->loc, sc, f);
 
                 TypeFunction *tf = (TypeFunction *)f->type;
@@ -3252,7 +3250,6 @@ public:
                 exp->checkDisabled(sc, f);
                 exp->checkPurity(sc, f);
                 exp->checkSafety(sc, f);
-                exp->checkNogc(sc, f);
                 checkAccess(sd, exp->loc, sc, f);
 
                 TypeFunction *tf = (TypeFunction *)f->type;
@@ -3281,7 +3278,6 @@ public:
                 exp->checkDisabled(sc, f);
                 exp->checkPurity(sc, f);
                 exp->checkSafety(sc, f);
-                exp->checkNogc(sc, f);
                 checkAccess(sd, exp->loc, sc, f);
 
                 TypeFunction *tf = (TypeFunction *)f->type;
@@ -3767,9 +3763,9 @@ public:
         if (!s->isVarDeclaration())
         {
             Scope *sc2 = sc;
-            if (sc2->stc & (STCpure | STCnothrow | STCnogc))
+            if (sc2->stc & (STCpure | STCnothrow))
                 sc2 = sc->push();
-            sc2->stc &= ~(STCpure | STCnothrow | STCnogc);
+            sc2->stc &= ~(STCpure | STCnothrow);
             dsymbolSemantic(e->declaration, sc2);
             if (sc2 != sc)
                 sc2->pop();
@@ -5180,7 +5176,6 @@ public:
             exp->checkDisabled(sc, exp->f);
             exp->checkPurity(sc, exp->f);
             exp->checkSafety(sc, exp->f);
-            exp->checkNogc(sc, exp->f);
             checkAccess(exp->loc, sc, ue->e1, exp->f);
             if (!exp->f->needThis())
             {
@@ -5274,7 +5269,6 @@ public:
             exp->checkDisabled(sc, exp->f);
             exp->checkPurity(sc, exp->f);
             exp->checkSafety(sc, exp->f);
-            exp->checkNogc(sc, exp->f);
             checkAccess(exp->loc, sc, nullptr, exp->f);
 
             exp->e1 = new DotVarExp(exp->e1->loc, exp->e1, exp->f, false);
@@ -5320,8 +5314,6 @@ public:
             exp->checkDisabled(sc, exp->f);
             exp->checkPurity(sc, exp->f);
             exp->checkSafety(sc, exp->f);
-            exp->checkNogc(sc, exp->f);
-            //checkAccess(exp->loc, sc, nullptr, exp->f);    // necessary?
 
             exp->e1 = new DotVarExp(exp->e1->loc, exp->e1, exp->f, false);
             exp->e1 = expressionSemantic(exp->e1, sc);
@@ -5465,7 +5457,6 @@ public:
             {
                 exp->checkPurity(sc, exp->f);
                 exp->checkSafety(sc, exp->f);
-                exp->checkNogc(sc, exp->f);
                 if (exp->f->checkNestedReference(sc, exp->loc))
                     return setError();
             }
@@ -5475,12 +5466,6 @@ public:
                 if (!tf->purity && !(sc->flags & SCOPEdebug) && sc->func->setImpure())
                 {
                     exp->error("pure %s `%s` cannot call impure %s `%s`",
-                          sc->func->kind(), sc->func->toPrettyChars(), p, exp->e1->toChars());
-                    err = true;
-                }
-                if (!tf->isnogc && sc->func->setGC())
-                {
-                    exp->error("@nogc %s `%s` cannot call non-@nogc %s `%s`",
                           sc->func->kind(), sc->func->toPrettyChars(), p, exp->e1->toChars());
                     err = true;
                 }
@@ -5567,7 +5552,6 @@ public:
             exp->checkDisabled(sc, exp->f);
             exp->checkPurity(sc, exp->f);
             exp->checkSafety(sc, exp->f);
-            exp->checkNogc(sc, exp->f);
             checkAccess(exp->loc, sc, nullptr, exp->f);
             if (exp->f->checkNestedReference(sc, exp->loc))
                 return setError();
@@ -6136,7 +6120,6 @@ public:
             {
                 err |= exp->checkPurity(sc, ad->dtor);
                 err |= exp->checkSafety(sc, ad->dtor);
-                err |= exp->checkNogc(sc, ad->dtor);
             }
             if (err)
                 return setError();

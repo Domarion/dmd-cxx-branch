@@ -1005,38 +1005,6 @@ bool Expression::checkSafety(Scope *sc, FuncDeclaration *f)
     return false;
 }
 
-/*********************************************
- * Calling function f.
- * Check the @nogc-ness, i.e. if we're in a @nogc function
- * we can only call other @nogc functions.
- * Returns true if error occurs.
- */
-bool Expression::checkNogc(Scope *sc, FuncDeclaration *f)
-{
-    if (!sc->func)
-        return false;
-    if (sc->func == f)
-        return false;
-    if (sc->intypeof == 1)
-        return false;
-    if (sc->flags & SCOPEctfe)
-        return false;
-
-    if (!f->isNogc())
-    {
-        if (sc->flags & SCOPEcompile ? sc->func->isNogcBypassingInference() : sc->func->setGC())
-        {
-            if (loc.linnum == 0)  // e.g. implicitly generated dtor
-                loc = sc->func->loc;
-
-            error("@nogc %s `%s` cannot call non-@nogc %s `%s`",
-                sc->func->kind(), sc->func->toPrettyChars(), f->kind(), f->toPrettyChars());
-            return true;
-        }
-    }
-    return false;
-}
-
 /********************************************
  * Check that the postblit is callable if t is an array of structs.
  * Returns true if error happens.
@@ -1060,7 +1028,6 @@ bool Expression::checkPostblit(Scope *sc, Type *t)
             //checkDeprecated(sc, sd->postblit);        // necessary?
             checkPurity(sc, sd->postblit);
             checkSafety(sc, sd->postblit);
-            checkNogc(sc, sd->postblit);
             //checkAccess(sd, loc, sc, sd->postblit);   // necessary?
             return false;
         }
@@ -3665,7 +3632,6 @@ MATCH FuncExp::matchType(Type *to, Scope *sc, FuncExp **presult, int flag)
         TypeFunction *tfy = new TypeFunction(tfx->parameterList, tof->next, tfx->linkage, STCundefined);
         tfy->mod = tfx->mod;
         tfy->isnothrow  = tfx->isnothrow;
-        tfy->isnogc     = tfx->isnogc;
         tfy->purity     = tfx->purity;
         tfy->isproperty = tfx->isproperty;
         tfy->isref      = tfx->isref;

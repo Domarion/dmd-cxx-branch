@@ -102,7 +102,6 @@ public:
                 s->exp = ErrorExp::get();
 
             s->exp = s->exp->optimize(WANTvalue);
-            s->exp = checkGC(sc, s->exp);
             if (s->exp->op == TOKerror)
                 return setError();
         }
@@ -386,7 +385,6 @@ public:
         if (checkNonAssignmentArrayOp(ds->condition))
             ds->condition = ErrorExp::get();
         ds->condition = ds->condition->optimize(WANTvalue);
-        ds->condition = checkGC(sc, ds->condition);
 
         ds->condition = ds->condition->toBoolean(sc);
 
@@ -458,7 +456,6 @@ public:
             if (checkNonAssignmentArrayOp(fs->condition))
                 fs->condition = ErrorExp::get();
             fs->condition = fs->condition->optimize(WANTvalue);
-            fs->condition = checkGC(sc, fs->condition);
             fs->condition = fs->condition->toBoolean(sc);
         }
         if (fs->increment)
@@ -473,7 +470,6 @@ public:
             if (checkNonAssignmentArrayOp(fs->increment))
                 fs->increment = ErrorExp::get();
             fs->increment = fs->increment->optimize(WANTvalue);
-            fs->increment = checkGC(sc, fs->increment);
         }
 
         sc->sbreak = fs;
@@ -1495,7 +1491,7 @@ public:
                         params->push(new Parameter(stc, p->type, id, nullptr, nullptr));
                     }
                     // Bugzilla 13840: Throwable nested function inside nothrow function is acceptable.
-                    StorageClass stc = mergeFuncAttrs(STCsafe | STCpure | STCnogc, fs->func);
+                    StorageClass stc = mergeFuncAttrs(STCsafe | STCpure, fs->func);
                     tfld = new TypeFunction(ParameterList(params), Type::tint32, LINKd, stc);
                     fs->cases = new Statements();
                     fs->gotos = new ScopeStatements();
@@ -1985,7 +1981,6 @@ public:
         }
         if (checkNonAssignmentArrayOp(ifs->condition))
             ifs->condition = ErrorExp::get();
-        ifs->condition = checkGC(sc, ifs->condition);
 
         // Convert to boolean after declaring prm so this works:
         //  if (S prm = S()) {}
@@ -2241,7 +2236,6 @@ public:
         if (checkNonAssignmentArrayOp(ss->condition))
             ss->condition = ErrorExp::get();
         ss->condition = ss->condition->optimize(WANTvalue);
-        ss->condition = checkGC(sc, ss->condition);
         if (ss->condition->op == TOKerror)
             conditionError = true;
 
@@ -2802,8 +2796,6 @@ public:
                 e0 = Expression::combine(e0, rs->exp);
                 rs->exp = nullptr;
             }
-            if (e0)
-                e0 = checkGC(sc, e0);
         }
 
         if (rs->exp)
@@ -3152,7 +3144,6 @@ public:
         ws->exp = expressionSemantic(ws->exp, sc);
         ws->exp = resolveProperties(sc, ws->exp);
         ws->exp = ws->exp->optimize(WANTvalue);
-        ws->exp = checkGC(sc, ws->exp);
         if (ws->exp->op == TOKerror)
             return setError();
         if (ws->exp->op == TOKscope)
@@ -3451,7 +3442,6 @@ public:
 
         ts->exp = expressionSemantic(ts->exp, sc);
         ts->exp = resolveProperties(sc, ts->exp);
-        ts->exp = checkGC(sc, ts->exp);
         if (ts->exp->op == TOKerror)
             return setError();
 
@@ -3571,12 +3561,10 @@ public:
         }
 
         assert(sc->func);
-        // use setImpure/setGC when the deprecation cycle is over
+        // use setImpure when the deprecation cycle is over
         PURE purity;
         if (!(cas->stc & STCpure) && (purity = sc->func->isPureBypassingInference()) != PUREimpure && purity != PUREfwdref)
             cas->deprecation("asm statement is assumed to be impure - mark it with `pure` if it is not");
-        if (!(cas->stc & STCnogc) && sc->func->isNogcBypassingInference())
-            cas->deprecation("asm statement is assumed to use the GC - mark it with `@nogc` if it does not");
         if (!(cas->stc & (STCtrusted|STCsafe)) && sc->func->setUnsafe())
             cas->error("asm statement is assumed to be @system - mark it with `@trusted` if it is not");
 

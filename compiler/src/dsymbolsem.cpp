@@ -118,9 +118,6 @@ static void initInferAttributes(FuncDeclaration *fd)
     if (!tf->isnothrow)
         fd->flags |= FUNCFLAGnothrowInprocess;
 
-    if (!tf->isnogc)
-        fd->flags |= FUNCFLAGnogcInprocess;
-
     if (!fd->isVirtual() || fd->introducing)
         fd->flags |= FUNCFLAGreturnInprocess;
 
@@ -851,7 +848,7 @@ public:
         if (dsym->_init)
         {
             sc = sc->push();
-            sc->stc &= ~(STC_TYPECTOR | STCpure | STCnothrow | STCnogc | STCref | STCdisable);
+            sc->stc &= ~(STC_TYPECTOR | STCpure | STCnothrow | STCref | STCdisable);
 
             ExpInitializer *ei = dsym->_init->isExpInitializer();
             if (ei)     // Bugzilla 13424: Preset the required type to fail in FuncLiteralDeclaration::semantic3
@@ -2617,7 +2614,6 @@ public:
             if (tf->isref)      sc->stc |= STCref;
             if (tf->isscope)    sc->stc |= STCscope;
             if (tf->isnothrow)  sc->stc |= STCnothrow;
-            if (tf->isnogc)     sc->stc |= STCnogc;
             if (tf->isproperty) sc->stc |= STCproperty;
             if (tf->purity == PUREfwdref)   sc->stc |= STCpure;
             if (tf->trust != TRUSTdefault)
@@ -2746,7 +2742,6 @@ public:
             tfo->isscopeinferred = tfx->isscopeinferred;
             tfo->isref      = tfx->isref;
             tfo->isnothrow  = tfx->isnothrow;
-            tfo->isnogc     = tfx->isnogc;
             tfo->isproperty = tfx->isproperty;
             tfo->purity     = tfx->purity;
             tfo->trust      = tfx->trust;
@@ -4438,7 +4433,6 @@ public:
                 tf->mod = btf->mod;
                 tf->purity = btf->purity;
                 tf->isnothrow = btf->isnothrow;
-                tf->isnogc = btf->isnogc;
                 tf->trust = btf->trust;
 
                 CtorDeclaration *ctor = new CtorDeclaration(cldec->loc, Loc(), 0, tf);
@@ -5509,12 +5503,12 @@ void aliasSemantic(AliasDeclaration *ds, Scope *sc)
         Type *t;
         Expression *e;
         Scope *sc2 = sc;
-        if (ds->storage_class & (STCref | STCnothrow | STCnogc | STCpure | STCdisable))
+        if (ds->storage_class & (STCref | STCnothrow | STCpure | STCdisable))
         {
             // For 'ref' to be attached to function types, and picked
             // up by Type::resolve(), it has to go into sc.
             sc2 = sc->push();
-            sc2->stc |= ds->storage_class & (STCref | STCnothrow | STCnogc | STCpure | STCshared | STCdisable);
+            sc2->stc |= ds->storage_class & (STCref | STCnothrow | STCpure | STCshared | STCdisable);
         }
         ds->type = ds->type->addSTC(ds->storage_class);
         ds->type->resolve(ds->loc, sc2, &e, &t, &s);

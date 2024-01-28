@@ -87,7 +87,6 @@ const uinteger_t STCresult        = 0x4000000000LL;  // for result variables pas
 const uinteger_t STCnodefaultctor = 0x8000000000LL;  // must be set inside constructor
 const uinteger_t STCtemp          = 0x10000000000LL; // temporary variable
 const uinteger_t STCrvalue        = 0x20000000000LL; // force rvalue for variables
-const uinteger_t STCnogc          = 0x40000000000LL; // @nogc
 const uinteger_t STCvolatile      = 0x80000000000LL; // destined for volatile in the back end
 const uinteger_t STCreturn        = 0x100000000000LL; // 'return ref' or 'return scope' for function parameters
 const uinteger_t STCautoref       = 0x200000000000LL; // Mark for the already deduced 'auto ref' parameter
@@ -99,12 +98,12 @@ const uinteger_t STCfuture        = 0x4000000000000LL; // introducing new base c
 const uinteger_t STClocal         = 0x8000000000000LL; // do not forward (see ddmd.dsymbol.ForwardingScopeDsymbol).
 
 const uinteger_t STC_TYPECTOR    = (STCconst | STCimmutable | STCshared | STCwild);
-const uinteger_t STC_FUNCATTR    = (STCref | STCnothrow | STCnogc | STCpure | STCproperty | STCsafe | STCtrusted | STCsystem);
+const uinteger_t STC_FUNCATTR    = (STCref | STCnothrow | STCpure | STCproperty | STCsafe | STCtrusted | STCsystem);
 
 const StorageClass STCStorageClass = (STCauto | STCscope | STCstatic | STCextern | STCconst | STCfinal |
     STCabstract | STCdeprecated | STCfuture | STCoverride | STClazy | STCalias |
     STCout | STCin |
-    STCmanifest | STCimmutable | STCshared | STCwild | STCnothrow | STCnogc | STCpure | STCref | STCtls |
+    STCmanifest | STCimmutable | STCshared | STCwild | STCnothrow | STCpure | STCref | STCtls |
     STCgshared | STCproperty | STCsafe | STCtrusted | STCsystem | STCdisable | STClocal);
 
 struct Match
@@ -544,7 +543,6 @@ void builtin_init();
 const unsigned FUNCFLAGpurityInprocess    = 1;    // working on determining purity
 const unsigned FUNCFLAGsafetyInprocess    = 2;    // working on determining safety
 const unsigned FUNCFLAGnothrowInprocess   = 4;    // working on determining nothrow
-const unsigned FUNCFLAGnogcInprocess      = 8;    // working on determining @nogc
 const unsigned FUNCFLAGreturnInprocess    = 0x10;    // working on inferring 'return' for parameters
 const unsigned FUNCFLAGinlineScanned      = 0x20;    // function has been scanned for inline possibilities
 const unsigned FUNCFLAGinferScope         = 0x40;    // infer 'scope' for parameters
@@ -675,10 +673,6 @@ public:
     bool isSafeBypassingInference();
     bool isTrusted();
     bool setUnsafe();
-
-    bool isNogc();
-    bool isNogcBypassingInference();
-    bool setGC();
 
     void printGCUsage(Loc loc, const char *warn);
     bool isolateReturn();

@@ -752,8 +752,6 @@ Type *typeSemantic(Type *type, const Loc &loc, Scope *sc)
                 tf->purity = PUREfwdref;
             if (sc->stc & STCnothrow)
                 tf->isnothrow = true;
-            if (sc->stc & STCnogc)
-                tf->isnogc = true;
             if (sc->stc & STCref)
                 tf->isref = true;
             if (sc->stc & STCreturn)

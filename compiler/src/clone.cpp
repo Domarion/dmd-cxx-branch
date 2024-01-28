@@ -24,7 +24,7 @@
 #include "tokens.hpp"
 
 /*******************************************
- * Merge function attributes pure, nothrow, @safe, @nogc, and @disable
+ * Merge function attributes pure, nothrow, @safe, and @disable
  */
 StorageClass mergeFuncAttrs(StorageClass s1, FuncDeclaration *f)
 {
@@ -43,8 +43,6 @@ StorageClass mergeFuncAttrs(StorageClass s1, FuncDeclaration *f)
         s2 |= STCpure;
     if (tf->isnothrow)
         s2 |= STCnothrow;
-    if (tf->isnogc)
-        s2 |= STCnogc;
 
     StorageClass stc = 0;
     StorageClass sa = s1 & s2;
@@ -64,9 +62,6 @@ StorageClass mergeFuncAttrs(StorageClass s1, FuncDeclaration *f)
 
     if (sa & STCnothrow)
         stc |= STCnothrow;
-
-    if (sa & STCnogc)
-        stc |= STCnogc;
 
     if (so & STCdisable)
         stc |= STCdisable;
@@ -209,7 +204,7 @@ FuncDeclaration *buildOpAssign(StructDeclaration *sd, Scope *sc)
         return nullptr;
 
     //printf("StructDeclaration::buildOpAssign() %s\n", sd->toChars());
-    StorageClass stc = STCsafe | STCnothrow | STCpure | STCnogc;
+    StorageClass stc = STCsafe | STCnothrow | STCpure;
     Loc declLoc = sd->loc;
     Loc loc = Loc();    // internal code should have no loc to prevent coverage
 
@@ -778,7 +773,7 @@ FuncDeclaration *buildPostBlit(StructDeclaration *sd, Scope *sc)
     if (sd->isUnionDeclaration())
         return nullptr;
 
-    StorageClass stc = STCsafe | STCnothrow | STCpure | STCnogc;
+    StorageClass stc = STCsafe | STCnothrow | STCpure;
     Loc declLoc = sd->postblits.length ? sd->postblits[0]->loc : sd->loc;
     Loc loc = Loc();    // internal code should have no loc to prevent coverage
 
@@ -936,7 +931,7 @@ FuncDeclaration *buildPostBlit(StructDeclaration *sd, Scope *sc)
 
         default:
             Expression *e = nullptr;
-            stc = STCsafe | STCnothrow | STCpure | STCnogc;
+            stc = STCsafe | STCnothrow | STCpure;
             for (size_t i = 0; i < sd->postblits.length; i++)
             {
                 FuncDeclaration *fd = sd->postblits[i];
@@ -983,7 +978,7 @@ FuncDeclaration *buildDtor(AggregateDeclaration *ad, Scope *sc)
     if (ad->isUnionDeclaration())
         return nullptr;
 
-    StorageClass stc = STCsafe | STCnothrow | STCpure | STCnogc;
+    StorageClass stc = STCsafe | STCnothrow | STCpure;
     Loc declLoc = ad->dtors.length ? ad->dtors[0]->loc : ad->loc;
     Loc loc = Loc();    // internal code should have no loc to prevent coverage
 
@@ -1083,7 +1078,7 @@ FuncDeclaration *buildDtor(AggregateDeclaration *ad, Scope *sc)
 
         default:
             e = nullptr;
-            stc = STCsafe | STCnothrow | STCpure | STCnogc;
+            stc = STCsafe | STCnothrow | STCpure;
             for (size_t i = 0; i < ad->dtors.length; i++)
             {
                 FuncDeclaration *fd = ad->dtors[i];
@@ -1128,7 +1123,7 @@ FuncDeclaration *buildDtor(AggregateDeclaration *ad, Scope *sc)
  */
 FuncDeclaration *buildInv(AggregateDeclaration *ad, Scope *sc)
 {
-    StorageClass stc = STCsafe | STCnothrow | STCpure | STCnogc;
+    StorageClass stc = STCsafe | STCnothrow | STCpure;
     Loc declLoc = ad->loc;
     Loc loc = Loc();    // internal code should have no loc to prevent coverage
 

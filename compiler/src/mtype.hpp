@@ -655,7 +655,6 @@ public:
     ParameterList parameterList;     // function parameters
 
     bool isnothrow;     // true: nothrow
-    bool isnogc;        // true: is @nogc
     bool isproperty;    // can be called without parentheses
     bool isref;         // true: returns a reference
     bool isreturn;      // true: 'this' is returned by ref
@@ -680,7 +679,7 @@ public:
     StorageClass parameterStorageClass(Parameter *p);
     Type *addStorageClass(StorageClass stc);
 
-    /** For each active attribute (ref/const/nogc/etc) call fp with a void* for the
+    /** For each active attribute (ref/const/etc) call fp with a void* for the
     work param and a string representation of the attribute. */
     int attributesApply(void *param, int (*fp)(void *, const char *), TRUSTformat trustFormat = TRUSTformatDefault);
 

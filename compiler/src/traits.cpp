@@ -1754,7 +1754,6 @@ Expression *semanticTraits(TraitsExp *e, Scope *sc)
                         TypeFunction *tf = (TypeFunction *)sc2->func->type;
                         canThrow(ex, sc2->func, tf->isnothrow);
                     }
-                    ex = checkGC(sc2, ex);
                     if (ex->op == TOKerror)
                         err = true;
                 }

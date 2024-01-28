@@ -297,7 +297,6 @@ void FuncDeclaration::buildEnsureRequire()
         Loc loc = frequire->loc;
         TypeFunction *tf = new TypeFunction(ParameterList(), Type::tvoid, LINKd);
         tf->isnothrow = f->isnothrow;
-        tf->isnogc = f->isnogc;
         tf->purity = f->purity;
         tf->trust = f->trust;
         FuncDeclaration *fd = new FuncDeclaration(loc, loc,
@@ -327,7 +326,6 @@ void FuncDeclaration::buildEnsureRequire()
         }
         TypeFunction *tf = new TypeFunction(ParameterList(fparams), Type::tvoid, LINKd);
         tf->isnothrow = f->isnothrow;
-        tf->isnogc = f->isnogc;
         tf->purity = f->purity;
         tf->trust = f->trust;
         FuncDeclaration *fd = new FuncDeclaration(loc, loc,
@@ -1881,38 +1879,6 @@ bool FuncDeclaration::setUnsafe()
     return false;
 }
 
-bool FuncDeclaration::isNogc()
-{
-    if (flags & FUNCFLAGnogcInprocess)
-        setGC();
-    return type->toTypeFunction()->isnogc;
-}
-
-bool FuncDeclaration::isNogcBypassingInference()
-{
-    return !(flags & FUNCFLAGnogcInprocess) && isNogc();
-}
-
-/**************************************
- * The function is doing something that may allocate with the GC,
- * so mark it as not nogc (not no-how).
- * Returns:
- *      true if function is marked as @nogc, meaning a user error occurred
- */
-bool FuncDeclaration::setGC()
-{
-    if (flags & FUNCFLAGnogcInprocess)
-    {
-        flags &= ~FUNCFLAGnogcInprocess;
-        type->toTypeFunction()->isnogc = false;
-        if (fes)
-            fes->func->setGC();
-    }
-    else if (isNogc())
-        return true;
-    return false;
-}
-
 /**************************************
  * Returns an indirect type one step from t.
  */
@@ -2482,7 +2448,6 @@ Lyes:
 
 /***********************************************
  * Check that the function contains any closure.
- * If it's @nogc, report suitable errors.
  * This is mostly consistent with FuncDeclaration::needsClosure().
  *
  * Returns:
@@ -2492,18 +2457,6 @@ bool FuncDeclaration::checkClosure()
 {
     if (!needsClosure())
         return false;
-
-    if (setGC())
-    {
-        error("is @nogc yet allocates closures with the GC");
-        if (global.gag)     // need not report supplemental errors
-            return true;
-    }
-    else
-    {
-        printGCUsage(loc, "using closure causes GC allocation");
-        return false;
-    }
 
     FuncDeclarations a;
     for (size_t i = 0; i < closureVars.length; i++)

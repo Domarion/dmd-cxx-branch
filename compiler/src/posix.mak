@@ -238,7 +238,7 @@ DMD_OBJS = \
 	dclass.o \
 	constfold.o cond.o \
 	declaration.o dsymbol.o \
-	denum.o expression.o expressionsem.o func.o nogc.o \
+        denum.o expression.o expressionsem.o func.o \
 	id.o \
 	identifier.o impcnvtab.o dimport.o inifile.o init.o initsem.o inline.o inlinecost.o \
 	lexer.o link.o dmangle.o mars.o dmodule.o mtype.o \
@@ -285,7 +285,7 @@ SRC = posix.mak osmodel.mak \
 	dtemplate.cpp lexer.cpp declaration.cpp dcast.cpp cond.hpp cond.cpp link.cpp \
 	aggregate.hpp parse.cpp statement.cpp constfold.cpp version.hpp dversion.cpp \
 	inifile.cpp dmodule.cpp dscope.cpp init.hpp init.cpp initsem.cpp attrib.hpp \
-	attrib.cpp opover.cpp dclass.cpp dmangle.cpp func.cpp nogc.cpp inline.cpp inlinecost.cpp \
+        attrib.cpp opover.cpp dclass.cpp dmangle.cpp func.cpp inline.cpp inlinecost.cpp \
 	access.cpp complex_t.hpp \
 	identifier.hpp parse.hpp \
 	scope.hpp enum.hpp import.hpp mars.hpp module.hpp mtype.hpp dsymbol.hpp \
@@ -543,7 +543,6 @@ gcov:
 	gcov expression.cpp
 	gcov expressionsem.cpp
 	gcov func.cpp
-	gcov nogc.cpp
 	gcov glue.cpp
 	gcov iasm.cpp
 	gcov identifier.cpp

@@ -1999,7 +1999,6 @@ Type *TypeFunction::substWildTo(unsigned)
                                        tret, linkage);
     t->mod = ((mod & MODwild) ? (mod & ~MODwild) | MODconst : mod);
     t->isnothrow = isnothrow;
-    t->isnogc = isnogc;
     t->purity = purity;
     t->isproperty = isproperty;
     t->isref = isref;
@@ -4491,7 +4490,6 @@ Expression *TypeAArray::dotExp(Scope *sc, Expression *e, Identifier *ident, int 
             TypeFunction *tf = fd_aaLen->type->toTypeFunction();
             tf->purity = PUREconst;
             tf->isnothrow = true;
-            tf->isnogc = false;
         }
         Expression *ev = new VarExp(e->loc, fd_aaLen, false);
         e = new CallExp(e->loc, ev, e);
@@ -4756,7 +4754,6 @@ TypeFunction::TypeFunction(const ParameterList &pl, Type *treturn, LINK linkage,
     this->linkage = linkage;
     this->inuse = 0;
     this->isnothrow = false;
-    this->isnogc = false;
     this->purity = PUREimpure;
     this->isproperty = false;
     this->isref = false;
@@ -4770,8 +4767,6 @@ TypeFunction::TypeFunction(const ParameterList &pl, Type *treturn, LINK linkage,
         this->purity = PUREfwdref;
     if (stc & STCnothrow)
         this->isnothrow = true;
-    if (stc & STCnogc)
-        this->isnogc = true;
     if (stc & STCproperty)
         this->isproperty = true;
 
@@ -4811,7 +4806,6 @@ Type *TypeFunction::syntaxCopy()
                                        treturn, linkage);
     t->mod = mod;
     t->isnothrow = isnothrow;
-    t->isnogc = isnogc;
     t->purity = purity;
     t->isproperty = isproperty;
     t->isref = isref;
@@ -5010,16 +5004,13 @@ Lcovariant:
         goto Ldistinct;
     }
 
-    /* Can convert pure to impure, nothrow to throw, and nogc to gc
+    /* Can convert pure to impure, nothrow to throw
      */
     if (!t1->purity && t2->purity)
         stc |= STCpure;
 
     if (!t1->isnothrow && t2->isnothrow)
         stc |= STCnothrow;
-
-    if (!t1->isnogc && t2->isnogc)
-        stc |= STCnogc;
 
     /* Can convert safe/trusted to system
      */
@@ -5625,7 +5616,6 @@ Type *TypeFunction::addStorageClass(StorageClass stc)
     TypeFunction *t = Type::addStorageClass(stc)->toTypeFunction();
     if ((stc & STCpure && !t->purity) ||
         (stc & STCnothrow && !t->isnothrow) ||
-        (stc & STCnogc && !t->isnogc) ||
         (stc & STCscope && !t->isscope) ||
         (stc & STCsafe && t->trust < TRUSTtrusted))
     {
@@ -5635,7 +5625,6 @@ Type *TypeFunction::addStorageClass(StorageClass stc)
         tf->fargs = fargs;
         tf->purity = t->purity;
         tf->isnothrow = t->isnothrow;
-        tf->isnogc = t->isnogc;
         tf->isproperty = t->isproperty;
         tf->isref = t->isref;
         tf->isreturn = t->isreturn;
@@ -5648,8 +5637,6 @@ Type *TypeFunction::addStorageClass(StorageClass stc)
             tf->purity = PUREfwdref;
         if (stc & STCnothrow)
             tf->isnothrow = true;
-        if (stc & STCnogc)
-            tf->isnogc = true;
         if (stc & STCsafe)
             tf->trust = TRUSTsafe;
         if (stc & STCscope)
@@ -5665,7 +5652,7 @@ Type *TypeFunction::addStorageClass(StorageClass stc)
     return t;
 }
 
-/** For each active attribute (ref/const/nogc/etc) call fp with a void* for the
+/** For each active attribute (ref/const/etc) call fp with a void* for the
 work param and a string representation of the attribute. */
 int TypeFunction::attributesApply(void *param, int (*fp)(void *, const char *), TRUSTformat trustFormat)
 {
@@ -5677,7 +5664,6 @@ int TypeFunction::attributesApply(void *param, int (*fp)(void *, const char *), 
     if (isnothrow) res = fp(param, "nothrow");
     if (res) return res;
 
-    if (isnogc) res = fp(param, "@nogc");
     if (res) return res;
 
     if (isproperty) res = fp(param, "@property");

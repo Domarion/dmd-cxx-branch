@@ -117,7 +117,7 @@ Dsymbols *Parser::parseModule()
                     Expressions *exps = nullptr;
                     StorageClass stc = parseAttribute(&exps);
 
-                    if (stc == STCproperty || stc == STCnogc || stc == STCdisable ||
+                    if (stc == STCproperty || stc == STCdisable ||
                         stc == STCsafe || stc == STCtrusted || stc == STCsystem)
                     {
                         error("@%s attribute for module declaration is not supported", token.toChars());
@@ -1009,8 +1009,6 @@ StorageClass Parser::parseAttribute(Expressions **pudas)
     {
         if (token.ident == Id::property)
             stc = STCproperty;
-        else if (token.ident == Id::nogc)
-            stc = STCnogc;
         else if (token.ident == Id::safe)
             stc = STCsafe;
         else if (token.ident == Id::trusted)
@@ -1980,7 +1978,7 @@ Parameters *Parser::parseParameters(VarArg *pvarargs, TemplateParameters **tpl)
                 {
                     Expressions *exps = nullptr;
                     StorageClass stc2 = parseAttribute(&exps);
-                    if (stc2 == STCproperty || stc2 == STCnogc ||
+                    if (stc2 == STCproperty ||
                         stc2 == STCdisable || stc2 == STCsafe ||
                         stc2 == STCtrusted || stc2 == STCsystem)
                     {
@@ -2061,7 +2059,7 @@ Parameters *Parser::parseParameters(VarArg *pvarargs, TemplateParameters **tpl)
                     {
                         Expressions *exps = nullptr;
                         StorageClass stc2 = parseAttribute(&exps);
-                        if (stc2 == STCproperty || stc2 == STCnogc ||
+                        if (stc2 == STCproperty ||
                             stc2 == STCdisable || stc2 == STCsafe ||
                             stc2 == STCtrusted || stc2 == STCsystem)
                         {
@@ -6778,7 +6776,6 @@ bool Parser::skipAttributes(Token *t, Token **pt)
                      * @predefined_attribute
                      */
                     if (t->ident == Id::property ||
-                        t->ident == Id::nogc ||
                         t->ident == Id::safe ||
                         t->ident == Id::trusted ||
                         t->ident == Id::system ||

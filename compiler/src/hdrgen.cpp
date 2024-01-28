@@ -2081,8 +2081,6 @@ public:
             buf->writestring("@trusted ");
         if (d->storage_class & STCsafe)
             buf->writestring("@safe ");
-        if (d->storage_class & STCnogc)
-            buf->writestring("@nogc ");
         if (d->storage_class & STCdisable)
             buf->writestring("@disable ");
 
@@ -3346,7 +3344,6 @@ const char *stcToChars(StorageClass& stc)
         { STCref,          TOKref,      nullptr },
         { STCtls,          TOKreserved, nullptr },
         { STCgshared,      TOKgshared,  nullptr },
-        { STCnogc,         TOKat,       "@nogc" },
         { STCproperty,     TOKat,       "@property" },
         { STCsafe,         TOKat,       "@safe" },
         { STCtrusted,      TOKat,       "@trusted" },

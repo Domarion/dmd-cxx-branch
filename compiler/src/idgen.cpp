@@ -161,7 +161,6 @@ Msgtable msgtable[] =
 
     { "future", "__future" },
     { "property"},
-    { "nogc"},
     { "safe"},
     { "trusted"},
     { "system"},
