@@ -25,7 +25,6 @@
 
 #define RTLSYMS \
 \
-SYMBOL_MARS(THROW,           FLfunc,(mES | mBP),"_d_throw@4", SFLexit, tw) /* D1 only */ \
 SYMBOL_MARS(THROWC,          FLfunc,(mES | mBP),"_d_throwc", SFLexit, t) \
 SYMBOL_MARS(THROWDWARF,      FLfunc,(mES | mBP),"_d_throwdwarf", SFLexit, t) \
 SYMBOL_MARS(MONITOR_HANDLER, FLfunc,FREGSAVED,"_d_monitor_handler", 0, tsclib) \
